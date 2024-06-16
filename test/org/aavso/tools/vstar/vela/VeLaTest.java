@@ -56,12 +56,12 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public VeLaTest(String name) {
         super(name);
-        vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
     }
 
     @Override
     protected void setUp() throws Exception {
         Locale.setDefault(Locale.ENGLISH);
+        vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
     }
 
     // ** Valid test cases **
@@ -1235,17 +1235,26 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertTrue(Tolerance.areClose(12.34620932, result.get().doubleVal(), 1e-6, true));
     }
 
-    public void testMean() {
+    public void testFourierModelFunctionWithObsEnv() {
         String prog = "";
-        prog += "mean(vals:list) : real {";
-        prog += "  reduce(function(n:real m:real) : real { n+m } vals 0) / length(vals)";
-        prog += "}";
-        prog += "mags is [3.678 3.776 3.866 3.943 4 4.062 4.117 4.089 3.883 3.651 3.653]";
-        prog += "mean(mags)";
+
+        prog += "f(t:real) : real {\n";
+        prog += "  11.7340392\n";
+        prog += "  -0.6588158 * cos(2*PI*0.0017177*(t-2451700))\n";
+        prog += "  +1.3908874 * sin(2*PI*0.0017177*(t-2451700))";
+        prog += "}\n";
+
+        prog += "f(2447121.5)\n";
+
+        // This model makes no use of obs but could do so.
+        // See also https://github.com/AAVSO/VStar/issues/429
+        List<ValidObservation> obs = commonObs();
+        vela.pushEnvironment(new VeLaValidObservationEnvironment(obs.get(0)));
 
         Optional<Operand> result = vela.program(prog);
+
         assertTrue(result.isPresent());
-        assertTrue(Tolerance.areClose(3.8834545, result.get().doubleVal(), 1e-7, true));
+        assertTrue(Tolerance.areClose(12.34620932, result.get().doubleVal(), 1e-6, true));
     }
 
     public void testModelFunctionWithAllLocales() {
@@ -1271,6 +1280,19 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         prog += "}\n";
         prog += "f(2459332.28594)";
         commonNumericLocaleTest(prog, 10.231882, 1e-6);
+    }
+
+    public void testMean() {
+        String prog = "";
+        prog += "mean(vals:list) : real {";
+        prog += "  reduce(function(n:real m:real):real{ n+m } vals 0) / length(vals)";
+        prog += "}";
+        prog += "mags is [3.678 3.776 3.866 3.943 4 4.062 4.117 4.089 3.883 3.651 3.653]";
+        prog += "mean(mags)";
+
+        Optional<Operand> result = vela.program(prog);
+        assertTrue(result.isPresent());
+        assertTrue(Tolerance.areClose(3.8834545, result.get().doubleVal(), 1e-7, true));
     }
 
     // Bindings
@@ -1399,6 +1421,22 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertEquals(13, result.get().intVal());
     }
 
+    public void testAnonymousClosureBasedCounter() {
+        String prog = "";
+        prog += "mkcounter(start:integer) : function {\n";
+        prog += "  count <- start\n";
+        prog += "  function(n:integer) : integer { count <- count + n  count }\n";
+        prog += "}\n";
+        prog += "c <- mkcounter(10)\n";
+        prog += "c(1)\n";
+        prog += "c(1)\n";
+        prog += "c(1)\n";
+
+        Optional<Operand> result = vela.program(prog);
+
+        assertTrue(result.isPresent());
+        assertEquals(13, result.get().intVal());
+    }
     // Sequence
 
     public void testSequence() {
