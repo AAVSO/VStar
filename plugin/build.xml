@@ -64,7 +64,6 @@
 		<jar jarfile="${dist}/${pkg}.DASCHObservationSource.jar" basedir="${build.classes}" includes="**/DASCHObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.DescStatsBySeries.jar" basedir="${build.classes}" includes="**/DescStatsBySeries**.class" />
 		<jar jarfile="${dist}/${pkg}.FlexibleTextFileFormatObservationSource.jar" basedir="${build.classes}" includes="**/FlexibleTextFileFormatObservationSource**.class" />
-		<jar jarfile="${dist}/${pkg}.FlexibleTextFileFormatObservationSink.jar" basedir="${build.classes}" includes="**/FlexibleTextFileFormatObservationSink**.class" />
 		<jar jarfile="${dist}/${pkg}.VSXquery.jar" basedir="${build.classes}" includes="**/VSXquery**.class" />
 		<jar jarfile="${dist}/${pkg}.VeLaObSource.jar" basedir="${build.classes}" includes="**/VeLaObSource**.class" />
 		<jar jarfile="${dist}/${pkg}.FourierModelCreator.jar" basedir="${build.classes}" includes="**/FourierModelCreator**.class" />
@@ -73,7 +72,7 @@
 		<jar jarfile="${dist}/${pkg}.HipparcosObservationSource.jar" basedir="${build.classes}" includes="**/HipparcosObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.JDToDateTool.jar" basedir="${build.classes}" includes="**/JDToDateTool**.class" />
 		<jar jarfile="${dist}/${pkg}.JDtoBJDTool.jar" basedir="${build.classes}" includes="**/JDtoBJDTool**.class" />
-		<jar jarfile="${dist}/${pkg}.MagnitudeBaselineShifter.jar" basedir="${build.classes}" includes="**/MagnitudeBaselineShifter**.class" />
+		<jar jarfile="${dist}/${pkg}.MagnitudeAndTimeShifter.jar" basedir="${build.classes}" includes="**/MagnitudeAndTimeShifter**.class" />
 		<jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class" />
 		<jar jarfile="${dist}/${pkg}.NSVSObservationSource.jar" basedir="${build.classes}" includes="**/NSVSObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.ObserverListFilter.jar" basedir="${build.classes}" includes="**/ObserverListFilter**.class" />
@@ -210,7 +209,6 @@
 		<copy file="${dist}/${pkg}.DASCHObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.DescStatsBySeries.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.FlexibleTextFileFormatObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.FlexibleTextFileFormatObservationSink.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VSXquery.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VeLaObSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.FourierModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -219,7 +217,7 @@
 		<copy file="${dist}/${pkg}.HipparcosObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.JDToDateTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.JDtoBJDTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.MagnitudeBaselineShifter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.MagnitudeAndTimeShifter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.NSVSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.ObserverListFilter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -262,7 +260,6 @@
 		<echo file="${plugins_list_file}" message="${pkg}.DASCHObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.DescStatsBySeries.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.FlexibleTextFileFormatObservationSource.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.FlexibleTextFileFormatObservationSink.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VSXquery.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaObSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.FourierModelCreator.jar${line.separator}" append="true" />
@@ -271,7 +268,7 @@
 		<echo file="${plugins_list_file}" message="${pkg}.HipparcosObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.JDToDateTool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.JDtoBJDTool.jar => ${pkg_lib}.ConvertHelper.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.MagnitudeBaselineShifter.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.MagnitudeAndTimeShifter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MeanTimeBetweenSelectionTool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.NSVSObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ObserverListFilter.jar${line.separator}" append="true" />

@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.plugin;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * 
 	 * @return An observation retriever.
 	 */
-	public abstract AbstractObservationRetriever getObservationRetriever();
+	public abstract AbstractObservationRetriever getObservationRetriever() throws IOException, ObservationReadError;
 
 	/**
 	 * Get the name of the star associated with the current observation dataset.
@@ -351,9 +352,10 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * @return The observation retriever
 	 * @throws InterruptedException
 	 * @throws ObservationReadError
+	 * @throws IOException
 	 */
 	protected AbstractObservationRetriever getTestRetriever(String[] lines, String inputName)
-			throws InterruptedException, ObservationReadError {
+			throws InterruptedException, ObservationReadError, IOException {
 		StringBuffer content = new StringBuffer();
 		for (String line : lines) {
 			content.append(line);
