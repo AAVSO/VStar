@@ -404,24 +404,6 @@ public class DocumentManager {
 	}
 
 	/**
-	 * Return a new star listener that initialises the maps.
-	 * TODO: prob don't need this now!
-	 */
-//	public Listener<NewStarMessage> createNewStarListener() {
-//		return new Listener<NewStarMessage>() {
-//			@Override
-//			public void update(NewStarMessage info) {
-//				init();
-//			}
-//
-//			@Override
-//			public boolean canBeRemoved() {
-//				return false;
-//			}
-//		};
-//	}
-
-	/**
 	 * Find and return the active window or null if one does not exist, e.g. the
 	 * case where the UI is that of an applet.
 	 */

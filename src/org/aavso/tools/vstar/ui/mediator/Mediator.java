@@ -956,7 +956,6 @@ public class Mediator {
 		if (documentManager == null) {
 			documentManager = new DocumentManager();
 			phaseChangeNotifier.addListener(documentManager.createPhaseChangeListener(), true);
-//			newStarNotifier.addListener(documentManager.createNewStarListener(), true);
 		}
 
 		return documentManager;
