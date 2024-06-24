@@ -956,7 +956,6 @@ public class Mediator {
 		if (documentManager == null) {
 			documentManager = new DocumentManager();
 			phaseChangeNotifier.addListener(documentManager.createPhaseChangeListener(), true);
-			newStarNotifier.addListener(documentManager.createNewStarListener(), true);
 		}
 
 		return documentManager;
@@ -1174,7 +1173,7 @@ public class Mediator {
 		// table and plot models, along with corresponding GUI components.
 
 		// Handle additive load if requested and observations are already
-		// loaded.
+		// loaded, otherwise, initialise the document manager.
 		if (addObs && getLatestNewStarMessage() != null) {
 			// convertObsToHJD(starInfo);
 
@@ -1192,6 +1191,8 @@ public class Mediator {
 					break;
 				}
 			}
+		} else {
+		    getDocumentManager().init();
 		}
 
 		List<ValidObservation> validObsList = starInfo.getRetriever().getValidObservations();

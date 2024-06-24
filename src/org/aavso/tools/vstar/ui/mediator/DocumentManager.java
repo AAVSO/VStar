@@ -73,42 +73,7 @@ public class DocumentManager {
 	public DocumentManager() {
 	    mediator = Mediator.getInstance();
 
-		rawDataModelComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
-		phasedModelComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
-
-		rawDataResidualComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
-		phasedResidualComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
-
-		phasePlotExists = false;
-		epoch = 0;
-		period = 0;
-
-		showErrorBars = new HashMap<AnalysisType, Boolean>() {{
-		    put(AnalysisType.RAW_DATA, true);
-            put(AnalysisType.PHASE_PLOT, true);
-		}};
-		
-		showCrossHairs = new HashMap<AnalysisType, Boolean>() {{
-            put(AnalysisType.RAW_DATA, true);
-            put(AnalysisType.PHASE_PLOT, true);
-        }};
-        
-        invertRange = new HashMap<AnalysisType, Boolean>() {{
-            put(AnalysisType.RAW_DATA, true);
-            put(AnalysisType.PHASE_PLOT, true);
-        }};
-        
-        invertSeriesOrder = new HashMap<AnalysisType, Boolean>() {{
-            put(AnalysisType.RAW_DATA, true);
-            put(AnalysisType.PHASE_PLOT, true);
-        }};
-        
-        joinMeans = new HashMap<AnalysisType, Boolean>() {{
-            put(AnalysisType.RAW_DATA, true);
-            put(AnalysisType.PHASE_PLOT, true);
-        }};
-        
-		statsInfo = new TreeMap<String, String>();
+		init();
 	}
 
 	// ** phase, epoch, period methods **
@@ -349,6 +314,73 @@ public class DocumentManager {
 	}
 
 	/**
+	 * Initialise (or reset) data members
+	 */
+	public void init() {
+        phasePlotExists = false;
+        epoch = 0;
+        period = 0;
+
+	    // model maps
+	    if (rawDataModelComponents == null) {
+	        rawDataModelComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
+	    }
+	    rawDataModelComponents.clear();
+
+        if (phasedModelComponents == null) {
+            phasedModelComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
+        }
+        phasedModelComponents.clear();
+
+        if (rawDataResidualComponents == null) {
+            rawDataResidualComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
+        }
+        rawDataResidualComponents.clear();
+
+        if (phasedResidualComponents == null) {
+            phasedResidualComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
+        }
+        phasedResidualComponents.clear();
+
+	    // Boolean maps
+	    if (showErrorBars == null) {
+            showErrorBars = new HashMap<AnalysisType, Boolean>();
+	    }
+	    showErrorBars.put(AnalysisType.RAW_DATA, true);
+	    showErrorBars.put(AnalysisType.PHASE_PLOT, true);
+
+        if (showCrossHairs == null) {
+            showCrossHairs = new HashMap<AnalysisType, Boolean>();
+        }
+        showCrossHairs.put(AnalysisType.RAW_DATA, true);
+        showCrossHairs.put(AnalysisType.PHASE_PLOT, true);
+
+        if (invertRange == null) {
+            invertRange = new HashMap<AnalysisType, Boolean>();
+        }
+        invertRange.put(AnalysisType.RAW_DATA, true);
+        invertRange.put(AnalysisType.PHASE_PLOT, true);
+
+        if (invertSeriesOrder == null) {
+            invertSeriesOrder = new HashMap<AnalysisType, Boolean>();
+        }
+        invertSeriesOrder.put(AnalysisType.RAW_DATA, true);
+        invertSeriesOrder.put(AnalysisType.PHASE_PLOT, true);
+
+        if (joinMeans == null) {
+            joinMeans = new HashMap<AnalysisType, Boolean>();
+        }
+        joinMeans.put(AnalysisType.RAW_DATA, true);
+        joinMeans.put(AnalysisType.PHASE_PLOT, true);
+
+        // stats info map
+        if (statsInfo == null) {
+            statsInfo = new TreeMap<String, String>();
+        }
+        statsInfo.clear();
+	}
+
+	/**
 	 * Return a phase change listener that updates epoch and period information
 	 * in preparation for creating or retrieving phase plot components.<br/>
 	 * TODO: when we have finally unified observations as a single list across
@@ -362,26 +394,6 @@ public class DocumentManager {
 				phasePlotExists = true;
 				epoch = info.getEpoch();
 				period = info.getPeriod();
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
-	}
-
-	/**
-	 * Return a new star listener that clears the maps.
-	 */
-	public Listener<NewStarMessage> createNewStarListener() {
-		return new Listener<NewStarMessage>() {
-			@Override
-			public void update(NewStarMessage info) {
-				rawDataModelComponents.clear();
-				rawDataResidualComponents.clear();
-				phasedModelComponents.clear();
-				phasedResidualComponents.clear();
 			}
 
 			@Override
