@@ -241,7 +241,9 @@ public class AAVSOUploadFileFormatObservationSource extends ObservationSourcePlu
 				} else if ("#OBSTYPE".equals(pair[0])) {
 					obsType = pair[1];
 					if ("EXTENDED".equals(fileType)) {
-						if (!"CCD".equals(obsType) && !"PEP".equals(obsType)) {
+						if (!"CCD".equals(obsType) &&
+						    !"DSLR".equals(obsType) &&
+						    !"PEP".equals(obsType)) {
 							throw new ObservationReadError("Unknown observation type: " + obsType);
 						}
 					} else if ("VISUAL".equals(fileType)) {
