@@ -193,12 +193,12 @@ public class VeLaDialog extends TextDialog {
 			}
 
 			// Any standard error or output to show?
-			error += showOutput(errStream);
-			output += showOutput(outStream);
+			error = showOutput(errStream);
+			output = showOutput(outStream);
 
-			// Is there a result to show?
-			if ("".equals(error)) {
-				output = result.get().toHumanReadableString();
+			// Is there a result to show and no error?
+			if (result.isPresent() && "".equals(error)) {
+				output += result.get().toHumanReadableString();
 			}
 		} catch (Exception e) {
 			// Show error in text area.
