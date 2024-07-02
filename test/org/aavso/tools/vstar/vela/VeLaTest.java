@@ -30,6 +30,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.LongUnaryOperator;
+import java.util.stream.Collectors;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
@@ -38,6 +41,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.quicktheories.WithQuickTheories;
+import org.quicktheories.core.Gen;
+import org.quicktheories.generators.Generate;
 
 import junit.framework.TestCase;
 
@@ -92,11 +97,8 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     // evaluate to that number. We exclude infinities and NaNs since
     // we don't represent them directly in VeLa code.
     public void testAnyRealEval() {
-        qt().forAll(doubles().any()
-                .assuming((n) -> !n.isInfinite() && !n.isNaN()))
-                .check((n) -> Tolerance.areClose(n,
-                        vela.realExpression(String.format("%s", n)),
-                        DELTA, true));
+        qt().forAll(doubles().any().assuming((n) -> !n.isInfinite() && !n.isNaN()))
+                .check((n) -> Tolerance.areClose(n, vela.realExpression(String.format("%s", n)), DELTA, true));
     }
 
     // Note: reveals a bug in which a positive max long value can't be parsed
@@ -127,8 +129,8 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     // testIntProperty().
     public void testAnyIntegerAddition() {
         qt().forAll(integers().all(), integers().all()).check((n, m) -> {
-            String expr = String.format("%d+%d", (long)n, (long)m);
-            return (long)n + (long)m == vela.expressionToOperand(expr).intVal();
+            String expr = String.format("%d+%d", (long) n, (long) m);
+            return (long) n + (long) m == vela.expressionToOperand(expr).intVal();
         });
     }
 
@@ -142,8 +144,8 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     // but see testIntProperty().
     public void testAnyIntegerSubtraction() {
         qt().forAll(integers().all(), integers().all()).check((n, m) -> {
-            String expr = String.format("%d-%d", (long)n, (long)m);
-            return (long)n - (long)m == vela.expressionToOperand(expr).intVal();
+            String expr = String.format("%d-%d", (long) n, (long) m);
+            return (long) n - (long) m == vela.expressionToOperand(expr).intVal();
         });
     }
 
@@ -157,8 +159,8 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     // but see testIntProperty().
     public void testAnyIntegerMultiplication() {
         qt().forAll(integers().all(), integers().all()).check((n, m) -> {
-            String expr = String.format("%d*%d", (long)n, (long)m);
-            return (long)n * (long)m == vela.expressionToOperand(expr).intVal();
+            String expr = String.format("%d*%d", (long) n, (long) m);
+            return (long) n * (long) m == vela.expressionToOperand(expr).intVal();
         });
     }
 
@@ -171,9 +173,9 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     // of those two integers (longs in VeLa); should actually be longs()
     // but see testIntProperty().
     public void testAnyIntegerDivision() {
-        qt().forAll(integers().all(), integers().all()).assuming((n,m) -> m != 0).check((n, m) -> {
-            String expr = String.format("%d/%d", (long)n, (long)m);
-            return (long)n / (long)m == vela.expressionToOperand(expr).intVal();
+        qt().forAll(integers().all(), integers().all()).assuming((n, m) -> m != 0).check((n, m) -> {
+            String expr = String.format("%d/%d", (long) n, (long) m);
+            return (long) n / (long) m == vela.expressionToOperand(expr).intVal();
         });
     }
 
@@ -204,6 +206,12 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         Operand operand = vela.expressionToOperand("3.0^4^2");
         assertEquals(Type.REAL, operand.getType());
         assertTrue(Tolerance.areClose(43046721.0, operand.doubleVal(), DELTA, true));
+    }
+
+    public void testRealExponentiation4() {
+        Operand operand = vela.expressionToOperand("42.5510075031329^5");
+        assertEquals(Type.REAL, operand.getType());
+        assertTrue(Tolerance.areClose(139491979.67346534, operand.doubleVal(), DELTA, true));
     }
 
     public void testReal1() {
@@ -304,6 +312,24 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         Operand operand = vela.expressionToOperand("3^4+2");
         assertEquals(Type.INTEGER, operand.getType());
         assertEquals(83, operand.intVal());
+    }
+
+    public void testIntegerExponentiation7() {
+        Operand operand = vela.expressionToOperand("10^0");
+        assertEquals(Type.INTEGER, operand.getType());
+        assertEquals(1, operand.intVal());
+    }
+
+    public void testIntegerExponentiation8() {
+        Operand operand = vela.expressionToOperand("10^1");
+        assertEquals(Type.INTEGER, operand.getType());
+        assertEquals(10, operand.intVal());
+    }
+
+    public void testIntegerExponentiation9() {
+        Operand operand = vela.expressionToOperand("(-1)^7");
+        assertEquals(Type.INTEGER, operand.getType());
+        assertEquals(-1, operand.intVal());
     }
 
     // String expressions
@@ -887,6 +913,200 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         Operand actual = vela.expressionToOperand(expr);
         Operand expected = vela.expressionToOperand("[\"first\" 2 \"3rd\" true]");
         assertEquals(expected, actual);
+    }
+
+    // Binary operations over lists
+
+    public void testAddTwoIntegerLists() {
+        String expr = "[1 2 3 4] + [5 6 7 8]";
+        Operand actual = vela.expressionToOperand(expr);
+        Operand expected = vela.expressionToOperand("[6 8 10 12]");
+        assertEquals(expected, actual);
+    }
+
+    public void testAddIntegerAndList() {
+        String expr = "4 + [5 6 7 8]";
+        Operand actual = vela.expressionToOperand(expr);
+        Operand expected = vela.expressionToOperand("[9 10 11 12]");
+        assertEquals(expected, actual);
+    }
+
+    public void testAddListAndInteger() {
+        String expr = "[5 6 7 8] + 4";
+        Operand actual = vela.expressionToOperand(expr);
+        Operand expected = vela.expressionToOperand("[9 10 11 12]");
+        assertEquals(expected, actual);
+    }
+
+    public void testShiftLeftTwoIntegerLists() {
+        String expr = "[1 2 3 4] << [5 6 7 8]";
+        Optional<Operand> actual = vela.program(expr);
+        Optional<Operand> expected = vela.program("[32 128 384 1024]");
+        assertEquals(expected, actual);
+    }
+
+    public void testLessThanTwoIntegerLists() {
+        String expr = "[1 6 3 9] < [5 6 7 8]";
+        Optional<Operand> actual = vela.program(expr);
+        Optional<Operand> expected = vela.program("[true false true false]");
+        assertEquals(expected, actual);
+    }
+
+    // PBT: binary boolean operations over two lists
+    public void testOperationsOverBooleanLists() {
+        List<String> ops = Arrays.asList("and", "or", "xor");
+
+        Gen<String> operators = Generate.pick(ops);
+        qt().forAll(operators).check((operator) -> {
+            Optional<Operand> expected = null;
+
+            String expr = String.format("[true false] %s [false true]", operator);
+            Optional<Operand> actual = vela.program(expr);
+
+            switch (Operation.getBinaryOp(operator)) {
+            case AND:
+                expected = vela.program("[false false]");
+                break;
+            case OR:
+                expected = vela.program("[true true]");
+                break;
+            case XOR:
+                expected = vela.program("[true true]");
+                break;
+            default:
+                assertTrue(false);
+            }
+
+            return expected.equals(actual);
+        });
+    }
+
+    public void testNegateIntegerList() {
+        String expr = "-[5 6 7 8]";
+        Optional<Operand> actual = vela.program(expr);
+        assertTrue(actual.isPresent());
+        List<Operand> expected = Arrays.asList(-5, -6, -7, -8).stream().map((n) -> new Operand(Type.INTEGER, n))
+                .collect(Collectors.toList());
+        assertEquals(actual.get().listVal(), expected);
+    }
+
+    public void testNegateRealList() {
+        String expr = "-[5.0 6.0]";
+        Optional<Operand> actual = vela.program(expr);
+        assertTrue(actual.isPresent());
+        List<Operand> expected = Arrays.asList(-5.0, -6.0).stream().map((n) -> new Operand(Type.REAL, n))
+                .collect(Collectors.toList());
+        assertEquals(actual.get().listVal(), expected);
+    }
+
+    public void testNotIntegerList() {
+        String expr = "not [5 6 7 8]";
+        Optional<Operand> actual = vela.program(expr);
+        assertTrue(actual.isPresent());
+        List<Operand> expected = Arrays.asList(-6, -7, -8, -9).stream().map((n) -> new Operand(Type.INTEGER, n))
+                .collect(Collectors.toList());
+        assertEquals(actual.get().listVal(), expected);
+    }
+
+    public void testNotBooleanList() {
+        String expr = "not [true false]";
+        Optional<Operand> actual = vela.program(expr);
+        Optional<Operand> expected = vela.program("[false true]");
+        assertEquals(actual, expected);
+    }
+
+    public void testBooleanAndList() {
+        String expr = "true and [true false]";
+        Optional<Operand> actual = vela.program(expr);
+        Optional<Operand> expected = vela.program("[true false]");
+        assertEquals(expected, actual);
+    }
+
+    public void testListAndBoolean() {
+        String expr = "[true false] and true";
+        Optional<Operand> actual = vela.program(expr);
+        Optional<Operand> expected = vela.program("[true false]");
+        assertEquals(expected, actual);
+    }
+
+    // PBT: Arithmetic over lists where the first operand is an integer and
+    // the second operand is a (two element) list, e.g. n + [5 6]
+    public void testOperationsOverIntegersAndAList() {
+        List<String> ops = Arrays.asList("+", "-", "*", "/", "^", "<<", ">>");
+        Gen<String> operators = Generate.pick(ops);
+
+        int max = 1000;
+        int min = 0; // TODO: n < 0 yields errors for real ^
+
+        qt().forAll(integers().from(min).upToAndIncluding(max), integers().from(1).upToAndIncluding(10),
+                integers().from(1).upToAndIncluding(10), operators).check((n, a, b, operator) -> {
+                    // Construct a VeLa expression that combines a random integer
+                    // and a list with a random operation.
+                    List<Integer> op2List = Arrays.asList(a, b);
+                    String op2 = "["
+                            + String.join(" ", op2List.stream().map(Object::toString).collect(Collectors.toList()))
+                            + "]";
+
+                    String expr = String.format("%d %s %s", n, operator, op2);
+
+                    LongUnaryOperator operatorFunc = operatorFunc(operator, n);
+
+                    List<Long> expected = op2List.stream().map((m) -> operatorFunc.applyAsLong(m))
+                            .collect(Collectors.toList());
+
+                    Optional<Operand> result = vela.program(expr);
+                    boolean success = result.isPresent();
+
+                    if (success) {
+                        List<Long> actual = result.get().listVal().stream().map((operand) -> operand.intVal())
+                                .collect(Collectors.toList());
+
+                        success &= expected.equals(actual);
+                    }
+
+                    return success;
+                });
+    }
+
+    // PBT: Arithmetic over lists where the first operand is a real and
+    // the second operand is a list, e.g. n + [5 6 7 8]
+    public void testOperationsOverRealsAndAList() {
+        List<String> ops = Arrays.asList("+", "-", "*", "/", "^");
+        Gen<String> operators = Generate.pick(ops);
+
+        int max = 10;
+        int min = 0; // TODO: n < 0 and > ~10 yields errors for real ^
+
+        qt().forAll(doubles().from(min).upToAndIncluding(max), doubles().from(1).upToAndIncluding(10),
+                doubles().from(1).upToAndIncluding(10), operators).check((n, a, b, operator) -> {
+                    // Construct a VeLa expression that combines a random integer
+                    // and a list with a random operation.
+                    List<Double> op2List = Arrays.asList(a, b);
+                    String op2 = "["
+                            + String.join(" ", op2List.stream().map(Object::toString).collect(Collectors.toList()))
+                            + "]";
+
+                    String expr = String.format("%f %s %s", n, operator, op2);
+
+                    DoubleUnaryOperator operatorFunc = operatorFunc(operator, n);
+
+                    List<Double> expected = op2List.stream().map((m) -> operatorFunc.applyAsDouble(m))
+                            .collect(Collectors.toList());
+
+                    Optional<Operand> result = vela.program(expr);
+                    boolean success = result.isPresent();
+
+                    if (success) {
+                        List<Double> actual = result.get().listVal().stream().map((operand) -> operand.doubleVal())
+                                .collect(Collectors.toList());
+
+                        for (int i = 0; i < actual.size(); i++) {
+                            success &= Tolerance.areClose(actual.get(i), expected.get(i), 1e6, true);
+                        }
+                    }
+
+                    return success;
+                });
     }
 
     public void testIntegerSeq() {
@@ -1728,5 +1948,98 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         }
 
         return filteredObs;
+    }
+
+    /**
+     * Given an operator string and an integer, return a unary function that takes
+     * an integer and returns the result of combining the integer with another using
+     * the operator. If the operator is unknown, an assertion is thrown.
+     * 
+     * @param operator The operator string
+     * @param n        The known integer
+     * @return A function combining n with another integer according to the operator
+     */
+    private LongUnaryOperator operatorFunc(String operator, int n) {
+        final LongUnaryOperator operatorFunc;
+
+        switch (Operation.getBinaryOp(operator)) {
+        case ADD:
+            operatorFunc = (m) -> (long) (n + m);
+            break;
+        case SUB:
+            operatorFunc = (m) -> (long) (n - m);
+            break;
+        case MUL:
+            operatorFunc = (m) -> (long) (n * m);
+            break;
+        case DIV:
+            operatorFunc = (m) -> (long) (n / m);
+            break;
+        case POW:
+            operatorFunc = (m) -> {
+                long result = n;
+                if (m == 0) {
+                    result = 1;
+                } else {
+                    // multiply operand1 by itself n-1 times
+                    for (int i = 1; i <= m - 1; i++) {
+                        result *= n;
+                    }
+                }
+                return result;
+            };
+            break;
+        case SHL:
+            operatorFunc = (m) -> (long) (n << m);
+            break;
+        case SHR:
+            operatorFunc = (m) -> (long) (n >> m);
+            break;
+        default:
+            // to avoid "may not be initialized" error
+            operatorFunc = null;
+            String msg = String.format("unknown operator '%s'", operator);
+            throw new IllegalArgumentException(msg);
+        }
+
+        return operatorFunc;
+    }
+
+    /**
+     * Given an operator string and a real return a unary function that takes a real
+     * and returns the result of combining the real with another using the operator.
+     * If the operator is unknown, an assertion is thrown.
+     * 
+     * @param operator The operator string
+     * @param n        The known real
+     * @return A function combining n with another real according to the operator
+     */
+    private DoubleUnaryOperator operatorFunc(String operator, double n) {
+        final DoubleUnaryOperator operatorFunc;
+
+        switch (Operation.getBinaryOp(operator)) {
+        case ADD:
+            operatorFunc = (m) -> n + m;
+            break;
+        case SUB:
+            operatorFunc = (m) -> n - m;
+            break;
+        case MUL:
+            operatorFunc = (m) -> n * m;
+            break;
+        case DIV:
+            operatorFunc = (m) -> n / m;
+            break;
+        case POW:
+            operatorFunc = (m) -> Math.pow(n, m);
+            break;
+        default:
+            // to avoid "may not be initialized" error
+            operatorFunc = null;
+            String msg = String.format("unknown operator '%s'", operator);
+            throw new IllegalArgumentException(msg);
+        }
+
+        return operatorFunc;
     }
 }
