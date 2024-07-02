@@ -945,6 +945,13 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertEquals(expected, actual);
     }
 
+    public void tesCommutativityOverIntegerListOperations() {
+        String expr = "24 * [1 2] = [1 2] * 24";
+        Optional<Operand> actual = vela.program(expr);
+        Optional<Operand> expected = vela.program("[true true]");
+        assertEquals(expected, actual);
+    }
+
     public void testLessThanTwoIntegerLists() {
         String expr = "[1 6 3 9] < [5 6 7 8]";
         Optional<Operand> actual = vela.program(expr);
@@ -1029,16 +1036,24 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertEquals(expected, actual);
     }
 
-    // PBT: Arithmetic over lists where the first operand is an integer and
-    // the second operand is a (two element) list, e.g. n + [5 6]
-    public void testOperationsOverIntegersAndAList() {
+    public void testOperationsOverIntegersAndList() {
+        commonTestOperationsOverIntegersAndList(true);
+    }
+
+    public void testOperationsOverListAndIntegers() {
+        commonTestOperationsOverIntegersAndList(false);
+    }
+
+    // PBT: Arithmetic over lists where one operand is an integer and
+    // the other is a (two element) list, e.g. n + [5 6] or [5 6] + n
+    public void commonTestOperationsOverIntegersAndList(boolean isNumFirst) {
         List<String> ops = Arrays.asList("+", "-", "*", "/", "^", "<<", ">>");
         Gen<String> operators = Generate.pick(ops);
 
         int max = 1000;
-        int min = 0; // TODO: n < 0 yields errors for real ^
+        int min = 1; // TODO: n < 0 yields errors for real ^
 
-        qt().forAll(integers().from(min).upToAndIncluding(max), integers().from(1).upToAndIncluding(10),
+        qt().forAll(integers().between(min, max), integers().from(1).upToAndIncluding(10),
                 integers().from(1).upToAndIncluding(10), operators).check((n, a, b, operator) -> {
                     // Construct a VeLa expression that combines a random integer
                     // and a list with a random operation.
@@ -1047,9 +1062,14 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
                             + String.join(" ", op2List.stream().map(Object::toString).collect(Collectors.toList()))
                             + "]";
 
-                    String expr = String.format("%d %s %s", n, operator, op2);
+                    String expr;
+                    if (isNumFirst) {
+                        expr = String.format("%d %s %s", n, operator, op2);
+                    } else {
+                        expr = String.format("%s %s %d", op2, operator, n);
+                    }
 
-                    LongUnaryOperator operatorFunc = operatorFunc(operator, n);
+                    LongUnaryOperator operatorFunc = operatorFunc(operator, n, !isNumFirst);
 
                     List<Long> expected = op2List.stream().map((m) -> operatorFunc.applyAsLong(m))
                             .collect(Collectors.toList());
@@ -1957,9 +1977,10 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
      * 
      * @param operator The operator string
      * @param n        The known integer
+     * @param reverse  Reverse the operands?
      * @return A function combining n with another integer according to the operator
      */
-    private LongUnaryOperator operatorFunc(String operator, int n) {
+    private LongUnaryOperator operatorFunc(String operator, int n, boolean reverse) {
         final LongUnaryOperator operatorFunc;
 
         switch (Operation.getBinaryOp(operator)) {
@@ -1967,33 +1988,45 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
             operatorFunc = (m) -> (long) (n + m);
             break;
         case SUB:
-            operatorFunc = (m) -> (long) (n - m);
+            operatorFunc = (m) -> (long) (reverse ? (m - n) : (n - m));
             break;
         case MUL:
             operatorFunc = (m) -> (long) (n * m);
             break;
         case DIV:
-            operatorFunc = (m) -> (long) (n / m);
+            operatorFunc = (m) -> (long) (reverse ? (m / n) : (n / m));
             break;
         case POW:
             operatorFunc = (m) -> {
-                long result = n;
-                if (m == 0) {
-                    result = 1;
+                long result;
+                result = reverse ? m : n;
+                if (reverse) {
+                    if (n == 0) {
+                        result = 1;
+                    } else {
+                        // multiply operand1 by itself n-1 times
+                        for (int i = 1; i <= n - 1; i++) {
+                            result *= m;
+                        }
+                    }
                 } else {
-                    // multiply operand1 by itself n-1 times
-                    for (int i = 1; i <= m - 1; i++) {
-                        result *= n;
+                    if (m == 0) {
+                        result = 1;
+                    } else {
+                        // multiply operand1 by itself n-1 times
+                        for (int i = 1; i <= m - 1; i++) {
+                            result *= n;
+                        }
                     }
                 }
                 return result;
             };
             break;
         case SHL:
-            operatorFunc = (m) -> (long) (n << m);
+            operatorFunc = (m) -> (long) (reverse ? (m << n) : (n << m));
             break;
         case SHR:
-            operatorFunc = (m) -> (long) (n >> m);
+            operatorFunc = (m) -> (long) (reverse ? (m >> n) : (n >> m));
             break;
         default:
             // to avoid "may not be initialized" error
