@@ -387,6 +387,20 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertFalse(vela.booleanExpression("false"));
     }
 
+    public void testEqBoolVals() {
+        assertTrue(vela.booleanExpression("true = true"));
+        assertTrue(vela.booleanExpression("false = false"));
+        assertFalse(vela.booleanExpression("false = true"));
+        assertFalse(vela.booleanExpression("true = false"));
+    }
+
+    public void testNotEqBoolVals() {
+        assertFalse(vela.booleanExpression("true <> true"));
+        assertFalse(vela.booleanExpression("false <>false"));
+        assertTrue(vela.booleanExpression("false <> true"));
+        assertTrue(vela.booleanExpression("true <> false"));
+    }
+
     // Bitwise operations
 
     public void testIntegerBitwiseAndDecimal() {

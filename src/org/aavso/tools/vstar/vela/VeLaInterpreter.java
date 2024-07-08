@@ -477,12 +477,14 @@ public class VeLaInterpreter {
                                 negResult.add(new Operand(Type.REAL, -scalar.doubleVal()));
                                 break;
                             default:
+                                binaryOpError(op, Type.INTEGER, Type.REAL);
                                 break;
                             }
                         }
                         stack.push(new Operand(Type.LIST, negResult));
                         break;
                     default:
+                        binaryOpError(op, Type.INTEGER, Type.REAL, Type.LIST);
                         break;
                     }
                     break;
@@ -506,12 +508,15 @@ public class VeLaInterpreter {
                                 notResult.add(new Operand(Type.INTEGER, ~scalar.intVal()));
                                 break;
                             default:
+                                binaryOpError(op, Type.INTEGER, Type.BOOLEAN);
                                 break;
                             }
                         }
                         stack.push(new Operand(Type.LIST, notResult));
                         break;
                     default:
+                        binaryOpError(op, Type.INTEGER, Type.BOOLEAN, Type.LIST);
+                        ;
                         break;
                     }
                 }
@@ -736,6 +741,7 @@ public class VeLaInterpreter {
                     stack.push(new Operand(Type.STRING, operand1.stringVal() + operand2.stringVal()));
                     break;
                 default:
+                    binaryOpError(op, Type.INTEGER, Type.REAL, Type.STRING);
                     break;
                 }
                 break;
@@ -748,6 +754,8 @@ public class VeLaInterpreter {
                     stack.push(new Operand(Type.REAL, operand1.doubleVal() - operand2.doubleVal()));
                     break;
                 default:
+                    binaryOpError(op, Type.INTEGER, Type.REAL);
+                    break;
                 }
                 break;
             case MUL:
@@ -759,6 +767,8 @@ public class VeLaInterpreter {
                     stack.push(new Operand(Type.REAL, operand1.doubleVal() * operand2.doubleVal()));
                     break;
                 default:
+                    binaryOpError(op, Type.INTEGER, Type.REAL);
+                    break;
                 }
                 break;
             case DIV:
@@ -781,6 +791,8 @@ public class VeLaInterpreter {
                     }
                     break;
                 default:
+                    binaryOpError(op, Type.INTEGER, Type.REAL);
+                    break;
                 }
                 break;
             case POW:
@@ -803,6 +815,8 @@ public class VeLaInterpreter {
                     stack.push(new Operand(Type.REAL, Math.pow(operand1.doubleVal(), operand2.doubleVal())));
                     break;
                 default:
+                    binaryOpError(op, Type.INTEGER, Type.REAL);
+                    break;
                 }
                 break;
             case AND:
@@ -812,6 +826,9 @@ public class VeLaInterpreter {
                     break;
                 case INTEGER:
                     stack.push(new Operand(Type.INTEGER, operand1.intVal() & operand2.intVal()));
+                    break;
+                default:
+                    binaryOpError(op, Type.INTEGER, Type.BOOLEAN);
                     break;
                 }
                 break;
@@ -823,6 +840,9 @@ public class VeLaInterpreter {
                 case INTEGER:
                     stack.push(new Operand(Type.INTEGER, operand1.intVal() ^ operand2.intVal()));
                     break;
+                default:
+                    binaryOpError(op, Type.INTEGER, Type.BOOLEAN);
+                    break;
                 }
                 break;
             case OR:
@@ -833,10 +853,16 @@ public class VeLaInterpreter {
                 case INTEGER:
                     stack.push(new Operand(Type.INTEGER, operand1.intVal() | operand2.intVal()));
                     break;
+                default:
+                    binaryOpError(op, Type.INTEGER, Type.BOOLEAN);
+                    break;
                 }
                 break;
             case EQUAL:
                 switch (type) {
+                case BOOLEAN:
+                    stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() == operand2.booleanVal()));
+                    break;
                 case INTEGER:
                     stack.push(new Operand(Type.BOOLEAN, operand1.intVal() == operand2.intVal()));
                     break;
@@ -847,10 +873,15 @@ public class VeLaInterpreter {
                     stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().equals(operand2.stringVal())));
                     break;
                 default:
+                    binaryOpError(op, Type.BOOLEAN, Type.INTEGER, Type.REAL, Type.STRING);
+                    break;
                 }
                 break;
             case NOT_EQUAL:
                 switch (type) {
+                case BOOLEAN:
+                    stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() != operand2.booleanVal()));
+                    break;
                 case INTEGER:
                     stack.push(new Operand(Type.BOOLEAN, operand1.intVal() != operand2.intVal()));
                     break;
@@ -861,6 +892,8 @@ public class VeLaInterpreter {
                     stack.push(new Operand(Type.BOOLEAN, !operand1.stringVal().equals(operand2.stringVal())));
                     break;
                 default:
+                    binaryOpError(op, Type.BOOLEAN, Type.INTEGER, Type.REAL, Type.STRING);
+                    break;
                 }
                 break;
             case GREATER_THAN:
@@ -875,6 +908,8 @@ public class VeLaInterpreter {
                     stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(operand2.stringVal()) > 0));
                     break;
                 default:
+                    binaryOpError(op, Type.INTEGER, Type.REAL, Type.STRING);
+                    break;
                 }
                 break;
             case LESS_THAN:
@@ -889,6 +924,8 @@ public class VeLaInterpreter {
                     stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(operand2.stringVal()) < 0));
                     break;
                 default:
+                    binaryOpError(op, Type.INTEGER, Type.REAL, Type.STRING);
+                    break;
                 }
                 break;
             case GREATER_THAN_OR_EQUAL:
@@ -903,6 +940,8 @@ public class VeLaInterpreter {
                     stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(operand2.stringVal()) >= 0));
                     break;
                 default:
+                    binaryOpError(op, Type.INTEGER, Type.REAL, Type.STRING);
+                    break;
                 }
                 break;
             case LESS_THAN_OR_EQUAL:
@@ -917,24 +956,31 @@ public class VeLaInterpreter {
                     stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(operand2.stringVal()) <= 0));
                     break;
                 default:
+                    binaryOpError(op, Type.INTEGER, Type.REAL, Type.STRING);
+                    break;
                 }
                 break;
             case APPROXIMATELY_EQUAL:
-                Pattern pattern;
-                String regex = operand2.stringVal();
-                if (!regexPatterns.containsKey(regex)) {
-                    pattern = Pattern.compile(regex);
-                    regexPatterns.put(regex, pattern);
+                if (type == Type.STRING) {
+                    Pattern pattern;
+                    String regex = operand2.stringVal();
+                    if (!regexPatterns.containsKey(regex)) {
+                        pattern = Pattern.compile(regex);
+                        regexPatterns.put(regex, pattern);
+                    }
+                    pattern = regexPatterns.get(regex);
+                    stack.push(new Operand(Type.BOOLEAN, pattern.matcher(operand1.stringVal()).matches()));
+                } else {
+                    binaryOpError(op, Type.STRING);
+                    break;
                 }
-                pattern = regexPatterns.get(regex);
-                stack.push(new Operand(Type.BOOLEAN, pattern.matcher(operand1.stringVal()).matches()));
                 break;
             case IN:
                 if (type == Type.STRING) {
                     // Is one string contained within another?
                     stack.push(new Operand(Type.BOOLEAN, operand2.stringVal().contains(operand1.stringVal())));
                 } else {
-                    binaryOpError(op, type);
+                    binaryOpError(op, Type.STRING);
                 }
                 break;
             case SHL:
@@ -942,12 +988,18 @@ public class VeLaInterpreter {
                 case INTEGER:
                     stack.push(new Operand(Type.INTEGER, operand1.intVal() << operand2.intVal()));
                     break;
+                default:
+                    binaryOpError(op, Type.INTEGER);
+                    break;
                 }
                 break;
             case SHR:
                 switch (type) {
                 case INTEGER:
                     stack.push(new Operand(Type.INTEGER, operand1.intVal() >> operand2.intVal()));
+                    break;
+                default:
+                    binaryOpError(op, Type.INTEGER);
                     break;
                 }
                 break;
@@ -1016,13 +1068,21 @@ public class VeLaInterpreter {
     }
 
     /**
-     * Throw a VeLa evaluation error for the given operation and type.
+     * Throw a VeLa evaluation error for the given operation and types.
      * 
-     * @param op   The operator
-     * @param type The expected type
+     * @param op    The operator
+     * @param types The expected types
      */
-    private void binaryOpError(Operation op, Type type) {
-        String msg = String.format("%s expected values of type %s", op, type);
+    private void binaryOpError(Operation op, Type... types) {
+        String typeStr = "";
+        for (int i = 0; i < types.length; i++) {
+            typeStr += types[i].name();
+            if (i < types.length - 1) {
+                typeStr += " or ";
+            }
+        }
+        String msg = String.format("'%s' expects values of type %s",
+                op.token(), typeStr);
         throw new VeLaEvalError(msg);
     }
 
