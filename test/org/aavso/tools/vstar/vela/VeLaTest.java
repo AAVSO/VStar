@@ -1820,7 +1820,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         File code = new File("test/org/aavso/tools/vstar/vela/code/sqr.vela");
         Optional<Operand> result = vela.program(code);
         assertTrue(result.isPresent());
-        assertEquals(144, result.get().intVal());
+        assertEquals(144.0, result.get().doubleVal());
     }
 
     public void testUserCode2() {
@@ -1830,7 +1830,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, dirs);
         Optional<Operand> result = vela.program("cube(2)");
         assertTrue(result.isPresent());
-        assertEquals(8, result.get().intVal());
+        assertEquals(8.0, result.get().doubleVal());
     }
 
     // Standard Library Functions: VeLa and intrinsic (Java)

@@ -132,9 +132,6 @@ public abstract class FunctionExecutor {
 	public boolean conforms(List<Operand> actualParameters) {
 		boolean result = true;
 
-		actualParameters = actualParameters.stream().map(op -> op.copy())
-				.collect(Collectors.toList());
-
 		if (parameterTypes == ANY_FORMALS) {
 			result = true;
 		} else if (actualParameters.size() != parameterTypes.size()) {
