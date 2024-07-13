@@ -212,50 +212,52 @@ public class Operand {
     }
 
     /**
-     * Convert this operand to the required type, if possible.
+     * Convert this operand to the required type, if possible, first making a copy
+     * if the required type is different from the current type.
      * 
      * @param requiredType The required type.
-     * @return The converted type; will be unchanged if it matches the required
+     * @return The unchanged operand or a new operand that conforms to the required
      *         type.
-     * @throws VeLaEvalError if the type cannot be converted.
      */
-    public Type convert(Type requiredType) {
+    public Operand convert(Type requiredType) {
+        Operand operand = this;
+
         if (!type.isComposite()) {
             if (type != requiredType) {
                 if (type == Type.INTEGER && requiredType == Type.REAL) {
-                    setType(Type.REAL);
-                    setDoubleVal((double) intVal);
-                } else if (type.oneOf(Type.INTEGER, Type.REAL, Type.BOOLEAN) && requiredType == Type.STRING) {
-                    convertToString();
+                    operand = new Operand(Type.REAL, (double) intVal);
+                } else if (type != Type.STRING && requiredType == Type.STRING) {
+                    operand = operand.convertToString();
                 }
             }
         }
 
-        return type;
+        return operand;
     }
 
     /**
      * Convert this operand's type to string.
      */
-    public void convertToString() {
+    public Operand convertToString() {
         assert type == Type.INTEGER || type == Type.REAL || type == Type.BOOLEAN;
+
+        Operand operand = this;
 
         switch (type) {
         case INTEGER:
-            setStringVal(Long.toString(intVal));
-            setType(Type.STRING);
+            operand = new Operand(Type.STRING, Long.toString(intVal));
             break;
         case REAL:
-            setStringVal(NumericPrecisionPrefs.formatOther(doubleVal));
-            setType(Type.STRING);
+            operand = new Operand(Type.STRING, NumericPrecisionPrefs.formatOther(doubleVal));
             break;
         case BOOLEAN:
-            setStringVal(Boolean.toString(booleanVal));
-            setType(Type.STRING);
+            operand = new Operand(Type.STRING, Boolean.toString(booleanVal));
             break;
         default:
             break;
         }
+
+        return operand;
     }
 
     /**

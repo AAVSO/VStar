@@ -1238,6 +1238,17 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         vela.program(prog);
     }
 
+    public void testParamConversionDoesNotChangeActualParam() {
+        String prog = "";
+        prog += "a <- 42\n" + "f(n:real):real{n/5}\n" + "f(a)\n" + "a\n";
+
+        Optional<Operand> result = vela.program(prog);
+
+        assertTrue(result.isPresent());
+        assertEquals(42, result.get().intVal());
+        assertEquals(Type.INTEGER, result.get().getType());
+    }
+
     // Turing Completeness attained: Dec 20 2018, 18:55 :)
 
     public void testNamedFunRecursiveFactorial() {
