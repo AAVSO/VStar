@@ -28,7 +28,7 @@ import org.aavso.tools.vstar.data.Property;
  */
 public enum Type {
 
-	INTEGER, REAL, STRING, BOOLEAN, LIST, FUNCTION, OBJECT, NONE;
+	INTEGER, REAL, BOOLEAN, STRING, LIST, FUNCTION, OBJECT, NONE;
 
 	public final static int[] INT_ARR = new int[0];
 	public final static double[] DBL_ARR = new double[0];
@@ -154,7 +154,7 @@ public enum Type {
 	}
 
 	public boolean isComposite() {
-		return this == LIST || this == FUNCTION;
+		return this == LIST || this == FUNCTION || this == OBJECT;
 	}
 
 	public boolean oneOf(Type... types) {

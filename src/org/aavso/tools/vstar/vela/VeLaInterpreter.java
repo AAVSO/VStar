@@ -713,9 +713,8 @@ public class VeLaInterpreter {
      * @param op The operation to be applied.
      */
     private void applyBinaryOperation(Operation op) {
-        // TODO: copy() needed?
-        Operand operand2 = stack.pop().copy();
-        Operand operand1 = stack.pop().copy();
+        Operand operand2 = stack.pop();
+        Operand operand1 = stack.pop();
 
         if (operand1.getType() == Type.LIST || operand2.getType() == Type.LIST) {
             applyBinaryListOperation(op, operand1, operand2);
@@ -726,7 +725,13 @@ public class VeLaInterpreter {
             // https://stackoverflow.com/questions/13604703/how-do-i-define-a-method-which-takes-a-lambda-as-a-parameter-in-java-8
             // type unification is not relevant to all operations, e.g. IN;
 
-            Type type = unifyTypes(operand1, operand2);
+            // Unify the operand types if possible.
+            Pair<Operand, Operand> operands = unifyTypes(operand1, operand2);
+            operand1 = operands.first;
+            operand2 = operands.second;
+
+            // Arbitrarily use the type of the first operand.
+            Type type = operands.first.getType();
 
             switch (op) {
             case ADD:
@@ -1020,12 +1025,19 @@ public class VeLaInterpreter {
     private void applyBinaryListOperation(Operation op, Operand operand1, Operand operand2) {
         switch (op) {
         case IN:
+            Pair<Operand, Operand> operands = unifyTypes(operand1, operand2);
+            operand1 = operands.first;
+            operand2 = operands.second;
+
             if (operand2.getType() == Type.LIST) {
                 // Is a value contained within a list?
                 stack.push(new Operand(Type.BOOLEAN, operand2.listVal().contains(operand1)));
-            } else if (unifyTypes(operand1, operand2) == Type.STRING) {
+            } else if (operand2.getType() == Type.STRING) {
                 // Is one string contained within another?
                 stack.push(new Operand(Type.BOOLEAN, operand2.stringVal().contains(operand1.stringVal())));
+            } else {
+                String msg = String.format("The second operand must be of type list or string for 'IN' operation", op);
+                throw new VeLaEvalError(msg);
             }
             break;
 
@@ -1089,36 +1101,29 @@ public class VeLaInterpreter {
     /**
      * Unify operand types by converting both operands to strings if only one is a
      * string or both operands to double if only one is an integer. We change
-     * nothing if either type is composite or Boolean. Note that this method is
-     * intended to be used for expressions, not for variable bindings where much
-     * less conversion/coercion is possible.
+     * nothing if either type is composite or Boolean.
      * 
      * @param a The first operand.
      * @param b The second operand.
-     * @return The final type of the unified operands.
+     * @return The unified operands.
      */
-    private Type unifyTypes(Operand a, Operand b) {
-        Type type = a.getType();
+    private Pair<Operand, Operand> unifyTypes(Operand a, Operand b) {
+        Operand converted_a = a;
+        Operand converted_b = b;
 
         if (!a.getType().isComposite() && !b.getType().isComposite()) {
             if (a.getType() != Type.STRING && b.getType() == Type.STRING) {
-                a.convertToString();
-                type = Type.STRING;
+                converted_a = a.convertToString();
             } else if (a.getType() == Type.STRING && b.getType() != Type.STRING) {
-                b.convertToString();
-                type = Type.STRING;
+                converted_b = b.convertToString();
             } else if (a.getType() == Type.INTEGER && b.getType() == Type.REAL) {
-                a.setDoubleVal(a.intVal());
-                a.setType(Type.REAL);
-                type = Type.REAL;
+                converted_a = new Operand(Type.REAL, (double) a.intVal());
             } else if (a.getType() == Type.REAL && b.getType() == Type.INTEGER) {
-                b.setDoubleVal(b.intVal());
-                b.setType(Type.REAL);
-                type = Type.REAL;
+                converted_b = new Operand(Type.REAL, (double) b.intVal());
             }
         }
 
-        return type;
+        return new Pair<Operand, Operand>(converted_a, converted_b);
     }
 
     // ** Variable related methods **
@@ -1141,10 +1146,10 @@ public class VeLaInterpreter {
             Optional<Operand> possibleBinding = environments.get(i).lookup(name);
             if (possibleBinding.isPresent()) {
                 Operand existingBinding = possibleBinding.get();
-                Type convertedType = value.convert(existingBinding.getType());
-                if (convertedType == existingBinding.getType()) {
+                Operand convertedVal = value.convert(existingBinding.getType());
+                if (convertedVal.getType() == existingBinding.getType()) {
                     // bind value to existing variable...
-                    environments.get(i).bind(name, value, isConstant);
+                    environments.get(i).bind(name, convertedVal, isConstant);
                     bound = true;
                 } else {
                     throw new VeLaEvalError(String.format(
@@ -1318,11 +1323,11 @@ public class VeLaInterpreter {
                 // Does the function have a return type defined?
                 if (function.returnType.isPresent()) {
                     // Attempt to convert to return type if necessary.
-                    result.get().convert(function.getReturnType().get());
 
-                    if (result.get().getType() == function.returnType.get()) {
-                        // The returned result was of the expected type.
-                        stack.push(result.get());
+                    Operand convertedResult = result.get().convert(function.getReturnType().get());
+                    if (convertedResult.getType() == function.returnType.get()) {
+                        // The returned result was of the expected type or was converted to it.
+                        stack.push(convertedResult);
                     } else {
                         // The returned result was not of the expected type.
                         throw new VeLaEvalError(String.format(

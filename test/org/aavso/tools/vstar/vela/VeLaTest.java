@@ -1252,6 +1252,17 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         vela.program(prog);
     }
 
+    public void testParamConversionDoesNotChangeActualParam() {
+        String prog = "";
+        prog += "a <- 42\n" + "f(n:real):real{n/5}\n" + "f(a)\n" + "a\n";
+
+        Optional<Operand> result = vela.program(prog);
+
+        assertTrue(result.isPresent());
+        assertEquals(42, result.get().intVal());
+        assertEquals(Type.INTEGER, result.get().getType());
+    }
+
     // Turing Completeness attained: Dec 20 2018, 18:55 :)
 
     public void testNamedFunRecursiveFactorial() {
@@ -1834,7 +1845,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         File code = new File("test/org/aavso/tools/vstar/vela/code/sqr.vela");
         Optional<Operand> result = vela.program(code);
         assertTrue(result.isPresent());
-        assertEquals(144, result.get().intVal());
+        assertEquals(144.0, result.get().doubleVal());
     }
 
     public void testUserCode2() {
@@ -1844,7 +1855,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, dirs);
         Optional<Operand> result = vela.program("cube(2)");
         assertTrue(result.isPresent());
-        assertEquals(8, result.get().intVal());
+        assertEquals(8.0, result.get().doubleVal());
     }
 
     // Standard Library Functions: VeLa and intrinsic (Java)

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * The base class for all function executors. Each subclass must implement
@@ -30,230 +29,206 @@ import java.util.stream.Collectors;
  */
 public abstract class FunctionExecutor {
 
-	public static final List<Type> ANY_FORMALS = Collections.emptyList();
-	public static final List<Type> NO_FORMALS = Collections.emptyList();
-	public static final List<Operand> NO_ACTUALS = new ArrayList<Operand>();
+    public static final List<Type> ANY_FORMALS = Collections.emptyList();
+    public static final List<Type> NO_FORMALS = Collections.emptyList();
+    public static final List<Operand> NO_ACTUALS = new ArrayList<Operand>();
 
-	protected Optional<String> funcName;
-	protected List<Type> parameterTypes;
-	protected Optional<Type> returnType;
+    protected Optional<String> funcName;
+    protected List<Type> parameterTypes;
+    protected Optional<Type> returnType;
 
-	protected Method method;
+    protected Method method;
 
-	/**
-	 * Apply the function to the specified operands and return a result of the
-	 * specified type.
-	 * 
-	 * @param operands
-	 *            A list if operands to which the function is to be applied.
-	 * @return The optional return value.
-	 * @throws A
-	 *             VeLaEvalError if an error occurred during function
-	 *             evaluation.
-	 */
-	public abstract Optional<Operand> apply(List<Operand> operands)
-			throws VeLaEvalError;
+    /**
+     * Apply the function to the specified operands and return a result of the
+     * specified type.
+     * 
+     * @param operands A list if operands to which the function is to be applied.
+     * @return The optional return value.
+     * @throws A VeLaEvalError if an error occurred during function evaluation.
+     */
+    public abstract Optional<Operand> apply(List<Operand> operands) throws VeLaEvalError;
 
-	/**
-	 * Constructor for functions with a corresponding Java method to invoke.
-	 * 
-	 * @param funcName
-	 *            The function's name.
-	 * @param method
-	 *            The corresponding Java method object.
-	 * @param parameterTypes
-	 *            The function's parameter types.
-	 * @param returnType
-	 *            The function's optional return type.
-	 */
-	public FunctionExecutor(Optional<String> funcName, Method method,
-			List<Type> parameterTypes, Optional<Type> returnType) {
-		this.funcName = funcName;
-		this.method = method;
-		this.parameterTypes = parameterTypes;
-		this.returnType = returnType;
-	}
+    /**
+     * Constructor for functions with a corresponding Java method to invoke.
+     * 
+     * @param funcName       The function's name.
+     * @param method         The corresponding Java method object.
+     * @param parameterTypes The function's parameter types.
+     * @param returnType     The function's optional return type.
+     */
+    public FunctionExecutor(Optional<String> funcName, Method method, List<Type> parameterTypes,
+            Optional<Type> returnType) {
+        this.funcName = funcName;
+        this.method = method;
+        this.parameterTypes = parameterTypes;
+        this.returnType = returnType;
+    }
 
-	/**
-	 * Constructor
-	 * 
-	 * @param funcName
-	 *            The function's name.
-	 * @param parameterTypes
-	 *            The function's parameter types.
-	 * @param returnType
-	 *            The function's return type.
-	 */
-	public FunctionExecutor(Optional<String> funcName,
-			List<Type> parameterTypes, Optional<Type> returnType) {
-		this(funcName, null, parameterTypes, returnType);
-	}
+    /**
+     * Constructor
+     * 
+     * @param funcName       The function's name.
+     * @param parameterTypes The function's parameter types.
+     * @param returnType     The function's return type.
+     */
+    public FunctionExecutor(Optional<String> funcName, List<Type> parameterTypes, Optional<Type> returnType) {
+        this(funcName, null, parameterTypes, returnType);
+    }
 
-	/**
-	 * Constructor for zero-arity functions with a corresponding Java method to
-	 * invoke.
-	 * 
-	 * @param funcName
-	 *            The function's name.
-	 * @param method
-	 *            The corresponding Java method object.
-	 * @param parameterTypes
-	 *            The function's parameter types.
-	 * @param returnType
-	 *            The function's return type.
-	 */
-	public FunctionExecutor(Optional<String> funcName, Method method,
-			Optional<Type> returnType) {
-		this(funcName, method, NO_FORMALS, returnType);
-	}
+    /**
+     * Constructor for zero-arity functions with a corresponding Java method to
+     * invoke.
+     * 
+     * @param funcName       The function's name.
+     * @param method         The corresponding Java method object.
+     * @param parameterTypes The function's parameter types.
+     * @param returnType     The function's return type.
+     */
+    public FunctionExecutor(Optional<String> funcName, Method method, Optional<Type> returnType) {
+        this(funcName, method, NO_FORMALS, returnType);
+    }
 
-	/**
-	 * Constructor for zero-arity functions.
-	 * 
-	 * @param funcName
-	 *            The function's name.
-	 * @param parameterTypes
-	 *            The function's parameter types.
-	 * @param returnType
-	 *            The function's return type.
-	 */
-	public FunctionExecutor(Optional<String> funcName, Optional<Type> returnType) {
-		this(funcName, null, NO_FORMALS, returnType);
-	}
+    /**
+     * Constructor for zero-arity functions.
+     * 
+     * @param funcName       The function's name.
+     * @param parameterTypes The function's parameter types.
+     * @param returnType     The function's return type.
+     */
+    public FunctionExecutor(Optional<String> funcName, Optional<Type> returnType) {
+        this(funcName, null, NO_FORMALS, returnType);
+    }
 
-	/**
-	 * Do the specified actual parameters conform to the function's formal
-	 * parameter list?
-	 * 
-	 * @param actualParameters
-	 *            A list of actual parameters (Operands).
-	 * @return Whether or not the actuals conform to the formals.
-	 */
-	public boolean conforms(List<Operand> actualParameters) {
-		boolean result = true;
+    /**
+     * Do the specified actual parameters conform to the function's formal parameter
+     * list? If any operands are converted to a different type, they will be
+     * replaced with a new operand in the actual parameter list to prevent side
+     * effects.
+     * 
+     * @param actualParameters A list of actual parameters (Operands).
+     * @return Whether or not the actuals conform to the formals.
+     */
+    public boolean conforms(List<Operand> actualParameters) {
+        boolean result = true;
 
-		actualParameters = actualParameters.stream().map(op -> op.copy())
-				.collect(Collectors.toList());
+        if (parameterTypes == ANY_FORMALS) {
+            result = true;
+        } else if (actualParameters.size() != parameterTypes.size()) {
+            result = false;
+        } else {
+            for (int i = 0; i < actualParameters.size(); i++) {
+                Type requiredType = parameterTypes.get(i);
+                Operand originalVal = actualParameters.get(i);
+                Operand convertedVal = originalVal.convert(requiredType);
+                if (convertedVal.getType() != requiredType) {
+                    result = false;
+                    break;
+                } else if (convertedVal != originalVal) {
+                    actualParameters.set(i, convertedVal);
+                }
+            }
+        }
 
-		if (parameterTypes == ANY_FORMALS) {
-			result = true;
-		} else if (actualParameters.size() != parameterTypes.size()) {
-			result = false;
-		} else {
-			for (int i = 0; i < actualParameters.size(); i++) {
-				Type requiredType = parameterTypes.get(i);
-				if (actualParameters.get(i).convert(requiredType) != requiredType) {
-					result = false;
-					break;
-				}
-			}
-		}
+        return result;
+    }
 
-		return result;
-	}
+    /**
+     * @return the funcName
+     */
+    public Optional<String> getFuncName() {
+        return funcName;
+    }
 
-	/**
-	 * @return the funcName
-	 */
-	public Optional<String> getFuncName() {
-		return funcName;
-	}
+    /**
+     * @return the method
+     */
+    public Method getMethod() {
+        return method;
+    }
 
-	/**
-	 * @return the method
-	 */
-	public Method getMethod() {
-		return method;
-	}
+    /**
+     * @return the parameterTypes
+     */
+    public List<Type> getParameterTypes() {
+        return parameterTypes;
+    }
 
-	/**
-	 * @return the parameterTypes
-	 */
-	public List<Type> getParameterTypes() {
-		return parameterTypes;
-	}
+    /**
+     * @return the returnType
+     */
+    public Optional<Type> getReturnType() {
+        return returnType;
+    }
 
-	/**
-	 * @return the returnType
-	 */
-	public Optional<Type> getReturnType() {
-		return returnType;
-	}
+    /**
+     * @param returnType the returnType to set
+     */
+    public void setReturnType(Optional<Type> returnType) {
+        this.returnType = returnType;
+    }
 
-	/**
-	 * @param returnType
-	 *            the returnType to set
-	 */
-	public void setReturnType(Optional<Type> returnType) {
-		this.returnType = returnType;
-	}
+    @Override
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
 
-	@Override
-	public String toString() {
-		StringBuffer buf = new StringBuffer();
+        buf.append(String.format("%s (%s)", funcName.isPresent() ? funcName.get() : "anonymous",
+                parameterTypes.toString().replace("[", "").replace("]", "").replace(",", "")));
 
-		buf.append(String.format("%s (%s)",
-				funcName.isPresent() ? funcName.get() : "anonymous",
-				parameterTypes.toString().replace("[", "").replace("]", "")
-						.replace(",", "")));
+        if (returnType.isPresent()) {
+            buf.append(String.format(" : %s", returnType.get()));
+        }
 
-		if (returnType.isPresent()) {
-			buf.append(String.format(" : %s", returnType.get()));
-		}
+        return buf.toString();
+    }
 
-		return buf.toString();
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((funcName == null) ? 0 : funcName.hashCode());
+        result = prime * result + ((method == null) ? 0 : method.hashCode());
+        result = prime * result + ((parameterTypes == null) ? 0 : parameterTypes.hashCode());
+        result = prime * result + ((returnType == null) ? 0 : returnType.hashCode());
+        return result;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((funcName == null) ? 0 : funcName.hashCode());
-		result = prime * result + ((method == null) ? 0 : method.hashCode());
-		result = prime * result
-				+ ((parameterTypes == null) ? 0 : parameterTypes.hashCode());
-		result = prime * result
-				+ ((returnType == null) ? 0 : returnType.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof FunctionExecutor)) {
-			return false;
-		}
-		FunctionExecutor other = (FunctionExecutor) obj;
-		if (funcName == null) {
-			if (other.funcName != null) {
-				return false;
-			}
-		} else if (!funcName.equals(other.funcName)) {
-			return false;
-		}
-		if (method == null) {
-			if (other.method != null) {
-				return false;
-			}
-		} else if (!method.equals(other.method)) {
-			return false;
-		}
-		if (parameterTypes == null) {
-			if (other.parameterTypes != null) {
-				return false;
-			}
-		} else if (!parameterTypes.equals(other.parameterTypes)) {
-			return false;
-		}
-		if (returnType != other.returnType) {
-			return false;
-		}
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof FunctionExecutor)) {
+            return false;
+        }
+        FunctionExecutor other = (FunctionExecutor) obj;
+        if (funcName == null) {
+            if (other.funcName != null) {
+                return false;
+            }
+        } else if (!funcName.equals(other.funcName)) {
+            return false;
+        }
+        if (method == null) {
+            if (other.method != null) {
+                return false;
+            }
+        } else if (!method.equals(other.method)) {
+            return false;
+        }
+        if (parameterTypes == null) {
+            if (other.parameterTypes != null) {
+                return false;
+            }
+        } else if (!parameterTypes.equals(other.parameterTypes)) {
+            return false;
+        }
+        if (returnType != other.returnType) {
+            return false;
+        }
+        return true;
+    }
 }
