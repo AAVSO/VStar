@@ -89,6 +89,7 @@ import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.aavso.tools.vstar.vela.FunctionExecutor;
 import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.Type;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
@@ -248,13 +249,22 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 
 		// Evaluate the VeLa model code.
 		vela.program(veLaCode);
-		
-		// Has a model function been defined?
-		if (!vela.lookupFunctions(FUNC_NAME).isPresent()) {
-			throw new ObservationReadError("A function " + FUNC_NAME + "(T:REAL):REAL is not defined in the model");
+
+		// Check if a model function "FUNC_NAME(T:REAL):REAL" is defined 		
+		Optional<List<FunctionExecutor>> functions = vela.lookupFunctions(FUNC_NAME); 
+		if (functions.isPresent()) {
+			List<FunctionExecutor> funcExecutors = functions.get();
+			if (funcExecutors.size() == 1) {
+				FunctionExecutor executor = funcExecutors.get(0);
+				List<Type> paramTypes = executor.getParameterTypes();
+				if (paramTypes != null && paramTypes.size() == 1 && paramTypes.get(0) == Type.REAL) {
+					Optional<Type> returnType = executor.getReturnType();
+					if (returnType.isPresent() && returnType.get() == Type.REAL)
+						return vela;
+				}
+			}
 		}
-		
-		return vela;
+		throw new ObservationReadError("A (non-overloaded) model function " + FUNC_NAME + "(T:REAL):REAL must be defined");
 	}
 	
 	class VeLaModelObsRetriever extends AbstractObservationRetriever {
