@@ -25,7 +25,9 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.HeadlessException;
 import java.awt.LayoutManager;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -37,9 +39,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -49,6 +54,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -80,6 +89,7 @@ import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.aavso.tools.vstar.vela.FunctionExecutor;
 import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.Type;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
@@ -233,6 +243,30 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			return s;
 	}
 	
+	private VeLaInterpreter createVeLaInterpreter(String veLaCode) throws ObservationReadError {
+		// Create a VeLa interpreter instance.
+		VeLaInterpreter vela = new VeLaInterpreter();
+
+		// Evaluate the VeLa model code.
+		vela.program(veLaCode);
+
+		// Check if a model function "FUNC_NAME(T:REAL):REAL" is defined 		
+		Optional<List<FunctionExecutor>> functions = vela.lookupFunctions(FUNC_NAME); 
+		if (functions.isPresent()) {
+			List<FunctionExecutor> funcExecutors = functions.get();
+			if (funcExecutors.size() == 1) {
+				FunctionExecutor executor = funcExecutors.get(0);
+				List<Type> paramTypes = executor.getParameterTypes();
+				if (paramTypes != null && paramTypes.size() == 1 && paramTypes.get(0) == Type.REAL) {
+					Optional<Type> returnType = executor.getReturnType();
+					if (returnType.isPresent() && returnType.get() == Type.REAL)
+						return vela;
+				}
+			}
+		}
+		throw new ObservationReadError("A (non-overloaded) model function " + FUNC_NAME + "(T:REAL):REAL must be defined");
+	}
+	
 	class VeLaModelObsRetriever extends AbstractObservationRetriever {
 		
 		public VeLaModelObsRetriever() {
@@ -249,41 +283,14 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		}			
 
 		private void retrieveVeLaModelObservations() throws ObservationReadError {
-			
-			if (points < 2) {
-				throw new ObservationReadError("Number of points must be >1");
-			}
-			
-			double step = (maxJD - minJD) / (points - 1);
-			
-			if (step <= 0) {
-				throw new ObservationReadError("Maximum JD must be greater than Minimum JD");
-			}
-			
-			if (jDflavour == JDflavour.UNKNOWN) {
-				throw new ObservationReadError("Undefined datetype");
-			}
-			
-			if (veLaCode == null || "".equals(veLaCode.trim())) {
-				throw new ObservationReadError("VeLa model is not defined");
-			}
-			
+		
 			setJDflavour(jDflavour);
 			
-			// Create a VeLa interpreter instance.
-			VeLaInterpreter vela = new VeLaInterpreter();
-			
-			// Evaluate the VeLa model code.
-			// A univariate function f(t:real):real is
-			// assumed to exist after this completes.
-			vela.program(veLaCode);
-			
-			// Has a model function been defined?
-			if (!vela.lookupFunctions(FUNC_NAME).isPresent()) {
-				throw new ObservationReadError("A function " + FUNC_NAME + "(T:REAL):REAL is not defined in the model");
-			}
+			VeLaInterpreter vela = createVeLaInterpreter(veLaCode);
 
 			Double magVal = null;
+			
+			double step = (maxJD - minJD) / (points - 1);
 			
 			for (int i = 0; i < points && !wasInterrupted(); i++) {
 				
@@ -365,8 +372,98 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		private TextField objectNameField;
 		private JButton clearButton;
 		private JButton testButton;
+		private JButton checkButton;
 		private JButton loadButton;
 		private JButton saveButton;
+		
+		private UndoManager undo;
+		
+		/**
+		 * Constructor
+		 */
+		public ParameterDialog() {
+			super("Function Code [model: f(t)]");
+			
+			cancelListener = createCancelButtonListener();
+			getRootPane().registerKeyboardAction(cancelListener,
+					KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+					JComponent.WHEN_IN_FOCUSED_WINDOW);
+			
+			Container contentPane = this.getContentPane();
+
+			JPanel topPane = new JPanel();
+			topPane.setLayout((LayoutManager) new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			
+			topPane.add(createControlPane());
+			topPane.add(createControlPane2());
+
+			topPane.add(createCodePane());
+			//topPane.add(createFileControlPane());
+			
+			// OK, Cancel
+			topPane.add(createButtonPane());
+
+			contentPane.add(topPane);
+			
+			addCodeAreaUndoManager();
+			
+			this.pack();
+			//this.setResizable(false);
+			// Singleton mode! Use showDialog()!
+			//setLocationRelativeTo(Mediator.getUI().getContentPane());
+			//this.setVisible(true);
+			
+			clearInput();
+		}
+		
+		private void addCodeAreaUndoManager() {
+			
+			int keyMask;
+			try {
+				keyMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+			} catch (HeadlessException ex) {
+				return;
+			}
+			
+			undo = new UndoManager();
+			javax.swing.text.Document doc = codeArea.getDocument();
+			doc.addUndoableEditListener(new UndoableEditListener() {
+				public void undoableEditHappened(UndoableEditEvent e) {
+					undo.addEdit(e.getEdit());
+				}
+			});
+			
+			InputMap im = codeArea.getInputMap(JComponent.WHEN_FOCUSED);
+			ActionMap am = codeArea.getActionMap();
+
+			im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, keyMask), "Undo");
+			im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, keyMask), "Redo");
+
+			am.put("Undo", new AbstractAction() {
+			    @Override
+			    public void actionPerformed(ActionEvent e) {
+		            if (undo.canUndo())
+		            	try {
+			                undo.undo();
+		            	} catch (CannotUndoException ex) {
+		            		//ex.printStackTrace();
+		            	}
+			    }
+			});
+			
+			am.put("Redo", new AbstractAction() {
+			    @Override
+			    public void actionPerformed(ActionEvent e) {
+		            if (undo.canRedo())
+		            	try {
+			                undo.redo();
+		            	} catch (CannotUndoException ex) {
+		            		//ex.printStackTrace();
+		            	}
+			    }
+			});			
+		}
 		
 		public boolean isAdditive() {
 			return addToCurrent.isSelected();
@@ -437,43 +534,6 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			}
 		}
 		
-		/**
-		 * Constructor
-		 */
-		public ParameterDialog() {
-			super("Function Code [model: f(t)]");
-			
-			cancelListener = createCancelButtonListener();
-			getRootPane().registerKeyboardAction(cancelListener,
-					KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
-					JComponent.WHEN_IN_FOCUSED_WINDOW);
-			
-			Container contentPane = this.getContentPane();
-
-			JPanel topPane = new JPanel();
-			topPane.setLayout((LayoutManager) new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-			
-			topPane.add(createControlPane());
-			topPane.add(createControlPane2());
-
-			topPane.add(createCodePane());
-			//topPane.add(createFileControlPane());
-			
-			// OK, Cancel
-			topPane.add(createButtonPane());
-
-			contentPane.add(topPane);
-			
-			this.pack();
-			//this.setResizable(false);
-			// Singleton mode! Use showDialog()!
-			//setLocationRelativeTo(Mediator.getUI().getContentPane());
-			//this.setVisible(true);
-			
-			clearInput();
-		}
-
 		private JPanel createControlPane() {
 			JPanel panel = new JPanel(new FlowLayout());
 			
@@ -550,6 +610,10 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			panel.add(testButton);
 			testButton.addActionListener(createTestButtonActionListener());
 
+			checkButton = new JButton("Check");
+			panel.add(checkButton);
+			checkButton.addActionListener(createCheckButtonActionListener());
+			
 			loadButton = new JButton(LocaleProps.get("LOAD_BUTTON"));
 			panel.add(loadButton);
 			loadButton.addActionListener(createLoadButtonActionListener());
@@ -603,6 +667,15 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			};
 		}
 
+		ActionListener createCheckButtonActionListener() {
+			return new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					checkInput();
+				}
+			};
+		}
+		
 		private ActionListener createLoadButtonActionListener() {
 			return new ActionListener() {
 				@Override
@@ -654,6 +727,65 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			titleXfield.setValue("");
 			titleYfield.setValue("");
 			objectNameField.setValue("");
+		}
+		
+		private boolean checkInput() {
+
+			Double minJDval = getMinJD();
+			Double maxJDval = getMaxJD();
+			Integer pointsval = getPoints();
+			
+			if (minJDval == null) {
+				valueError(minJD);
+				return false;
+			}
+			
+			if (maxJDval == null) {
+				valueError(maxJD);
+				return false;
+			}
+			
+			if (pointsval == null) {
+				valueError(points);
+				return false;
+			}
+
+			if (pointsval < 2) {
+				MessageBox.showErrorDialog(this, getTitle(), "Number of points must be >1");
+				return false;
+			}
+			
+			double step = (maxJDval - minJDval) / (pointsval - 1);
+			if (step <= 0) {
+				MessageBox.showErrorDialog(this, "Error", "Maximum JD must be greater than Minimum JD");
+				return false;
+			}
+			
+			if ("".equals(getCode().trim())) {
+				MessageBox.showErrorDialog(this, getTitle(), "VeLa model must be defined.");
+				return false;
+			}
+			
+			if (getJDflavour() == JDflavour.UNKNOWN) {
+				MessageBox.showErrorDialog(this, getTitle(), "Undefined DATE type");
+				return false;
+			}
+			
+			String veLaCode = getCode();
+			if (veLaCode == null || "".equals(veLaCode.trim())) {
+				MessageBox.showErrorDialog(this, getTitle(), "VeLa model is not defined");
+				return false;
+			}
+			
+			try {
+				createVeLaInterpreter(veLaCode);
+			} catch (Exception ex) {
+				MessageBox.showErrorDialog(this, getTitle(), ex.getLocalizedMessage());
+				return false;
+			}
+			
+			return true;
+
 		}
 		
 		private void readVelaXML() {
@@ -812,47 +944,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		 */
 		@Override
 		protected void okAction() {
-			boolean ok = true;
-			
-			Double minJDval = getMinJD();
-			Double maxJDval = getMaxJD();
-			Integer pointsval = getPoints();
-			
-			if (minJDval == null) {
-				valueError(minJD);
-				ok = false;
-			}
-			
-			if (ok) {
-				if (maxJDval == null) {
-					valueError(maxJD);
-					ok = false;
-				}
-			}
-			
-			if (ok) {
-				if (pointsval == null) {
-					valueError(points);
-					ok = false;
-				}
-			}
-			
-			if (ok) {
-				double step = (maxJDval - minJDval) / pointsval;
-				if (step <= 0) {
-					MessageBox.showErrorDialog(this, "Error", "Maximum JD must be greater than Minimum JD");
-					ok = false;
-				}
-			}
-			
-			if (ok) {
-				if ("".equals(getCode().trim())) {
-					MessageBox.showErrorDialog(this, getTitle(), "VeLa model must be defined.");
-					ok = false;
-				}
-			}
-
-			if (ok) {
+			if (checkInput()) {
 				cancelled = false;
 				setVisible(false);
 				dispose();
