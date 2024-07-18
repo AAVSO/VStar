@@ -1357,6 +1357,18 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertEquals(720, result.get().intVal());
     }
 
+    // see https://github.com/AAVSO/VStar/issues/441
+    public void testFunReturningLiteralExpr() {
+        String prog = "";
+        prog += "f(n:real) : real { 12.0 }";
+        prog += "f(4)";
+
+        Optional<Operand> result = vela.program(prog);
+
+        assertTrue(result.isPresent());
+        assertEquals(12.0, result.get().doubleVal());
+    }
+
     public void testFunMap() {
         String prog = "";
         prog += "fact(n:integer) : integer {";

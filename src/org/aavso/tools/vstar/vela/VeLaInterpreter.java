@@ -1101,7 +1101,7 @@ public class VeLaInterpreter {
     /**
      * Unify operand types by converting both operands to strings if only one is a
      * string or both operands to double if only one is an integer. We change
-     * nothing if either type is composite or Boolean.
+     * nothing if either type is composite.
      * 
      * @param a The first operand.
      * @param b The second operand.

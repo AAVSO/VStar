@@ -20,62 +20,93 @@ package org.aavso.tools.vstar.vela;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Optional;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.Pair;
 
 /**
- * This class allows a VeLa program to be run from the command-line.
+ * This class allows a VeLa program to be run from the command-line or for its
+ * LISP or DOT AST to be sent to standard output.
  */
 public class VeLaScriptDriver {
-	public static void main(String[] args) {
-		if (args.length >= 1 && args.length <= 3) {
-			BufferedReader reader = null;
-			try {
-				// Process command-line arguments.
-				String velaSourceFile = null;
-				boolean verbose = false;
-				boolean restartOnError = false;
-				for (String arg : args) {
-					if (arg.startsWith("--")) {
-						verbose = "--verbose".equals(arg);
-						restartOnError = "--restart".equals(arg);
-					} else {
-						velaSourceFile = arg;
-					}
-				}
+    public static void main(String[] args) {
+        if (args.length >= 1 && args.length <= 5) {
+            BufferedReader reader = null;
+            try {
+                // Process command-line arguments.
+                String velaSourceFile = null;
+                boolean verbose = false;
+                boolean restartOnError = false;
+                boolean lispAST = false;
+                boolean dotAST = false;
 
-				if (Mediator.getUI() != null) {
-					Mediator.getUI().setScriptingStatus(true);
-				}
+                for (String arg : args) {
+                    if (arg.startsWith("--")) {
+                        if ("--verbose".equals(arg)) {
+                            verbose = true;
+                        }
+                        if ("--restart".equals(arg)) {
+                            restartOnError = true;
+                        }
+                        if ("--lisp".equals(arg)) {
+                            lispAST = true;
+                        }
+                        if ("--dot".equals(arg)) {
+                            dotAST = true;
+                        }
+                    } else {
+                        velaSourceFile = arg;
+                    }
+                }
 
-				// Run interpreter, optionally restarting it on error.
-				VeLaInterpreter vela = new VeLaInterpreter(verbose);
-				do {
-					try {
-						reader = new BufferedReader(new FileReader(
-								velaSourceFile));
-						StringBuffer buf = new StringBuffer();
-						String line = reader.readLine();
-						while (line != null) {
-							buf.append(line);
-							buf.append("\n");
-							line = reader.readLine();
-						}
-						vela.program(buf.toString());
-					} catch (Throwable t) {
-						System.out.println(t.getLocalizedMessage());
-					}
-				} while (restartOnError);
-			} finally {
-				try {
-					reader.close();
-				} catch (IOException e) {
-				}
+                if (Mediator.getUI() != null) {
+                    Mediator.getUI().setScriptingStatus(true);
+                }
 
-				if (Mediator.getUI() != null) {
-					Mediator.getUI().setScriptingStatus(false);
-				}
-			}
-		}
-	}
+                // Run interpreter, optionally restarting it on error.
+                VeLaInterpreter vela = new VeLaInterpreter(verbose);
+                do {
+                    try {
+                        reader = new BufferedReader(new FileReader(velaSourceFile));
+                        StringBuffer buf = new StringBuffer();
+                        String line = reader.readLine();
+                        while (line != null) {
+                            buf.append(line);
+                            buf.append("\n");
+                            line = reader.readLine();
+                        }
+
+                        Pair<Optional<Operand>, AST> pair = vela.veLaToResultASTPair(buf.toString());
+
+                        Optional<Operand> result = pair.first;
+                        if (result.isPresent()) {
+                            System.out.println(result.get());
+                        }
+
+                        if (lispAST) {
+                            System.out.println(pair.second.toString());
+                        }
+
+                        if (dotAST) {
+                            System.out.println(pair.second.toFullDOT());
+                        }
+
+                    } catch (Throwable t) {
+                        System.err.println(t.getLocalizedMessage());
+                        t.printStackTrace();
+                    }
+                } while (restartOnError);
+            } finally {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                }
+
+                if (Mediator.getUI() != null) {
+                    Mediator.getUI().setScriptingStatus(false);
+                }
+            }
+        }
+    }
 }
