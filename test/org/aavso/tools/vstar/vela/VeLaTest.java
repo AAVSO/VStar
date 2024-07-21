@@ -787,6 +787,35 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         }
     }
 
+    public void testCompoundIfThenElse() {
+        String prog = "if 3 > 2 then if 2 > 2 then 1 else 2";
+
+        Optional<Operand> result = vela.program(prog);
+
+        if (result.isPresent()) {
+            assertEquals(2, result.get().intVal());
+        } else {
+            fail();
+        }
+    }
+
+    public void testIfThenElseWithBlocks() {
+        String prog = "";
+        prog += "if 2 > 3 then {\n";
+        prog += "  42.42\n";
+        prog += "} else {\n";
+        prog += "  if 1 = 1 and 2 > 0 then 21.21 else 2\n";
+        prog += "}";
+
+        Optional<Operand> result = vela.program(prog);
+
+        if (result.isPresent()) {
+            assertTrue(Tolerance.areClose(21.21, result.get().doubleVal(), DELTA, true));
+        } else {
+            fail();
+        }
+    }
+
     // Functions
 
     public void testFuncParameterless1() {
