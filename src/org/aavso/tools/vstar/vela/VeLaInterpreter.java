@@ -203,6 +203,21 @@ public class VeLaInterpreter {
     }
 
     /**
+     * Pop and return an operand from the stack if not empty.
+     * 
+     * @param msgOnError The exception message to use if the stack is empty.
+     * @return The operand on top of the stack.
+     * @throws VeLaEvalError Thrown when the stack is empty.
+     */
+    public Operand pop(String msgOnError) throws VeLaEvalError {
+        if (!stack.isEmpty()) {
+            return stack.pop();
+        } else {
+            throw new VeLaEvalError(msgOnError);
+        }
+    }
+
+    /**
      * VeLa program interpreter entry point.
      * 
      * @param file A path to a file containing a VeLa program string to be
@@ -580,23 +595,12 @@ public class VeLaInterpreter {
             }
             break;
 
-        case BIND:
-            eval(ast.right());
-
-            String varName = ast.left().getToken();
-
-            if (!stack.isEmpty()) {
-                bind(varName, stack.pop(), false);
-            } else {
-                String msg = "No value to assign to \"" + varName + "\"";
-                throw new VeLaEvalError(msg);
-            }
-
-            break;
-
+        case BIND: 
         case IS:
             eval(ast.right());
-            bind(ast.left().getToken(), stack.pop(), true);
+            String varName = ast.left().getToken();
+            String msg = "No value to bind to \"" + varName + "\"";
+            bind(varName, pop(msg), ast.getOp() == Operation.IS);
             break;
 
         case FUNDEF:
