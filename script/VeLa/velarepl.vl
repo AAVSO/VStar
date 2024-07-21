@@ -20,12 +20,12 @@ repl() {
   while true {
     print("==> ")
     str <- read()
-    when 
-      str =~ "^\s*exit\s*$" -> { exit(0) }
-      true -> { 
-      	 result <- eval(str) 
-      	 when length(result) <> 0 -> println(head(result)) 
-      }
+    if str =~ "^\s*exit\s*$" then
+        exit(0)
+    else {
+        result <- eval(str)
+        if length(result) <> 0 then println(head(result))
+    }
   }
 }
 

@@ -10,7 +10,7 @@ genf() : function {
 
  f(t:real) : real {
   -- is time coordinate beyond end of current line segment?
-  when t > nth(times i+1) and i < length(times)-1 -> { 
+  if t > nth(times i+1) and i < length(times)-1 then {
     i <- i+1 
   }
         
@@ -37,7 +37,7 @@ gendf() : function {
 
  df(t:real) : real {
   -- is time coordinate beyond end of current line segment?
-  when t > nth(times i+1) and i < length(times)-1 -> { 
+  if t > nth(times i+1) and i < length(times)-1 then {
     i <- i+1 
   }
         

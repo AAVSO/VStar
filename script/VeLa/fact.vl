@@ -1,9 +1,7 @@
-#!/usr/bin/env /Users/david/vstar/script/VeLa/VeLa.sh --verbose
+#!/usr/bin/env /Users/david/vstar/script/VeLa/VeLa.sh #--verbose
 
 n!(n:integer) : integer {
-    when
-        n <= 0 -> 1
-        true -> n*n!(n-1)
+    if n <= 0 then 1 else n*n!(n-1)
 }
 
 x <- n!(6)
