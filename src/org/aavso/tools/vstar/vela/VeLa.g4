@@ -69,7 +69,7 @@ expression
 selectionExpression
 :
     whenExpression
-    | ifElseExpression
+    | ifExpression
 ;
 
 whenExpression
@@ -80,7 +80,7 @@ whenExpression
     )+
 ;
 
-ifElseExpression
+ifExpression
 :
     IF booleanExpression THEN consequent ( ELSE consequent )?
 ;

@@ -36,7 +36,7 @@ import org.aavso.tools.vstar.vela.VeLaParser.FactorContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FormalParameterContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FuncallContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FunobjContext;
-import org.aavso.tools.vstar.vela.VeLaParser.IfElseExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.IfExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.IntegerContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ListContext;
 import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
@@ -152,7 +152,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
     }
 
     @Override
-    public AST visitIfElseExpression(IfElseExpressionContext ctx) {
+    public AST visitIfExpression(IfExpressionContext ctx) {
         AST ast = new AST(Operation.IF);
 
         // Add antecedent Boolean expression...
