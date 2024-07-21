@@ -582,7 +582,16 @@ public class VeLaInterpreter {
 
         case BIND:
             eval(ast.right());
-            bind(ast.left().getToken(), stack.pop(), false);
+
+            String varName = ast.left().getToken();
+
+            if (!stack.isEmpty()) {
+                bind(varName, stack.pop(), false);
+            } else {
+                String msg = "No value to assign to \"" + varName + "\"";
+                throw new VeLaEvalError(msg);
+            }
+
             break;
 
         case IS:
@@ -676,7 +685,7 @@ public class VeLaInterpreter {
             }
             break;
 
-        case SELECT:
+        case WHEN:
             // Evaluate each antecedent in turn, pushing the value
             // of the first consequent whose antecedent is true and stop
             // antecedent evaluation.
@@ -686,6 +695,18 @@ public class VeLaInterpreter {
                     eval(pair.right());
                     break;
                 }
+            }
+            break;
+
+        case IF:
+            // Evaluate the antecedent, pushing the value of the first
+            // consequent if the condition is true, and the value of the
+            // second consequent otherwise.
+            eval(ast.head());
+            if (stack.pop().booleanVal()) {
+                eval(ast.getChildren().get(1));
+            } else if (ast.getChildren().size() == 3) {
+                eval(ast.getChildren().get(2));
             }
             break;
 
@@ -1093,8 +1114,7 @@ public class VeLaInterpreter {
                 typeStr += " or ";
             }
         }
-        String msg = String.format("'%s' expects values of type %s",
-                op.token(), typeStr);
+        String msg = String.format("'%s' expects values of type %s", op.token(), typeStr);
         throw new VeLaEvalError(msg);
     }
 

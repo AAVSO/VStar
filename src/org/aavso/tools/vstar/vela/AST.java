@@ -178,7 +178,7 @@ public class AST {
 	 */
 	public boolean isDeterministic() {
 		boolean deterministic = op != Operation.FUNCALL
-				&& op != Operation.SYMBOL && op != Operation.SELECT;
+				&& op != Operation.SYMBOL && op != Operation.WHEN;
 
 		if (deterministic && !isLeaf()) {
 			for (AST child : children) {

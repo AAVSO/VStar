@@ -734,7 +734,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     // Selection
 
-    public void testSelection() {
+    public void testWhen() {
         String prog = "when\n3 > 2 -> 42.42\ntrue -> 21.21";
 
         Optional<Operand> result = vela.program(prog);
@@ -746,7 +746,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         }
     }
 
-    public void testSelectionNested() {
+    public void testWhenNested() {
         String prog = "";
         prog += "when\n";
         prog += "  3 < 2 -> 42.42\n";
@@ -758,6 +758,30 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
         if (result.isPresent()) {
             assertTrue(Tolerance.areClose(84.0, result.get().doubleVal(), DELTA, true));
+        } else {
+            fail();
+        }
+    }
+
+    public void testIfThen() {
+        String prog = "if 3 > 2 then 42.42";
+
+        Optional<Operand> result = vela.program(prog);
+
+        if (result.isPresent()) {
+            assertTrue(Tolerance.areClose(42.42, result.get().doubleVal(), DELTA, true));
+        } else {
+            fail();
+        }
+    }
+
+    public void testIfThenElse() {
+        String prog = "if 2 > 3 then 42.42 else 21.21";
+
+        Optional<Operand> result = vela.program(prog);
+
+        if (result.isPresent()) {
+            assertTrue(Tolerance.areClose(21.21, result.get().doubleVal(), DELTA, true));
         } else {
             fail();
         }
