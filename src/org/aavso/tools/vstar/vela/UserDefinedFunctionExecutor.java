@@ -137,15 +137,12 @@ public class UserDefinedFunctionExecutor extends FunctionExecutor {
 
 		AST lastChild = ast.get().lastChild();
 
-		switch (lastChild.getOp()) {
-		case FUNCALL:
+		if (lastChild.getOp() == Operation.FUNCALL) {
 			if (getFuncName().isPresent()
 					&& getFuncName().get().equalsIgnoreCase(
 							lastChild.getToken())) {
 				isTailRecursive = true;
 			}
-			break;
-		default:
 		}
 
 		return isTailRecursive;
