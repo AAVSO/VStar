@@ -16,7 +16,7 @@ grammar VeLa;
 
 // The expression production will leave a value on the stack,
 // therefore the sequence rule could be the entry point for 
-// VStar filters as well as models, i.e. f one wishes to create 
+// VStar filters as well as models, i.e. if one wishes to create 
 // a filter that is a complete VeLa program that happens to
 // end in a boolean expression, then that is permitted.
 
@@ -68,10 +68,21 @@ expression
 
 selectionExpression
 :
+    whenExpression
+    | ifExpression
+;
+
+whenExpression
+:
     WHEN
     (
         booleanExpression ARROW consequent
     )+
+;
+
+ifExpression
+:
+    IF booleanExpression THEN consequent ( ELSE consequent )?
 ;
 
 consequent
@@ -309,6 +320,21 @@ COLON
 ARROW
 :
     '->'
+;
+
+IF
+:
+    [Ii] [Ff]
+;
+
+THEN
+:
+    [Tt] [Hh] [Ee] [Nn]
+;
+
+ELSE
+:
+    [Ee] [Ll] [Ss] [Ee]
 ;
 
 WHEN

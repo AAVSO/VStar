@@ -734,7 +734,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     // Selection
 
-    public void testSelection() {
+    public void testWhen() {
         String prog = "when\n3 > 2 -> 42.42\ntrue -> 21.21";
 
         Optional<Operand> result = vela.program(prog);
@@ -746,7 +746,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         }
     }
 
-    public void testSelectionNested() {
+    public void testWhenNested() {
         String prog = "";
         prog += "when\n";
         prog += "  3 < 2 -> 42.42\n";
@@ -758,6 +758,59 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
         if (result.isPresent()) {
             assertTrue(Tolerance.areClose(84.0, result.get().doubleVal(), DELTA, true));
+        } else {
+            fail();
+        }
+    }
+
+    public void testIfThen() {
+        String prog = "if 3 > 2 then 42.42";
+
+        Optional<Operand> result = vela.program(prog);
+
+        if (result.isPresent()) {
+            assertTrue(Tolerance.areClose(42.42, result.get().doubleVal(), DELTA, true));
+        } else {
+            fail();
+        }
+    }
+
+    public void testIfThenElse() {
+        String prog = "if 2 > 3 then 42.42 else 21.21";
+
+        Optional<Operand> result = vela.program(prog);
+
+        if (result.isPresent()) {
+            assertTrue(Tolerance.areClose(21.21, result.get().doubleVal(), DELTA, true));
+        } else {
+            fail();
+        }
+    }
+
+    public void testCompoundIfThenElse() {
+        String prog = "if 3 > 2 then if 2 > 2 then 1 else 2";
+
+        Optional<Operand> result = vela.program(prog);
+
+        if (result.isPresent()) {
+            assertEquals(2, result.get().intVal());
+        } else {
+            fail();
+        }
+    }
+
+    public void testIfThenElseWithBlocks() {
+        String prog = "";
+        prog += "if 2 > 3 then {\n";
+        prog += "  42.42\n";
+        prog += "} else {\n";
+        prog += "  if 1 = 1 and 2 > 0 then 21.21 else 2\n";
+        prog += "}";
+
+        Optional<Operand> result = vela.program(prog);
+
+        if (result.isPresent()) {
+            assertTrue(Tolerance.areClose(21.21, result.get().doubleVal(), DELTA, true));
         } else {
             fail();
         }
