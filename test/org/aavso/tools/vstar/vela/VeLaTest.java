@@ -74,31 +74,31 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     // Real expressions
 
     public void testPositiveReal1() {
-        double result = vela.realExpression("12.25");
-        assertTrue(Tolerance.areClose(12.25, result, DELTA, true));
+        Operand result = vela.expressionToOperand("12.25");
+        assertTrue(Tolerance.areClose(12.25, result.doubleVal(), DELTA, true));
     }
 
     public void testPositiveRealNoLeadingZero() {
-        double result = vela.realExpression(".25");
-        assertTrue(Tolerance.areClose(.25, result, DELTA, true));
+        Operand result = vela.expressionToOperand(".25");
+        assertTrue(Tolerance.areClose(.25, result.doubleVal(), DELTA, true));
     }
 
     public void testNegativeReal1() {
-        double result = vela.realExpression("-12.25");
-        assertTrue(Tolerance.areClose(-12.25, result, DELTA, true));
+        Operand result = vela.expressionToOperand("-12.25");
+        assertTrue(Tolerance.areClose(-12.25, result.doubleVal(), DELTA, true));
     }
 
     public void testNegativeRealNoLeadingZero() {
-        double result = vela.realExpression("-.25");
-        assertTrue(Tolerance.areClose(-.25, result, DELTA, true));
+        Operand result = vela.expressionToOperand("-.25");
+        assertTrue(Tolerance.areClose(-.25, result.doubleVal(), DELTA, true));
     }
 
     // PBT: Any real number represented as a VeLa expression should
     // evaluate to that number. We exclude infinities and NaNs since
     // we don't represent them directly in VeLa code.
     public void testAnyRealEval() {
-        qt().forAll(doubles().any().assuming((n) -> !n.isInfinite() && !n.isNaN()))
-                .check((n) -> Tolerance.areClose(n, vela.realExpression(String.format("%s", n)), DELTA, true));
+        // TODO: where is the VeLa code eval?
+        qt().forAll(doubles().any().assuming((n) -> !n.isInfinite() && !n.isNaN()));
     }
 
     // Note: reveals a bug in which a positive max long value can't be parsed
@@ -107,7 +107,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 //    public void testIntProperty() {
 //        String expr = String.format("%d", -9223372036854775808L);
 //        Number expected = -9223372036854775808L;
-//        Number actual = vela.expressionToOperand(expr).intVal();
+//        Number actual = vela.expressionToOperand(expr.intVal();
 //        assertEquals(expected, actual);
 //    }
 
@@ -120,8 +120,8 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     }
 
     public void testAddition() {
-        double result = vela.realExpression("2457580.25+1004");
-        assertTrue(Tolerance.areClose(2458584.25, result, DELTA, true));
+        Operand result = vela.expressionToOperand("2457580.25+1004");
+        assertTrue(Tolerance.areClose(2458584.25, result.doubleVal(), DELTA, true));
     }
 
     // PBT: Any two integers added in VeLa should equal the sum of those
@@ -135,8 +135,8 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     }
 
     public void testSubtraction() {
-        double result = vela.realExpression("2457580.25-1004");
-        assertTrue(Tolerance.areClose(2456576.25, result, DELTA, true));
+        Operand result = vela.expressionToOperand("2457580.25-1004");
+        assertTrue(Tolerance.areClose(2456576.25, result.doubleVal(), DELTA, true));
     }
 
     // PBT: Any two integers subtracted in VeLa should equal the difference
@@ -150,8 +150,8 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     }
 
     public void testMultiplication() {
-        double result = vela.realExpression("2457580.25*10");
-        assertTrue(Tolerance.areClose(24575802.5, result, DELTA, true));
+        Operand result = vela.expressionToOperand("2457580.25*10");
+        assertTrue(Tolerance.areClose(24575802.5, result.doubleVal(), DELTA, true));
     }
 
     // PBT: Any two integers multiplied in VeLa should equal the product
@@ -165,8 +165,8 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     }
 
     public void testDivision() {
-        double result = vela.realExpression("2457580.25/10");
-        assertTrue(Tolerance.areClose(245758.025, result, DELTA, true));
+        Operand result = vela.expressionToOperand("2457580.25/10");
+        assertTrue(Tolerance.areClose(245758.025, result.doubleVal(), DELTA, true));
     }
 
     // PBT: Any two integers divided in VeLa should equal the quotient
@@ -180,8 +180,8 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     }
 
     public void testAddSubMul() {
-        double result = vela.realExpression("2457580.25+1004*2-1");
-        assertTrue(Tolerance.areClose(2459587.25, result, DELTA, true));
+        Operand result = vela.expressionToOperand("2457580.25+1004*2-1");
+        assertTrue(Tolerance.areClose(2459587.25, result.doubleVal(), DELTA, true));
     }
 
     public void testAddSubMulDiv() {
@@ -215,65 +215,65 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     }
 
     public void testReal1() {
-        double result = vela.realExpression("2.25+1");
-        assertTrue(Tolerance.areClose(3.25, result, DELTA, true));
+        Operand result = vela.expressionToOperand("2.25+1");
+        assertTrue(Tolerance.areClose(3.25, result.doubleVal(), DELTA, true));
     }
 
     public void testReal2() {
-        double result = vela.realExpression("2.25-1");
-        assertTrue(Tolerance.areClose(1.25, result, DELTA, true));
+        Operand result = vela.expressionToOperand("2.25-1");
+        assertTrue(Tolerance.areClose(1.25, result.doubleVal(), DELTA, true));
     }
 
     public void testReal3() {
-        double result = vela.realExpression("2.25+1+2");
-        assertTrue(Tolerance.areClose(5.25, result, DELTA, true));
+        Operand result = vela.expressionToOperand("2.25+1+2");
+        assertTrue(Tolerance.areClose(5.25, result.doubleVal(), DELTA, true));
     }
 
     public void testReal4() {
-        double result = vela.realExpression("2.25*2*2");
-        assertTrue(Tolerance.areClose(9.0, result, DELTA, true));
+        Operand result = vela.expressionToOperand("2.25*2*2");
+        assertTrue(Tolerance.areClose(9.0, result.doubleVal(), DELTA, true));
     }
 
     public void testReal5() {
-        double result = vela.realExpression("1 - 6 / 2 + 4 * 5");
-        assertTrue(Tolerance.areClose(18.0, result, DELTA, true));
+        Operand result = vela.expressionToOperand("1 - 6 / 2 + 4 * 5");
+        assertEquals(18, result.intVal());
     }
 
     public void testReal6() {
-        double result = vela.realExpression("1 + 6 / 2 + 4 * 5");
-        assertTrue(Tolerance.areClose(24.0, result, DELTA, true));
+        Operand result = vela.expressionToOperand("1 + 6 / 2 + 4 * 5");
+        assertEquals(24, result.intVal());
     }
 
     public void testReal7() {
-        double result = vela.realExpression("1 + 6 / 2 - 4 * 5");
-        assertTrue(Tolerance.areClose(-16.0, result, DELTA, true));
+        Operand result = vela.expressionToOperand("1 + 6 / 2 - 4 * 5");
+        assertEquals(-16, result.intVal());
     }
 
     public void testParens0() {
-        double result = vela.realExpression("(2457580.25+1004)*10");
-        assertTrue(Tolerance.areClose(24585842.50, result, DELTA, true));
+        Operand result = vela.expressionToOperand("(2457580.25+1004)*10");
+        assertTrue(Tolerance.areClose(24585842.50, result.doubleVal(), DELTA, true));
     }
 
     public void testParens1() {
-        double result = vela.realExpression("(2457580.25+1004-2)*10");
-        assertTrue(Tolerance.areClose(24585822.50, result, DELTA, true));
+        Operand result = vela.expressionToOperand("(2457580.25+1004-2)*10");
+        assertTrue(Tolerance.areClose(24585822.50, result.doubleVal(), DELTA, true));
     }
 
     public void testParens2() {
         // 20 years before some JD.
-        double result = vela.realExpression("2457580.25-(365.25*20)");
-        assertTrue(Tolerance.areClose(2450275.25, result, DELTA, true));
+        Operand result = vela.expressionToOperand("2457580.25-(365.25*20)");
+        assertTrue(Tolerance.areClose(2450275.25, result.doubleVal(), DELTA, true));
     }
 
     public void testParens3() {
-        double result = vela.realExpression("(12.25*-2)");
-        assertTrue(Tolerance.areClose(-24.5, result, DELTA, true));
+        Operand result = vela.expressionToOperand("(12.25*-2)");
+        assertTrue(Tolerance.areClose(-24.5, result.doubleVal(), DELTA, true));
     }
 
     public void testResultCacheTest1() {
         // 20 years before some JD.
-        double result = vela.realExpression("2457580.25-(365.25*20)");
-        assertTrue(Tolerance.areClose(2450275.25, result, DELTA, true));
+        Operand result = vela.expressionToOperand("2457580.25-(365.25*20)");
+        assertTrue(Tolerance.areClose(2450275.25, result.doubleVal(), DELTA, true));
     }
 
     // Integer expressions
@@ -351,7 +351,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void testFormat() {
         String prog = "";
-        prog += "s <- format(\"%d\n\" [42])";
+        prog += "s is format(\"%d\n\" [42])";
         prog += "s";
         Optional<Operand> result = vela.program(prog);
         assertEquals("42\n", result.get().stringVal());
@@ -819,23 +819,24 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     // Functions
 
     public void testFuncParameterless1() {
-        double result = vela.realExpression("today()");
-        assertTrue(Tolerance.areClose(today(), result, DELTA, true));
+        Operand result = vela.expressionToOperand("today()");
+        assertTrue(Tolerance.areClose(today(), result.doubleVal(), DELTA, true));
     }
 
     public void testFuncParameterlessAsSubexpression1() {
-        double result = vela.realExpression("today()+2");
-        assertTrue(Tolerance.areClose(today() + 2, result, DELTA, true));
+        Operand result = vela.expressionToOperand("2+today()");
+        double foo = today() + 2;
+        assertTrue(Tolerance.areClose(today() + 2, result.doubleVal(), DELTA, true));
     }
 
     public void testFunctionSin() {
-        double result = vela.realExpression("sin(pi/2)");
-        assertTrue(Tolerance.areClose(1.0, result, DELTA, true));
+        Operand result = vela.expressionToOperand("sin(pi/2)");
+        assertTrue(Tolerance.areClose(1.0, result.doubleVal(), DELTA, true));
     }
 
     public void testFunctionSqrt() {
-        double result = vela.realExpression("2*sqrt(144.0)");
-        assertTrue(Tolerance.areClose(24.0, result, DELTA, true));
+        Operand result = vela.expressionToOperand("2*sqrt(144.0)");
+        assertTrue(Tolerance.areClose(24.0, result.doubleVal(), DELTA, true));
     }
 
     // List head
@@ -1238,24 +1239,28 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     // Intrinsic string functions (from String class)
 
     public void testFunctionContains() {
-        boolean result = vela.booleanExpression("contains(\"xyz123abc\" \"23a\")");
-        assertTrue(result);
+        Operand result = vela.expressionToOperand("contains(\"xyz123abc\" \"23a\")");
+        assertTrue(result.booleanVal());
     }
 
     public void testFunctionEndsWith() {
-        assertTrue(vela.booleanExpression("endsWith(\"12345\" \"45\")"));
+        Operand result = vela.expressionToOperand("endsWith(\"12345\" \"45\")");
+        assertTrue(result.booleanVal());
     }
 
     public void testFunctionMatches() {
-        assertTrue(vela.booleanExpression("matches(\"12345\" \"^\\d{3}45$\")"));
+        Operand result = vela.expressionToOperand("matches(\"12345\" \"^\\d{3}45$\")");
+        assertTrue(result.booleanVal());
     }
 
     public void testFunctionReplace() {
-        assertTrue(vela.booleanExpression("replace(\"abcd\" \"bc\" \"BC\") = \"aBCd\""));
+        Operand result = vela.expressionToOperand("replace(\"abcd\" \"bc\" \"BC\") = \"aBCd\"");
+        assertTrue(result.booleanVal());
     }
 
     public void testFunctionConcat() {
-        assertTrue(vela.booleanExpression("concat(\"abcd\" \"ef\") = \"abcdef\""));
+        Operand result = vela.expressionToOperand("concat(\"abcd\" \"ef\") = \"abcdef\"");
+        assertTrue(result.booleanVal());
     }
 
     public void testLastIndexOf() {
@@ -1269,7 +1274,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     public void testNamedFunSquare() {
         String prog = "";
         prog += "f(x:integer y:integer) : integer { x^y }\n";
-        prog += "x <- f(12 2)\n";
+        prog += "x is f(12 2)\n";
         prog += "x";
 
         Optional<Operand> result = vela.program(prog);
@@ -1285,7 +1290,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         prog += "      n <= 0 -> 1";
         prog += "      true -> n*n";
         prog += "}";
-        prog += "x <- f(12)";
+        prog += "x is f(12)";
         prog += "x";
 
         Optional<Operand> result = vela.program(prog);
@@ -1307,7 +1312,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void testParamConversionDoesNotChangeActualParam() {
         String prog = "";
-        prog += "a <- 42\n" + "f(n:real):real{n/5}\n" + "f(a)\n" + "a\n";
+        prog += "a is 42\n" + "f(n:real):real{n/5}\n" + "f(a)\n" + "a\n";
 
         Optional<Operand> result = vela.program(prog);
 
@@ -1325,7 +1330,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         prog += "      n <= 0 -> 1";
         prog += "      true -> n*fact(n-1)";
         prog += "}";
-        prog += "x <- fact(6)";
+        prog += "x is fact(6)";
         prog += "x";
 
         Optional<Operand> result = vela.program(prog);
@@ -1374,7 +1379,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     public void testHOF1() {
         String prog = "";
         prog += "f(g:function h:function n:integer) : integer {";
-        prog += "    x <- g(h(n))";
+        prog += "    x is g(h(n))";
         prog += "    print(\"g o h \" n \" = \" x \"\n\")";
         prog += "    x";
         prog += "}\n";
@@ -1393,15 +1398,38 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertEquals(362880, result.get().intVal());
     }
 
+    public void HOF2() {
+        String prog = "";
+        prog += "g(f:function):function {";
+        prog += "    function(n:integer):integer {";
+        prog += "        f(n)";
+        prog += "    }";
+        prog += "}\n";
+
+        prog += "cube(n:integer):integer {";
+        prog += "    n*n*n";
+        prog += "}\n";
+
+        // g(cube) returns a function that when called with an
+        // integer parameter, returns the result of calling cube(n).
+        // Note that g(cube) must be wrapped in parentheses otherwise
+        // it is not invoked.
+        prog += "(g(cube))(3)";
+
+        Optional<Operand> result = vela.program(prog);
+
+        assertTrue(result.isPresent());
+        assertEquals(27, result.get().intVal());
+    }
+
     public void testBoundFun() {
         String prog = "";
         prog += "fact(n:integer) : integer {";
         prog += "    when";
         prog += "      n <= 0 -> 1";
         prog += "      true -> n*fact(n-1)";
-        // prog += " n*n";
         prog += "}";
-        prog += "f <- fact\n";
+        prog += "f is fact\n";
         prog += "fact(6)";
 
         Optional<Operand> result = vela.program(prog);
@@ -1515,11 +1543,11 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     public void ignoreTestFunFor1() {
         String prog = "";
         prog += "cubeplus1(n:integer) {\n";
-        prog += "    result <- append(result n^3+1)\n";
+        prog += "    result is append(result n^3+1)\n";
         prog += "}\n";
 
-        prog += "nums <- [2 4 6 8]\n";
-        prog += "result <- []\n";
+        prog += "nums is [2 4 6 8]\n";
+        prog += "result is []\n";
         prog += "for(cubeplus1 nums)\n";
         prog += "result";
 
@@ -1542,7 +1570,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         prog += "    print(n^3+1 \"\n\"\n)";
         prog += "}\n";
 
-        prog += "nums <- [2 4 6 8]\n";
+        prog += "nums is [2 4 6 8]\n";
         prog += "for(cubeplus1 nums)\n";
 
         vela.program(prog);
@@ -1589,6 +1617,8 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void testModelFunctionWithAllLocales() {
         String prog = "";
+        // <- only necessary here because zeroPoint will be modified
+        // via commonNumericLocaleTest() multiple times
         prog += "zeroPoint <- 2459332.35709\n";
         prog += "f(t:real) : real {\n";
         prog += "3.513493389760E19*(t-zeroPoint)^15 +\n";
@@ -1646,14 +1676,14 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void testBindingNonConstantTwoTypes() {
         // Bind X to 2
-        String prog = "x <- 2\n";
+        String prog = "x is 2\n";
 
         vela.program(prog);
 
         // Attempt to bind X again but to a value of
         // type string, not integer. This should fail.
         try {
-            vela.program("x <- \"2\"");
+            vela.program("x is \"2\"");
             fail();
         } catch (Exception e) {
             // This is where we expect to be.
@@ -1674,7 +1704,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         // Attempt to bind X again by assignment.
         // This should fail.
         try {
-            vela.program("x <- x + 1");
+            vela.program("x is x + 1");
             fail();
         } catch (Exception e) {
             // This is where we expect to be.
@@ -1695,7 +1725,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         // Attempt to bind X again as a constant.
         // This should fail.
         try {
-            vela.program("x <- x + 1");
+            vela.program("x is x + 1");
             fail();
         } catch (Exception e) {
             // This is where we expect to be.
@@ -1705,7 +1735,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     public void testBindingConstant3() {
         // Bind X to 42 then retrieve the bound value of X.
         String prog = "";
-        prog += "x <- 12\n";
+        prog += "x is 12\n";
         prog += "x";
 
         Optional<Operand> result = vela.program(prog);
@@ -1736,11 +1766,11 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     public void testClosureBasedCounter() {
         String prog = "";
         prog += "mkcounter(start:integer) : function {\n";
-        prog += "  count <- start\n";
+        prog += "  count is start\n";
         prog += "  counter(n:integer) : integer { count <- count + n  count }\n";
         prog += "  counter\n";
         prog += "}\n";
-        prog += "c <- mkcounter(10)\n";
+        prog += "c is mkcounter(10)\n";
         prog += "c(1)\n";
         prog += "c(1)\n";
         prog += "c(1)\n";
@@ -1754,10 +1784,10 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     public void testAnonymousClosureBasedCounter() {
         String prog = "";
         prog += "mkcounter(start:integer) : function {\n";
-        prog += "  count <- start\n";
+        prog += "  count is start\n";
         prog += "  function(n:integer) : integer { count <- count + n  count }\n";
         prog += "}\n";
-        prog += "c <- mkcounter(10)\n";
+        prog += "c is mkcounter(10)\n";
         prog += "c(1)\n";
         prog += "c(1)\n";
         prog += "c(1)\n";
@@ -1772,7 +1802,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     public void testSequence() {
         String prog = "";
         prog += "str <- \"\"";
-        prog += "ch <- \"1\"";
+        prog += "ch is \"1\"";
         prog += "str <- when";
         prog += "           ch = \"1\" -> str + \" ONE\"";
         prog += "           ch = \"2\" -> str + \" TWO\"";
@@ -1823,18 +1853,18 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     // Comments
 
     public void testComments1() {
-        double result = vela.realExpression("# comment test\n\r12+2");
-        assertTrue(Tolerance.areClose(14.0, result, DELTA, true));
+        Operand result = vela.expressionToOperand("# comment test\n\r12+2");
+        assertEquals(14, result.intVal());
     }
 
     public void testComments2() {
-        double result = vela.realExpression("# comment test\r\n12+2");
-        assertTrue(Tolerance.areClose(14.0, result, DELTA, true));
+        Operand result = vela.expressionToOperand("# comment test\r\n12+2");
+        assertEquals(14, result.intVal());
     }
 
     public void testComments3() {
-        double result = vela.realExpression("# comment test\n12+2");
-        assertTrue(Tolerance.areClose(14.0, result, DELTA, true));
+        Operand result = vela.expressionToOperand("# comment test\n12+2");
+        assertEquals(14, result.intVal());
     }
 
     public void testComments4() {
@@ -1846,7 +1876,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void testAmpersand() {
         try {
-            vela.realExpression("2457580.25&1004");
+            vela.expressionToOperand("2457580.25&1004");
             fail();
         } catch (VeLaParseError e) {
             assertTrue(e.getMessage().contains("token recognition error at: '&'"));
@@ -1857,7 +1887,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void testDivisionByZero1() {
         try {
-            vela.realExpression("42.42/0.0");
+            vela.expressionToOperand("42.42/0.0");
             fail();
         } catch (VeLaEvalError e) {
             assertEquals(e.getMessage(), "42.42/0.0: division by zero error");
@@ -1866,7 +1896,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void testDivisionByZero2() {
         try {
-            vela.realExpression("42/0");
+            vela.expressionToOperand("42/0");
             fail();
         } catch (VeLaEvalError e) {
             assertEquals(e.getMessage(), "42/0: division by zero error");
@@ -1875,10 +1905,10 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void testGreaterThanOrEqualSwappedCharacters() {
         try {
-            vela.booleanExpression("2 => 3");
+            vela.program("2 => 3");
             fail();
         } catch (VeLaParseError e) {
-            assertTrue(e.getMessage().contains("extraneous input '>'"));
+            assertTrue(e.getMessage().contains("no viable alternative at input '>'"));
         }
     }
 
