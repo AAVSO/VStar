@@ -172,7 +172,7 @@ public abstract class FunctionExecutor {
     public String toString() {
         StringBuffer buf = new StringBuffer();
 
-        buf.append(String.format("%s (%s)", funcName.isPresent() ? funcName.get() : "anonymous",
+        buf.append(String.format("%s (%s)", funcName.isPresent() ? funcName.get() : "λ",
                 parameterTypes.toString().replace("[", "").replace("]", "").replace(",", "")));
 
         if (returnType.isPresent()) {
