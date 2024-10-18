@@ -1,0 +1,23 @@
+# Y combinator for integer functions
+# VeLa does not yet have variant or polymorphic types
+# nor are function parameter and return types fully
+# specified (just "function") yet
+
+Y is λ(h : function) : function {
+    λ(f : function) : function {
+        f(f)
+    } (λ(f : function) : function {
+        h(λ(n : integer) : integer {
+            (f(f))(n)
+        })
+    })
+}
+
+result is (Y(λ(g : function) : function {
+    λ(n : integer) : integer {
+        if n < 2 then 1 else n * g(n - 1)
+    }
+})) (8)
+
+result
+

@@ -273,34 +273,36 @@ public class VeLaInterpreter {
     }
 
     /**
-     * Real expression interpreter entry point.
+     * Expression interpreter entry point.
      * 
      * @param expr The expression string to be interpreted.
-     * @return A real value result.
+     * @return An operand.
      * @throws VeLaParseError If a parse error occurs.
      * @throws VeLaEvalError  If an evaluation error occurs.
      */
-    public double realExpression(String expr) throws VeLaEvalError {
-
-        VeLaParser.AdditiveExpressionContext tree = getParser(expr).additiveExpression();
-
-        Optional<Operand> result = commonInterpreter(expr, tree).first;
-
-        if (result.isPresent()) {
-            if (result.get().getType() == Type.REAL) {
-                return (double) result.get().doubleVal();
-            } else if (result.get().getType() == Type.INTEGER) {
-                return result.get().intVal();
-            } else {
-                throw new VeLaEvalError("Numeric value expected as result");
-            }
-        } else {
-            throw new VeLaEvalError("Numeric value expected as result");
-        }
-    }
+//    public double expression(String expr) throws VeLaEvalError {
+//
+//        // TODO: why?
+//
+//        VeLaParser.AdditiveExpressionContext tree = getParser(expr).additiveExpression();
+//
+//        Optional<Operand> result = commonInterpreter(expr, tree).first;
+//
+//        if (result.isPresent()) {
+//            if (result.get().getType() == Type.REAL) {
+//                return (double) result.get().doubleVal();
+//            } else if (result.get().getType() == Type.INTEGER) {
+//                return result.get().intVal();
+//            } else {
+//                throw new VeLaEvalError("Numeric value expected as result");
+//            }
+//        } else {
+//            throw new VeLaEvalError("Numeric value expected as result");
+//        }
+//    }
 
     /**
-     * Real expression interpreter entry point.
+     * Expression interpreter entry point.
      * 
      * @param expr The expression string to be interpreted.
      * @return An operand.
@@ -309,7 +311,9 @@ public class VeLaInterpreter {
      */
     public Operand expressionToOperand(String expr) throws VeLaParseError, VeLaEvalError {
 
-        VeLaParser.AdditiveExpressionContext tree = getParser(expr).additiveExpression();
+        // TODO: why?
+
+        VeLaParser.ExpressionContext tree = getParser(expr).expression();
 
         Optional<Operand> result = commonInterpreter(expr, tree).first;
 
@@ -327,6 +331,7 @@ public class VeLaInterpreter {
      * @return A Boolean value result.
      * @throws VeLaParseError If a parse error occurs.
      * @throws VeLaEvalError  If an evaluation error occurs.
+     * @deprecated Only used in test code: remove!
      */
     public boolean booleanExpression(String expr) throws VeLaParseError, VeLaEvalError {
 
@@ -595,7 +600,7 @@ public class VeLaInterpreter {
             }
             break;
 
-        case BIND: 
+        case BIND:
         case IS:
             eval(ast.right());
             String varName = ast.left().getToken();
@@ -656,37 +661,29 @@ public class VeLaInterpreter {
 
             FunctionExecutor anon = null;
 
-            if (ast.hasChildren()) {
-                int childLimit = 0;
+            int childLimit = 1;
 
-                if (ast.getToken() == null) {
-                    if (ast.head().getOp() == Operation.FUNDEF) {
-                        // Anonymous functions
-                        eval(ast.head());
-                        anon = stack.pop().functionVal();
-                        childLimit = 1;
-                    }
-                }
-
-                for (int i = ast.getChildren().size() - 1; i >= childLimit; i--) {
-                    eval(ast.getChildren().get(i));
-                }
-
-                // Prepare actual parameter list.
-                for (int i = childLimit; i <= ast.getChildren().size() - 1; i++) {
-                    Operand value = stack.pop();
-                    params.add(value);
-                }
+            for (int i = ast.getChildren().size() - 1; i >= childLimit; i--) {
+                eval(ast.getChildren().get(i));
             }
 
-            // Apply function to actual parameters.
-            if (anon == null) {
-                applyFunction(ast.getToken(), params);
+            // Prepare actual parameter list.
+            for (int i = childLimit; i <= ast.getChildren().size() - 1; i++) {
+                Operand value = stack.pop();
+                params.add(value);
+            }
+
+            if (ast.head().getOp() == Operation.SYMBOL) {
+                applyFunction(ast.head().getToken(), params);
             } else {
+                eval(ast.head());
+                anon = stack.pop().functionVal();
+
                 if (!applyFunction(anon, params)) {
                     throw new VeLaEvalError("Invalid parameters for function \"" + anon + "\"");
                 }
             }
+
             break;
 
         case WHEN:
@@ -1328,7 +1325,7 @@ public class VeLaInterpreter {
      * 
      * @param function The function executor to be applied to the supplied
      *                 parameters.
-     * @param params   The parameter list.
+     * @param params   The actual parameter list.
      * @return Does the function conform to the actual parameters?
      * @throws VeLaEvalError If a function evaluation error occurs.
      */
