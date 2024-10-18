@@ -3,25 +3,18 @@
 Y is λ(h : function) : function {
     λ(f : function) : function {
         f(f)
-    }(λ(f : function) : function {
+    } (λ(f : function) : function {
         h(λ(n : integer) : integer {
             (f(f))(n)
         })
     })
 }
 
-# named application
-fact is Y(λ(g : function) : function {
-   λ(n : integer) : integer {
-      if n < 2 then 1 else n * g(n - 1)
-   }
-})
-
-println(fact(5))
-
-# unnamed application
-println((Y(λ(g : function) : function {
+result is (Y(λ(g : function) : function {
     λ(n : integer) : integer {
         if n < 2 then 1 else n * g(n - 1)
     }
-}))(5))
+})) (8)
+
+result
+
