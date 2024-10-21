@@ -1,0 +1,13 @@
+# Y combinator - step 3
+ 
+dupe is λ(f : function) : function {
+    f(f)
+}
+
+fact is dupe(λ(f : function) : function {
+    λ(n : integer) : integer {
+        if n < 2 then 1 else n * (f(f))(n - 1)
+    }
+})
+
+fact(5)

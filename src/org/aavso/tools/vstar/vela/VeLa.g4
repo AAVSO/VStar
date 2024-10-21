@@ -24,7 +24,7 @@ sequence
 :
     (
         binding
-        | whileLoop
+        | whileLoop // TODO: add to logicExpression?
         | namedFundef
         | expression
     )*
@@ -45,7 +45,11 @@ binding
 // A named function definition, when invoked, introduces an additional 
 // environment and allows all VeLa program elements operating over that 
 // environment and its predecessors. name:type pays homage to Pascal, 
-// OCaml/F# and Swift.
+// OCaml/F#, Swift, and other languages.
+
+// TODO: it should be possible to unify this and anonFunDef;
+// the latter could/should be primary from the viewpoint of
+// everything being an expression; the "e" in VeLa!
 
 namedFundef
 :
@@ -79,6 +83,8 @@ whenExpression
         booleanExpression ARROW consequent
     )+
 ;
+
+// Homage to Algol 60 (all of VeLa of course) that has IF expressions
 
 ifExpression
 :
@@ -185,24 +191,32 @@ unaryExpression
 exponentiationExpression
 :
 // This rule option is right associative.
-    < assoc = right > factor
+    < assoc = right > funcall
     (
         (
             POW
-        ) factor
+        ) funcall
     )*
+;
+
+// TODO: treat as right-assoc? treat as operator? need to do same for subscripting
+funcall
+:
+    factor
+    (
+        // actual parameter list if factor is a function object
+        LPAREN expression* RPAREN
+    )?
 ;
 
 factor
 :
-// Note: funcall must precede symbol to avoid errors
     LPAREN expression RPAREN
     | integer
     | real
     | bool
     | string
     | list
-    | funcall
     | symbol
     | anonFundef
 ;
@@ -272,28 +286,7 @@ type
     | FUN
 ;
 
-// A function call consists of a function object followed 
-// by zero or more parameters surrounded by parentheses.
-
-funcall
-:
-    funobj LPAREN expression?
-    (
-        expression
-    )* RPAREN
-;
-
-// IDENT corresponds to an explicit function name
-// var allows a HOF (let binding or function parameter)
-// anonFundef allows an anonymous function
-
-funobj
-:
-    (
-        IDENT
-        | anonFundef
-    )
-;
+// TODO: consider adding option that is just: sequence or sequence END
 
 block
 :

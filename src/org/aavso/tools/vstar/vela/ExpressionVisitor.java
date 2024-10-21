@@ -35,7 +35,6 @@ import org.aavso.tools.vstar.vela.VeLaParser.ExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FactorContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FormalParameterContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FuncallContext;
-import org.aavso.tools.vstar.vela.VeLaParser.FunobjContext;
 import org.aavso.tools.vstar.vela.VeLaParser.IfExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.IntegerContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ListContext;
@@ -133,11 +132,6 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
     }
 
     @Override
-    public AST visitExpression(ExpressionContext ctx) {
-        return ctx.getChild(0).accept(this);
-    }
-
-    @Override
     public AST visitWhenExpression(WhenExpressionContext ctx) {
         AST ast = new AST(Operation.WHEN);
 
@@ -229,7 +223,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
         AST right = null;
 
         if (ctx.getChildCount() == 1) {
-            right = ctx.factor(0).accept(this);
+            right = ctx.funcall(0).accept(this);
         } else {
             String op = null;
             right = ctx.getChild(ctx.getChildCount() - 1).accept(this);
@@ -250,6 +244,23 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
     }
 
     @Override
+    public AST visitFuncall(FuncallContext ctx) {
+        AST ast = ctx.factor().accept(this);
+
+        if (ctx.getChildCount() > 1) {
+            // Add presumed function object as first child of funcall AST
+            ast = new AST(Operation.FUNCALL, ast);
+
+            // Add actual parameters to funcall AST
+            for (ExpressionContext param : ctx.expression()) {
+                ast.addChild(param.accept(this));
+            }
+        }
+
+        return ast;
+    }
+
+    @Override
     public AST visitFactor(FactorContext ctx) {
         AST ast = null;
 
@@ -257,42 +268,6 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
             ast = ctx.expression().accept(this);
         } else {
             ast = ctx.getChild(0).accept(this);
-        }
-
-        return ast;
-    }
-
-    @Override
-    public AST visitFuncall(FuncallContext ctx) {
-        AST funObj = ctx.funobj().accept(this);
-
-        AST ast = null;
-
-        if (funObj.getOp() == Operation.SYMBOL) {
-            // Named function call
-            ast = new AST(funObj.getToken(), Operation.FUNCALL);
-        } else {
-            // Anonymous function call
-            ast = new AST(null, Operation.FUNCALL);
-            ast.addChild(funObj);
-        }
-
-        // Add actual parameters
-        for (ExpressionContext expr : ctx.expression()) {
-            ast.addChild(expr.accept(this));
-        }
-
-        return ast;
-    }
-
-    @Override
-    public AST visitFunobj(FunobjContext ctx) {
-        AST ast = null;
-
-        if (ctx.getChild(0).equals(ctx.IDENT())) {
-            ast = new AST(ctx.IDENT().getText().toUpperCase(), Operation.SYMBOL);
-        } else {
-            ast = ctx.anonFundef().accept(this);
         }
 
         return ast;
