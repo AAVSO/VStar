@@ -462,11 +462,15 @@ public class SeriesVisibilityPane extends JPanel {
 				for (JCheckBox checkBox : checkBoxes) {
 					if (checkBox.isEnabled()) {
 						checkBox.setSelected(target);
-						updateSeriesVisibilityMap(checkBox);
+						if (modifyVisibility) {
+						    updateSeriesVisibilityMap(checkBox);
+						}
 					}
 				}
 
-				seriesVisibilityChange(getVisibilityDeltaMap());
+                if (modifyVisibility) {
+                    seriesVisibilityChange(getVisibilityDeltaMap());
+                }
 			}
 		};
 	}
