@@ -39,71 +39,67 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 @SuppressWarnings("serial")
 public class MultipleSeriesSelectionDialog extends AbstractOkCancelDialog {
 
-	protected JPanel seriesPane;
+    protected JPanel seriesPane;
 
-	protected ObservationAndMeanPlotModel obsPlotModel;
+    protected ObservationAndMeanPlotModel obsPlotModel;
 
-	protected SeriesVisibilityPane seriesVisibilityPane;
+    protected SeriesVisibilityPane seriesVisibilityPane;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param obsPlotModel
-	 *            An observation plot model including means.
-	 */
-	public MultipleSeriesSelectionDialog(
-			ObservationAndMeanPlotModel obsPlotModel) {
-		super(LocaleProps.get("SELECT_SINGLE_SERIES_DLG_TITLE"));
+    /**
+     * Constructor
+     * 
+     * @param seriesVisibilityPane The series visibility pane to be composed with
+     *                             this this dialog.
+     */
+    public MultipleSeriesSelectionDialog(SeriesVisibilityPane seriesVisibilityPane) {
+        super(LocaleProps.get("SELECT_SINGLE_SERIES_DLG_TITLE"));
 
-		this.obsPlotModel = obsPlotModel;
+        Container contentPane = this.getContentPane();
 
-		Container contentPane = this.getContentPane();
+        // This pane contains a series pane and buttons.
 
-		// This pane contains a series pane and buttons.
+        JPanel topPane = new JPanel();
+        topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+        topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		JPanel topPane = new JPanel();
-		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        seriesPane = new JPanel();
+        seriesPane.setLayout(new BoxLayout(seriesPane, BoxLayout.LINE_AXIS));
+        this.seriesVisibilityPane = seriesVisibilityPane;
+        seriesPane.add(seriesVisibilityPane);
 
-		seriesPane = new JPanel();
-		seriesPane.setLayout(new BoxLayout(seriesPane, BoxLayout.LINE_AXIS));
-		seriesVisibilityPane = new SeriesVisibilityPane(obsPlotModel, Mediator
-				.getInstance().getAnalysisType(), true, false, false);
-		seriesPane.add(seriesVisibilityPane);
+        topPane.add(new JScrollPane(seriesPane));
 
-		topPane.add(new JScrollPane(seriesPane));
+        topPane.add(Box.createRigidArea(new Dimension(10, 10)));
+        topPane.add(createButtonPane());
 
-		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		topPane.add(createButtonPane());
+        contentPane.add(topPane);
 
-		contentPane.add(topPane);
+        this.pack();
+        this.setLocationRelativeTo(Mediator.getUI().getContentPane());
+        this.setVisible(true);
+    }
 
-		this.pack();
-		this.setLocationRelativeTo(Mediator.getUI().getContentPane());
-		this.setVisible(true);
-	}
+    /**
+     * @return has the dialog been cancelled?
+     */
+    public boolean isCancelled() {
+        return cancelled;
+    }
 
-	/**
-	 * @return has the dialog been cancelled?
-	 */
-	public boolean isCancelled() {
-		return cancelled;
-	}
+    protected void cancelAction() {
+        // Nothing to do
+    }
 
-	protected void cancelAction() {
-		// Nothing to do
-	}
+    protected void okAction() {
+        cancelled = false;
+        setVisible(false);
+        dispose();
+    }
 
-	protected void okAction() {
-		cancelled = false;
-		setVisible(false);
-		dispose();
-	}
-
-	/**
-	 * @return The selected series.
-	 */
-	public Set<SeriesType> getSelectedSeries() {
-		return seriesVisibilityPane.getSelectedSeries();
-	}
+    /**
+     * @return The selected series.
+     */
+    public Set<SeriesType> getSelectedSeries() {
+        return seriesVisibilityPane.getSelectedSeries();
+    }
 }
