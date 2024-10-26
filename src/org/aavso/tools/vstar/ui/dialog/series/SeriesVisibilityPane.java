@@ -66,9 +66,6 @@ public class SeriesVisibilityPane extends JPanel {
 	private JCheckBox modelCheckBox;
 	private JCheckBox residualsCheckBox;
 
-	private int discrepantCount;
-	private int excludedCount;
-
 	private boolean includeSynthetic;
 	private boolean modifyVisibility;
 
@@ -133,18 +130,6 @@ public class SeriesVisibilityPane extends JPanel {
 
 		addSeriesCheckBoxes();
 
-		// Get initial discrepant and excluded counts, if any.
-
-		Integer discrepantSeriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()
-				.get(SeriesType.DISCREPANT);
-		discrepantCount = obsPlotModel.getSeriesNumToObSrcListMap()
-				.get(discrepantSeriesNum).size();
-
-		Integer excludedSeriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()
-				.get(SeriesType.Excluded);
-		excludedCount = obsPlotModel.getSeriesNumToObSrcListMap()
-				.get(excludedSeriesNum).size();
-
 		obsPlotModel.getMeansChangeNotifier().addListener(
 				createMeanObsChangeListener());
 
@@ -190,11 +175,11 @@ public class SeriesVisibilityPane extends JPanel {
 		panel.add(createDataSeriesCheckboxes());
 		if (includeSynthetic) {
 			panel.add(createDerivedSeriesCheckboxes());
-			JPanel userPanel = createUserDefinedSeriesCheckboxes();
-			if (userPanel != null) {
-				panel.add(userPanel);
-			}
 		}
+        JPanel userPanel = createUserDefinedSeriesCheckboxes();
+        if (userPanel != null) {
+            panel.add(userPanel);
+        }
 		this.add(panel);
 	}
 
@@ -462,11 +447,15 @@ public class SeriesVisibilityPane extends JPanel {
 				for (JCheckBox checkBox : checkBoxes) {
 					if (checkBox.isEnabled()) {
 						checkBox.setSelected(target);
-						updateSeriesVisibilityMap(checkBox);
+						if (modifyVisibility) {
+						    updateSeriesVisibilityMap(checkBox);
+						}
 					}
 				}
 
-				seriesVisibilityChange(getVisibilityDeltaMap());
+                if (modifyVisibility) {
+                    seriesVisibilityChange(getVisibilityDeltaMap());
+                }
 			}
 		};
 	}
