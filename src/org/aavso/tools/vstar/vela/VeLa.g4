@@ -24,7 +24,7 @@ sequence
 :
     (
         binding
-        | whileLoop // TODO: add to logicExpression?
+        | whileLoop // TODO: add to expression?
         | namedFundef
         | expression
     )*
@@ -199,13 +199,20 @@ exponentiationExpression
     )*
 ;
 
-// TODO: treat as right-assoc? treat as operator? need to do same for subscripting
 funcall
 :
-    factor
+    indexedExpression
     (
         // actual parameter list if factor is a function object
         LPAREN expression* RPAREN
+    )?
+;
+
+indexedExpression
+:
+    factor
+    (
+        LBRACKET expression RBRACKET
     )?
 ;
 

@@ -36,6 +36,7 @@ import org.aavso.tools.vstar.vela.VeLaParser.FactorContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FormalParameterContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FuncallContext;
 import org.aavso.tools.vstar.vela.VeLaParser.IfExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.IndexedExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.IntegerContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ListContext;
 import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
@@ -245,7 +246,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 
     @Override
     public AST visitFuncall(FuncallContext ctx) {
-        AST ast = ctx.factor().accept(this);
+        AST ast = ctx.indexedExpression().accept(this);
 
         if (ctx.getChildCount() > 1) {
             // Add presumed function object as first child of funcall AST
@@ -257,6 +258,17 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
             }
         }
 
+        return ast;
+    }
+
+    @Override
+    public AST visitIndexedExpression(IndexedExpressionContext ctx) {
+        AST ast = ctx.factor().accept(this);
+
+        if (ctx.getChildCount() > 1) {
+            ast = new AST(Operation.INDEX, ast);
+            ast.addChild(ctx.expression().accept(this));
+        }
         return ast;
     }
 

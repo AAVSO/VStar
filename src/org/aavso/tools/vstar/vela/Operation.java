@@ -32,7 +32,7 @@ public enum Operation {
 	GREATER_THAN_OR_EQUAL(">=", 2), LESS_THAN_OR_EQUAL("<=", 2), APPROXIMATELY_EQUAL("=~", 2), IN("in", 2),
 	SHL("<<", 2), SHR(">>", 2), LIST("list"), PAIR("pair"), SEQUENCE("sequence", true), BIND("bind", true),
 	IS("is", true), SYMBOL("symbol"), FUNDEF("fundef", true), FUNCALL("funcall", true), WHEN("when", true),
-	IF("if", true), WHILE("while", true), SENTINEL("sentinel");
+	IF("if", true), INDEX("index", true), WHILE("while", true), SENTINEL("sentinel");
 
 	private String symbol;
 	private int arity;
