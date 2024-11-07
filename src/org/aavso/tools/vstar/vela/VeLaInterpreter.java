@@ -723,6 +723,27 @@ public class VeLaInterpreter {
             }
             break;
 
+        case INDEX:
+            // Evaluate the index and carry out an indexing operation.
+            eval(ast.left()); // lvalue
+            eval(ast.right()); // index
+            Operand index = stack.pop();
+            Operand lvalue = stack.pop();
+            switch (lvalue.getType()) {
+            case LIST:
+                if (index.getType() == Type.INTEGER) {
+                    Operand result = lvalue.listVal().get((int) index.intVal());
+                    stack.push(result);
+                } else {
+                    throw new VeLaEvalError("Invalid index: " + index);
+                }
+                break;
+
+            default:
+                throw new VeLaEvalError("Invalid lvalue: " + lvalue);
+            }
+            break;
+
         default:
             break;
         }

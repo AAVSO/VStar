@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.vela.VeLaParser.BlockContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BoolContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ConjunctiveExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.EmptyListContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ExclusiveOrExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ExponentiationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ExpressionContext;
@@ -38,14 +39,15 @@ import org.aavso.tools.vstar.vela.VeLaParser.FuncallContext;
 import org.aavso.tools.vstar.vela.VeLaParser.IfExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.IndexedExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.IntegerContext;
-import org.aavso.tools.vstar.vela.VeLaParser.ListContext;
 import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.MultiElementListContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.NamedFundefContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RelationalExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.SequenceContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ShiftExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.SingleElementListContext;
 import org.aavso.tools.vstar.vela.VeLaParser.StringContext;
 import org.aavso.tools.vstar.vela.VeLaParser.SymbolContext;
 import org.aavso.tools.vstar.vela.VeLaParser.TypeContext;
@@ -246,7 +248,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 
     @Override
     public AST visitFuncall(FuncallContext ctx) {
-        AST ast = ctx.indexedExpression().accept(this);
+        AST ast = ctx.factor().accept(this);
 
         if (ctx.getChildCount() > 1) {
             // Add presumed function object as first child of funcall AST
@@ -263,12 +265,12 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 
     @Override
     public AST visitIndexedExpression(IndexedExpressionContext ctx) {
-        AST ast = ctx.factor().accept(this);
+        AST ast = new AST(Operation.INDEX);
 
-        if (ctx.getChildCount() > 1) {
-            ast = new AST(Operation.INDEX, ast);
-            ast.addChild(ctx.expression().accept(this));
+        for (ExpressionContext exprContext : ctx.expression()) {
+            ast.addChild(exprContext.accept(this));
         }
+
         return ast;
     }
 
@@ -330,8 +332,39 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
         return new AST(token, new Operand(Type.STRING, token));
     }
 
+//    @Override
+//    public AST visitList(ListContext ctx) {
+//        AST ast = null;
+//        
+////        List<ParseTree> children = ctx.children;
+//        
+////        switch (ctx.getAltNumber()) {
+////        case 0:
+////            ast = ctx.emptyList().accept(this);
+////            break;
+////        case 1:
+////            ast = ctx.singleElementList().accept(this);
+////            break;
+////        case 2:
+////            ast = ctx.multiElementList().accept(this);
+////            break;
+////        }
+//
+//        return ast;
+//    }
+
     @Override
-    public AST visitList(ListContext ctx) {
+    public AST visitEmptyList(EmptyListContext ctx) {
+        return new AST(Operation.LIST);
+    }
+
+    @Override
+    public AST visitSingleElementList(SingleElementListContext ctx) {
+        return new AST(Operation.LIST, ctx.expression().accept(this));
+    }
+
+    @Override
+    public AST visitMultiElementList(MultiElementListContext ctx) {
         AST ast = new AST(Operation.LIST);
         ctx.expression().forEach(expr -> ast.addChild(expr.accept(this)));
         return ast;

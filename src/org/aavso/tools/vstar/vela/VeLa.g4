@@ -25,6 +25,7 @@ sequence
     (
         binding
         | whileLoop // TODO: add to expression?
+
         | namedFundef
         | expression
     )*
@@ -88,7 +89,10 @@ whenExpression
 
 ifExpression
 :
-    IF booleanExpression THEN consequent ( ELSE consequent )?
+    IF booleanExpression THEN consequent
+    (
+        ELSE consequent
+    )?
 ;
 
 consequent
@@ -109,7 +113,6 @@ booleanExpression
         OR exclusiveOrExpression
     )*
 ;
-
 
 exclusiveOrExpression
 :
@@ -156,7 +159,6 @@ shiftExpression
         (
             SHIFT_LEFT
             | SHIFT_RIGHT
-            
         ) additiveExpression
     )*
 ;
@@ -201,20 +203,14 @@ exponentiationExpression
 
 funcall
 :
-    indexedExpression
+    factor
     (
-        // actual parameter list if factor is a function object
+    // actual parameter list if factor is a function object
         LPAREN expression* RPAREN
     )?
 ;
 
-indexedExpression
-:
-    factor
-    (
-        LBRACKET expression RBRACKET
-    )?
-;
+// Empty, single, multiple elt list rules
 
 factor
 :
@@ -225,6 +221,7 @@ factor
     | string
     | list
     | symbol
+    | indexedExpression
     | anonFundef
 ;
 
@@ -250,10 +247,25 @@ string
 
 list
 :
-    LBRACKET expression?
-    (
-        expression
-    )* RBRACKET
+//LBRACKET expression* RBRACKET
+    emptyList
+    | singleElementList
+    | multiElementList
+;
+
+emptyList
+:
+    LBRACKET RBRACKET
+;
+
+singleElementList
+:
+    LBRACKET expression RBRACKET
+;
+
+multiElementList
+:
+    LBRACKET expression expression+ RBRACKET
 ;
 
 symbol
@@ -267,13 +279,31 @@ symbol
 
 anonFundef
 :
-    (FUN | LAMBDA) LPAREN formalParameter?
+    (
+        FUN
+        | LAMBDA
+    ) LPAREN formalParameter?
     (
         formalParameter
     )* RPAREN
     (
         COLON type
     )? block
+;
+
+indexedExpression
+:
+    (
+        LBRACKET expression RBRACKET
+    )+?
+    //    factor? | ( factor LBRACKET expression RBRACKET )+?
+    //factor ( LBRACKET expression* RBRACKET )*? // => gives index
+    //    singleElementList* // non-greedy
+    //    (
+    //        LBRACKET expression RBRACKET
+    //    )*?
+    //)* 
+
 ;
 
 // A formal parameter consists of a name-type pair
@@ -356,7 +386,9 @@ FUN
 ;
 
 LAMBDA
-:   '\u039B' | '\u03BB'
+:
+    '\u039B'
+    | '\u03BB'
 ;
 
 INT_T
@@ -526,8 +558,14 @@ NOT
 INTEGER
 :
     DEC_DIGIT+
-    | ([0] [Xx] HEX_DIGIT+)
-    | ([0] [Bb] BIN_DIGIT+)
+    |
+    (
+        [0] [Xx] HEX_DIGIT+
+    )
+    |
+    (
+        [0] [Bb] BIN_DIGIT+
+    )
 ;
 
 REAL
@@ -572,7 +610,9 @@ DEC_DIGIT
 fragment
 HEX_DIGIT
 :
-    DEC_DIGIT | [a-z] | [A-Z]
+    DEC_DIGIT
+    | [a-z]
+    | [A-Z]
 ;
 
 fragment
@@ -656,6 +696,6 @@ COMMENT
 // The first pays homage to SQL. The second is a concession to the shebang mechanism.
 
     (
-       '#'
+        '#'
     ) ~[\r\n]* -> skip
 ;
