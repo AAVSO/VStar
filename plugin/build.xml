@@ -79,6 +79,7 @@
 		<jar jarfile="${dist}/${pkg}.ObserverListFilter.jar" basedir="${build.classes}" includes="**/ObserverListFilter**.class" />
 		<jar jarfile="${dist}/${pkg}.ObserversBySeries.jar" basedir="${build.classes}" includes="**/ObserversBySeries**.class" />
 		<jar jarfile="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" basedir="${build.classes}" includes="**/PeriodLuminosityDistanceCalculator**.class" />
+        <jar jarfile="${dist}/${pkg}.PiecewiseLinearMeanSeriesModel.jar" basedir="${build.classes}" includes="**/PiecewiseLinearMeanSeriesModel**.class" />
 		<jar jarfile="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" basedir="${build.classes}" includes="**/SuperWASPFITSObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.VeLaModelCreator.jar" basedir="${build.classes}" includes="**/VeLaModelCreator**.class" />
 		<jar jarfile="${dist}/${pkg}.VeLaObservationTransformer.jar" basedir="${build.classes}" includes="**/VeLaObservationTransformer**.class" />
@@ -225,6 +226,7 @@
 		<copy file="${dist}/${pkg}.ObserverListFilter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.ObserversBySeries.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+        <copy file="${dist}/${pkg}.PiecewiseLinearMeanSeriesModel.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VeLaModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VeLaObservationTransformer.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -277,6 +279,7 @@
 		<echo file="${plugins_list_file}" message="${pkg}.ObserverListFilter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ObserversBySeries.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.PeriodLuminosityDistanceCalculator.jar${line.separator}" append="true" />
+        <echo file="${plugins_list_file}" message="${pkg}.PiecewiseLinearMeanSeriesModel.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.SuperWASPFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaModelCreator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaObservationTransformer.jar${line.separator}" append="true" />
