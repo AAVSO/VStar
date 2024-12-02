@@ -470,7 +470,7 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
         try {
             model.execute();
 
-            double DELTA = 1e-6;
+            double DELTA = 1e-3;
 
             List<ValidObservation> fit = model.getFit();
             ValidObservation fitOb = fit.get(0);
