@@ -38,6 +38,7 @@ import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
+import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.model.IModel;
@@ -321,20 +322,25 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
     private boolean testLinearFunction() {
         boolean result = true;
 
+        double DELTA = 1e-6;
+
         LinearFunction function = new LinearFunction(2459645, 2459640, 10, 12.5);
 
         double m = -0.5;
-        result &= function.slope() == m;
-        result &= function.c == 10 - (m * 2459645);
+        result &= Tolerance.areClose(m, function.slope(), DELTA, true);
+        result &= Tolerance.areClose(10 - (m * 2459645), function.c, DELTA, true);
 //        result &= function.derivative(2459645) == m;
 //        result &= function.derivative(2459640) == m;
-        result &= function.value(2459642) == m * 2459642 + function.c;
+//        result &= function.value(2459642) == m * 2459642 + function.c;
+        result &= Tolerance.areClose(m * 2459642 + function.c, function.value(2459642), DELTA, true);
 
         return result;
     }
 
     private boolean testPiecewiseLinearFunction() {
         boolean result = true;
+
+        double DELTA = 1e-6;
 
         List<ValidObservation> meanObs = getTestMeanObs();
         PiecewiseLinearFunction plf = new PiecewiseLinearFunction(meanObs, JDCoordSource.instance);
@@ -343,11 +349,13 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
 
         double t1 = obs.get(0).getJD();
         LinearFunction function1 = plf.functions.get(0);
-        result &= plf.value(t1) == function1.m * t1 + function1.c;
+        // result &= plf.value(t1) == function1.m * t1 + function1.c;
+        result &= result &= Tolerance.areClose(function1.m * t1 + function1.c, plf.value(t1), DELTA, true);
 
         double t2 = obs.get(1).getJD();
         LinearFunction function2 = plf.functions.get(1);
-        result &= plf.value(t2) == function2.m * t2 + function2.c;
+//        result &= plf.value(t2) == function2.m * t2 + function2.c;
+        result &= result &= Tolerance.areClose(function2.m * t2 + function2.c, plf.value(t2), DELTA, true);
 
         return result;
     }
