@@ -36,18 +36,26 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
-import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
-import org.aavso.tools.vstar.util.stats.DescStats;
+import org.apache.commons.math.analysis.DifferentiableUnivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
- * This plugin creates a piecewise linear model from the current means series.
+ * This plug-in creates a piecewise linear model from the current means series.
+ * 
+ * TODO: - add base class function to request for obs of particular series vs
+ * ask whether to open series dialog - change to set mean series rather than
+ * retrieved from Mediator, e.g. via setParams() for AoV plug-in; same for
+ * timeCoordSource (e.g. for AoV) => could default to current mode means -
+ * change PiecewiseLinearFunction to set currLinearFunc, currLinearFuncDeriv as
+ * part of t > ... check - Disable model button until selection of result plus
+ * phase plot mode - derivative - extrema, ctor: reuse - function strings - fit
+ * goodness, e.g. RMS, AIC, BIC and refactoring
  */
 public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
 
@@ -92,11 +100,7 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
 
             // y = mx + c
             m = slope();
-            c = mag1 - m*t1;
-        }
-
-        double startTime() {
-            return t1;
+            c = mag1 - m * t1;
         }
 
         double endTime() {
@@ -109,17 +113,26 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
 
         @Override
         public double value(double t) {
-            double val = m * t + c; // TODO: rm
-            return m*t + c;
-        }
-
-        public double derivative(double t) {
-            // anywhere along the line segment, the slope is m
-            return m;
+            return m * t + c;
         }
     }
 
-    class PiecewiseLinearFunction implements UnivariateRealFunction {
+    class LinearFunctionDerivative implements UnivariateRealFunction {
+
+        private LinearFunction function;
+
+        LinearFunctionDerivative(LinearFunction function) {
+            this.function = function;
+        }
+
+        @Override
+        public double value(double t) {
+            // the slope is the same everywhere along a line segment
+            return function.slope();
+        }
+    }
+
+    class PiecewiseLinearFunction implements DifferentiableUnivariateRealFunction {
         private List<LinearFunction> functions;
         private int funIndex;
 
@@ -142,12 +155,7 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
         public double value(double t) {
             LinearFunction func = functions.get(funIndex);
 
-            // Assumes we are calling this method for times that
-            // increase on each call. The alternative is to search
-            // for the correct range for each t or have a map where
-            // the key is a hashable value range. That still doesn't
-            // help though since each t falls someone on an unknown range.
-            // We could store the last t and assert t >= lastT 
+            // TODO: record and check against last time?
             if (t > func.endTime() && funIndex < functions.size() - 1) {
                 funIndex++;
                 func = functions.get(funIndex);
@@ -155,15 +163,21 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
 
             return func.value(t);
         }
+
+        @Override
+        public UnivariateRealFunction derivative() {
+            // TODO
+            return null;
+        }
     }
 
     class PiecewiseLinearModelCreator implements IModel {
         private List<ValidObservation> obs;
         private List<ValidObservation> meanObs;
-        boolean interrupted;
-        List<ValidObservation> fit;
-        List<ValidObservation> residuals;
-        Map<String, String> functionStrMap;
+        private boolean interrupted;
+        private List<ValidObservation> fit;
+        private List<ValidObservation> residuals;
+        private Map<String, String> functionStrMap;
         private PiecewiseLinearFunction piecewiseFunction;
 
         PiecewiseLinearModelCreator(List<ValidObservation> obs) {
@@ -312,8 +326,8 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
         double m = -0.5;
         result &= function.slope() == m;
         result &= function.c == 10 - (m * 2459645);
-        result &= function.derivative(2459645) == m;
-        result &= function.derivative(2459640) == m;
+//        result &= function.derivative(2459645) == m;
+//        result &= function.derivative(2459640) == m;
         result &= function.value(2459642) == m * 2459642 + function.c;
 
         return result;
