@@ -474,16 +474,22 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
 
             List<ValidObservation> fit = model.getFit();
             ValidObservation fitOb = fit.get(0);
-            result &= fitOb.getJD() == 2459301;
+            result &= fitOb.getJD() == 2459301.0;
+            System.err.println(result);
             result &= Tolerance.areClose(0.629248, fitOb.getMag(), DELTA, true);
-
+            System.err.println(result);
+            
             List<ValidObservation> residuals = model.getResiduals();
             ValidObservation resOb = residuals.get(0);
-            result &= resOb.getJD() == 2459301;
+            result &= resOb.getJD() == 2459301.0;
+            System.err.println(result);
             result &= Tolerance.areClose(0.000073, resOb.getMag(), DELTA, true);
+            System.err.println(result);
 
             result &= Tolerance.areClose(-7923.218889035116, model.aic, DELTA, true);
+            System.err.println(result);
             result &= Tolerance.areClose(-7888.243952752065, model.bic, DELTA, true);
+            System.err.println(result);
 
         } catch (AlgorithmError e) {
             result = false;
