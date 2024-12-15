@@ -48,24 +48,14 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 	 * 
 	 * After CLEANest, the first 2 top-hits should be:
 	 * 
-	 * 1 437.0000 144.75 <br/>
-	 * 2 435.7435 144.40 <br/>
+	 * 1 437.0000 145.18 <br/>
+	 * 2 435.7435 144.83 <br/>
 	 * 
 	 * i.e. a new entry in the first position with the previous entries pushed
 	 * down one position.
+	 *
+	 * expectedPowers are taken from Peranso 3.0.4.4
 	 * 
-	 * The full table will be:
-	 * 
-	 * 1 437.0000 144.75 11 300.1788 2.54 <br/>
-	 * 2 435.7435 144.40 12 254.8688 1.72 <br/>
-	 * 3 365.0824 7.34 13 146.8266 1.67 <br/>
-	 * 4 13508.0482 5.54 14 275.6745 1.49 <br/>
-	 * 5 540.3219 4.78 15 794.5911 1.06 <br/>
-	 * 6 643.2404 4.05 16 329.4646 1.05 <br/>
-	 * 7 201.6127 3.33 17 139.2582 0.80 <br/>
-	 * 8 221.4434 3.20 18 155.2649 0.52 <br/>
-	 * 9 1500.8942 2.91 19 125.0745 0.43 <br/>
-	 * 10 190.2542 2.86 20 170.9880 0.41 <br/>
 	 */
 	public void testRefineFirstFreq() {
 		// Perform a standard scan.
@@ -98,7 +88,7 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 					PeriodAnalysisCoordinateType.POWER).get(0);
 
 			assertEquals("437.0000", String.format("%1.4f", newTopPeriod));
-			assertEquals("144.75", String.format("%1.2f", newTopPower));
+			assertEquals("145.18", String.format("%1.2f", newTopPower));
 
 			// Check the whole table.
 			double[] expectedPeriods = { 437.0000, 435.7435, 365.0824,
@@ -107,8 +97,8 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 					275.6745, 794.5911, 329.4646, 139.2582, 155.2649, 125.0745,
 					170.9880 };
 
-			double[] expectedPowers = { 144.75, 144.40, 7.34, 5.54, 4.78, 4.05,
-					3.33, 3.20, 2.91, 2.86, 2.54, 1.72, 1.67, 1.49, 1.06, 1.05,
+			double[] expectedPowers = { 145.18, 144.83, 7.36, 5.55, 4.80, 4.06,
+					3.34, 3.21, 2.92, 2.87, 2.55, 1.72, 1.68, 1.50, 1.07, 1.05,
 					0.80, 0.52, 0.43, 0.41 };
 
 			checkTopHitsTable(dcdft, expectedPeriods, expectedPowers);
@@ -153,7 +143,7 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 					PeriodAnalysisCoordinateType.POWER).get(0);
 
 			assertEquals("437.0000", String.format("%1.4f", newTopPeriod));
-			assertEquals("144.75", String.format("%1.2f", newTopPower));
+			assertEquals("145.18", String.format("%1.2f", newTopPower));
 
 			// Check the whole table.
 			double[] expectedPeriods = { 437.0000, 435.7435, 365.0824,
@@ -162,8 +152,8 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 					275.6745, 794.5911, 329.4646, 139.2582, 155.2649, 125.0745,
 					170.9880 };
 
-			double[] expectedPowers = { 144.75, 144.40, 7.34, 5.54, 4.78, 4.05,
-					3.33, 3.20, 2.91, 2.86, 2.54, 1.72, 1.67, 1.49, 1.06, 1.05,
+			double[] expectedPowers = { 145.18, 144.83, 7.36, 5.55, 4.80, 4.06,
+					3.34, 3.21, 2.92, 2.87, 2.55, 1.72, 1.68, 1.50, 1.07, 1.05,
 					0.80, 0.52, 0.43, 0.41 };
 
 			checkTopHitsTable(dcdft, expectedPeriods, expectedPowers);
@@ -184,13 +174,16 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 	 * 
 	 * After CLEANest, the first 4 top-hits should be:
 	 * 
-	 * 1 438.0000 145.71 <br/>
-	 * 2 381.0000 145.71 <br/>
-	 * 3 435.7435 144.40 <br/>
-	 * 4 365.0824 7.34 <br/>
+	 * 1 438.0000 146.15 <br/>
+	 * 2 381.0000 146.15 <br/>
+	 * 3 435.7435 144.83 <br/>
+	 * 4 365.0824 7.36 <br/>
 	 * 
 	 * i.e. two new entries in the first two positions with the same power
 	 * values and the previous entries pushed down.
+	 * 
+	 * expectedPowers are taken from Peranso 3.0.4.4
+	 * 
 	 */
 	public void testRefineTwoFreqs() {
 		// Perform a standard scan.
@@ -223,7 +216,7 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 
 			double[] expectedPeriods = { 438.0000, 381.0000, 435.7435, 365.0824 };
 
-			double[] expectedPowers = { 145.71, 145.71, 144.40, 7.34 };
+			double[] expectedPowers = { 146.15, 146.15, 144.83, 7.36 };
 
 			for (int i = 0; i < 3; i++) {
 				double period = dcdft.getTopHits().get(
@@ -254,10 +247,10 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 	 * 
 	 * After CLEANest, the first 4 top-hits should be:
 	 * 
-	 * 1 438.0000 145.83 <br/>
-	 * 2 247.0000 145.83 <br/>
-	 * 3 435.7435 144.40 <br/>
-	 * 4 365.0824 7.34 <br/>
+	 * 1 438.0000 146.26 <br/>
+	 * 2 247.0000 146.26 <br/>
+	 * 3 435.7435 144.83 <br/>
+	 * 4 365.0824 7.36 <br/>
 	 * 
 	 * i.e. two new entries in the first two positions with the same power
 	 * values and the previous entries pushed down.
@@ -291,7 +284,7 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 
 			double[] expectedPeriods = { 438.0000, 247.0000, 435.7435, 365.0824 };
 
-			double[] expectedPowers = { 145.83, 145.83, 144.40, 7.34 };
+			double[] expectedPowers = { 146.26, 146.26, 144.83, 7.36 };
 
 			for (int i = 0; i < 3; i++) {
 				double period = dcdft.getTopHits().get(
@@ -322,10 +315,10 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 	 * 
 	 * After CLEANest, the first 4 top-hits should be:
 	 * 
-	 * 1 437.0000 144.82 <br/>
-	 * 2 123.5000 144.82 <br/>
-	 * 3 435.7435 144.40 <br/>
-	 * 4 365.0824 7.34 <br/>
+	 * 1 437.0000 145.25 <br/>
+	 * 2 123.5000 145.25 <br/>
+	 * 3 435.7435 144.83 <br/>
+	 * 4 365.0824 7.36 <br/>
 	 * 
 	 * i.e. two new entries in the first two positions with the same power
 	 * values and the previous entries pushed down.
@@ -359,7 +352,7 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 
 			double[] expectedPeriods = { 437.0000, 123.5000, 435.7435, 365.0824 };
 
-			double[] expectedPowers = { 144.82, 144.82, 144.40, 7.34 };
+			double[] expectedPowers = { 145.25, 145.25, 144.83, 7.36 };
 
 			for (int i = 0; i < 3; i++) {
 				double period = dcdft.getTopHits().get(
