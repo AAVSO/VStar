@@ -18,11 +18,8 @@
 package org.aavso.tools.vstar.plugin.model.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
@@ -34,19 +31,12 @@ import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
-import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
-import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
-import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
-import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
 import org.aavso.tools.vstar.util.ApacheCommonsDerivativeBasedExtremaFinder;
 import org.aavso.tools.vstar.util.Tolerance;
-import org.aavso.tools.vstar.util.comparator.JDComparator;
-import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
-import org.aavso.tools.vstar.util.model.IModel;
+import org.aavso.tools.vstar.util.model.AbstractModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
-import org.aavso.tools.vstar.util.stats.DescStats;
 import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.DifferentiableUnivariateRealFunction;
@@ -66,9 +56,6 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
 
     private int degree;
 
-    private ICoordSource timeCoordSource;
-    private Comparator<ValidObservation> timeComparator;
-
     public ApacheCommonsPolynomialFitCreatorPlugin() {
         super();
     }
@@ -84,7 +71,7 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
     }
 
     @Override
-    public IModel getModel(List<ValidObservation> obs) {
+    public AbstractModel getModel(List<ValidObservation> obs) {
         return new PolynomialFitCreator(obs);
     }
 
@@ -117,41 +104,16 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
         return 30;
     }
 
-    class PolynomialFitCreator implements IModel {
-        List<ValidObservation> obs;
-        double zeroPoint;
-        boolean interrupted;
-        List<ValidObservation> fit;
-        List<ValidObservation> residuals;
+    class PolynomialFitCreator extends AbstractModel {
         PolynomialFunction function;
         PolynomialFitter fitter;
         AbstractLeastSquaresOptimizer optimizer;
         double aic = Double.NaN;
         double bic = Double.NaN;
-        Map<String, String> functionStrMap;
 
         PolynomialFitCreator(List<ValidObservation> obs) {
-            // TODO: the code in this block should be refactored into the model
-            // creator base class or elsewhere
-
-            // Select time mode (JD or phase).
-            switch (Mediator.getInstance().getAnalysisType()) {
-            case RAW_DATA:
-                timeCoordSource = JDCoordSource.instance;
-                timeComparator = JDComparator.instance;
-                this.obs = obs;
-                zeroPoint = DescStats.calcTimeElementMean(obs, JDTimeElementEntity.instance);
-                break;
-
-            case PHASE_PLOT:
-                timeCoordSource = StandardPhaseCoordSource.instance;
-                timeComparator = StandardPhaseComparator.instance;
-                this.obs = new ArrayList<ValidObservation>(obs);
-                Collections.sort(this.obs, timeComparator);
-                zeroPoint = 0;
-                break;
-            }
-
+            super(obs);
+            
             int minDegree = getMinDegree();
             int maxDegree = getMaxDegree();
 
@@ -168,10 +130,6 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
             if (!cancelled) {
                 optimizer = new LevenbergMarquardtOptimizer();
                 fitter = new PolynomialFitter(getDegree(), optimizer);
-                interrupted = false;
-                fit = new ArrayList<ValidObservation>();
-                residuals = new ArrayList<ValidObservation>();
-                functionStrMap = new TreeMap<String, String>();
             }
         }
 
@@ -179,16 +137,6 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
         public String getDescription() {
             return LocaleProps.get("MODEL_INFO_POLYNOMIAL_DEGREE_DESC") + degree + " for " + obs.get(0).getBand()
                     + " series";
-        }
-
-        @Override
-        public List<ValidObservation> getFit() {
-            return fit;
-        }
-
-        @Override
-        public List<ValidObservation> getResiduals() {
-            return residuals;
         }
 
         @Override
@@ -399,22 +347,6 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
                         functionStrMap.put(title, extremaStr);
                     }
 
-                    // Minimum/maximum.
-                    // ApacheCommonsBrentOptimiserExtremaFinder
-                    // finder = new
-                    // ApacheCommonsBrentOptimiserExtremaFinder(
-                    // fit, function, timeCoordSource,
-                    // zeroPoint);
-                    //
-                    // String extremaStr = finder.toString();
-                    //
-                    // if (extremaStr != null) {
-                    // String title = LocaleProps
-                    // .get("MODEL_INFO_EXTREMA_TITLE");
-                    //
-                    // functionStrMap.put(title, extremaStr);
-                    // }
-
                     // VeLa, Excel, R equations.
                     // TODO: consider Python, e.g. for use with
                     // matplotlib.
@@ -428,11 +360,6 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
                     throw new AlgorithmError(e.getLocalizedMessage());
                 }
             }
-        }
-
-        @Override
-        public void interrupt() {
-            interrupted = true;
         }
 
         @Override
@@ -475,21 +402,21 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
             List<ValidObservation> fit = model.getFit();
             ValidObservation fitOb = fit.get(0);
             result &= fitOb.getJD() == 2459301.0;
-            System.err.println(result);
+            // System.err.println(result);
             result &= Tolerance.areClose(0.629248, fitOb.getMag(), DELTA, true);
-            System.err.println(result);
-            
+            // System.err.println(result);
+
             List<ValidObservation> residuals = model.getResiduals();
             ValidObservation resOb = residuals.get(0);
             result &= resOb.getJD() == 2459301.0;
-            System.err.println(result);
+            // System.err.println(result);
             result &= Tolerance.areClose(0.000073, resOb.getMag(), DELTA, true);
-            System.err.println(result);
+            // System.err.println(result);
 
             result &= Tolerance.areClose(-7923.218889035116, model.aic, DELTA, true);
-            System.err.println(result);
+            // System.err.println(result);
             result &= Tolerance.areClose(-7888.243952752065, model.bic, DELTA, true);
-            System.err.println(result);
+            // System.err.println(result);
 
         } catch (AlgorithmError e) {
             result = false;

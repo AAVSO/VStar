@@ -18,12 +18,7 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
@@ -37,40 +32,39 @@ import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
-import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
 import org.aavso.tools.vstar.util.Tolerance;
-import org.aavso.tools.vstar.util.comparator.JDComparator;
-import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
-import org.aavso.tools.vstar.util.model.IModel;
-import org.aavso.tools.vstar.util.model.PeriodFitParameters;
+import org.aavso.tools.vstar.util.model.AbstractModel;
 import org.apache.commons.math.analysis.DifferentiableUnivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
  * This plug-in creates a piecewise linear model from the current means series.
  * 
- * TODO: - add base class function to request for obs of particular series vs
- * ask whether to open series dialog - change to set mean series rather than
- * retrieved from Mediator, e.g. via setParams() for AoV plug-in; same for
- * timeCoordSource (e.g. for AoV) => could default to current mode means -
- * change PiecewiseLinearFunction to set currLinearFunc, currLinearFuncDeriv as
- * part of t > ... check - Disable model button until selection of result plus
- * phase plot mode - derivative - extrema, ctor: reuse - function strings - fit
- * goodness, e.g. RMS, AIC, BIC and refactoring
+ * TODO<br/>
+ * - add base class function to request for obs of particular series vs ask
+ * whether to open series dialog.<br/>
+ * - extrema<br/>
+ * - function strings<br/>
+ * - fit goodness, e.g. RMS, AIC, BIC and refactoring
+ * - change to set mean series rather than retrieved from Mediator, e.g. via
+ * setParams() for AoV plug-in; same for timeCoordSource (e.g. for AoV) => could
+ * default to current mode means<br/>
+ * - change PiecewiseLinearFunction to set currLinearFunc, currLinearFuncDeriv
+ * as part of t > ... check<br/>
+ * - Disable AoV model button until selection of result plus phase plot
+ * mode<br/>
+ * - derivative<br/>
  */
 public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
 
     private final String DESC = "Piecewise linear model from Means";
-
-    private ICoordSource timeCoordSource;
-    private Comparator<ValidObservation> timeComparator;
 
     public PiecewiseLinearMeanSeriesModel() {
         super();
     }
 
     @Override
-    public IModel getModel(List<ValidObservation> obs) {
+    public AbstractModel getModel(List<ValidObservation> obs) {
         return new PiecewiseLinearModelCreator(obs);
     }
 
@@ -165,52 +159,25 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
             return func.value(t);
         }
 
+        // TODO: see VeLaModelCreator
         @Override
         public UnivariateRealFunction derivative() {
-            // TODO
+            // TODO: see VeLaModelCreator for an example!
             return null;
         }
     }
 
-    class PiecewiseLinearModelCreator implements IModel {
-        private List<ValidObservation> obs;
+    class PiecewiseLinearModelCreator extends AbstractModel {
         private List<ValidObservation> meanObs;
-        private boolean interrupted;
-        private List<ValidObservation> fit;
-        private List<ValidObservation> residuals;
-        private Map<String, String> functionStrMap;
         private PiecewiseLinearFunction piecewiseFunction;
 
         PiecewiseLinearModelCreator(List<ValidObservation> obs) {
-            // TODO: some code (e.g. the switch) in this block should
-            // be refactored into the model creator base class or elsewhere
-            // (see also PolynomialFitCreator)
-
-            // Select time mode (JD or phase).
-            switch (Mediator.getInstance().getAnalysisType()) {
-            case RAW_DATA:
-                timeCoordSource = JDCoordSource.instance;
-                timeComparator = JDComparator.instance;
-                this.obs = obs;
-                break;
-
-            case PHASE_PLOT:
-                timeCoordSource = StandardPhaseCoordSource.instance;
-                timeComparator = StandardPhaseComparator.instance;
-                this.obs = new ArrayList<ValidObservation>(obs);
-                Collections.sort(this.obs, timeComparator);
-                break;
-            }
+            super(obs);
 
             // Get the mean observation list for the current mode
             Mediator mediator = Mediator.getInstance();
             ObservationAndMeanPlotModel plotModel = mediator.getObservationPlotModel(mediator.getAnalysisType());
             meanObs = plotModel.getMeanObsList();
-
-            interrupted = false;
-            fit = new ArrayList<ValidObservation>();
-            residuals = new ArrayList<ValidObservation>();
-            functionStrMap = new TreeMap<String, String>();
 
             // Create piecewise linear model
             piecewiseFunction = new PiecewiseLinearFunction(meanObs, timeCoordSource);
@@ -258,29 +225,8 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
         }
 
         @Override
-        public void interrupt() {
-            interrupted = true;
-        }
-
-        @Override
-        public List<ValidObservation> getFit() {
-            return fit;
-        }
-
-        @Override
-        public List<ValidObservation> getResiduals() {
-            return residuals;
-        }
-
-        @Override
-        public List<PeriodFitParameters> getParameters() {
-            // None
-            return null;
-        }
-
-        @Override
         public boolean hasFuncDesc() {
-            return false;
+            return true;
         }
 
         @Override
@@ -291,13 +237,6 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
         @Override
         public String getKind() {
             return "Piecewise linear model";
-        }
-
-        @Override
-        public Map<String, String> getFunctionStrings() {
-            functionStrMap = new LinkedHashMap<String, String>();
-            // TODO VeLa, R, Excel, Python, Julia, LaTeX, ...
-            return null;
         }
 
         @Override
