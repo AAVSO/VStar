@@ -220,6 +220,7 @@ public class TSBase {
 		dave = 0.0;
 		dtave = 0.0;
 		dtvar = 0.0;
+		dvar = 0.0;
 
 		for (n = nlolim; n <= nuplim; n++) {
 			if (wvec[n] > 0.0) {
