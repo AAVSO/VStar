@@ -24,7 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
@@ -33,6 +38,8 @@ import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.DescStats;
 
 /**
@@ -42,13 +49,24 @@ import org.aavso.tools.vstar.util.stats.DescStats;
 public abstract class AbstractModel implements IModel {
 
     protected boolean interrupted;
+
     protected List<ValidObservation> obs;
+
     protected List<ValidObservation> fit;
     protected List<ValidObservation> residuals;
+
     protected Map<String, String> functionStrMap;
+
     protected ICoordSource timeCoordSource;
     protected Comparator<ValidObservation> timeComparator;
+
     protected double zeroPoint;
+
+    protected double sumSqResiduals = 0;
+
+    protected double aic = Double.NaN;
+    protected double bic = Double.NaN;
+    protected double rms = Double.NaN;
 
     public AbstractModel(List<ValidObservation> obs) {
         this.obs = obs;
@@ -82,6 +100,40 @@ public abstract class AbstractModel implements IModel {
     @Override
     public void interrupt() {
         interrupted = true;
+    }
+
+    /**
+     * Collect fit and residual observations and incrementally compute the sum of
+     * squared residuals for use in fit metrics.
+     * 
+     * @param modelValue A model-computed value
+     * @param ob The observation (at time t) being modeled
+     */
+    public void collectObs(double modelValue, ValidObservation ob, String comment) {
+        ValidObservation fitOb = new ValidObservation();
+        fitOb.setDateInfo(new DateInfo(ob.getJD()));
+        if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
+            fitOb.setPreviousCyclePhase(ob.getPreviousCyclePhase());
+            fitOb.setStandardPhase(ob.getStandardPhase());
+        }
+        fitOb.setMagnitude(new Magnitude(modelValue, 0));
+        fitOb.setBand(SeriesType.Model);
+        fitOb.setComments(comment);
+        fit.add(fitOb);
+
+        ValidObservation resOb = new ValidObservation();
+        resOb.setDateInfo(new DateInfo(ob.getJD()));
+        if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
+            resOb.setPreviousCyclePhase(ob.getPreviousCyclePhase());
+            resOb.setStandardPhase(ob.getStandardPhase());
+        }
+        double residual = ob.getMag() - modelValue;
+        resOb.setMagnitude(new Magnitude(residual, 0));
+        resOb.setBand(SeriesType.Residuals);
+        resOb.setComments(comment);
+        residuals.add(resOb);
+        
+        sumSqResiduals += (residual * residual);
     }
 
     /**
@@ -141,6 +193,78 @@ public abstract class AbstractModel implements IModel {
      */
     public ContinuousModelFunction getModelFunction() {
         return null;
+    }
+
+    /**
+     * Compute the Bayesian and Aikake Information Criteria (BIC and AIC) fit
+     * metrics
+     *
+     * pre-condition: assumes sum of squared residuals has been computed
+     * 
+     * @param numberOfEstimatedParams The number of estimated parameters, e.g.
+     *                                polynomial degree
+     */
+    public void informationCriteria(double numberOfEstimatedParams) {
+        int n = residuals.size();
+        if (n != 0 && sumSqResiduals / n != 0) {
+            double commonIC = n * Math.log(sumSqResiduals / n);
+            aic = commonIC + 2 * numberOfEstimatedParams;
+            bic = commonIC + numberOfEstimatedParams * Math.log(n);
+        }
+    }
+
+    /**
+     * Compute the root mean square.
+     * 
+     * pre-condition: assumes sum of squared residuals has been computed
+     */
+    public void rootMeanSquare() {
+        rms = Math.sqrt(sumSqResiduals / residuals.size());
+    }
+
+    /**
+     * Gather fit metrics string.
+     * 
+     * @throws AlgorithmError
+     */
+    public void fitMetricsString() throws AlgorithmError {
+        String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_FIT_METRICS_TITLE"));
+
+        if (strRepr == null) {
+            // Goodness of fit
+            if (rms != Double.NaN) {
+                strRepr = "RMS: " + NumericPrecisionPrefs.formatOther(rms);
+            }
+
+            // Akaike and Bayesean Information Criteria
+            if (aic != Double.NaN && bic != Double.NaN) {
+                strRepr += "\nAIC: " + NumericPrecisionPrefs.formatOther(aic);
+                strRepr += "\nBIC: " + NumericPrecisionPrefs.formatOther(bic);
+            }
+        }
+
+        functionStrMap.put(LocaleProps.get("MODEL_INFO_FIT_METRICS_TITLE"), strRepr);
+    }
+
+    /**
+     * @return Aikake Information Criteria
+     */
+    public double getAIC() {
+        return aic;
+    }
+
+    /**
+     * @return Bayesian Information Criteria
+     */
+    public double getBIC() {
+        return bic;
+    }
+
+    /**
+     * @return Root mean square
+     */
+    public double getRMS() {
+        return rms;
     }
 
     /**

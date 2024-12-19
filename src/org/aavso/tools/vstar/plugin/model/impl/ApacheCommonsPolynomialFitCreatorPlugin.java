@@ -23,13 +23,10 @@ import java.util.Map;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
-import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
-import org.aavso.tools.vstar.ui.mediator.AnalysisType;
-import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.util.ApacheCommonsDerivativeBasedExtremaFinder;
 import org.aavso.tools.vstar.util.Tolerance;
@@ -72,7 +69,7 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
 
     @Override
     public AbstractModel getModel(List<ValidObservation> obs) {
-        return new PolynomialFitCreator(obs);
+        return new PolynomialFitModel(obs);
     }
 
     /**
@@ -104,14 +101,12 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
         return 30;
     }
 
-    class PolynomialFitCreator extends AbstractModel {
+    class PolynomialFitModel extends AbstractModel {
         PolynomialFunction function;
         PolynomialFitter fitter;
         AbstractLeastSquaresOptimizer optimizer;
-        double aic = Double.NaN;
-        double bic = Double.NaN;
 
-        PolynomialFitCreator(List<ValidObservation> obs) {
+        PolynomialFitModel(List<ValidObservation> obs) {
             super(obs);
             
             int minDegree = getMinDegree();
@@ -156,23 +151,6 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
         @Override
         public boolean hasFuncDesc() {
             return true;
-        }
-
-        public String toFitMetricsString() throws AlgorithmError {
-            String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_FIT_METRICS_TITLE"));
-
-            if (strRepr == null) {
-                // Goodness of fit
-                strRepr = "RMS: " + NumericPrecisionPrefs.formatOther(optimizer.getRMS());
-
-                // Akaike and Bayesean Information Criteria
-                if (aic != Double.NaN && bic != Double.NaN) {
-                    strRepr += "\nAIC: " + NumericPrecisionPrefs.formatOther(aic);
-                    strRepr += "\nBIC: " + NumericPrecisionPrefs.formatOther(bic);
-                }
-            }
-
-            return strRepr;
         }
 
         @Override
@@ -286,13 +264,9 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
 
                     fit = new ArrayList<ValidObservation>();
                     residuals = new ArrayList<ValidObservation>();
-                    double sumSqResiduals = 0;
 
                     String comment = LocaleProps.get("MODEL_INFO_POLYNOMIAL_DEGREE_DESC") + degree;
 
-                    // Create fit and residual observations and
-                    // compute the sum of squares of residuals for
-                    // Akaike and Bayesean Information Criteria.
                     for (int i = 0; i < obs.size() && !interrupted; i++) {
                         ValidObservation ob = obs.get(i);
 
@@ -300,42 +274,13 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
                         double zeroedX = x - zeroPoint;
                         double y = function.value(zeroedX);
 
-                        ValidObservation fitOb = new ValidObservation();
-                        fitOb.setDateInfo(new DateInfo(ob.getJD()));
-                        if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
-                            fitOb.setPreviousCyclePhase(ob.getPreviousCyclePhase());
-                            fitOb.setStandardPhase(ob.getStandardPhase());
-                        }
-                        fitOb.setMagnitude(new Magnitude(y, 0));
-                        fitOb.setBand(SeriesType.Model);
-                        fitOb.setComments(comment);
-                        fit.add(fitOb);
-
-                        ValidObservation resOb = new ValidObservation();
-                        resOb.setDateInfo(new DateInfo(ob.getJD()));
-                        if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
-                            resOb.setPreviousCyclePhase(ob.getPreviousCyclePhase());
-                            resOb.setStandardPhase(ob.getStandardPhase());
-                        }
-                        double residual = ob.getMag() - y;
-                        resOb.setMagnitude(new Magnitude(residual, 0));
-                        resOb.setBand(SeriesType.Residuals);
-                        resOb.setComments(comment);
-                        residuals.add(resOb);
-
-                        sumSqResiduals += (residual * residual);
+                        collectObs(y, ob, comment);
                     }
 
-                    // Fit metrics (AIC, BIC).
-                    int n = residuals.size();
-                    if (n != 0 && sumSqResiduals / n != 0) {
-                        double commonIC = n * Math.log(sumSqResiduals / n);
-                        aic = commonIC + 2 * degree;
-                        bic = commonIC + degree * Math.log(n);
-                    }
-
-                    functionStrMap.put(LocaleProps.get("MODEL_INFO_FIT_METRICS_TITLE"), toFitMetricsString());
-
+                    rootMeanSquare();
+                    informationCriteria(degree);
+                    fitMetricsString();
+                    
                     ApacheCommonsDerivativeBasedExtremaFinder finder = new ApacheCommonsDerivativeBasedExtremaFinder(
                             fit, (DifferentiableUnivariateRealFunction) function, timeCoordSource, zeroPoint);
 
@@ -347,7 +292,7 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
                         functionStrMap.put(title, extremaStr);
                     }
 
-                    // VeLa, Excel, R equations.
+                    // VeLa, Excel, R model functions.
                     // TODO: consider Python, e.g. for use with
                     // matplotlib.
                     functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"), toString());
@@ -360,6 +305,11 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
                     throw new AlgorithmError(e.getLocalizedMessage());
                 }
             }
+        }
+
+        @Override
+        public void rootMeanSquare() {
+            rms = optimizer.getRMS();
         }
 
         @Override
@@ -392,31 +342,26 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
 
         setDegree(9);
 
-        PolynomialFitCreator model = (PolynomialFitCreator) getModel(obs);
+        AbstractModel model = getModel(obs);
 
         try {
             model.execute();
 
-            double DELTA = 1e-3;
+            double DELTA = 1e-6;
 
             List<ValidObservation> fit = model.getFit();
             ValidObservation fitOb = fit.get(0);
             result &= fitOb.getJD() == 2459301.0;
-            // System.err.println(result);
             result &= Tolerance.areClose(0.629248, fitOb.getMag(), DELTA, true);
-            // System.err.println(result);
 
             List<ValidObservation> residuals = model.getResiduals();
             ValidObservation resOb = residuals.get(0);
             result &= resOb.getJD() == 2459301.0;
-            // System.err.println(result);
             result &= Tolerance.areClose(0.000073, resOb.getMag(), DELTA, true);
-            // System.err.println(result);
 
-            result &= Tolerance.areClose(-7923.218889035116, model.aic, DELTA, true);
-            // System.err.println(result);
-            result &= Tolerance.areClose(-7888.243952752065, model.bic, DELTA, true);
-            // System.err.println(result);
+            result &= Tolerance.areClose(0.0000162266724849, model.getRMS(), DELTA, true);
+            result &= Tolerance.areClose(-7923.218889035116, model.getAIC(), DELTA, true);
+            result &= Tolerance.areClose(-7888.243952752065, model.getBIC(), DELTA, true);
 
         } catch (AlgorithmError e) {
             result = false;

@@ -22,11 +22,9 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
-import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
-import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
@@ -41,11 +39,12 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
  * This plug-in creates a piecewise linear model from the current means series.
  * 
  * TODO<br/>
- * - add base class function to request for obs of particular series vs ask
- * whether to open series dialog.<br/>
- * - extrema<br/>
+ * - fit goodness, e.g. RMS, AIC, BIC and refactoring - add base class function
+ * to request for obs of particular series vs ask whether to open series
+ * dialog.<br/>
  * - function strings<br/>
- * - fit goodness, e.g. RMS, AIC, BIC and refactoring
+ * - derivative (see VeLaModelCreator)<br/>
+ * - extrema<br/>
  * - change to set mean series rather than retrieved from Mediator, e.g. via
  * setParams() for AoV plug-in; same for timeCoordSource (e.g. for AoV) => could
  * default to current mode means<br/>
@@ -53,7 +52,6 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
  * as part of t > ... check<br/>
  * - Disable AoV model button until selection of result plus phase plot
  * mode<br/>
- * - derivative<br/>
  */
 public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
 
@@ -65,7 +63,7 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
 
     @Override
     public AbstractModel getModel(List<ValidObservation> obs) {
-        return new PiecewiseLinearModelCreator(obs);
+        return new PiecewiseLinearModel(obs);
     }
 
     @Override
@@ -165,13 +163,17 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
             // TODO: see VeLaModelCreator for an example!
             return null;
         }
+
+        public int numberOfFunctions() {
+            return functions.size();
+        }
     }
 
-    class PiecewiseLinearModelCreator extends AbstractModel {
+    class PiecewiseLinearModel extends AbstractModel {
         private List<ValidObservation> meanObs;
         private PiecewiseLinearFunction piecewiseFunction;
 
-        PiecewiseLinearModelCreator(List<ValidObservation> obs) {
+        PiecewiseLinearModel(List<ValidObservation> obs) {
             super(obs);
 
             // Get the mean observation list for the current mode
@@ -197,31 +199,12 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
                 double x = timeCoordSource.getXCoord(i, obs);
                 double y = piecewiseFunction.value(x);
 
-                // TODO: need a base class method to collect fit & residual obs
-
-                ValidObservation fitOb = new ValidObservation();
-                fitOb.setDateInfo(new DateInfo(ob.getJD()));
-                if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
-                    fitOb.setPreviousCyclePhase(ob.getPreviousCyclePhase());
-                    fitOb.setStandardPhase(ob.getStandardPhase());
-                }
-                fitOb.setMagnitude(new Magnitude(y, 0));
-                fitOb.setBand(SeriesType.Model);
-                fitOb.setComments(comment);
-                fit.add(fitOb);
-
-                ValidObservation resOb = new ValidObservation();
-                resOb.setDateInfo(new DateInfo(ob.getJD()));
-                if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
-                    resOb.setPreviousCyclePhase(ob.getPreviousCyclePhase());
-                    resOb.setStandardPhase(ob.getStandardPhase());
-                }
-                double residual = ob.getMag() - y;
-                resOb.setMagnitude(new Magnitude(residual, 0));
-                resOb.setBand(SeriesType.Residuals);
-                resOb.setComments(comment);
-                residuals.add(resOb);
+                collectObs(y, ob, comment);
             }
+
+            rootMeanSquare();
+            informationCriteria(piecewiseFunction.numberOfFunctions());
+            fitMetricsString();
         }
 
         @Override
@@ -268,9 +251,6 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
         double m = -0.5;
         result &= Tolerance.areClose(m, function.slope(), DELTA, true);
         result &= Tolerance.areClose(10 - (m * 2459645), function.c, DELTA, true);
-//        result &= function.derivative(2459645) == m;
-//        result &= function.derivative(2459640) == m;
-//        result &= function.value(2459642) == m * 2459642 + function.c;
         result &= Tolerance.areClose(m * 2459642 + function.c, function.value(2459642), DELTA, true);
 
         return result;
@@ -288,12 +268,10 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
 
         double t1 = obs.get(0).getJD();
         LinearFunction function1 = plf.functions.get(0);
-        // result &= plf.value(t1) == function1.m * t1 + function1.c;
         result &= result &= Tolerance.areClose(function1.m * t1 + function1.c, plf.value(t1), DELTA, true);
 
         double t2 = obs.get(1).getJD();
         LinearFunction function2 = plf.functions.get(1);
-//        result &= plf.value(t2) == function2.m * t2 + function2.c;
         result &= result &= Tolerance.areClose(function2.m * t2 + function2.c, plf.value(t2), DELTA, true);
 
         return result;
