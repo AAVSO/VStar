@@ -59,7 +59,6 @@ import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
-import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.jfree.chart.JFreeChart;
@@ -79,7 +78,6 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	private boolean firstInvocation;
 	private boolean interrupted;
 	private boolean cancelled;
-	//private boolean legalParams;
 	private boolean resetParams;
 
 	private FtResult ftResult;
@@ -180,7 +178,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		private double period;
 		private SeriesType sourceSeriesType;
-		private IPeriodAnalysisDatum selectedDataPoint;
+		//private IPeriodAnalysisDatum selectedDataPoint;
 
 		private PeriodAnalysisDataTablePane resultsTablePane;
 		private PeriodAnalysisTopHitsTablePane topHitsTablePane;
@@ -201,11 +199,11 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		@Override
 		protected Component createContent() {
-			String title = (analysisTypeIsFFT ? ANALYSIS_TYPE_FFT : ANALYSIS_TYPE_SPW) + " Periodogram";
+			String title = analysisTypeIsFFT ? ANALYSIS_TYPE_FFT : ANALYSIS_TYPE_SPW;
 
 			plotPanes = new ArrayList<PeriodAnalysis2DChartPane>();
 			List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
-			Map<PeriodAnalysis2DPlotModel, String>plotModels = new HashMap<PeriodAnalysis2DPlotModel, String>();
+			Map<PeriodAnalysis2DPlotModel, String>plotModels = new LinkedHashMap<PeriodAnalysis2DPlotModel, String>();
 			
 			plotModels.put(new PeriodAnalysis2DPlotModel(
 					algorithm.getResultSeries(),
@@ -317,7 +315,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		@Override
 		public void update(PeriodAnalysisSelectionMessage info) {
 			period = info.getDataPoint().getPeriod();
-			selectedDataPoint = info.getDataPoint();
+			//selectedDataPoint = info.getDataPoint();
 			if (analysisTypeIsFFT)
 				setNewPhasePlotButtonState(true);
 		}
@@ -516,7 +514,10 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			if (!cancelled) {
 				interrupted = false;
 				
-				for (double frequency = minFrequency; frequency <= maxFrequency; frequency += resolution) {
+				int n_steps = (int)Math.floor((maxFrequency - minFrequency) / resolution) + 2;
+				double frequency = minFrequency;
+				//for (double frequency = minFrequency; frequency <= maxFrequency; frequency += resolution) {
+				for (int i = 0; i < n_steps; i++) {
 					if (interrupted)
 						break;
 					
@@ -527,7 +528,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					
 					powers.add(fixInf(ftResult.getPwr()));
 					semiAmplitudes.add(fixInf(ftResult.getAmp()));
-
+					frequency += resolution;
 				}
 				
 			}
@@ -558,11 +559,9 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		ftResult = new FtResult(obs);
 		
 		if (resetParams) {
-			// Not sure that it is the best/correct way (Max) 
-			double x = 1.0 / Math.sqrt(ftResult.getPVarianceTime() * 12.0) / 4.0;
 			minFrequency = 0.0;
-			maxFrequency = x * ftResult.getCount() * 2;
-			resolution = x / 10.0;
+			maxFrequency = 10.0;
+			resolution = 0.0001;
 			analysisTypeIsFFT = true;
 			resetParams = false;
 		}
@@ -596,7 +595,8 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		
 		MultiEntryComponentDialog dlg = 
 				new MultiEntryComponentDialog(
-						"Parameters", 
+						"Parameters",
+						getDocName(),						
 						fields, 
 						Optional.of(analysisTypePane));
 
@@ -652,9 +652,9 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private List<Double> mags;
 		private double maxTime;
 		private double minTime;
-		private double meanTime;
+		//private double meanTime;
 		private double meanMag;
-		private double p_varianceTime;
+		//private double p_varianceTime;
 		private int count;
 		private boolean typeIsFFT;
 		
@@ -673,7 +673,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			count = times.size();
 			minTime = 0.0;
 			maxTime = 0.0;
-			meanTime = 0.0;
+			//meanTime = 0.0;
 			meanMag = 0.0;
 			boolean first = true;
 			for (int i = 0; i < count; i++) {
@@ -689,17 +689,17 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					if (t > maxTime)
 						maxTime = t;
 				}
-				meanTime += t;
+				//meanTime += t;
 				meanMag += m;
 			}
-			meanTime /= count;
+			//meanTime /= count;
 			meanMag /= count;
 			
-			p_varianceTime = 0.0;
-			for (Double t : times) {
-				p_varianceTime += (t - meanTime) * (t - meanTime);
-			}
-			p_varianceTime /= count;
+//			p_varianceTime = 0.0;
+//			for (Double t : times) {
+//				p_varianceTime += (t - meanTime) * (t - meanTime);
+//			}
+//			p_varianceTime /= count;
 		}
 		
 		public void calculateF(double nu) {
@@ -708,12 +708,12 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
             for (int i = 0; i < count; i++) {
             	double t = times.get(i);
             	double a = 2 * Math.PI * nu * t;
-            	double b = typeIsFFT ? mags.get(i) - meanMag : 1.0;
+            	double b = typeIsFFT ? mags.get(i) - meanMag : 0.5;
                 reF += b * Math.cos(a);
                 imF += b * Math.sin(a);
             }
             // Like in Period04
-            amp = Math.sqrt(reF * reF + imF * imF) / count;
+            amp = 2.0 * Math.sqrt(reF * reF + imF * imF) / count;
             pwr = amp * amp;
 		}
 
@@ -729,13 +729,13 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			return pwr;
 		}
 		
-		public int getCount() {
-			return count;
-		}
-		
-		public double getPVarianceTime() {
-			return p_varianceTime;
-		}
+//		public int getCount() {
+//			return count;
+//		}
+//		
+//		public double getPVarianceTime() {
+//			return p_varianceTime;
+//		}
 		
 	}
 }
