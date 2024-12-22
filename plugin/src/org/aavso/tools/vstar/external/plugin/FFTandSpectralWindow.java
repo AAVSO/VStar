@@ -18,15 +18,20 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Component;
+import java.awt.GridLayout;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -49,10 +54,12 @@ import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.jfree.chart.JFreeChart;
@@ -60,20 +67,24 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
 
 /**
  * 	FFT according to Deeming, T.J., 1975, Ap&SS, 36, 137
-	plus FFT for the unit-amplitude signal = Spectral Window
+	plus FFT for the unit-amplitude signal == Spectral Window
  */
 public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
+	private final String ANALYSIS_TYPE_FFT = "FFT (Deeming 1975)";
+	private final String ANALYSIS_TYPE_SPW = "Spectral Window";
+	
 	private int maxTopHits = -1; // set to -1 for the unlimited number!
 	
 	private boolean firstInvocation;
 	private boolean interrupted;
 	private boolean cancelled;
-	private boolean legalParams;
+	//private boolean legalParams;
 	private boolean resetParams;
 
 	private FtResult ftResult;
 	private Double minFrequency, maxFrequency, resolution;
+	private boolean analysisTypeIsFFT;
 
 	private IPeriodAnalysisAlgorithm algorithm;
 
@@ -88,12 +99,12 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 	@Override
 	public String getDescription() {
-		return "Spectral Window";
+		return "FFT and Spectral Window Frequency Range";
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "Spectral Window";
+		return "FFT and Spectral Window Frequency Range";
 	}
 
 	/**
@@ -101,7 +112,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	 */
 	@Override
 	public String getDocName() {
-		return "Spectral Window Plug-In.pdf";
+		return "FFT and Spectral Window Plug-In.pdf";
 	}
 
 	@Override
@@ -137,6 +148,8 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		//while (!areParametersLegal(obs) && !cancelled)
 		//	;
 		
+		ftResult.setTypeIsFFT(analysisTypeIsFFT);
+		
 		algorithm = new FFTandSpectralWindowAlgorithm(obs);
 		algorithm.execute();
 	}
@@ -167,15 +180,14 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		private double period;
 		private SeriesType sourceSeriesType;
-		//private IPeriodAnalysisDatum selectedDataPoint;
+		private IPeriodAnalysisDatum selectedDataPoint;
 
 		private PeriodAnalysisDataTablePane resultsTablePane;
 		private PeriodAnalysisTopHitsTablePane topHitsTablePane;
-		private PeriodAnalysis2DChartPane plotPane;
-		private PeriodAnalysis2DChartPane plotPane2;
+		private List<PeriodAnalysis2DChartPane> plotPanes;
 
 		public PeriodAnalysisDialog(SeriesType sourceSeriesType) {
-			super("Spectral Window", false, true, false);
+			super(analysisTypeIsFFT ? ANALYSIS_TYPE_FFT : ANALYSIS_TYPE_SPW, false, true, false);
 
 			this.sourceSeriesType = sourceSeriesType;
 
@@ -189,39 +201,43 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		@Override
 		protected Component createContent() {
-			String title = "Spectral Window Periodogram";
+			String title = (analysisTypeIsFFT ? ANALYSIS_TYPE_FFT : ANALYSIS_TYPE_SPW) + " Periodogram";
+
+			plotPanes = new ArrayList<PeriodAnalysis2DChartPane>();
+			List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
+			Map<PeriodAnalysis2DPlotModel, String>plotModels = new HashMap<PeriodAnalysis2DPlotModel, String>();
 			
-			PeriodAnalysis2DChartPane topHitsPlotPane;
-			PeriodAnalysis2DChartPane topHitsPlotPane2;
+			plotModels.put(new PeriodAnalysis2DPlotModel(
+					algorithm.getResultSeries(),
+					PeriodAnalysisCoordinateType.FREQUENCY, 
+					PeriodAnalysisCoordinateType.POWER, 
+					false), "PowerPane");
 
-
-			{
-				// POWER
-				PeriodAnalysis2DPlotModel dataPlotModel = new PeriodAnalysis2DPlotModel(
-						algorithm.getResultSeries(),
-						PeriodAnalysisCoordinateType.FREQUENCY, 
-						PeriodAnalysisCoordinateType.POWER, 
-						false);
-	
-				plotPane = PeriodAnalysisComponentFactory.createLinePlot(
+			plotModels.put(new PeriodAnalysis2DPlotModel(
+					algorithm.getResultSeries(),
+					PeriodAnalysisCoordinateType.FREQUENCY, 
+					PeriodAnalysisCoordinateType.SEMI_AMPLITUDE, 
+					false), "SemiAmplitudePane");
+			
+			for (PeriodAnalysis2DPlotModel dataPlotModel : plotModels.keySet()) { 
+				PeriodAnalysis2DChartPane plotPane = PeriodAnalysisComponentFactory.createLinePlot(
 						title,
 						sourceSeriesType.getDescription(), 
 						dataPlotModel, 
 						false);
-	
+
 				PeriodAnalysis2DPlotModel topHitsPlotModel = new PeriodAnalysis2DPlotModel(
 						algorithm.getTopHits(),
-						PeriodAnalysisCoordinateType.FREQUENCY, 
-						PeriodAnalysisCoordinateType.POWER, 
+						dataPlotModel.getDomainType(),
+						dataPlotModel.getRangeType(),
 						false);
 	
-				topHitsPlotPane = PeriodAnalysisComponentFactory.createScatterPlot(
+				PeriodAnalysis2DChartPane topHitsPlotPane = PeriodAnalysisComponentFactory.createScatterPlot(
 						title, 
 						sourceSeriesType.getDescription(), 
 						topHitsPlotModel,
 						false);
-				
-				// POWER
+
 				// Add the above line plot's model to the scatter plot.
 				// Render the scatter plot last so the "handles" will be
 				// the first items selected by the mouse.
@@ -230,43 +246,12 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 				chart.getXYPlot().setDataset(PeriodAnalysis2DChartPane.TOP_HIT_SERIES, topHitsPlotModel);
 				chart.getXYPlot().setRenderer(PeriodAnalysis2DChartPane.DATA_SERIES, plotPane.getChart().getXYPlot().getRenderer());
 				chart.getXYPlot().setDatasetRenderingOrder(DatasetRenderingOrder.REVERSE);
-			}
-			
-			{
-				// SEMI-AMPLITUDE
-				PeriodAnalysis2DPlotModel dataPlotModel2 = new PeriodAnalysis2DPlotModel(
-						algorithm.getResultSeries(),
-						PeriodAnalysisCoordinateType.FREQUENCY, 
-						PeriodAnalysisCoordinateType.SEMI_AMPLITUDE, 
-						false);
 				
-				plotPane2 = PeriodAnalysisComponentFactory.createLinePlot(
-						title,
-						sourceSeriesType.getDescription(), 
-						dataPlotModel2, 
-						false);
-				
-				PeriodAnalysis2DPlotModel topHitsPlotModel2 = new PeriodAnalysis2DPlotModel(
-						algorithm.getTopHits(),
-						PeriodAnalysisCoordinateType.FREQUENCY, 
-						PeriodAnalysisCoordinateType.SEMI_AMPLITUDE, 
-						false);
-	
-				topHitsPlotPane2 = PeriodAnalysisComponentFactory.createScatterPlot(
-						title, 
-						sourceSeriesType.getDescription(), 
-						topHitsPlotModel2,
-						false);
-	
-				// SEMI_AMPLITUDE
-				// Add the above line plot's model to the scatter plot.
-				// Render the scatter plot last so the "handles" will be
-				// the first items selected by the mouse.
-				JFreeChart chart2 = topHitsPlotPane2.getChart();
-				chart2.getXYPlot().setDataset(PeriodAnalysis2DChartPane.DATA_SERIES, dataPlotModel2);
-				chart2.getXYPlot().setDataset(PeriodAnalysis2DChartPane.TOP_HIT_SERIES, topHitsPlotModel2);
-				chart2.getXYPlot().setRenderer(PeriodAnalysis2DChartPane.DATA_SERIES, plotPane2.getChart().getXYPlot().getRenderer());
-				chart2.getXYPlot().setDatasetRenderingOrder(DatasetRenderingOrder.REVERSE);
+				plotPane = topHitsPlotPane;
+				plotPane.setChartPaneID(plotModels.get(dataPlotModel));
+				plotPanes.add(plotPane);
+				String tabName = dataPlotModel.getRangeType() + " vs " + dataPlotModel.getDomainType();
+				namedComponents.add(new NamedComponent(tabName, plotPane));
 			}
 			
 			// Full results table
@@ -278,16 +263,17 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 			PeriodAnalysisDataTableModel dataTableModel = new PeriodAnalysisDataTableModel(columns, algorithm.getResultSeries());
 			resultsTablePane = new NoModelPeriodAnalysisDataTablePane(dataTableModel, algorithm);
+			resultsTablePane.setTablePaneID("DataTable");
+			namedComponents.add(new NamedComponent(LocaleProps.get("DATA_TAB"), resultsTablePane));
+
 
 			PeriodAnalysisDataTableModel topHitsModel = new PeriodAnalysisDataTableModel(columns, algorithm.getTopHits());
 			topHitsTablePane = new NoModelPeriodAnalysisTopHitsTablePane(topHitsModel, dataTableModel, algorithm);
+			resultsTablePane.setTablePaneID("TopHitsTable");
+			namedComponents.add(new NamedComponent(LocaleProps.get("TOP_HITS_TAB"), topHitsTablePane));			
 
 			// Return tabbed pane of plot and period display component.
-			return PluginComponentFactory.createTabs(
-					new NamedComponent("Power", topHitsPlotPane), 
-					new NamedComponent("Semi-Amplitude", topHitsPlotPane2),
-					new NamedComponent("Results", resultsTablePane), 
-					new NamedComponent("Top Hits", topHitsTablePane));
+			return PluginComponentFactory.createTabs(namedComponents);
 		}
 
 		// Send a period change message when the new-phase-plot button is
@@ -304,8 +290,9 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 			resultsTablePane.startup();
 			topHitsTablePane.startup();
-			plotPane.startup();
-			plotPane2.startup();
+			for (PeriodAnalysis2DChartPane plotPane : plotPanes) {
+				plotPane.startup();
+			}
 		}
 
 		@Override
@@ -315,8 +302,9 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 			resultsTablePane.cleanup();
 			topHitsTablePane.cleanup();
-			plotPane.cleanup();
-			plotPane2.cleanup();
+			for (PeriodAnalysis2DChartPane plotPane : plotPanes) {
+				plotPane.cleanup();
+			}
 		}
 
 		// Next two methods are for Listener<PeriodAnalysisSelectionMessage>
@@ -329,8 +317,9 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		@Override
 		public void update(PeriodAnalysisSelectionMessage info) {
 			period = info.getDataPoint().getPeriod();
-			//selectedDataPoint = info.getDataPoint();
-			setNewPhasePlotButtonState(true);
+			selectedDataPoint = info.getDataPoint();
+			if (analysisTypeIsFFT)
+				setNewPhasePlotButtonState(true);
 		}
 
 		// ** No model result and top-hit panes **
@@ -419,14 +408,19 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		@Override
 		public Map<PeriodAnalysisCoordinateType, List<Double>> getTopHits() {
-			
+
 			ArrayList<Double> hitFrequencies = new ArrayList<Double>();
 			ArrayList<Double> hitPeriods = new ArrayList<Double>();
 			ArrayList<Double> hitPowers = new ArrayList<Double>();
 			ArrayList<Double> hitSemiAmplitudes = new ArrayList<Double>();
-			
+
 			// Extracting top hits (local maxima)
 			if (frequencies.size() > 1) {
+				Map<Integer, Double> hitFrequenciesRaw = new HashMap<Integer, Double>();
+				Map<Integer, Double> hitPeriodsRaw = new HashMap<Integer, Double>();
+				ArrayList<IntDoublePair> hitPowersRaw = new ArrayList<IntDoublePair>();
+				Map<Integer, Double> hitSemiAmplitudesRaw = new HashMap<Integer, Double>();
+				
 				for (int i = 0; i < frequencies.size(); i++) {
 					boolean top = false;
 					if (i > 0 && i < frequencies.size() - 1) {
@@ -443,41 +437,29 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 						}
 					}
 					if (top) {
-						hitFrequencies.add(frequencies.get(i));
-						hitPeriods.add(periods.get(i));
-						hitPowers.add(powers.get(i));
-						hitSemiAmplitudes.add(semiAmplitudes.get(i));
+						hitFrequenciesRaw.put(i, frequencies.get(i));
+						hitPeriodsRaw.put(i, periods.get(i));
+						hitPowersRaw.add(new IntDoublePair(i, powers.get(i)));
+						hitSemiAmplitudesRaw.put(i, semiAmplitudes.get(i));
 					}
-	
 				}
 				
+				hitPowersRaw.sort(new IntDoublePairComparator());
+
 				// Here we can limit the number of the top hits, however, is it worth to?
 				// set maxTopHits to -1 for the unrestricted number
-				if (maxTopHits >= 0) {
-					ArrayList<IntDoublePair>hitIndices = new ArrayList<IntDoublePair>();
-					for (int i = 0; i < hitPowers.size(); i++) {
-						hitIndices.add(new IntDoublePair(i, hitPowers.get(i)));
-					}
-					hitIndices.sort(new IntDoublePairComparator());
-					
-					ArrayList<Integer>selectedHitIndices = new ArrayList<Integer>();
-					for (int i = 0; i < Math.min(maxTopHits, hitIndices.size()); i++) {
-						selectedHitIndices.add(hitIndices.get(i).i);
-					}
-					
-					Collections.sort(selectedHitIndices);
-				
-					for (int i = hitPowers.size() - 1; i >= 0; i--) {
-						if (!selectedHitIndices.contains(i)) {
-							hitFrequencies.remove(i);
-							hitPeriods.remove(i);
-							hitPowers.remove(i);
-							hitSemiAmplitudes.remove(i);
-						}
-					}
+				int count = 0;
+				for (IntDoublePair pair : hitPowersRaw) {
+					if (maxTopHits >= 0 && count >= maxTopHits)
+						break;
+					hitFrequencies.add(hitFrequenciesRaw.get(pair.i));
+					hitPeriods.add(hitPeriodsRaw.get(pair.i));
+					hitPowers.add(pair.d);
+					hitSemiAmplitudes.add(hitSemiAmplitudesRaw.get(pair.i));
+					count++;
 				}
 			}
-			
+	
 			Map<PeriodAnalysisCoordinateType, List<Double>> topHits = new LinkedHashMap<PeriodAnalysisCoordinateType, List<Double>>();
 
 			topHits.put(PeriodAnalysisCoordinateType.FREQUENCY,	hitFrequencies);
@@ -567,19 +549,21 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 	// Ask user for frequency min, max, and resolution.
 	private boolean areParametersLegal(List<ValidObservation> obs) {
-		legalParams = true;
+		boolean legalParams = true;
 
-		List<Double> times = new ArrayList<Double>();
-		for (ValidObservation ob : obs) {
-			times.add(ob.getJD());
-		}
-		ftResult = new FtResult(times);
+		//List<Double> times = new ArrayList<Double>();
+		//for (ValidObservation ob : obs) {
+		//	times.add(ob.getJD());
+		//}
+		ftResult = new FtResult(obs);
 		
 		if (resetParams) {
-			double x = 1.0 / Math.sqrt(ftResult.getPVariance() * 12.0) / 4.0;
+			// Not sure that it is the best/correct way (Max) 
+			double x = 1.0 / Math.sqrt(ftResult.getPVarianceTime() * 12.0) / 4.0;
 			minFrequency = 0.0;
 			maxFrequency = x * ftResult.getCount() * 2;
 			resolution = x / 10.0;
+			analysisTypeIsFFT = true;
 			resetParams = false;
 		}
 	
@@ -594,12 +578,34 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		DoubleField resolutionField = new DoubleField("Resolution", 0.0, 1.0, resolution);
 		fields.add(resolutionField);
 
-		MultiEntryComponentDialog dlg = new MultiEntryComponentDialog("Parameters", fields);
+		JPanel analysisTypePane = new JPanel();
+		analysisTypePane.setLayout(new GridLayout(2, 1));
+		analysisTypePane.setBorder(BorderFactory.createTitledBorder("Analysis Type"));
+		ButtonGroup analysisTypeGroup = new ButtonGroup();
+		JRadioButton fftRadioButton = new JRadioButton(ANALYSIS_TYPE_FFT);
+		analysisTypeGroup.add(fftRadioButton);
+		analysisTypePane.add(fftRadioButton);
+		JRadioButton spwRadioButton = new JRadioButton(ANALYSIS_TYPE_SPW);
+		analysisTypeGroup.add(spwRadioButton);
+		analysisTypePane.add(spwRadioButton);
+		//analysisTypePane.add(Box.createRigidArea(new Dimension(75, 10)));
+		if (analysisTypeIsFFT)
+			fftRadioButton.setSelected(true);
+		else
+			spwRadioButton.setSelected(true);
+		
+		MultiEntryComponentDialog dlg = 
+				new MultiEntryComponentDialog(
+						"Parameters", 
+						fields, 
+						Optional.of(analysisTypePane));
 
 		cancelled = dlg.isCancelled();
 
 		if (!cancelled) {
 
+			analysisTypeIsFFT = fftRadioButton.isSelected();
+			
 			minFrequency = minFrequencyField.getValue();
 			maxFrequency = maxFrequencyField.getValue();
 			resolution = resolutionField.getValue();
@@ -633,7 +639,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	@Override
 	public void reset() {
 		cancelled = false;
-		legalParams = false;
+		//legalParams = false;
 		interrupted = false;
 		resetParams = true;
 		minFrequency = 0.0;
@@ -643,56 +649,76 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	
 	private class FtResult {
 		private List<Double> times;
-		private double max;
-		private double min;
-		private double mean;
-		private double p_variance;
+		private List<Double> mags;
+		private double maxTime;
+		private double minTime;
+		private double meanTime;
+		private double meanMag;
+		private double p_varianceTime;
 		private int count;
+		private boolean typeIsFFT;
 		
 		private double amp = 0.0;
 		private double pwr = 0.0;
 		
-		public FtResult(List<Double> times) {
-			this.times = times;
-			count = times.size();
-		
-			min = 0.0;
-			max = 0.0;
-			mean = 0.0;
-			boolean b = true; 
-			for (Double t : times) {
-				if (b) {
-					min = t;
-					max = min;
-					b = false;
-				} else {
-					if (t < min)
-						min = t;
-					if (t > max)
-						max = t;
-				}
-				mean += t;
-			}
-			mean /= count;
+		public FtResult(List<ValidObservation> obs) {
+			typeIsFFT = true;
 			
-			p_variance = 0.0;
-			for (Double t : times) {
-				p_variance += (t - mean) * (t - mean);
+			times = new ArrayList<Double>();
+			mags = new ArrayList<Double>();
+			for (ValidObservation ob : obs) {
+				times.add(ob.getJD());
+				mags.add(ob.getMag()) ;
 			}
-			p_variance /= count; 
+			count = times.size();
+			minTime = 0.0;
+			maxTime = 0.0;
+			meanTime = 0.0;
+			meanMag = 0.0;
+			boolean first = true;
+			for (int i = 0; i < count; i++) {
+				double t = times.get(i);
+				double m = mags.get(i);
+				if (first) {
+					minTime = t;
+					maxTime = minTime;
+					first = false;
+				} else {
+					if (t < minTime)
+						minTime = t;
+					if (t > maxTime)
+						maxTime = t;
+				}
+				meanTime += t;
+				meanMag += m;
+			}
+			meanTime /= count;
+			meanMag /= count;
+			
+			p_varianceTime = 0.0;
+			for (Double t : times) {
+				p_varianceTime += (t - meanTime) * (t - meanTime);
+			}
+			p_varianceTime /= count;
 		}
 		
 		public void calculateF(double nu) {
 	        double reF = 0.0;
             double imF = 0.0;
-            for (Double t: times) {
+            for (int i = 0; i < count; i++) {
+            	double t = times.get(i);
             	double a = 2 * Math.PI * nu * t;
-                reF += 1.0 * Math.cos(a);
-                imF += 1.0 * Math.sin(a);
+            	double b = typeIsFFT ? mags.get(i) - meanMag : 1.0;
+                reF += b * Math.cos(a);
+                imF += b * Math.sin(a);
             }
             // Like in Period04
-            amp = Math.sqrt(reF * reF + imF * imF) / times.size();
+            amp = Math.sqrt(reF * reF + imF * imF) / count;
             pwr = amp * amp;
+		}
+
+		public void setTypeIsFFT(boolean value) {
+			typeIsFFT = value;
 		}
 		
 		public double getAmp() {
@@ -707,16 +733,9 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			return count;
 		}
 		
-//		public double getMin() {
-//			return min;
-//		}
-		
-//		public double getMax() {
-//			return max;
-//		}
-		
-		public double getPVariance() {
-			return p_variance;
+		public double getPVarianceTime() {
+			return p_varianceTime;
 		}
+		
 	}
 }
