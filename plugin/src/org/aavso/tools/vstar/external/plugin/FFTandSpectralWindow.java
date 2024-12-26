@@ -63,6 +63,7 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.DatasetRenderingOrder;
+import org.apache.commons.math.stat.descriptive.rank.Median;
 
 /**
  * 	FFT according to Deeming, T.J., 1975, Ap&SS, 36, 137
@@ -70,8 +71,8 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
  */
 public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
-	private final String ANALYSIS_TYPE_FFT = "FFT (Deeming 1975)";
-	private final String ANALYSIS_TYPE_SPW = "Spectral Window";
+	private static final String ANALYSIS_TYPE_FFT = "FFT (Deeming 1975)";
+	private static final String ANALYSIS_TYPE_SPW = "Spectral Window";
 	
 	private int maxTopHits = -1; // set to -1 for the unlimited number!
 	
@@ -85,6 +86,8 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	private boolean analysisTypeIsFFT;
 
 	private IPeriodAnalysisAlgorithm algorithm;
+	
+	private List<PeriodAnalysisDialog> resultDialogList;
 
 	/**
 	 * Constructor
@@ -124,27 +127,26 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			firstInvocation = false;
 		}
 
-		// areParametersLegal displays a dialog, which should be done in the AWT thread.
-		// To accomplish this, I (Max) use quite an ugly solution; there must be a more elegant way. 
-		RunParametersDialog doAreParametersLegal = new RunParametersDialog(obs); 
-		while (true) {
-			try {
-				javax.swing.SwingUtilities.invokeAndWait(doAreParametersLegal);
+		if (resetParams) {
+			ftResult = new FtResult(obs);
+			minFrequency = 0.0;
+			maxFrequency = 0.0;
+			resolution = null;
+			double interval = ftResult.getMedianTimeInterval();
+			if (interval > 0.0) {
+				// Trying to estimate the Nyquist frequency from the median interval between observations.
+				// Restrict it if it is too high.
+				maxFrequency = Math.min(0.5 / interval, 50.0);
+				// The peak width in the frequency domain ~ the length of the observation time span.    
+				resolution = 0.05 / ftResult.getObservationTimeSpan(); 
 			}
-			catch (Exception e) {
-		        //e.printStackTrace();
-				//tempAreParametersLegalResult = false;
-				throw new AlgorithmError(e.getLocalizedMessage());
-		    }
-			if (cancelled)
-				return;
-			if (doAreParametersLegal.getParametersLegalResult())
-				break;
+			analysisTypeIsFFT = true;
+			resetParams = false;
 		}
 		
-		// This displays the parameters dialog in a non-AWT thread. 
-		//while (!areParametersLegal(obs) && !cancelled)
-		//	;
+		cancelled = !parametersDialog();
+		if (cancelled)
+			return;
 		
 		ftResult.setTypeIsFFT(analysisTypeIsFFT);
 		
@@ -152,24 +154,9 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		algorithm.execute();
 	}
 	
-	private class RunParametersDialog implements Runnable {
-		private List<ValidObservation> obs;
-		private boolean parametersLegalResult;
-		public RunParametersDialog(List<ValidObservation> obs) {
-			this.obs = obs;
-		}
-		public void run() {
-			parametersLegalResult = areParametersLegal(obs);
-	    }
-		public boolean getParametersLegalResult() {
-			return parametersLegalResult;
-		}
-	}
-	
 	@Override
 	public JDialog getDialog(SeriesType sourceSeriesType) {
-		return interrupted || cancelled ? null : new PeriodAnalysisDialog(
-				sourceSeriesType);
+		return interrupted || cancelled ? null : new PeriodAnalysisDialog(sourceSeriesType);
 	}
 
 	@SuppressWarnings("serial")
@@ -209,13 +196,27 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					algorithm.getResultSeries(),
 					PeriodAnalysisCoordinateType.FREQUENCY, 
 					PeriodAnalysisCoordinateType.POWER, 
-					false), "PowerPane");
+					false), "PowerPaneFrequency");
 
 			plotModels.put(new PeriodAnalysis2DPlotModel(
 					algorithm.getResultSeries(),
 					PeriodAnalysisCoordinateType.FREQUENCY, 
 					PeriodAnalysisCoordinateType.SEMI_AMPLITUDE, 
-					false), "SemiAmplitudePane");
+					false), "SemiAmplitudePaneFrequency");
+
+			if (analysisTypeIsFFT) {
+				plotModels.put(new PeriodAnalysis2DPlotModel(
+						algorithm.getResultSeries(),
+						PeriodAnalysisCoordinateType.PERIOD, 
+						PeriodAnalysisCoordinateType.POWER, 
+						false), "PowerPanePeriod");
+	
+				plotModels.put(new PeriodAnalysis2DPlotModel(
+						algorithm.getResultSeries(),
+						PeriodAnalysisCoordinateType.PERIOD, 
+						PeriodAnalysisCoordinateType.SEMI_AMPLITUDE, 
+						false), "SemiAmplitudePanePeriod");
+			}
 			
 			for (PeriodAnalysis2DPlotModel dataPlotModel : plotModels.keySet()) { 
 				PeriodAnalysis2DChartPane plotPane = PeriodAnalysisComponentFactory.createLinePlot(
@@ -285,6 +286,10 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		public void startup() {
 			Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 					.addListener(this);
+			
+			if (resultDialogList == null) 
+				resultDialogList = new ArrayList<PeriodAnalysisDialog>();
+			resultDialogList.add(this);
 
 			resultsTablePane.startup();
 			topHitsTablePane.startup();
@@ -297,7 +302,10 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		public void cleanup() {
 			Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 					.removeListenerIfWilling(this);
-
+			
+			if (resultDialogList != null)
+				resultDialogList.remove(this);
+			
 			resultsTablePane.cleanup();
 			topHitsTablePane.cleanup();
 			for (PeriodAnalysis2DChartPane plotPane : plotPanes) {
@@ -372,8 +380,6 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	// FFT according to Deeming, T.J., 1975, Ap&SS, 36, 137
 	class FFTandSpectralWindowAlgorithm implements IPeriodAnalysisAlgorithm {
 
-		//private List<ValidObservation> obs;
-
 		private List<Double> frequencies;
 		private List<Double> periods;
 		private List<Double> powers;
@@ -442,7 +448,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					}
 				}
 				
-				hitPowersRaw.sort(new IntDoublePairComparator());
+				hitPowersRaw.sort(new IntDoublePairComparator(false));
 
 				// Here we can limit the number of the top hits, however, is it worth to?
 				// set maxTopHits to -1 for the unrestricted number
@@ -468,28 +474,6 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			return topHits;
 		}
 		
-		private class IntDoublePair {
-			public int i;
-			public double d;
-			public IntDoublePair(int i, double d) {
-				this.i = i;
-				this.d = d;
-			}
-		}
-		
-		// Inverse sort
-		private class IntDoublePairComparator implements Comparator<IntDoublePair> {
-		    @Override
-		    public int compare(IntDoublePair a, IntDoublePair b) {
-		        if (a.d > b.d) 
-		        	return -1;
-		        else if (a.d < b.d)
-		        	return 1;
-		        else
-		        	return 0;
-		    }
-		}
-
 		@Override
 		public void multiPeriodicFit(List<Harmonic> harmonics,
 				PeriodAnalysisDerivedMultiPeriodicModel model)
@@ -505,19 +489,14 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		@Override
 		public void execute() throws AlgorithmError {
-			// Request parameters
-			// TODO: move this to top-level execute method and just pass actual
-			// parameters to this class?
-			//while (!areParametersLegal(obs) && !cancelled)
-			//	;
 
 			if (!cancelled) {
 				interrupted = false;
 				
-				int n_steps = (int)Math.floor((maxFrequency - minFrequency) / resolution) + 2;
+				long n_steps = (long)Math.ceil((maxFrequency - minFrequency) / resolution) + 1;
 				double frequency = minFrequency;
 				//for (double frequency = minFrequency; frequency <= maxFrequency; frequency += resolution) {
-				for (int i = 0; i < n_steps; i++) {
+				for (long i = 0; i < n_steps; i++) {
 					if (interrupted)
 						break;
 					
@@ -549,83 +528,142 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	}
 
 	// Ask user for frequency min, max, and resolution.
-	private boolean areParametersLegal(List<ValidObservation> obs) {
-		boolean legalParams = true;
+	private boolean parametersDialog() throws AlgorithmError {
 
-		//List<Double> times = new ArrayList<Double>();
-		//for (ValidObservation ob : obs) {
-		//	times.add(ob.getJD());
-		//}
-		ftResult = new FtResult(obs);
+		// We should invoke Swing dialogs in EDT.
+		RunParametersDialog runParametersDialog = 
+				new RunParametersDialog(
+					minFrequency, 
+					maxFrequency, 
+					resolution, 
+					analysisTypeIsFFT);
 		
-		if (resetParams) {
-			minFrequency = 0.0;
-			maxFrequency = 10.0;
-			resolution = 0.0001;
-			analysisTypeIsFFT = true;
-			resetParams = false;
+		try {
+			javax.swing.SwingUtilities.invokeAndWait(runParametersDialog);
 		}
-	
-		List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
-
-		DoubleField minFrequencyField = new DoubleField("Minimum Frequency", 0.0, null, minFrequency);
-		fields.add(minFrequencyField);
-
-		DoubleField maxFrequencyField = new DoubleField("Maximum Frequency", 0.0, null, maxFrequency);
-		fields.add(maxFrequencyField);
-
-		DoubleField resolutionField = new DoubleField("Resolution", 0.0, 1.0, resolution);
-		fields.add(resolutionField);
-
-		JPanel analysisTypePane = new JPanel();
-		analysisTypePane.setLayout(new GridLayout(2, 1));
-		analysisTypePane.setBorder(BorderFactory.createTitledBorder("Analysis Type"));
-		ButtonGroup analysisTypeGroup = new ButtonGroup();
-		JRadioButton fftRadioButton = new JRadioButton(ANALYSIS_TYPE_FFT);
-		analysisTypeGroup.add(fftRadioButton);
-		analysisTypePane.add(fftRadioButton);
-		JRadioButton spwRadioButton = new JRadioButton(ANALYSIS_TYPE_SPW);
-		analysisTypeGroup.add(spwRadioButton);
-		analysisTypePane.add(spwRadioButton);
-		//analysisTypePane.add(Box.createRigidArea(new Dimension(75, 10)));
-		if (analysisTypeIsFFT)
-			fftRadioButton.setSelected(true);
-		else
-			spwRadioButton.setSelected(true);
+		catch (Exception e) {
+			throw new AlgorithmError(e.getLocalizedMessage());
+	    }
 		
-		MultiEntryComponentDialog dlg = 
-				new MultiEntryComponentDialog(
-						"Parameters",
-						getDocName(),						
-						fields, 
-						Optional.of(analysisTypePane));
-
-		cancelled = dlg.isCancelled();
-
-		if (!cancelled) {
-
-			analysisTypeIsFFT = fftRadioButton.isSelected();
-			
-			minFrequency = minFrequencyField.getValue();
-			maxFrequency = maxFrequencyField.getValue();
-			resolution = resolutionField.getValue();
-
-			if (minFrequency >= maxFrequency) {
-				MessageBox.showErrorDialog("Parameters", 
-						"Minimum frequency must be less than or equal to maximum frequency");
-				legalParams = false;
-			}
-
-			if (resolution <= 0.0) {
-				MessageBox.showErrorDialog("Parameters",
-						"Resolution must be > 0");
-				legalParams = false;
-			}
+		if (!runParametersDialog.getDialogCancelled()) {
+			minFrequency = runParametersDialog.getMinFrequency();
+			maxFrequency = runParametersDialog.getMaxFrequency();
+			resolution = runParametersDialog.getResolution();
+			analysisTypeIsFFT = runParametersDialog.getAnalysisTypeIsFFT();
+			return true;
 		}
-
-		return legalParams;
+		
+		return false;
 	}
 
+	private class RunParametersDialog implements Runnable {
+
+		private double minFrequency; 
+		private double maxFrequency; 
+		private double resolution;
+		private boolean analysisTypeIsFFT;
+		private boolean dialogCancelled;
+	
+		public RunParametersDialog(
+				double minFrequency, 
+				double maxFrequency, 
+				double resolution, 
+				boolean analysisTypeIsFFT) {
+			this.minFrequency = minFrequency;
+			this.maxFrequency = maxFrequency;
+			this.resolution = resolution;
+			this.analysisTypeIsFFT = analysisTypeIsFFT;
+		}
+		
+		public void run() {
+			
+			List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
+
+			DoubleField minFrequencyField = new DoubleField("Minimum Frequency", 0.0, null, minFrequency);
+			fields.add(minFrequencyField);
+
+			DoubleField maxFrequencyField = new DoubleField("Maximum Frequency", 0.0, null, maxFrequency);
+			fields.add(maxFrequencyField);
+
+			DoubleField resolutionField = new DoubleField("Resolution", 0.0, null, resolution);
+			fields.add(resolutionField);
+
+			JPanel analysisTypePane = new JPanel();
+			analysisTypePane.setLayout(new GridLayout(2, 1));
+			analysisTypePane.setBorder(BorderFactory.createTitledBorder("Analysis Type"));
+			ButtonGroup analysisTypeGroup = new ButtonGroup();
+			JRadioButton fftRadioButton = new JRadioButton(ANALYSIS_TYPE_FFT);
+			analysisTypeGroup.add(fftRadioButton);
+			analysisTypePane.add(fftRadioButton);
+			JRadioButton spwRadioButton = new JRadioButton(ANALYSIS_TYPE_SPW);
+			analysisTypeGroup.add(spwRadioButton);
+			analysisTypePane.add(spwRadioButton);
+			//analysisTypePane.add(Box.createRigidArea(new Dimension(75, 10)));
+			if (analysisTypeIsFFT)
+				fftRadioButton.setSelected(true);
+			else
+				spwRadioButton.setSelected(true);
+			
+			while (true) {
+				boolean legalParams = true;
+				
+				MultiEntryComponentDialog dlg = 
+						new MultiEntryComponentDialog(
+								"Parameters",
+								getDocName(),						
+								fields, 
+								Optional.of(analysisTypePane));
+
+				dialogCancelled = dlg.isCancelled();
+				if (dialogCancelled)
+					return;
+
+				analysisTypeIsFFT = fftRadioButton.isSelected();
+				
+				minFrequency = minFrequencyField.getValue();
+				maxFrequency = maxFrequencyField.getValue();
+				resolution = resolutionField.getValue();
+	
+				if (minFrequency >= maxFrequency) {
+					MessageBox.showErrorDialog("Parameters", 
+							"Minimum frequency must be less than or equal to maximum frequency");
+					legalParams = false;
+				}
+	
+				if (resolution <= 0.0) {
+					MessageBox.showErrorDialog("Parameters",
+							"Resolution must be > 0");
+					legalParams = false;
+				}
+				
+				if (legalParams)
+					break;
+			}
+			
+	    }
+		
+		public double getMinFrequency() {
+			return minFrequency;
+		} 
+		
+		public double getMaxFrequency() {
+			return maxFrequency;
+		}
+		
+		public double getResolution() {
+			return resolution;
+		}
+		
+		public boolean getAnalysisTypeIsFFT() {
+			return analysisTypeIsFFT;
+		};
+		
+		public boolean getDialogCancelled() {
+			return dialogCancelled;
+		}
+
+	}
+	
 	@Override
 	public void interrupt() {
 		interrupted = true;
@@ -639,12 +677,22 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	@Override
 	public void reset() {
 		cancelled = false;
-		//legalParams = false;
 		interrupted = false;
 		resetParams = true;
 		minFrequency = 0.0;
 		maxFrequency = 0.0;
-		resolution = 0.1;
+		resolution = null;
+		analysisTypeIsFFT = false;
+		ftResult = null;
+		if (resultDialogList != null) {
+			List<PeriodAnalysisDialog> tempResultDialogList = resultDialogList;
+			resultDialogList = null;
+			for (PeriodAnalysisDialog dialog : tempResultDialogList) {
+				dialog.setVisible(false);
+				dialog.cleanup();
+				dialog.dispose();
+			}
+		}
 	}
 	
 	private class FtResult {
@@ -652,9 +700,8 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private List<Double> mags;
 		private double maxTime;
 		private double minTime;
-		//private double meanTime;
 		private double meanMag;
-		//private double p_varianceTime;
+		private double medianTimeInterval;
 		private int count;
 		private boolean typeIsFFT;
 		
@@ -673,7 +720,6 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			count = times.size();
 			minTime = 0.0;
 			maxTime = 0.0;
-			//meanTime = 0.0;
 			meanMag = 0.0;
 			boolean first = true;
 			for (int i = 0; i < count; i++) {
@@ -689,17 +735,27 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					if (t > maxTime)
 						maxTime = t;
 				}
-				//meanTime += t;
 				meanMag += m;
 			}
-			//meanTime /= count;
 			meanMag /= count;
 			
-//			p_varianceTime = 0.0;
-//			for (Double t : times) {
-//				p_varianceTime += (t - meanTime) * (t - meanTime);
-//			}
-//			p_varianceTime /= count;
+			medianTimeInterval = calcMedianTimeInterval(times);
+		}
+		
+		private Double calcMedianTimeInterval(List<Double> times) {
+			if (times.size() < 2)
+				return 0.0;
+			List<Double> sorted_times = new ArrayList<Double>();
+			for (Double t : times) {
+				sorted_times.add(t);
+			}
+			sorted_times.sort(new DoubleComparator());
+            double intervals[] = new double[times.size() - 1];
+			for (int i = 1; i < times.size(); i++) {
+				intervals[i - 1] = times.get(i) - times.get(i - 1);
+			}
+			Median median = new Median();
+			return median.evaluate(intervals);
 		}
 		
 		public void calculateF(double nu) {
@@ -712,7 +768,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
                 reF += b * Math.cos(a);
                 imF += b * Math.sin(a);
             }
-            // Like in Period04
+            // Like Peranso04
             amp = 2.0 * Math.sqrt(reF * reF + imF * imF) / count;
             pwr = amp * amp;
 		}
@@ -729,13 +785,54 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			return pwr;
 		}
 		
-//		public int getCount() {
-//			return count;
-//		}
-//		
-//		public double getPVarianceTime() {
-//			return p_varianceTime;
-//		}
+		public double getMedianTimeInterval() {
+			return medianTimeInterval;
+		}
+		
+		public double getObservationTimeSpan() {
+			return maxTime - minTime;
+		}
 		
 	}
+	
+	private class DoubleComparator implements Comparator<Double> {
+	    @Override
+	    public int compare(Double a, Double b) {
+	        if (a > b) 
+	        	return 1;
+	        else if (a < b)
+	        	return -1;
+	        else
+	        	return 0;
+	    }
+	}
+
+	private class IntDoublePair {
+		public int i;
+		public double d;
+		public IntDoublePair(int i, double d) {
+			this.i = i;
+			this.d = d;
+		}
+	}
+	
+	private class IntDoublePairComparator implements Comparator<IntDoublePair> {
+		
+		private boolean direct;
+		
+	    public IntDoublePairComparator(boolean direct) {
+	    	this.direct = direct;
+		}
+
+		@Override
+	    public int compare(IntDoublePair a, IntDoublePair b) {
+	        if (a.d > b.d) 
+	        	return direct ? 1 : -1;
+	        else if (a.d < b.d)
+	        	return direct ? -1 : 1;
+	        else
+	        	return 0;
+	    }
+	}
+
 }
