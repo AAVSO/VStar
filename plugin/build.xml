@@ -54,7 +54,7 @@
 		<jar jarfile="${dist}/${pkg}.AAVSOnetEpochPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOnetEpochPhotometryObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.AAVSOUploadFileFormatObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOUploadFileFormatObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.AoVPeriodSearch.jar" basedir="${build.classes}" includes="**/AoVPeriodSearch**.class" />
-		<jar jarfile="${dist}/${pkg}.FFTandSpectralWindow.jar" basedir="${build.classes}" includes="**/FFTandSpectralWindow**.class" />
+		<jar jarfile="${dist}/${pkg}.DFTandSpectralWindow.jar" basedir="${build.classes}" includes="**/DFTandSpectralWindow**.class" />
 		<jar jarfile="${dist}/${pkg}.ApacheCommonsLoessFitter.jar" basedir="${build.classes}" includes="**/ApacheCommonsLoessFitter**.class" />
 		<jar jarfile="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/APASSEpochPhotometryObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.ASASObservationSource.jar" basedir="${build.classes}" includes="**/ASASObservationSource**.class" />
@@ -201,7 +201,7 @@
 		<copy file="${dist}/${pkg}.AAVSOnetEpochPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.AAVSOUploadFileFormatObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.AoVPeriodSearch.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.FFTandSpectralWindow.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.DFTandSpectralWindow.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.ApacheCommonsLoessFitter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.ASASObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -254,7 +254,7 @@
 		<echo file="${plugins_list_file}" message="${pkg}.AAVSOnetEpochPhotometryObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.AAVSOUploadFileFormatObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.AoVPeriodSearch.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.FFTandSpectralWindow.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.DFTandSpectralWindow.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ApacheCommonsLoessFitter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.APASSEpochPhotometryObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ASASObservationSource.jar${line.separator}" append="true" />

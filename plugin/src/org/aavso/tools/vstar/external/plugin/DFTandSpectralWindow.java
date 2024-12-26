@@ -66,12 +66,12 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.apache.commons.math.stat.descriptive.rank.Median;
 
 /**
- * 	FFT according to Deeming, T.J., 1975, Ap&SS, 36, 137
-	plus FFT for the unit-amplitude signal == Spectral Window
+ * 	DFT according to Deeming, T.J., 1975, Ap&SS, 36, 137
+	plus DFT for the unit-amplitude signal == Spectral Window
  */
-public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
+public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
-	private static final String ANALYSIS_TYPE_FFT = "FFT (Deeming 1975)";
+	private static final String ANALYSIS_TYPE_DFT = "DFT (Deeming 1975)";
 	private static final String ANALYSIS_TYPE_SPW = "Spectral Window";
 	
 	private int maxTopHits = -1; // set to -1 for the unlimited number!
@@ -83,7 +83,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 	private FtResult ftResult;
 	private Double minFrequency, maxFrequency, resolution;
-	private boolean analysisTypeIsFFT;
+	private boolean analysisTypeIsDFT;
 
 	private IPeriodAnalysisAlgorithm algorithm;
 	
@@ -92,7 +92,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	/**
 	 * Constructor
 	 */
-	public FFTandSpectralWindow() {
+	public DFTandSpectralWindow() {
 		super();
 		firstInvocation = true;
 		reset();
@@ -100,12 +100,12 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 	@Override
 	public String getDescription() {
-		return "FFT and Spectral Window Frequency Range";
+		return "DFT and Spectral Window Frequency Range";
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "FFT and Spectral Window Frequency Range";
+		return "DFT and Spectral Window Frequency Range";
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	 */
 	@Override
 	public String getDocName() {
-		return "FFT and Spectral Window Plug-In.pdf";
+		return "DFT and Spectral Window Plug-In.pdf";
 	}
 
 	@Override
@@ -140,7 +140,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 				// The peak width in the frequency domain ~ the length of the observation time span.    
 				resolution = 0.05 / ftResult.getObservationTimeSpan(); 
 			}
-			analysisTypeIsFFT = true;
+			analysisTypeIsDFT = true;
 			resetParams = false;
 		}
 		
@@ -148,9 +148,9 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		if (cancelled)
 			return;
 		
-		ftResult.setTypeIsFFT(analysisTypeIsFFT);
+		ftResult.setTypeIsDFT(analysisTypeIsDFT);
 		
-		algorithm = new FFTandSpectralWindowAlgorithm(obs);
+		algorithm = new DFTandSpectralWindowAlgorithm(obs);
 		algorithm.execute();
 	}
 	
@@ -172,7 +172,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private List<PeriodAnalysis2DChartPane> plotPanes;
 
 		public PeriodAnalysisDialog(SeriesType sourceSeriesType) {
-			super(analysisTypeIsFFT ? ANALYSIS_TYPE_FFT : ANALYSIS_TYPE_SPW, false, true, false);
+			super(analysisTypeIsDFT ? ANALYSIS_TYPE_DFT : ANALYSIS_TYPE_SPW, false, true, false);
 
 			this.sourceSeriesType = sourceSeriesType;
 
@@ -186,7 +186,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		@Override
 		protected Component createContent() {
-			String title = analysisTypeIsFFT ? ANALYSIS_TYPE_FFT : ANALYSIS_TYPE_SPW;
+			String title = analysisTypeIsDFT ? ANALYSIS_TYPE_DFT : ANALYSIS_TYPE_SPW;
 
 			plotPanes = new ArrayList<PeriodAnalysis2DChartPane>();
 			List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
@@ -204,7 +204,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					PeriodAnalysisCoordinateType.SEMI_AMPLITUDE, 
 					false), "SemiAmplitudePaneFrequency");
 
-			if (analysisTypeIsFFT) {
+			if (analysisTypeIsDFT) {
 				plotModels.put(new PeriodAnalysis2DPlotModel(
 						algorithm.getResultSeries(),
 						PeriodAnalysisCoordinateType.PERIOD, 
@@ -324,7 +324,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		public void update(PeriodAnalysisSelectionMessage info) {
 			period = info.getDataPoint().getPeriod();
 			//selectedDataPoint = info.getDataPoint();
-			if (analysisTypeIsFFT)
+			if (analysisTypeIsDFT)
 				setNewPhasePlotButtonState(true);
 		}
 
@@ -373,19 +373,19 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		@Override
 		protected void findHarmonicsButtonAction() {
-			// To-do: harmonic search for FFT only
+			// To-do: harmonic search for DFT only
 		}
 	}
 
-	// FFT according to Deeming, T.J., 1975, Ap&SS, 36, 137
-	class FFTandSpectralWindowAlgorithm implements IPeriodAnalysisAlgorithm {
+	// DFT according to Deeming, T.J., 1975, Ap&SS, 36, 137
+	class DFTandSpectralWindowAlgorithm implements IPeriodAnalysisAlgorithm {
 
 		private List<Double> frequencies;
 		private List<Double> periods;
 		private List<Double> powers;
 		private List<Double> semiAmplitudes;
 
-		public FFTandSpectralWindowAlgorithm(List<ValidObservation> obs) {
+		public DFTandSpectralWindowAlgorithm(List<ValidObservation> obs) {
 			//this.obs = obs;
 			frequencies = new ArrayList<Double>();
 			periods = new ArrayList<Double>();
@@ -536,7 +536,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					minFrequency, 
 					maxFrequency, 
 					resolution, 
-					analysisTypeIsFFT);
+					analysisTypeIsDFT);
 		
 		try {
 			javax.swing.SwingUtilities.invokeAndWait(runParametersDialog);
@@ -549,7 +549,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			minFrequency = runParametersDialog.getMinFrequency();
 			maxFrequency = runParametersDialog.getMaxFrequency();
 			resolution = runParametersDialog.getResolution();
-			analysisTypeIsFFT = runParametersDialog.getAnalysisTypeIsFFT();
+			analysisTypeIsDFT = runParametersDialog.getAnalysisTypeIsDFT();
 			return true;
 		}
 		
@@ -561,18 +561,18 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private double minFrequency; 
 		private double maxFrequency; 
 		private double resolution;
-		private boolean analysisTypeIsFFT;
+		private boolean analysisTypeIsDFT;
 		private boolean dialogCancelled;
 	
 		public RunParametersDialog(
 				double minFrequency, 
 				double maxFrequency, 
 				double resolution, 
-				boolean analysisTypeIsFFT) {
+				boolean analysisTypeIsDFT) {
 			this.minFrequency = minFrequency;
 			this.maxFrequency = maxFrequency;
 			this.resolution = resolution;
-			this.analysisTypeIsFFT = analysisTypeIsFFT;
+			this.analysisTypeIsDFT = analysisTypeIsDFT;
 		}
 		
 		public void run() {
@@ -592,15 +592,15 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			analysisTypePane.setLayout(new GridLayout(2, 1));
 			analysisTypePane.setBorder(BorderFactory.createTitledBorder("Analysis Type"));
 			ButtonGroup analysisTypeGroup = new ButtonGroup();
-			JRadioButton fftRadioButton = new JRadioButton(ANALYSIS_TYPE_FFT);
-			analysisTypeGroup.add(fftRadioButton);
-			analysisTypePane.add(fftRadioButton);
+			JRadioButton dftRadioButton = new JRadioButton(ANALYSIS_TYPE_DFT);
+			analysisTypeGroup.add(dftRadioButton);
+			analysisTypePane.add(dftRadioButton);
 			JRadioButton spwRadioButton = new JRadioButton(ANALYSIS_TYPE_SPW);
 			analysisTypeGroup.add(spwRadioButton);
 			analysisTypePane.add(spwRadioButton);
 			//analysisTypePane.add(Box.createRigidArea(new Dimension(75, 10)));
-			if (analysisTypeIsFFT)
-				fftRadioButton.setSelected(true);
+			if (analysisTypeIsDFT)
+				dftRadioButton.setSelected(true);
 			else
 				spwRadioButton.setSelected(true);
 			
@@ -618,7 +618,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 				if (dialogCancelled)
 					return;
 
-				analysisTypeIsFFT = fftRadioButton.isSelected();
+				analysisTypeIsDFT = dftRadioButton.isSelected();
 				
 				minFrequency = minFrequencyField.getValue();
 				maxFrequency = maxFrequencyField.getValue();
@@ -654,8 +654,8 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			return resolution;
 		}
 		
-		public boolean getAnalysisTypeIsFFT() {
-			return analysisTypeIsFFT;
+		public boolean getAnalysisTypeIsDFT() {
+			return analysisTypeIsDFT;
 		};
 		
 		public boolean getDialogCancelled() {
@@ -682,7 +682,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		minFrequency = 0.0;
 		maxFrequency = 0.0;
 		resolution = null;
-		analysisTypeIsFFT = false;
+		analysisTypeIsDFT = false;
 		ftResult = null;
 		if (resultDialogList != null) {
 			List<PeriodAnalysisDialog> tempResultDialogList = resultDialogList;
@@ -703,13 +703,13 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private double meanMag;
 		private double medianTimeInterval;
 		private int count;
-		private boolean typeIsFFT;
+		private boolean typeIsDFT;
 		
 		private double amp = 0.0;
 		private double pwr = 0.0;
 		
 		public FtResult(List<ValidObservation> obs) {
-			typeIsFFT = true;
+			typeIsDFT = true;
 			
 			times = new ArrayList<Double>();
 			mags = new ArrayList<Double>();
@@ -764,7 +764,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
             for (int i = 0; i < count; i++) {
             	double t = times.get(i);
             	double a = 2 * Math.PI * nu * t;
-            	double b = typeIsFFT ? mags.get(i) - meanMag : 0.5;
+            	double b = typeIsDFT ? mags.get(i) - meanMag : 0.5;
                 reF += b * Math.cos(a);
                 imF += b * Math.sin(a);
             }
@@ -773,8 +773,8 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
             pwr = amp * amp;
 		}
 
-		public void setTypeIsFFT(boolean value) {
-			typeIsFFT = value;
+		public void setTypeIsDFT(boolean value) {
+			typeIsDFT = value;
 		}
 		
 		public double getAmp() {
