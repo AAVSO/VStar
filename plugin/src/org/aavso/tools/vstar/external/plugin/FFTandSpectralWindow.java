@@ -223,7 +223,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 						title,
 						sourceSeriesType.getDescription(), 
 						dataPlotModel, 
-						false);
+						true);
 
 				PeriodAnalysis2DPlotModel topHitsPlotModel = new PeriodAnalysis2DPlotModel(
 						algorithm.getTopHits(),
@@ -235,7 +235,7 @@ public class FFTandSpectralWindow extends PeriodAnalysisPluginBase {
 						title, 
 						sourceSeriesType.getDescription(), 
 						topHitsPlotModel,
-						false);
+						true);
 
 				// Add the above line plot's model to the scatter plot.
 				// Render the scatter plot last so the "handles" will be
