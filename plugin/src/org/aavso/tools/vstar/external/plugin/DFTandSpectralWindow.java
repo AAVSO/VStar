@@ -501,10 +501,10 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			if (!cancelled) {
 				interrupted = false;
 				
-				long n_steps = (long)Math.ceil((maxFrequency - minFrequency) / resolution) + 1;
+				int n_steps = (int)Math.ceil((maxFrequency - minFrequency) / resolution) + 1;
 				double frequency = minFrequency;
-				//for (double frequency = minFrequency; frequency <= maxFrequency; frequency += resolution) {
-				for (long i = 0; i < n_steps; i++) {
+				
+				for (int i = 0; i < n_steps; i++) {
 					if (interrupted)
 						break;
 					
