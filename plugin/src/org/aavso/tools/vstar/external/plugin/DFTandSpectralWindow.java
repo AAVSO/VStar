@@ -71,6 +71,9 @@ import org.apache.commons.math.stat.descriptive.rank.Median;
  */
 public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
+	private boolean showCalcTime = true;
+	private long algStartTime;	
+	
 	private static final String ANALYSIS_TYPE_DFT = "DFT (Deeming 1975)";
 	private static final String ANALYSIS_TYPE_SPW = "Spectral Window";
 	
@@ -88,7 +91,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	private IPeriodAnalysisAlgorithm algorithm;
 	
 	private List<PeriodAnalysisDialog> resultDialogList;
-
+	
 	/**
 	 * Constructor
 	 */
@@ -151,6 +154,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		ftResult.setTypeIsDFT(analysisTypeIsDFT);
 		
 		algorithm = new DFTandSpectralWindowAlgorithm(obs);
+		algStartTime = System.currentTimeMillis();
 		algorithm.execute();
 	}
 	
@@ -172,8 +176,12 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private List<PeriodAnalysis2DChartPane> plotPanes;
 
 		public PeriodAnalysisDialog(SeriesType sourceSeriesType) {
-			super(analysisTypeIsDFT ? ANALYSIS_TYPE_DFT : ANALYSIS_TYPE_SPW, false, true, false);
-
+			super("", false, true, false);			
+			String dialogTitle = analysisTypeIsDFT ? ANALYSIS_TYPE_DFT : ANALYSIS_TYPE_SPW;
+			if (showCalcTime)
+				dialogTitle += (" | " + Double.toString((System.currentTimeMillis() - algStartTime) / 1000.0) + 's');
+			setTitle(dialogTitle);
+			
 			this.sourceSeriesType = sourceSeriesType;
 
 			prepareDialog();
@@ -696,8 +704,10 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	}
 	
 	private class FtResult {
-		private List<Double> times;
-		private List<Double> mags;
+		//private List<Double> times;
+		//private List<Double> mags;
+		private double[] times;
+		private double[] mags;
 		private double maxTime;
 		private double minTime;
 		private double meanMag;
@@ -711,20 +721,30 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		public FtResult(List<ValidObservation> obs) {
 			typeIsDFT = true;
 			
-			times = new ArrayList<Double>();
-			mags = new ArrayList<Double>();
-			for (ValidObservation ob : obs) {
-				times.add(ob.getJD());
-				mags.add(ob.getMag()) ;
+//			times = new ArrayList<Double>();
+//			mags = new ArrayList<Double>();
+//			for (ValidObservation ob : obs) {
+//				times.add(ob.getJD());
+//				mags.add(ob.getMag()) ;
+//			}
+//			count = times.size();
+			
+			count = obs.size();
+			times = new double[count];
+			mags = new double[count];
+			for (int i = 0; i < count; i++) {
+				ValidObservation ob = obs.get(i);
+				times[i] = ob.getJD();
+				mags[i] = ob.getMag();
 			}
-			count = times.size();
+			
 			minTime = 0.0;
 			maxTime = 0.0;
 			meanMag = 0.0;
 			boolean first = true;
 			for (int i = 0; i < count; i++) {
-				double t = times.get(i);
-				double m = mags.get(i);
+				double t = times[i];
+				double m = mags[i];
 				if (first) {
 					minTime = t;
 					maxTime = minTime;
@@ -742,17 +762,17 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			medianTimeInterval = calcMedianTimeInterval(times);
 		}
 		
-		private Double calcMedianTimeInterval(List<Double> times) {
-			if (times.size() < 2)
+		private Double calcMedianTimeInterval(double[] times) {
+			if (times.length < 2)
 				return 0.0;
 			List<Double> sorted_times = new ArrayList<Double>();
 			for (Double t : times) {
 				sorted_times.add(t);
 			}
 			sorted_times.sort(new DoubleComparator());
-            double intervals[] = new double[times.size() - 1];
-			for (int i = 1; i < times.size(); i++) {
-				intervals[i - 1] = times.get(i) - times.get(i - 1);
+            double intervals[] = new double[times.length - 1];
+			for (int i = 1; i < times.length; i++) {
+				intervals[i - 1] = times[i] - times[i - 1];
 			}
 			Median median = new Median();
 			return median.evaluate(intervals);
@@ -762,13 +782,17 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	        double reF = 0.0;
             double imF = 0.0;
             for (int i = 0; i < count; i++) {
-            	double t = times.get(i);
-            	double a = 2 * Math.PI * nu * t;
-            	double b = typeIsDFT ? mags.get(i) - meanMag : 0.5;
-                reF += b * Math.cos(a);
-                imF += b * Math.sin(a);
+            	double a = 2 * Math.PI * nu * times[i];
+            	double b = typeIsDFT ? mags[i] - meanMag : 0.5;
+                //reF += b * Math.cos(a);
+                //imF += b * Math.sin(a);
+            	// Faster than Math.sin, Math.cos
+           		double tanAd2 = Math.tan(a / 2.0);
+            	double tanAd2squared = tanAd2 * tanAd2;
+                reF += b * ((1 - tanAd2squared) / (1 + tanAd2squared));
+                imF += b * (2.0 * tanAd2 / (1 + tanAd2squared));
             }
-            // Like Peranso04
+            // Like Period04
             amp = 2.0 * Math.sqrt(reF * reF + imF * imF) / count;
             pwr = amp * amp;
 		}
