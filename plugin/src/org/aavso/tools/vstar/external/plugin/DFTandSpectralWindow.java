@@ -82,10 +82,12 @@ import org.apache.commons.math.stat.regression.OLSMultipleLinearRegression;
 public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 	private boolean showCalcTime = true;
-	private long algStartTime;	
-	
-	private static final String ANALYSIS_TYPE_DFT = "DFT (Deeming 1975)";
-	private static final String ANALYSIS_TYPE_SPW = "Spectral Window";
+	private long algStartTime;
+
+	// DCDFT via OLSMultipleLinearRegression: much slower then existing, 
+	// no big amplitude damping near 0 freq.!
+	// Set to 'true' to enable.
+	private boolean showDCDFT = false;
 	
 	private int maxTopHits = -1; // set to -1 for the unlimited number!
 	
@@ -96,7 +98,19 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 	private FtResult ftResult;
 	private Double minFrequency, maxFrequency, resolution;
-	private boolean analysisTypeIsDFT;
+	
+	private enum FAnalysisType {
+		DFT("DFT (Deeming 1975)"), SPW("Spectral Window"), DCDFT("DC DFT");
+
+		public final String label;
+
+		private FAnalysisType(String label) {
+			this.label = label;
+		}
+
+	}
+	
+	private FAnalysisType analysisType;
 
 	private IPeriodAnalysisAlgorithm algorithm;
 	
@@ -153,7 +167,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 				// The peak width in the frequency domain ~ the length of the observation time span.    
 				resolution = 0.05 / ftResult.getObservationTimeSpan(); 
 			}
-			analysisTypeIsDFT = true;
+			analysisType = FAnalysisType.DFT;
 			resetParams = false;
 		}
 		
@@ -161,7 +175,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		if (cancelled)
 			return;
 		
-		ftResult.setTypeIsDFT(analysisTypeIsDFT);
+		ftResult.setAnalysisType(analysisType);
 		
 		algorithm = new DFTandSpectralWindowAlgorithm(obs);
 		algStartTime = System.currentTimeMillis();
@@ -187,7 +201,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		public PeriodAnalysisDialog(SeriesType sourceSeriesType) {
 			super("", false, true, false);			
-			String dialogTitle = analysisTypeIsDFT ? ANALYSIS_TYPE_DFT : ANALYSIS_TYPE_SPW;
+			String dialogTitle = analysisType.label;
 			if (showCalcTime)
 				dialogTitle += (" | " + Double.toString((System.currentTimeMillis() - algStartTime) / 1000.0) + 's');
 			setTitle(dialogTitle);
@@ -204,7 +218,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		@Override
 		protected Component createContent() {
-			String title = analysisTypeIsDFT ? ANALYSIS_TYPE_DFT : ANALYSIS_TYPE_SPW;
+			String title = analysisType.label;
 
 			plotPanes = new ArrayList<PeriodAnalysis2DChartPane>();
 			List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
@@ -222,7 +236,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					PeriodAnalysisCoordinateType.SEMI_AMPLITUDE, 
 					false), "SemiAmplitudePaneFrequency");
 
-			if (analysisTypeIsDFT) {
+			if (analysisType != FAnalysisType.SPW) {
 				plotModels.put(new PeriodAnalysis2DPlotModel(
 						algorithm.getResultSeries(),
 						PeriodAnalysisCoordinateType.PERIOD, 
@@ -279,13 +293,13 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					PeriodAnalysisCoordinateType.SEMI_AMPLITUDE };
 
 			PeriodAnalysisDataTableModel dataTableModel = new PeriodAnalysisDataTableModel(columns, algorithm.getResultSeries());
-			resultsTablePane = new PeriodAnalysisDataTablePaneMod(dataTableModel, algorithm, analysisTypeIsDFT);
+			resultsTablePane = new PeriodAnalysisDataTablePaneMod(dataTableModel, algorithm, analysisType != FAnalysisType.SPW);
 			resultsTablePane.setTablePaneID("DataTable");
 			namedComponents.add(new NamedComponent(LocaleProps.get("DATA_TAB"), resultsTablePane));
 
 
 			PeriodAnalysisDataTableModel topHitsModel = new PeriodAnalysisDataTableModel(columns, algorithm.getTopHits());
-			topHitsTablePane = new PeriodAnalysisTopHitsTablePaneMod(topHitsModel, dataTableModel, algorithm, analysisTypeIsDFT);
+			topHitsTablePane = new PeriodAnalysisTopHitsTablePaneMod(topHitsModel, dataTableModel, algorithm, analysisType != FAnalysisType.SPW);
 			resultsTablePane.setTablePaneID("TopHitsTable");
 			namedComponents.add(new NamedComponent(LocaleProps.get("TOP_HITS_TAB"), topHitsTablePane));			
 
@@ -342,7 +356,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		public void update(PeriodAnalysisSelectionMessage info) {
 			period = info.getDataPoint().getPeriod();
 			//selectedDataPoint = info.getDataPoint();
-			if (analysisTypeIsDFT)
+			if (analysisType != FAnalysisType.SPW)
 				setNewPhasePlotButtonState(true);
 		}
 
@@ -351,14 +365,20 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		// The uncertainty estimator was created for DC DFT. We need to heck first if it is correct for the simple DFT. 
 		class PeriodAnalysisDerivedMultiPeriodicModelMod extends PeriodAnalysisDerivedMultiPeriodicModel {
 
+			private boolean isDCDFT;
+			
 			public PeriodAnalysisDerivedMultiPeriodicModelMod(PeriodAnalysisDataPoint topDataPoint,
-					List<Harmonic> harmonics, IPeriodAnalysisAlgorithm algorithm) {
+					List<Harmonic> harmonics, IPeriodAnalysisAlgorithm algorithm, boolean isDCDFT) {
 				super(topDataPoint, harmonics, algorithm);
+				this.isDCDFT = isDCDFT;
 			}
 			
 			@Override
 			public String toUncertaintyString() throws AlgorithmError {
-				return "Not implemented for DFT (Deeming 1975)";
+				if (isDCDFT)
+					return super.toUncertaintyString();
+				else
+				    return "Not implemented for this type of analysis";
 			}
 			
 		}
@@ -394,7 +414,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 						if (!harmonics.isEmpty()) {
 							try {
 								PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModelMod(
-										dataPoints.get(0), harmonics, algorithm);
+										dataPoints.get(0), harmonics, algorithm, analysisType == FAnalysisType.DCDFT);
 
 								Mediator.getInstance().performModellingOperation(model);
 							} catch (Exception ex) {
@@ -651,8 +671,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();
 			regression.newSampleData(y_data, x_data);
 			
-			double[] beta; 
-			beta = regression.estimateRegressionParameters();
+			double[] beta = regression.estimateRegressionParameters();
 			
 //			System.out.println("Intercept: " + beta[0]);
 //	        for (int i = 1; i < beta.length; i++) {
@@ -763,7 +782,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					minFrequency, 
 					maxFrequency, 
 					resolution, 
-					analysisTypeIsDFT);
+					analysisType);
 		
 		try {
 			javax.swing.SwingUtilities.invokeAndWait(runParametersDialog);
@@ -776,7 +795,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			minFrequency = runParametersDialog.getMinFrequency();
 			maxFrequency = runParametersDialog.getMaxFrequency();
 			resolution = runParametersDialog.getResolution();
-			analysisTypeIsDFT = runParametersDialog.getAnalysisTypeIsDFT();
+			analysisType = runParametersDialog.getAnalysisType();
 			return true;
 		}
 		
@@ -788,18 +807,18 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private double minFrequency; 
 		private double maxFrequency; 
 		private double resolution;
-		private boolean analysisTypeIsDFT;
+		private FAnalysisType analysisType;
 		private boolean dialogCancelled;
 	
 		public RunParametersDialog(
 				double minFrequency, 
 				double maxFrequency, 
 				double resolution, 
-				boolean analysisTypeIsDFT) {
+				FAnalysisType analysisType) {
 			this.minFrequency = minFrequency;
 			this.maxFrequency = maxFrequency;
 			this.resolution = resolution;
-			this.analysisTypeIsDFT = analysisTypeIsDFT;
+			this.analysisType = analysisType;
 		}
 		
 		public void run() {
@@ -816,20 +835,32 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			fields.add(resolutionField);
 
 			JPanel analysisTypePane = new JPanel();
-			analysisTypePane.setLayout(new GridLayout(2, 1));
+			analysisTypePane.setLayout(new GridLayout(showDCDFT ? 3 : 2, 1));
 			analysisTypePane.setBorder(BorderFactory.createTitledBorder("Analysis Type"));
 			ButtonGroup analysisTypeGroup = new ButtonGroup();
-			JRadioButton dftRadioButton = new JRadioButton(ANALYSIS_TYPE_DFT);
+			JRadioButton dftRadioButton = new JRadioButton(FAnalysisType.DFT.label);
 			analysisTypeGroup.add(dftRadioButton);
 			analysisTypePane.add(dftRadioButton);
-			JRadioButton spwRadioButton = new JRadioButton(ANALYSIS_TYPE_SPW);
+			JRadioButton spwRadioButton = new JRadioButton(FAnalysisType.SPW.label);
 			analysisTypeGroup.add(spwRadioButton);
 			analysisTypePane.add(spwRadioButton);
+			JRadioButton dcdftRadioButton = new JRadioButton(FAnalysisType.DCDFT.label);			
+			if (showDCDFT) {
+				analysisTypeGroup.add(dcdftRadioButton);
+				analysisTypePane.add(dcdftRadioButton);
+			}
+
 			//analysisTypePane.add(Box.createRigidArea(new Dimension(75, 10)));
-			if (analysisTypeIsDFT)
+			switch (analysisType) {
+			case DFT:
 				dftRadioButton.setSelected(true);
-			else
+				break;
+			case SPW:
 				spwRadioButton.setSelected(true);
+				break;
+			default:
+				dcdftRadioButton.setSelected(true);
+			}
 			
 			while (true) {
 				boolean legalParams = true;
@@ -845,7 +876,12 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 				if (dialogCancelled)
 					return;
 
-				analysisTypeIsDFT = dftRadioButton.isSelected();
+				if (dftRadioButton.isSelected())
+					analysisType = FAnalysisType.DFT;
+				else if (spwRadioButton.isSelected())
+					analysisType = FAnalysisType.SPW;
+				else
+					analysisType = FAnalysisType.DCDFT;
 				
 				minFrequency = minFrequencyField.getValue();
 				maxFrequency = maxFrequencyField.getValue();
@@ -881,8 +917,8 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			return resolution;
 		}
 		
-		public boolean getAnalysisTypeIsDFT() {
-			return analysisTypeIsDFT;
+		public FAnalysisType getAnalysisType() {
+			return analysisType;
 		};
 		
 		public boolean getDialogCancelled() {
@@ -909,7 +945,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		minFrequency = 0.0;
 		maxFrequency = 0.0;
 		resolution = null;
-		analysisTypeIsDFT = false;
+		analysisType = FAnalysisType.DFT;
 		ftResult = null;
 		if (resultDialogList != null) {
 			List<PeriodAnalysisDialog> tempResultDialogList = resultDialogList;
@@ -923,31 +959,24 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	}
 	
 	private class FtResult {
-		//private List<Double> times;
-		//private List<Double> mags;
 		private double[] times;
 		private double[] mags;
 		private double maxTime;
 		private double minTime;
 		private double meanTime;
 		private double meanMag;
+		private double varpMag;
 		private double medianTimeInterval;
 		private int count;
-		private boolean typeIsDFT;
+		private FAnalysisType analysisType;
+		
+		OLSMultipleLinearRegression regression; // for DCDFT
 		
 		private double amp = 0.0;
 		private double pwr = 0.0;
 		
 		public FtResult(List<ValidObservation> obs) {
-			typeIsDFT = true;
-			
-//			times = new ArrayList<Double>();
-//			mags = new ArrayList<Double>();
-//			for (ValidObservation ob : obs) {
-//				times.add(ob.getJD());
-//				mags.add(ob.getMag()) ;
-//			}
-//			count = times.size();
+			setAnalysisType(FAnalysisType.DFT);
 			
 			count = obs.size();
 			times = new double[count];
@@ -982,7 +1011,23 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			meanTime /= count;
 			meanMag /= count;
 			
+			varpMag = calcPopVariance(mags);
+			
 			medianTimeInterval = calcMedianTimeInterval(times);
+		}
+		
+		private double calcPopVariance(double d[]) {
+			double mean = 0.0;
+			double varp = 0.0;
+			int count = d.length;
+			for (int i = 0; i < count; i++) {
+				mean += d[i];
+			}
+			mean = mean / count;
+			for (int i = 0; i < count; i++) {
+				varp += (d[i] - mean) * (d[i] - mean);
+			}
+			return varp / count;
 		}
 		
 		private Double calcMedianTimeInterval(double[] times) {
@@ -1004,24 +1049,60 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		public void calculateF(double nu) {
 	        double reF = 0.0;
             double imF = 0.0;
-            for (int i = 0; i < count; i++) {
-            	double a = 2 * Math.PI * nu * times[i];
-            	double b = typeIsDFT ? mags[i] - meanMag : 0.5;
-                //reF += b * Math.cos(a);
-                //imF += b * Math.sin(a);
-            	// Faster than Math.sin, Math.cos
-           		double tanAd2 = Math.tan(a / 2.0);
-            	double tanAd2squared = tanAd2 * tanAd2;
-                reF += b * ((1 - tanAd2squared) / (1 + tanAd2squared));
-                imF += b * (2.0 * tanAd2 / (1 + tanAd2squared));
+            double omega = 2 * Math.PI * nu;            
+            if (analysisType != FAnalysisType.DCDFT) {
+	            boolean typeIsDFT = analysisType != FAnalysisType.SPW;
+	            for (int i = 0; i < count; i++) {
+	            	double a = omega * times[i];
+	            	double b = typeIsDFT ? mags[i] - meanMag : 0.5;
+	                //reF += b * Math.cos(a);
+	                //imF += b * Math.sin(a);
+	            	// Faster than Math.sin, Math.cos
+	           		double tanAd2 = Math.tan(a / 2.0);
+	            	double tanAd2squared = tanAd2 * tanAd2;
+	                reF += b * ((1 - tanAd2squared) / (1 + tanAd2squared));
+	                imF += b * (2.0 * tanAd2 / (1 + tanAd2squared));
+	            }
+	            // Like Period04
+	            amp = 2.0 * Math.sqrt(reF * reF + imF * imF) / count;
+	            pwr = amp * amp;
+            } else {
+            	if (omega == 0) {
+            		amp = Double.NaN;
+            		pwr = Double.NaN;
+            		return;
+            	}
+            	double[] a = new double[times.length];
+            	double[][] cos_sin = new double[times.length][2];
+            	for (int i = 0; i < times.length; i++) {
+            		a[i] = omega * times[i];
+            		//cos_sin[i][0] = Math.cos(a[i]);
+            		//cos_sin[i][1] = Math.sin(a[i]);
+	           		double tanAd2 = Math.tan(a[i] / 2.0);
+	            	double tanAd2squared = tanAd2 * tanAd2;
+	            	cos_sin[i][0] = (1 - tanAd2squared) / (1 + tanAd2squared);
+	            	cos_sin[i][1] = (2.0 * tanAd2 / (1 + tanAd2squared));
+            	}
+
+    			regression.newSampleData(mags, cos_sin);
+    			
+    			double[] beta = regression.estimateRegressionParameters();
+    			double b1 = beta[1];
+    			double b2 = beta[2];
+    			double[] predicted_mags = new double[times.length]; // excluding mag zero level, not needed
+    			for (int i = 0; i < times.length; i++) {
+    				predicted_mags[i] = b1 * cos_sin[i][0] + b2 * cos_sin[i][1];
+    			}
+            	amp = Math.sqrt(b1 * b1 + b2 * b2);
+            	pwr = calcPopVariance(predicted_mags) * (times.length - 1) / varpMag / 2.0;
             }
-            // Like Period04
-            amp = 2.0 * Math.sqrt(reF * reF + imF * imF) / count;
-            pwr = amp * amp;
 		}
 
-		public void setTypeIsDFT(boolean value) {
-			typeIsDFT = value;
+		public void setAnalysisType(FAnalysisType value) {
+			analysisType = value;
+			if (analysisType == FAnalysisType.DCDFT) {
+    			regression = new OLSMultipleLinearRegression();
+			}
 		}
 		
 		public double getAmp() {
