@@ -17,8 +17,11 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -29,10 +32,14 @@ import java.util.Optional;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTable;
 
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
@@ -46,6 +53,7 @@ import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
+import org.aavso.tools.vstar.ui.dialog.model.HarmonicInputDialog;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisTopHitsTablePane;
@@ -57,6 +65,7 @@ import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
+import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
@@ -64,6 +73,7 @@ import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.apache.commons.math.stat.descriptive.rank.Median;
+import org.apache.commons.math.stat.regression.OLSMultipleLinearRegression;
 
 /**
  * 	DFT according to Deeming, T.J., 1975, Ap&SS, 36, 137
@@ -269,13 +279,13 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					PeriodAnalysisCoordinateType.SEMI_AMPLITUDE };
 
 			PeriodAnalysisDataTableModel dataTableModel = new PeriodAnalysisDataTableModel(columns, algorithm.getResultSeries());
-			resultsTablePane = new NoModelPeriodAnalysisDataTablePane(dataTableModel, algorithm);
+			resultsTablePane = new PeriodAnalysisDataTablePaneMod(dataTableModel, algorithm, analysisTypeIsDFT);
 			resultsTablePane.setTablePaneID("DataTable");
 			namedComponents.add(new NamedComponent(LocaleProps.get("DATA_TAB"), resultsTablePane));
 
 
 			PeriodAnalysisDataTableModel topHitsModel = new PeriodAnalysisDataTableModel(columns, algorithm.getTopHits());
-			topHitsTablePane = new NoModelPeriodAnalysisTopHitsTablePane(topHitsModel, dataTableModel, algorithm);
+			topHitsTablePane = new PeriodAnalysisTopHitsTablePaneMod(topHitsModel, dataTableModel, algorithm, analysisTypeIsDFT);
 			resultsTablePane.setTablePaneID("TopHitsTable");
 			namedComponents.add(new NamedComponent(LocaleProps.get("TOP_HITS_TAB"), topHitsTablePane));			
 
@@ -336,52 +346,159 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 				setNewPhasePlotButtonState(true);
 		}
 
-		// ** No model result and top-hit panes **
+		// ** Modified result and top-hit panes **
 
-		class NoModelPeriodAnalysisDataTablePane extends
+		// The uncertainty estimator was created for DC DFT. We need to heck first if it is correct for the simple DFT. 
+		class PeriodAnalysisDerivedMultiPeriodicModelMod extends PeriodAnalysisDerivedMultiPeriodicModel {
+
+			public PeriodAnalysisDerivedMultiPeriodicModelMod(PeriodAnalysisDataPoint topDataPoint,
+					List<Harmonic> harmonics, IPeriodAnalysisAlgorithm algorithm) {
+				super(topDataPoint, harmonics, algorithm);
+			}
+			
+			@Override
+			public String toUncertaintyString() throws AlgorithmError {
+				return "Not implemented for DFT (Deeming 1975)";
+			}
+			
+		}
+		
+		// Model button listener.
+		protected ActionListener createModelButtonHandlerMod(
+				JPanel parentPanel, JTable table, PeriodAnalysisDataTableModel model, Map<Double, List<Harmonic>> freqToHarmonicsMap) {
+			
+			final JPanel parent = parentPanel;
+			
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					
+					List<PeriodAnalysisDataPoint> dataPoints = new ArrayList<PeriodAnalysisDataPoint>();
+					List<Double> userSelectedFreqs = new ArrayList<Double>();
+					int[] selectedTableRowIndices = table.getSelectedRows();
+					if (selectedTableRowIndices.length < 1) {
+						MessageBox.showMessageDialog(LocaleProps.get("CREATE_MODEL_BUTTON"), "Please select a row");
+						return;
+					}
+					for (int row : selectedTableRowIndices) {
+						int modelRow = table.convertRowIndexToModel(row);
+
+						PeriodAnalysisDataPoint dataPoint = model.getDataPointFromRow(modelRow);
+						dataPoints.add(dataPoint);
+						userSelectedFreqs.add(dataPoint.getFrequency());
+					}
+
+					HarmonicInputDialog dialog = new HarmonicInputDialog(parent, userSelectedFreqs, freqToHarmonicsMap);
+
+					if (!dialog.isCancelled()) {
+						List<Harmonic> harmonics = dialog.getHarmonics();
+						if (!harmonics.isEmpty()) {
+							try {
+								PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModelMod(
+										dataPoints.get(0), harmonics, algorithm);
+
+								Mediator.getInstance().performModellingOperation(model);
+							} catch (Exception ex) {
+								MessageBox.showErrorDialog(parent, "Modelling", ex.getLocalizedMessage());
+							}
+						} else {
+							MessageBox.showErrorDialog("Create Model", "Period list error");
+						}
+					}
+				}
+			};
+		}
+		
+		// Period analysis pane with modified modelButton handler
+		class PeriodAnalysisDataTablePaneMod extends
 				PeriodAnalysisDataTablePane {
 
-			public NoModelPeriodAnalysisDataTablePane(
+			public PeriodAnalysisDataTablePaneMod(
 					PeriodAnalysisDataTableModel model,
-					IPeriodAnalysisAlgorithm algorithm) {
-				super(model, algorithm);
+					IPeriodAnalysisAlgorithm algorithm,
+					boolean wantModelButton) {
+				super(model, algorithm, wantModelButton);
 			}
 
 			@Override
 			protected JPanel createButtonPanel() {
-				return new JPanel();
+				JPanel buttonPane = new JPanel();
+
+				modelButton = new JButton(LocaleProps.get("CREATE_MODEL_BUTTON"));
+				modelButton.setEnabled(false);
+				if (wantModelButton) {
+					modelButton.addActionListener(createModelButtonHandlerMod(this, table, model, freqToHarmonicsMap));
+				} else {
+					modelButton.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							MessageBox.showMessageDialog(LocaleProps.get("CREATE_MODEL_BUTTON"), "Not available");
+						}
+					} );
+				}
+
+				if (!wantModelButton) {
+					modelButton.setVisible(false);
+				}
+
+				buttonPane.add(modelButton, BorderLayout.LINE_END);
+
+				return buttonPane;
 			}
 
 			@Override
 			protected void enableButtons() {
-				// Do nothing
+				super.enableButtons();
 			}
 		}
-
-		class NoModelPeriodAnalysisTopHitsTablePane extends
+		
+		// Top hits pane with modified modelButton handler and without refineButton
+		class PeriodAnalysisTopHitsTablePaneMod extends
 				PeriodAnalysisTopHitsTablePane {
 
-			public NoModelPeriodAnalysisTopHitsTablePane(
+			public PeriodAnalysisTopHitsTablePaneMod(
 					PeriodAnalysisDataTableModel topHitsModel,
 					PeriodAnalysisDataTableModel fullDataModel,
-					IPeriodAnalysisAlgorithm algorithm) {
+					IPeriodAnalysisAlgorithm algorithm,
+					boolean wantModelButton) {
 				super(topHitsModel, fullDataModel, algorithm);
+				if (!wantModelButton) {
+				    for(ActionListener al : modelButton.getActionListeners()) {
+				    	modelButton.removeActionListener(al);
+					}					
+					modelButton.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							MessageBox.showMessageDialog(LocaleProps.get("CREATE_MODEL_BUTTON"), "Not available");
+						}
+					} );
+					modelButton.setVisible(false);
+				}
 			}
 
 			@Override
 			protected JPanel createButtonPanel() {
-				return new JPanel();
+				JPanel buttonPane = new JPanel();
+
+				modelButton = new JButton(LocaleProps.get("CREATE_MODEL_BUTTON"));
+				modelButton.setEnabled(false);
+				modelButton.addActionListener(createModelButtonHandlerMod(this, table, model, freqToHarmonicsMap));
+
+				if (!wantModelButton) {
+					modelButton.setVisible(false);
+				}
+
+				buttonPane.add(modelButton, BorderLayout.LINE_END);
+
+				return buttonPane;
 			}
 
 			@Override
 			protected void enableButtons() {
-				// Do nothing
+				modelButton.setEnabled(true);
 			}
 		}
 
 		@Override
 		protected void findHarmonicsButtonAction() {
-			// To-do: harmonic search for DFT only
+			// To-do: harmonic search for DFT
 		}
 	}
 
@@ -392,9 +509,11 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private List<Double> periods;
 		private List<Double> powers;
 		private List<Double> semiAmplitudes;
+		
+		private List<ValidObservation> originalObs;
 
 		public DFTandSpectralWindowAlgorithm(List<ValidObservation> obs) {
-			//this.obs = obs;
+			this.originalObs = obs;
 			frequencies = new ArrayList<Double>();
 			periods = new ArrayList<Double>();
 			powers = new ArrayList<Double>();
@@ -486,6 +605,106 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		public void multiPeriodicFit(List<Harmonic> harmonics,
 				PeriodAnalysisDerivedMultiPeriodicModel model)
 				throws AlgorithmError {
+
+			if (harmonics.size() > 100) {
+				throw new AlgorithmError("Too many parameters.");
+			}
+			
+			List<ValidObservation> modelObs = model.getFit();
+			List<ValidObservation> residualObs = model.getResiduals();
+			List<PeriodFitParameters> parameters = model.getParameters();
+			
+			double timeOffset = Math.round(ftResult.getObservationMeanTime() * 10.0) / 10.0;
+			
+			int nobs = originalObs.size();
+			
+			double[] times = new double[nobs];
+			for (int i = 0; i < nobs; i++) {
+				times[i] = originalObs.get(i).getJD() - timeOffset;
+			}
+			
+			double[] y_data = new double[nobs];			
+			for (int r = 0; r < nobs; r++) {
+				y_data[r] = originalObs.get(r).getMag();
+			}
+			
+			double[][] x_data = new double[nobs][2 * harmonics.size()];
+			
+			for (int r = 0; r < nobs; r++) {
+				for (int c = 0; c < harmonics.size(); c++) {
+					double frequency = harmonics.get(c).getFrequency();
+					double a = 2.0 * Math.PI * frequency * times[r];
+					double sin = Math.sin(a);
+					double cos = Math.cos(a);
+					x_data[r][2 * c] = sin;
+					x_data[r][2 * c + 1] = cos;
+				}
+			}
+
+//			double[] y_data = new double[nobs];
+//			double[][] x_data = new double[nobs][1];
+//			for (int r = 0; r < nobs; r++) {
+//				y_data[r] = originalObs.get(r).getMag();
+//				x_data[r][0] = times[r];
+//			}
+			
+			OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();
+			regression.newSampleData(y_data, x_data);
+			
+			double[] beta; 
+			beta = regression.estimateRegressionParameters();
+			
+//			System.out.println("Intercept: " + beta[0]);
+//	        for (int i = 1; i < beta.length; i++) {
+//	            System.out.println("Coefficient " + i + ": " + beta[i]);
+//	        }
+
+//	        double rSquared = regression.calculateRSquared();
+//	        System.out.println("R-squared: " + rSquared);
+	        
+	        double zeroPoint = timeOffset;
+	        for (int i = 0; i < harmonics.size(); i++) {
+	        	int idx = 2 * i;
+	        	double sin_coef = beta[idx + 1];
+	        	double cos_coef = beta[idx + 2];
+	        	double amp = Math.sqrt(sin_coef * sin_coef + cos_coef * cos_coef);
+				parameters.add(new PeriodFitParameters(
+						harmonics.get(i), 
+						amp, 
+						cos_coef, 
+						sin_coef, 
+						beta[0], 
+						zeroPoint));
+	        }
+//	        System.out.println(parameters);
+//	        for (PeriodFitParameters p : parameters) {
+//	        	System.out.println(p.toProsaicString());	    	   
+//	        }
+	        
+	        String modelDescripton = "Trigonometric Polynomial Model";
+	        double[] y_predicted = new double[nobs];
+	        for (int i = 0; i < nobs; i++) { 
+	        	y_predicted[i] = beta[0]; 
+	        	for (int j = 0; j < 2 * harmonics.size(); j++) {
+	        		y_predicted[i] += beta[j + 1] * x_data[i][j];
+	        	}
+	        	//System.out.println(times[i] + " " + y_predicted[i]);
+	        	
+	        	ValidObservation modelOb = new ValidObservation();
+				modelOb.setDateInfo(new DateInfo(times[i] + timeOffset));
+				modelOb.setMagnitude(new Magnitude(y_predicted[i], 0));
+				modelOb.setComments(modelDescripton);
+				modelOb.setBand(SeriesType.Model);
+				modelObs.add(modelOb);
+
+				ValidObservation residualOb = new ValidObservation();
+				residualOb.setDateInfo(new DateInfo(times[i] + timeOffset));
+				residualOb.setMagnitude(new Magnitude(y_data[i] - y_predicted[i], 0));
+				residualOb.setComments(modelDescripton);
+				residualOb.setBand(SeriesType.Residuals);
+				residualObs.add(residualOb);
+	        }
+
 		}
 
 		@Override
@@ -710,6 +929,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private double[] mags;
 		private double maxTime;
 		private double minTime;
+		private double meanTime;
 		private double meanMag;
 		private double medianTimeInterval;
 		private int count;
@@ -740,6 +960,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			
 			minTime = 0.0;
 			maxTime = 0.0;
+			meanTime = 0.0;
 			meanMag = 0.0;
 			boolean first = true;
 			for (int i = 0; i < count; i++) {
@@ -755,8 +976,10 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					if (t > maxTime)
 						maxTime = t;
 				}
+				meanTime += t;
 				meanMag += m;
 			}
+			meanTime /= count;
 			meanMag /= count;
 			
 			medianTimeInterval = calcMedianTimeInterval(times);
@@ -815,6 +1038,10 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		
 		public double getObservationTimeSpan() {
 			return maxTime - minTime;
+		}
+		
+		public double getObservationMeanTime() {
+			return meanTime;
 		}
 		
 	}
