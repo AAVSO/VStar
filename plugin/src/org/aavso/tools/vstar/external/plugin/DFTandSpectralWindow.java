@@ -184,7 +184,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	
 	@Override
 	public JDialog getDialog(SeriesType sourceSeriesType) {
-		return interrupted || cancelled ? null : new PeriodAnalysisDialog(sourceSeriesType);
+		return interrupted || cancelled ? null : new PeriodAnalysisDialog(sourceSeriesType, analysisType);
 	}
 
 	@SuppressWarnings("serial")
@@ -199,8 +199,14 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private PeriodAnalysisTopHitsTablePane topHitsTablePane;
 		private List<PeriodAnalysis2DChartPane> plotPanes;
 
-		public PeriodAnalysisDialog(SeriesType sourceSeriesType) {
-			super("", false, true, false);			
+		// Keep local analysisType because there can be several instances of this dialog opened simultaneously.
+		FAnalysisType analysisType;
+		
+		public PeriodAnalysisDialog(SeriesType sourceSeriesType, FAnalysisType analysisType) {
+			super("", false, true, false);
+			
+			this.analysisType = analysisType;
+			
 			String dialogTitle = analysisType.label;
 			if (showCalcTime)
 				dialogTitle += (" | " + Double.toString((System.currentTimeMillis() - algStartTime) / 1000.0) + 's');
@@ -354,10 +360,13 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		@Override
 		public void update(PeriodAnalysisSelectionMessage info) {
-			period = info.getDataPoint().getPeriod();
-			//selectedDataPoint = info.getDataPoint();
-			if (analysisType != FAnalysisType.SPW)
-				setNewPhasePlotButtonState(true);
+			// !! We must distinguish different instances of the same dialog here.
+			if (this.getName() == info.getTag()) {
+				period = info.getDataPoint().getPeriod();
+				//selectedDataPoint = info.getDataPoint();
+				if (analysisType != FAnalysisType.SPW)
+					setNewPhasePlotButtonState(true);
+			}
 		}
 
 		// ** Modified result and top-hit panes **
