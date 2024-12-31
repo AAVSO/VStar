@@ -181,6 +181,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		
 		algorithm = new DFTandSpectralWindowAlgorithm(obs, minFrequency, maxFrequency, resolution, ftResult);
 		algorithmCreated = true;
+		interrupted = false;
 		algStartTime = System.currentTimeMillis();
 		algorithm.execute();
 	}
