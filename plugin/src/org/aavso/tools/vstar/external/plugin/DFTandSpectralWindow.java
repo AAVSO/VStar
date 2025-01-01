@@ -179,7 +179,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		
 		ftResult.setAnalysisType(analysisType);
 		
-		algorithm = new DFTandSpectralWindowAlgorithm(obs, minFrequency, maxFrequency, resolution, ftResult);
+		algorithm = new DFTandSpectralWindowAlgorithm(minFrequency, maxFrequency, resolution, ftResult);
 		algorithmCreated = true;
 		interrupted = false;
 		algStartTime = System.currentTimeMillis();
@@ -543,7 +543,6 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private List<Double> powers;
 		private List<Double> semiAmplitudes;
 		
-		private List<ValidObservation> originalObs;
 		double minFrequency, maxFrequency, resolution;
 		
 		private FtResult ftResult;
@@ -552,10 +551,8 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private volatile boolean interrupted;
 
 		public DFTandSpectralWindowAlgorithm(
-				List<ValidObservation> obs,
 				double minFrequency, double maxFrequency, double resolution,
 				FtResult ftResult) {
-			this.originalObs = obs;
 			this.minFrequency = minFrequency;
 			this.maxFrequency = maxFrequency;
 			this.resolution = resolution;
@@ -662,16 +659,16 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			
 			double timeOffset = Math.round(ftResult.getObservationMeanTime() * 10.0) / 10.0;
 			
-			int nobs = originalObs.size();
+			int nobs = ftResult.getCount();
 			
 			double[] times = new double[nobs];
 			for (int i = 0; i < nobs; i++) {
-				times[i] = originalObs.get(i).getJD() - timeOffset;
+				times[i] = ftResult.getTime(i) - timeOffset;
 			}
 			
 			double[] y_data = new double[nobs];			
-			for (int r = 0; r < nobs; r++) {
-				y_data[r] = originalObs.get(r).getMag();
+			for (int i = 0; i < nobs; i++) {
+				y_data[i] = ftResult.getMag(i);
 			}
 			
 			double[][] x_data = new double[nobs][2 * harmonics.size()];
@@ -1151,6 +1148,18 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		
 		public double getObservationMeanTime() {
 			return meanTime;
+		}
+		
+		public int getCount() {
+			return count;
+		}
+		
+		public double getTime(int i) {
+			return times[i];
+		}
+		
+		public double getMag(int i) {
+			return mags[i];
 		}
 		
 	}

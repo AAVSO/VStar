@@ -2163,12 +2163,12 @@ public class DFTandSpectralWindowTest {
 			
 			ftResult.setAnalysisType(DFTandSpectralWindow.FAnalysisType.DFT);
 			DFTandSpectralWindow.DFTandSpectralWindowAlgorithm dft_algorithm = 
-					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(obs, 0.0, 50.0, 0.009638750819301, ftResult);  
+					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(0.0, 50.0, 0.009638750819301, ftResult);  
 			dftTest(dft_algorithm, expectedDftResult, expectedDftTopHits);
 			
 			ftResult.setAnalysisType(DFTandSpectralWindow.FAnalysisType.SPW);
 			DFTandSpectralWindow.DFTandSpectralWindowAlgorithm spw_algorithm = 
-					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(obs, 0.0, 50.0, 0.009638750819301, ftResult);  
+					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(0.0, 50.0, 0.009638750819301, ftResult);  
 			spwTest(spw_algorithm, null, expectedSpwTopHits);
 		}
 		
