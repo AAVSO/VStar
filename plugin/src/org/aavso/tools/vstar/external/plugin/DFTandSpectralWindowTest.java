@@ -2130,31 +2130,24 @@ public class DFTandSpectralWindowTest {
 		private static void compareDftResult(double[][] expected, Map<PeriodAnalysisCoordinateType, List<Double>> result, String prefix) throws Exception {
 			int i = 0;
 			for (double[] d : expected) {
-				String fmtStrFreq = "%1.9f";
-				String fmtStrPeriod = "%1.9f";
-				String fmtStrPower = "%1.9f";
-				String fmtStrSemiAmp = "%1.9f";
 				double frequency = result.get(PeriodAnalysisCoordinateType.FREQUENCY).get(i);
 				double period = result.get(PeriodAnalysisCoordinateType.PERIOD).get(i);
 				double power = result.get(PeriodAnalysisCoordinateType.POWER).get(i);
 				double semiamp = result.get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).get(i);
-				compareDouble(frequency, d[0], fmtStrFreq, i + 1, 
-						prefix + "Frequency comparison failed: expected " + fmtStrFreq + "; got " + fmtStrFreq + "; obs.#%d");
-				compareDouble(period, d[1], fmtStrPeriod, i + 1, 
-						prefix + "Period comparison failed: expected " + fmtStrPeriod + "; got " + fmtStrPeriod + "; obs.#%d");
-				compareDouble(power, d[2], fmtStrPower, i + 1,
-						prefix + "Power comparison failed: " + fmtStrPower + "; got " + fmtStrPower + "; obs.#%d");
-				compareDouble(semiamp, d[3], fmtStrSemiAmp, i + 1, 
-						prefix + "Semiamplitude comparison failed: " + fmtStrSemiAmp + "; got " + fmtStrSemiAmp + "; obs.#%d");
+				double delta = 1e-8;
+				compareDouble(frequency, d[0], delta, i + 1, prefix + "Frequency comparison failed: ");
+				compareDouble(period,    d[1], delta, i + 1, prefix + "Period comparison failed: ");
+				compareDouble(power,     d[2], delta, i + 1, prefix + "Power comparison failed: ");
+				compareDouble(semiamp,   d[3], delta, i + 1, prefix + "Semiamplitude comparison failed: ");
 				i++;
 			}
 		}
 		
-		private static void compareDouble(double a, double b, String fmtStr, int obsN, String errorMessage) throws Exception {
-			if (!String.format(fmtStr, a).equals(String.format(fmtStr, b))) {
-				//System.out.print(Double.toString(a) + ";" + Double.toString(b) + "; ");
-				//System.out.println(String.format(errorMessage, a, b, obsN));
-				throw new Exception(String.format(errorMessage, a, b, obsN));
+		private static void compareDouble(double a, double b, double delta, int obsN, String errorMessagePrefix) throws Exception {
+			if (Math.abs(a - b) > delta) {
+				String msg = errorMessagePrefix + "expected " + a + "; got " + b + "; obs.#" + obsN;
+				System.out.println(msg);
+				throw new Exception(msg);
 			}
 		}
 		

@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -81,19 +82,21 @@ import org.apache.commons.math.stat.regression.OLSMultipleLinearRegression;
  */
 public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
-	private boolean showCalcTime = true;
-	private long algStartTime;
+	private static final boolean USE_MULTI_THREAD_VERSION = true;
 
 	// DCDFT via OLSMultipleLinearRegression: much slower then existing, 
 	// no big amplitude damping near 0 freq.!
 	// Set to 'true' to enable.
-	private boolean showDCDFT = false;
+	private static final boolean SHOW_DCDFT = true;
 	
 	private static int MAX_TOP_HITS = -1; // set to -1 for the unlimited number!
 	
+	private static final boolean SHOW_CALC_TIME = true;
+	private long algStartTime;
+	
 	private boolean firstInvocation;
     //I (Max) am not sure if it is required (volatile). However, it is accessed from different threads.
-	private volatile boolean interrupted;
+	private volatile boolean plugin_interrupted;
 	private volatile boolean algorithmCreated;
 	private boolean cancelled;
 	private boolean resetParams;
@@ -181,14 +184,14 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		
 		algorithm = new DFTandSpectralWindowAlgorithm(minFrequency, maxFrequency, resolution, ftResult);
 		algorithmCreated = true;
-		interrupted = false;
+		plugin_interrupted = false;
 		algStartTime = System.currentTimeMillis();
 		algorithm.execute();
 	}
 	
 	@Override
 	public JDialog getDialog(SeriesType sourceSeriesType) {
-		return interrupted || cancelled ? null : new PeriodAnalysisDialog(sourceSeriesType, analysisType);
+		return plugin_interrupted || cancelled ? null : new PeriodAnalysisDialog(sourceSeriesType, analysisType);
 	}
 
 	@SuppressWarnings("serial")
@@ -212,7 +215,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			this.analysisType = analysisType;
 			
 			String dialogTitle = analysisType.label;
-			if (showCalcTime)
+			if (SHOW_CALC_TIME)
 				dialogTitle += (" | " + Double.toString((System.currentTimeMillis() - algStartTime) / 1000.0) + 's');
 			setTitle(dialogTitle);
 			
@@ -548,7 +551,10 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private FtResult ftResult;
 		
 		//I (Max) am not sure if it is required (volatile). However, it is accessed from different threads.
-		private volatile boolean interrupted;
+		private volatile boolean algorithm_interrupted;
+
+		CountDownLatch startLatch;		
+		CountDownLatch doneLatch;
 
 		public DFTandSpectralWindowAlgorithm(
 				double minFrequency, double maxFrequency, double resolution,
@@ -759,26 +765,179 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		@Override
 		public void execute() throws AlgorithmError {
 
-			interrupted = false;
+			algorithm_interrupted = false;
 				
 			int n_steps = (int)Math.ceil((maxFrequency - minFrequency) / resolution) + 1;
+
+			if (USE_MULTI_THREAD_VERSION) {
+				multiThreadDFT(minFrequency, resolution, n_steps);
+			} else {
+				singleThreadDFT(minFrequency, resolution, n_steps);
+			}
+		}
+		
+		private void singleThreadDFT(double minFrequency, double resolution, int n_steps) {
+			
 			double frequency = minFrequency;
-				
+			
 			for (int i = 0; i < n_steps; i++) {
-				if (interrupted)
+				if (algorithm_interrupted)
 					break;
-					
+				
 				frequencies.add(frequency);
-				periods.add(fixInf(1/frequency));
-					
-				ftResult.calculateF(frequency);
-					
-				powers.add(fixInf(ftResult.getPwr()));
-				semiAmplitudes.add(fixInf(ftResult.getAmp()));
+				periods.add(fixInf(1 / frequency));
+				
+				double[] result = ftResult.calculateF(frequency);
+				
+				semiAmplitudes.add(fixInf(result[0]));
+				powers.add(fixInf(result[1]));
 				frequency += resolution;
 			}
 		}
 
+		private void multiThreadDFT(double minFrequency, double resolution, int n_steps)
+				throws AlgorithmError {
+			
+			int cores = Runtime.getRuntime().availableProcessors();
+			int steps_per_core = n_steps / cores;
+			int remainder = n_steps - steps_per_core * cores;
+			
+			List<DftWorker>workers = new ArrayList<DftWorker>();
+			
+			doneLatch = new CountDownLatch(cores);
+			startLatch = new CountDownLatch(1);
+			for (int n = 0; n < cores; n++) {
+				int start_n = steps_per_core * n;
+				int steps_to_do = steps_per_core;
+				if (n == cores - 1)
+					steps_to_do += remainder;
+				DftWorker worker = new DftWorker(n, minFrequency, resolution, start_n, steps_to_do, ftResult, startLatch, doneLatch);
+				workers.add(worker);
+				new Thread(worker).start();
+			}
+			startLatch.countDown();
+			
+			try {
+				doneLatch.await();
+			} catch (InterruptedException ex) {
+				algorithm_interrupted = true;
+				//throw new AlgorithmError("Interrupted");
+			}
+			//if (algorithm_interrupted) System.out.println("Algorithm interrupted.");
+			
+			if (!algorithm_interrupted) {
+				for (DftWorker worker : workers) {
+					double[] frqArray = worker.getFrequencies();
+					double[] perArray = worker.getPeriods();
+					double[] pwrArray = worker.getPowers();
+					double[] ampArray = worker.getSemiAmplitudes();
+					for (int i = 0; i < worker.getStepsToDo(); i++) {
+						frequencies.add(frqArray[i]);
+						periods.add(fixInf(perArray[i]));
+						powers.add(pwrArray[i]);
+						semiAmplitudes.add(fixInf(ampArray[i]));
+					}
+				}
+			}
+		}
+		
+		private class DftWorker implements Runnable {
+			
+			private final CountDownLatch startLatch;
+			private final CountDownLatch doneLatch;			
+			
+			private double minFrequency;
+			private double resolution;
+			private int start_n;
+			private int steps_to_do;
+			//private int thread_n; 
+			
+			private double[] frqArray;
+			private double[] perArray;
+			private double[] pwrArray;
+			private double[] ampArray;
+			
+			private FtResult ftResult;
+			
+			public DftWorker(
+					int thread_n,
+					double minFrequency, 
+					double resolution, 
+					int start_n, 
+					int steps_to_do,
+					FtResult ftResult,
+					CountDownLatch startLatch,
+					CountDownLatch doneLatch) {
+				this.minFrequency = minFrequency;
+				this.resolution = resolution;
+				this.start_n = start_n;
+				this.steps_to_do = steps_to_do;
+				//this.thread_n = thread_n;
+				this.startLatch = startLatch;
+				this.doneLatch = doneLatch;
+				this.frqArray = new double[steps_to_do];
+				this.perArray = new double[steps_to_do];
+				this.pwrArray = new double[steps_to_do];
+				this.ampArray = new double[steps_to_do];
+				this.ftResult = ftResult;
+			}
+			
+			public void run() {
+				try {
+					try {
+						startLatch.await();				
+						//System.out.println("DftThread #" + thread_n + " started. start_n=" + start_n + "; steps_to_do=" + steps_to_do);
+						double frequency = minFrequency + start_n * resolution;
+						for (int i = 0; i < steps_to_do; i++) {
+							if (algorithm_interrupted) {
+								//System.out.println("DftThread #" + thread_n + " interrupted");
+								break;
+							}
+							
+							double[] result = ftResult.calculateF(frequency);
+							
+							frqArray[i] = frequency;
+							perArray[i] = 1 / frequency;
+							ampArray[i] = result[0];
+							pwrArray[i] = result[1];
+							
+							frequency += resolution;
+						}
+						//System.out.println("DftThread #" + thread_n + " finished.");					
+					} catch (InterruptedException ex) {
+						// return;
+					}
+				} finally {
+					if (!algorithm_interrupted) doneLatch.countDown();
+				}
+			}
+
+			//public int getStartN() {
+			//	return start_n;
+			//}
+			
+			public int getStepsToDo() {
+				return steps_to_do;
+			}
+			
+			public double[] getFrequencies() {
+				return frqArray;
+			}
+			
+			public double[] getPeriods() {
+				return perArray;
+			}
+			
+			public double[] getPowers() {
+				return pwrArray;
+			}
+			
+			public double[] getSemiAmplitudes() {
+				return ampArray;
+			}
+			
+		}
+		
 		// replace +-Infinity by NaN
 		private double fixInf(double v) {
 			if (Double.isInfinite(v))
@@ -789,7 +948,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		@Override
 		public void interrupt() {
-			interrupted = true;
+			algorithm_interrupted = true;
 		}
 	}
 
@@ -855,7 +1014,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			fields.add(resolutionField);
 
 			JPanel analysisTypePane = new JPanel();
-			analysisTypePane.setLayout(new GridLayout(showDCDFT ? 3 : 2, 1));
+			analysisTypePane.setLayout(new GridLayout(SHOW_DCDFT ? 3 : 2, 1));
 			analysisTypePane.setBorder(BorderFactory.createTitledBorder("Analysis Type"));
 			ButtonGroup analysisTypeGroup = new ButtonGroup();
 			JRadioButton dftRadioButton = new JRadioButton(FAnalysisType.DFT.label);
@@ -865,7 +1024,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			analysisTypeGroup.add(spwRadioButton);
 			analysisTypePane.add(spwRadioButton);
 			JRadioButton dcdftRadioButton = new JRadioButton(FAnalysisType.DCDFT.label);			
-			if (showDCDFT) {
+			if (SHOW_DCDFT) {
 				analysisTypeGroup.add(dcdftRadioButton);
 				analysisTypePane.add(dcdftRadioButton);
 			}
@@ -950,7 +1109,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	@Override
 	public void interrupt() {
 		// Executed in EDT thread.
-		interrupted = true;
+		plugin_interrupted = true;
 		if (algorithmCreated) {
 			algorithm.interrupt();
 		}
@@ -964,7 +1123,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	@Override
 	public void reset() {
 		cancelled = false;
-		interrupted = false;
+		plugin_interrupted = false;
 		algorithmCreated = false;
 		resetParams = true;
 		minFrequency = 0.0;
@@ -991,14 +1150,11 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private double meanTime;
 		private double meanMag;
 		private double varpMag;
+		private double varpTime;
 		private double medianTimeInterval;
+		private double zeroFrequencyCut;
 		private int count;
 		private FAnalysisType analysisType;
-		
-		OLSMultipleLinearRegression regression; // for DCDFT
-		
-		private double amp = 0.0;
-		private double pwr = 0.0;
 		
 		public FtResult(List<ValidObservation> obs) {
 			setAnalysisType(FAnalysisType.DFT);
@@ -1037,25 +1193,25 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			meanMag /= count;
 			
 			varpMag = calcPopVariance(mags);
-			
+			varpTime = calcPopVariance(times);
 			medianTimeInterval = calcMedianTimeInterval(times);
+			
+			zeroFrequencyCut = 0.95 / Math.sqrt(12.0 * varpTime) / 4.0;
 		}
 		
-		private double calcPopVariance(double d[]) {
-			double mean = 0.0;
-			double varp = 0.0;
+		public static double calcPopVariance(double d[]) {
+			double sum_n = 0.0;
+			double sum_nn = 0.0;
 			int count = d.length;
 			for (int i = 0; i < count; i++) {
-				mean += d[i];
+				sum_n += d[i];				
+				sum_nn += d[i] * d[i];
 			}
-			mean = mean / count;
-			for (int i = 0; i < count; i++) {
-				varp += (d[i] - mean) * (d[i] - mean);
-			}
-			return varp / count;
+			double mean = sum_n / count; 
+			return sum_nn / count - mean * mean; 
 		}
 		
-		private Double calcMedianTimeInterval(double[] times) {
+		public static Double calcMedianTimeInterval(double[] times) {
 			if (times.length < 2)
 				return 0.0;
 			List<Double> sorted_times = new ArrayList<Double>();
@@ -1071,7 +1227,9 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			return median.evaluate(intervals);
 		}
 		
-		public void calculateF(double nu) {
+		public double[] calculateF(double nu) {
+            double amp;
+            double pwr;
 	        double reF = 0.0;
             double imF = 0.0;
             double omega = 2 * Math.PI * nu;            
@@ -1092,50 +1250,42 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	            amp = 2.0 * Math.sqrt(reF * reF + imF * imF) / count;
 	            pwr = amp * amp;
             } else {
-            	if (omega == 0) {
+            	// Use the zero-frequency cut, like in Foster's code, to suppress the huge amplitude peak at zero.
+            	if (nu < zeroFrequencyCut) {
             		amp = Double.NaN;
             		pwr = Double.NaN;
-            		return;
+            	} else {
+	            	double[] a = new double[times.length];
+	            	double[][] cos_sin = new double[times.length][2];
+	            	for (int i = 0; i < times.length; i++) {
+	            		a[i] = omega * times[i];
+	            		//cos_sin[i][0] = Math.cos(a[i]);
+	            		//cos_sin[i][1] = Math.sin(a[i]);
+		           		double tanAd2 = Math.tan(a[i] / 2.0);
+		            	double tanAd2squared = tanAd2 * tanAd2;
+		            	cos_sin[i][0] = (1 - tanAd2squared) / (1 + tanAd2squared);
+		            	cos_sin[i][1] = (2.0 * tanAd2 / (1 + tanAd2squared));
+	            	}
+	
+	            	OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression(); 
+	    			regression.newSampleData(mags, cos_sin);
+	    			
+	    			double[] beta = regression.estimateRegressionParameters();
+	    			double b1 = beta[1];
+	    			double b2 = beta[2];
+	    			double[] predicted_mags = new double[times.length]; // excluding mag zero level, not needed
+	    			for (int i = 0; i < times.length; i++) {
+	    				predicted_mags[i] = b1 * cos_sin[i][0] + b2 * cos_sin[i][1];
+	    			}
+	            	amp = Math.sqrt(b1 * b1 + b2 * b2);
+	            	pwr = calcPopVariance(predicted_mags) * (times.length - 1) / varpMag / 2.0;
             	}
-            	double[] a = new double[times.length];
-            	double[][] cos_sin = new double[times.length][2];
-            	for (int i = 0; i < times.length; i++) {
-            		a[i] = omega * times[i];
-            		//cos_sin[i][0] = Math.cos(a[i]);
-            		//cos_sin[i][1] = Math.sin(a[i]);
-	           		double tanAd2 = Math.tan(a[i] / 2.0);
-	            	double tanAd2squared = tanAd2 * tanAd2;
-	            	cos_sin[i][0] = (1 - tanAd2squared) / (1 + tanAd2squared);
-	            	cos_sin[i][1] = (2.0 * tanAd2 / (1 + tanAd2squared));
-            	}
-
-    			regression.newSampleData(mags, cos_sin);
-    			
-    			double[] beta = regression.estimateRegressionParameters();
-    			double b1 = beta[1];
-    			double b2 = beta[2];
-    			double[] predicted_mags = new double[times.length]; // excluding mag zero level, not needed
-    			for (int i = 0; i < times.length; i++) {
-    				predicted_mags[i] = b1 * cos_sin[i][0] + b2 * cos_sin[i][1];
-    			}
-            	amp = Math.sqrt(b1 * b1 + b2 * b2);
-            	pwr = calcPopVariance(predicted_mags) * (times.length - 1) / varpMag / 2.0;
             }
+            return new double[] {amp, pwr};
 		}
 
 		public void setAnalysisType(FAnalysisType value) {
 			analysisType = value;
-			if (analysisType == FAnalysisType.DCDFT) {
-    			regression = new OLSMultipleLinearRegression();
-			}
-		}
-		
-		public double getAmp() {
-			return amp;
-		}
-		
-		public double getPwr() {
-			return pwr;
 		}
 		
 		public double getMedianTimeInterval() {
@@ -1217,7 +1367,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			DFTandSpectralWindowTest test = new DFTandSpectralWindowTest("DFT test");
 			test.testDcDft();
 	    } catch (Exception e) {
-	    	//System.out.println(e.getMessage());
+	    	System.out.println(e.getMessage());
 	        success = false;
 	    }
 		
