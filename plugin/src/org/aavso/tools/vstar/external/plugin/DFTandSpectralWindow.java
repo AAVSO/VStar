@@ -37,6 +37,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 
 import org.aavso.tools.vstar.data.DateInfo;
@@ -59,6 +60,7 @@ import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisTopHitsTablePane;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
@@ -69,8 +71,10 @@ import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.apache.commons.math.stat.descriptive.rank.Median;
@@ -198,9 +202,20 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	class PeriodAnalysisDialog extends PeriodAnalysisDialogBase implements
 			Listener<PeriodAnalysisSelectionMessage> {
 
-		private double period;
 		private SeriesType sourceSeriesType;
-		//private IPeriodAnalysisDatum selectedDataPoint;
+
+		private IPeriodAnalysisDatum selectedDataPoint;
+		
+		private JTabbedPane tabbedPane;
+
+		private String findHarmonicsButtonText;
+		private String newPhasePlotButtonText;
+		
+		private static final double FREQUENCY_RELATIVE_TOLERANCE = 1e-3;
+		
+		private double currentTolerance = FREQUENCY_RELATIVE_TOLERANCE;
+		
+		DoubleField toleranceField;
 
 		private PeriodAnalysisDataTablePane resultsTablePane;
 		private PeriodAnalysisTopHitsTablePane topHitsTablePane;
@@ -210,7 +225,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		FAnalysisType analysisType;
 		
 		public PeriodAnalysisDialog(SeriesType sourceSeriesType, FAnalysisType analysisType) {
-			super("", false, true, false);
+			super("", false, true, true);
 			
 			this.analysisType = analysisType;
 			
@@ -224,6 +239,15 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			prepareDialog();
 
 			this.setNewPhasePlotButtonState(false);
+			this.setFindHarmonicsButtonState(false);
+			
+			findHarmonicsButtonText = findHarmonicsButton.getText();
+			newPhasePlotButtonText = newPhasePlotButton.getText();
+			
+			if (analysisType == FAnalysisType.SPW) {
+				newPhasePlotButton.setVisible(false);
+				findHarmonicsButton.setVisible(false);
+			}
 
 			startup(); // Note: why does base class not call this in
 			// prepareDialog()?
@@ -313,18 +337,19 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 			PeriodAnalysisDataTableModel topHitsModel = new PeriodAnalysisDataTableModel(columns, algorithm.getTopHits());
 			topHitsTablePane = new PeriodAnalysisTopHitsTablePaneMod(topHitsModel, dataTableModel, algorithm, analysisType != FAnalysisType.SPW);
-			resultsTablePane.setTablePaneID("TopHitsTable");
+			topHitsTablePane.setTablePaneID("TopHitsTable");
 			namedComponents.add(new NamedComponent(LocaleProps.get("TOP_HITS_TAB"), topHitsTablePane));			
 
 			// Return tabbed pane of plot and period display component.
-			return PluginComponentFactory.createTabs(namedComponents);
+			tabbedPane = PluginComponentFactory.createTabs(namedComponents);
+			return tabbedPane;
 		}
 
 		// Send a period change message when the new-phase-plot button is
 		// clicked.
 		@Override
 		protected void newPhasePlotButtonAction() {
-			sendPeriodChangeMessage(period);
+			sendPeriodChangeMessage(selectedDataPoint.getPeriod());
 		}
 
 		@Override
@@ -369,10 +394,13 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		public void update(PeriodAnalysisSelectionMessage info) {
 			// !! We must distinguish different instances of the same dialog here.
 			if (this.getName() == info.getTag()) {
-				period = info.getDataPoint().getPeriod();
-				//selectedDataPoint = info.getDataPoint();
-				if (analysisType != FAnalysisType.SPW)
+				selectedDataPoint = info.getDataPoint();
+				if (analysisType != FAnalysisType.SPW) {
 					setNewPhasePlotButtonState(true);
+					setFindHarmonicsButtonState(true);
+					findHarmonicsButton.setText(findHarmonicsButtonText + " [" + NumericPrecisionPrefs.formatOther(selectedDataPoint.getFrequency()) + " 1/d]");
+					newPhasePlotButton.setText(newPhasePlotButtonText + " [" + NumericPrecisionPrefs.formatOther(selectedDataPoint.getPeriod()) + " d]");
+				}
 			}
 		}
 
@@ -381,20 +409,20 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		// The uncertainty estimator was created for DC DFT. We need to heck first if it is correct for the simple DFT. 
 		class PeriodAnalysisDerivedMultiPeriodicModelMod extends PeriodAnalysisDerivedMultiPeriodicModel {
 
-			private boolean isDCDFT;
+			private FAnalysisType analysisType;
 			
 			public PeriodAnalysisDerivedMultiPeriodicModelMod(PeriodAnalysisDataPoint topDataPoint,
-					List<Harmonic> harmonics, IPeriodAnalysisAlgorithm algorithm, boolean isDCDFT) {
+					List<Harmonic> harmonics, IPeriodAnalysisAlgorithm algorithm, FAnalysisType analysisType) {
 				super(topDataPoint, harmonics, algorithm);
-				this.isDCDFT = isDCDFT;
+				this.analysisType = analysisType;
 			}
 			
 			@Override
 			public String toUncertaintyString() throws AlgorithmError {
-				if (isDCDFT)
+				if (analysisType != FAnalysisType.SPW)
 					return super.toUncertaintyString();
-				else
-				    return "Not implemented for this type of analysis";
+				else // we should never be here.
+				    return "Not available for this type of analysis";
 			}
 			
 		}
@@ -430,7 +458,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 						if (!harmonics.isEmpty()) {
 							try {
 								PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModelMod(
-										dataPoints.get(0), harmonics, algorithm, analysisType == FAnalysisType.DCDFT);
+										dataPoints.get(0), harmonics, algorithm, analysisType);
 
 								Mediator.getInstance().performModellingOperation(model);
 							} catch (Exception ex) {
@@ -534,10 +562,40 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		@Override
 		protected void findHarmonicsButtonAction() {
-			// To-do: harmonic search for DFT
+			String componentID = null;
+			Component c = tabbedPane.getSelectedComponent();
+			if (c instanceof PeriodAnalysis2DChartPane) {
+				componentID = ((PeriodAnalysis2DChartPane)c).getChartPaneID();
+			} else if (c instanceof PeriodAnalysisDataTablePane) {
+				componentID = ((PeriodAnalysisDataTablePane)c).getTablePaneID();
+			}
+			
+			if (componentID == null) {
+				MessageBox.showMessageDialog("Find Harmonic", "Not implemented for this view");
+				return;
+			}
+			
+			MultiEntryComponentDialog paramDialog = createToleranceDialog();
+			if (paramDialog.isCancelled()) {
+				return;
+			}
+			currentTolerance = toleranceField.getValue();
+			//List<Double> data = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
+			List<Double> data = algorithm.getTopHits().get(PeriodAnalysisCoordinateType.FREQUENCY);
+			List<Harmonic> harmonics = findHarmonics(selectedDataPoint.getFrequency(), data, currentTolerance);
+			HarmonicSearchResultMessage msg = new HarmonicSearchResultMessage(this,
+					harmonics, selectedDataPoint, currentTolerance);
+			msg.setTag(this.getName());
+			msg.setIDstring(componentID);
+			Mediator.getInstance().getHarmonicSearchNotifier().notifyListeners(msg);
+		}
+		
+		private MultiEntryComponentDialog createToleranceDialog() {
+			toleranceField = new DoubleField("Relative Frequency Tolerance", 0.0, 1.0, currentTolerance); 
+			return new MultiEntryComponentDialog("Find Harmonics", toleranceField);
 		}
 	}
-
+	
 	// DFT according to Deeming, T.J., 1975, Ap&SS, 36, 137
 	public static class DFTandSpectralWindowAlgorithm implements IPeriodAnalysisAlgorithm {
 
