@@ -109,7 +109,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	private Double minFrequency, maxFrequency, resolution;
 	
 	public enum FAnalysisType {
-		DFT("DFT (Deeming 1975)"), SPW("Spectral Window"), DCDFT("DC DFT");
+		DFT("DFT (Deeming 1975)"), SPW("Spectral Window (Deeming 1975)"), DCDFT("DC DFT (Ferraz-Mello 1981)");
 
 		public final String label;
 
@@ -419,10 +419,14 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			
 			@Override
 			public String toUncertaintyString() throws AlgorithmError {
-				if (analysisType != FAnalysisType.SPW)
+				switch (analysisType) {
+				case DCDFT:
 					return super.toUncertaintyString();
-				else // we should never be here.
-				    return "Not available for this type of analysis";
+				case DFT:
+					return "Not implemented for " + analysisType.label;
+				default:
+				    return "Not available for " + analysisType.label;
+				}
 			}
 			
 		}
