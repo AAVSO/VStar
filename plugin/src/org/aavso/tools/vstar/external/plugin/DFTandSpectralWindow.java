@@ -670,13 +670,15 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 							top = true;
 						}
 					} else if (i == 0) {
+						// Fourier transform is symmetric relative to 0 frequency because it continues to the negative frequencies.  
 						if (powers.get(i) > powers.get(i + 1)) {
 							top = true;
 						}
 					} else if (i == frequencies.size() - 1) {
-						if (powers.get(i) > powers.get(i - 1)) {
-							top = true;
-						}
+						// We cannot determine if the last point is a top-hit or not.
+//						if (powers.get(i) > powers.get(i - 1)) {
+//							top = true;
+//						}
 					}
 					if (top) {
 						hitFrequenciesRaw.put(i, frequencies.get(i));
