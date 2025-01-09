@@ -108,7 +108,7 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
 
         PolynomialFitModel(List<ValidObservation> obs) {
             super(obs);
-            
+
             int minDegree = getMinDegree();
             int maxDegree = getMaxDegree();
 
@@ -154,7 +154,22 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
         }
 
         @Override
+        public void rootMeanSquare() {
+            rms = optimizer.getRMS();
+        }
+
+        @Override
+        public Map<String, String> getFunctionStrings() {
+            return functionStrMap;
+        }
+
+        @Override
         public String toString() {
+            return toVeLaString();
+        }
+
+        @Override
+        public String toVeLaString() {
             String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"));
 
             if (strRepr == null) {
@@ -164,10 +179,10 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
 
                 double[] coeffs = function.getCoefficients();
                 for (int i = coeffs.length - 1; i >= 1; i--) {
-                    strRepr += "    " + NumericPrecisionPrefs.formatPolyCoef(coeffs[i]);
+                    strRepr += "    " + NumericPrecisionPrefs.formatCoef(coeffs[i]);
                     strRepr += "*(t-zeroPoint)^" + i + " +\n";
                 }
-                strRepr += "    " + NumericPrecisionPrefs.formatPolyCoef(coeffs[0]);
+                strRepr += "    " + NumericPrecisionPrefs.formatCoef(coeffs[0]);
                 strRepr += "\n}";
             }
 
@@ -182,10 +197,10 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
 
                 double[] coeffs = function.getCoefficients();
                 for (int i = coeffs.length - 1; i >= 1; i--) {
-                    strRepr += NumericPrecisionPrefs.formatPolyCoef(coeffs[i]);
+                    strRepr += NumericPrecisionPrefs.formatCoef(coeffs[i]);
                     strRepr += "*(A1-" + NumericPrecisionPrefs.formatTime(zeroPoint) + ")^" + i + "+\n";
                 }
-                strRepr += NumericPrecisionPrefs.formatPolyCoef(coeffs[0]);
+                strRepr += NumericPrecisionPrefs.formatCoef(coeffs[0]);
             }
 
             return strRepr;
@@ -202,13 +217,20 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
 
                 double[] coeffs = function.getCoefficients();
                 for (int i = coeffs.length - 1; i >= 1; i--) {
-                    strRepr += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(coeffs[i]);
+                    strRepr += NumericPrecisionPrefs.formatCoefLocaleIndependent(coeffs[i]);
                     strRepr += "*(t-zeroPoint)^" + i + " +\n";
                 }
-                strRepr += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(coeffs[0]);
+                strRepr += NumericPrecisionPrefs.formatCoefLocaleIndependent(coeffs[0]);
             }
 
             return strRepr;
+        }
+
+        @Override
+        public void functionStrings() {
+            super.functionStrings();
+            functionStrMap.put(LocaleProps.get("MODEL_INFO_EXCEL_TITLE"), toExcelString());
+            functionStrMap.put(LocaleProps.get("MODEL_INFO_R_TITLE"), toRString());
         }
 
         @Override
@@ -279,8 +301,8 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
 
                     rootMeanSquare();
                     informationCriteria(degree);
-                    fitMetricsString();
-                    
+                    fitMetrics();
+
                     ApacheCommonsDerivativeBasedExtremaFinder finder = new ApacheCommonsDerivativeBasedExtremaFinder(
                             fit, (DifferentiableUnivariateRealFunction) function, timeCoordSource, zeroPoint);
 
@@ -292,29 +314,12 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
                         functionStrMap.put(title, extremaStr);
                     }
 
-                    // VeLa, Excel, R model functions.
-                    // TODO: consider Python, e.g. for use with
-                    // matplotlib.
-                    functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"), toString());
-
-                    functionStrMap.put(LocaleProps.get("MODEL_INFO_EXCEL_TITLE"), toExcelString());
-
-                    functionStrMap.put(LocaleProps.get("MODEL_INFO_R_TITLE"), toRString());
+                    functionStrings();
 
                 } catch (ConvergenceException e) {
                     throw new AlgorithmError(e.getLocalizedMessage());
                 }
             }
-        }
-
-        @Override
-        public void rootMeanSquare() {
-            rms = optimizer.getRMS();
-        }
-
-        @Override
-        public Map<String, String> getFunctionStrings() {
-            return functionStrMap;
         }
     }
 

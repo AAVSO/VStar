@@ -107,7 +107,7 @@ public abstract class AbstractModel implements IModel {
      * squared residuals for use in fit metrics.
      * 
      * @param modelValue A model-computed value
-     * @param ob The observation (at time t) being modeled
+     * @param ob         The observation (at time t) being modeled
      */
     public void collectObs(double modelValue, ValidObservation ob, String comment) {
         ValidObservation fitOb = new ValidObservation();
@@ -132,7 +132,7 @@ public abstract class AbstractModel implements IModel {
         resOb.setBand(SeriesType.Residuals);
         resOb.setComments(comment);
         residuals.add(resOb);
-        
+
         sumSqResiduals += (residual * residual);
     }
 
@@ -196,6 +196,15 @@ public abstract class AbstractModel implements IModel {
     }
 
     /**
+     * Compute the root mean square.
+     * 
+     * pre-condition: assumes sum of squared residuals has been computed
+     */
+    public void rootMeanSquare() {
+        rms = Math.sqrt(sumSqResiduals / residuals.size());
+    }
+
+    /**
      * Compute the Bayesian and Aikake Information Criteria (BIC and AIC) fit
      * metrics
      *
@@ -214,20 +223,11 @@ public abstract class AbstractModel implements IModel {
     }
 
     /**
-     * Compute the root mean square.
-     * 
-     * pre-condition: assumes sum of squared residuals has been computed
-     */
-    public void rootMeanSquare() {
-        rms = Math.sqrt(sumSqResiduals / residuals.size());
-    }
-
-    /**
      * Gather fit metrics string.
      * 
      * @throws AlgorithmError
      */
-    public void fitMetricsString() throws AlgorithmError {
+    public void fitMetrics() throws AlgorithmError {
         String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_FIT_METRICS_TITLE"));
 
         if (strRepr == null) {
@@ -244,6 +244,18 @@ public abstract class AbstractModel implements IModel {
         }
 
         functionStrMap.put(LocaleProps.get("MODEL_INFO_FIT_METRICS_TITLE"), strRepr);
+    }
+
+    /**
+     * @return a string representing the model as a VeLa function
+     */
+    abstract public String toVeLaString();
+
+    /**
+     * Put function strings into the map
+     */
+    public void functionStrings() {
+        functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"), toVeLaString());
     }
 
     /**

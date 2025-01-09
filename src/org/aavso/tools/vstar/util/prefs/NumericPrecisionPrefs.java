@@ -71,7 +71,7 @@ public class NumericPrecisionPrefs {
 
 	private static int DEFAULT_TIME_DECIMAL_PLACES = 5;
 	private static int DEFAULT_MAG_DECIMAL_PLACES = 6;
-	private static int DEFAULT_OTHER_DECIMAL_PLACES = 6;
+	private static int DEFAULT_OTHER_DECIMAL_PLACES = 12;
 
 	// Current decimal place values.
 
@@ -209,14 +209,18 @@ public class NumericPrecisionPrefs {
 	//   2) long number strings without decimal separator cannot be parsed too (i.e. -608516245008941)
 	// General format has both issues; scientific one has the (1) only.
 	// However, the general format looks more natural.
+	//
+	// DJB (2025-01-09):
+	// This generalises to other coefficients, e.g. those required for a
+	// piecewise linear model.
 
-	// PolyCoefFormat
+	// CoefFormat
 	
-	public static String formatPolyCoef(double num) {
+	public static String formatCoef(double num) {
 		return formatScientific(num);
 	}
 
-	public static String formatPolyCoefLocaleIndependent(double num) {
+	public static String formatCoefLocaleIndependent(double num) {
 		return formatScientificLocaleIndependent(num);
 	}
 	

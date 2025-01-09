@@ -31,7 +31,9 @@ import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.Tolerance;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.AbstractModel;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.apache.commons.math.analysis.DifferentiableUnivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 
@@ -39,18 +41,11 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
  * This plug-in creates a piecewise linear model from the current means series.
  * 
  * TODO<br/>
- * - fit goodness, e.g. RMS, AIC, BIC and refactoring - add base class function
- * to request for obs of particular series vs ask whether to open series
- * dialog.<br/>
- * - function strings<br/>
- * - derivative (see VeLaModelCreator)<br/>
- * - extrema<br/>
+ * - f'(x) = m, f''(x) = 0
  * - change to set mean series rather than retrieved from Mediator, e.g. via
  * setParams() for AoV plug-in; same for timeCoordSource (e.g. for AoV) => could
  * default to current mode means<br/>
- * - change PiecewiseLinearFunction to set currLinearFunc, currLinearFuncDeriv
- * as part of t > ... check<br/>
- * - Disable AoV model button until selection of result plus phase plot
+ * - disable AoV model button until selection of result plus phase plot
  * mode<br/>
  */
 public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
@@ -76,6 +71,9 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
         return DESC;
     }
 
+    /**
+     * Represents the function for a line segment
+     */
     class LinearFunction implements UnivariateRealFunction {
 
         private double t1;
@@ -108,8 +106,42 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
         public double value(double t) {
             return m * t + c;
         }
+
+        public String toVeLaString(boolean first, boolean last) {
+            // For the first line segment, we only need to check
+            // the second bound. For the last line segment, we don't
+            // need to check either bound.
+            StringBuffer buf = new StringBuffer();
+
+            if (!first && !last) {
+                buf.append("t >= ");
+                buf.append(NumericPrecisionPrefs.formatTimeLocaleIndependent(t1));
+                buf.append(" and ");
+            }
+
+            if (!last) {
+                buf.append("t < ");
+                buf.append(NumericPrecisionPrefs.formatTimeLocaleIndependent(t2));
+            } else {
+                buf.append("true ");
+            }
+
+            buf.append(" -> ");
+
+            buf.append(NumericPrecisionPrefs.formatOtherLocaleIndependent(m));
+            buf.append("*t + ");
+            buf.append(NumericPrecisionPrefs.formatOtherLocaleIndependent(c));
+
+            if (!last)
+                buf.append("\n");
+
+            return buf.toString();
+        }
     }
 
+    // Note: currently unused since extrema determination not implemented
+    // TODO: global minimum and maximum can actually be determined via mags
+    // at t2 of one function, t1 of second where slope of 2 functions changes
     class LinearFunctionDerivative implements UnivariateRealFunction {
 
         private LinearFunction function;
@@ -140,15 +172,12 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
                 double t2 = timeCoordSource.getXCoord(i + 1, obs);
                 functions.add(new LinearFunction(t1, t2, ob1.getMag(), ob2.getMag()));
             }
-
-            // TODO: string methods here and in LinearFunction for VeLa, R, ...
         }
 
         @Override
         public double value(double t) {
             LinearFunction func = functions.get(funIndex);
 
-            // TODO: record and check against last time?
             if (t > func.endTime() && funIndex < functions.size() - 1) {
                 funIndex++;
                 func = functions.get(funIndex);
@@ -157,15 +186,30 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
             return func.value(t);
         }
 
-        // TODO: see VeLaModelCreator
         @Override
         public UnivariateRealFunction derivative() {
-            // TODO: see VeLaModelCreator for an example!
+            // Also needs to be differentiable to get 2nd derivative
             return null;
         }
 
         public int numberOfFunctions() {
             return functions.size();
+        }
+
+        public String toVeLaString() {
+            String strRepr = "";
+
+            strRepr += "f(t:real) : real {\n";
+            strRepr += "    when\n";
+            for (int i = 0; i < functions.size(); i++) {
+                LinearFunction function = functions.get(i);
+                boolean first = i == 0;
+                boolean last = i == functions.size() - 1;
+                strRepr += "        " + function.toVeLaString(first, last);
+            }
+            strRepr += "\n}";
+
+            return strRepr;
         }
     }
 
@@ -204,12 +248,23 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
 
             rootMeanSquare();
             informationCriteria(piecewiseFunction.numberOfFunctions());
-            fitMetricsString();
+            fitMetrics();
+            functionStrings();
         }
 
         @Override
         public boolean hasFuncDesc() {
             return true;
+        }
+
+        public String toVeLaString() {
+            String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"));
+
+            if (strRepr == null) {
+                strRepr = piecewiseFunction.toVeLaString();
+            }
+
+            return strRepr;
         }
 
         @Override

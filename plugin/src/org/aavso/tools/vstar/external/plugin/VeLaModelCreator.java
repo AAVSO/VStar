@@ -183,6 +183,11 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 
         @Override
         public String toString() {
+            return toVeLaString();
+        }
+
+        @Override
+        public String toVeLaString() {
             return velaModelFunctionStr;
         }
 

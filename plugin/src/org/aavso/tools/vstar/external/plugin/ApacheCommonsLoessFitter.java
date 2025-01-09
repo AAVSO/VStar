@@ -18,7 +18,6 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -36,7 +35,6 @@ import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.AbstractModel;
-import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.analysis.interpolation.LoessInterpolator;
 import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
@@ -106,7 +104,13 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
             return false;
         }
 
+        @Override
         public String toString() {
+            return toVeLaString();
+        }
+
+        @Override
+        public String toVeLaString() {
             String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"));
 
             if (strRepr == null) {
