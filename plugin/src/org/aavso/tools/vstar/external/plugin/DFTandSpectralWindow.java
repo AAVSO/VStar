@@ -106,7 +106,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	private boolean resetParams;
 
 	private FtResult ftResult;
-	private Double minFrequency, maxFrequency, resolution;
+	private double minFrequency, maxFrequency, resolution;
 	
 	public enum FAnalysisType {
 		DFT("DFT (Deeming 1975)"), SPW("Spectral Window (Deeming 1975)"), DCDFT("DC DFT (Ferraz-Mello 1981)");
@@ -167,7 +167,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			ftResult = new FtResult(obs);
 			minFrequency = 0.0;
 			maxFrequency = 0.0;
-			resolution = null;
+			resolution = 0.0;
 			double interval = ftResult.getMedianTimeInterval();
 			if (interval > 0.0) {
 				// Trying to estimate the Nyquist frequency from the median interval between observations.
@@ -1134,12 +1134,14 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					MessageBox.showErrorDialog("Parameters", 
 							"Minimum frequency must be less than or equal to maximum frequency");
 					legalParams = false;
+					continue;
 				}
 	
 				if (resolution <= 0.0) {
 					MessageBox.showErrorDialog("Parameters",
 							"Resolution must be > 0");
 					legalParams = false;
+					continue;
 				}
 				
 				if (legalParams)
@@ -1192,7 +1194,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		resetParams = true;
 		minFrequency = 0.0;
 		maxFrequency = 0.0;
-		resolution = null;
+		resolution = 0.0;
 		analysisType = FAnalysisType.DFT;
 		ftResult = null;
 		if (resultDialogList != null) {
@@ -1275,7 +1277,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			return sum_nn / count - mean * mean; 
 		}
 		
-		public static Double calcMedianTimeInterval(double[] times) {
+		public static double calcMedianTimeInterval(double[] times) {
 			if (times.length < 2)
 				return 0.0;
 			List<Double> sorted_times = new ArrayList<Double>();
@@ -1283,9 +1285,18 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 				sorted_times.add(t);
 			}
 			sorted_times.sort(new DoubleComparator());
-            double intervals[] = new double[times.length - 1];
+            // Rarely, equal times may occur.
+			List<Double>intervalList = new ArrayList<Double>();
 			for (int i = 1; i < times.length; i++) {
-				intervals[i - 1] = times[i] - times[i - 1];
+				double interval = times[i] - times[i - 1];
+				if (interval > 0.0)
+					intervalList.add(interval);
+			}
+			if (intervalList.size() < 1)
+				return 0.0;
+			double[] intervals = new double[intervalList.size()];
+			for (int i = 0; i < intervalList.size(); i++) {
+				intervals[i] = intervalList.get(i);
 			}
 			Median median = new Median();
 			return median.evaluate(intervals);
