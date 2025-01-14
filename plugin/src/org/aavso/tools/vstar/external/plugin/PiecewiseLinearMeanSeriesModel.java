@@ -41,12 +41,8 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
  * This plug-in creates a piecewise linear model from the current means series.
  * 
  * TODO<br/>
- * - f'(x) = m, f''(x) = 0
- * - change to set mean series rather than retrieved from Mediator, e.g. via
- * setParams() for AoV plug-in; same for timeCoordSource (e.g. for AoV) => could
- * default to current mode means<br/>
- * - disable AoV model button until selection of result plus phase plot
- * mode<br/>
+ * - f'(x) = m, f''(x) = 0 - disable AoV model button until selection of result
+ * plus phase plot mode<br/>
  */
 public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
 
@@ -58,7 +54,11 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
 
     @Override
     public AbstractModel getModel(List<ValidObservation> obs) {
-        return new PiecewiseLinearModel(obs);
+        // Get the mean observation list for the current mode
+        Mediator mediator = Mediator.getInstance();
+        ObservationAndMeanPlotModel plotModel = mediator.getObservationPlotModel(mediator.getAnalysisType());
+
+        return new PiecewiseLinearModel(obs, plotModel.getMeanObsList());
     }
 
     @Override
@@ -74,7 +74,7 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
     /**
      * Represents the function for a line segment
      */
-    class LinearFunction implements UnivariateRealFunction {
+    public class LinearFunction implements UnivariateRealFunction {
 
         private double t1;
         private double t2;
@@ -83,7 +83,7 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
         private double m;
         private double c;
 
-        LinearFunction(double t1, double t2, double mag1, double mag2) {
+        public LinearFunction(double t1, double t2, double mag1, double mag2) {
             this.t1 = t1;
             this.t2 = t2;
             this.mag1 = mag1;
@@ -94,11 +94,11 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
             c = mag1 - m * t1;
         }
 
-        double endTime() {
+        public double endTime() {
             return t2;
         }
 
-        double slope() {
+        public double slope() {
             return (mag2 - mag1) / (t2 - t1);
         }
 
@@ -139,10 +139,7 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
         }
     }
 
-    // Note: currently unused since extrema determination not implemented
-    // TODO: global minimum and maximum can actually be determined via mags
-    // at t2 of one function, t1 of second where slope of 2 functions changes
-    class LinearFunctionDerivative implements UnivariateRealFunction {
+    public class LinearFunctionDerivative implements UnivariateRealFunction {
 
         private LinearFunction function;
 
@@ -157,13 +154,13 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
         }
     }
 
-    class PiecewiseLinearFunction implements DifferentiableUnivariateRealFunction {
+    public class PiecewiseLinearFunction implements DifferentiableUnivariateRealFunction {
         private List<LinearFunction> functions;
+        private LinearFunction currFunc;
         private int funIndex;
 
-        PiecewiseLinearFunction(List<ValidObservation> obs, ICoordSource timeCoordSource) {
+        public PiecewiseLinearFunction(List<ValidObservation> obs, ICoordSource timeCoordSource) {
             functions = new ArrayList<LinearFunction>();
-            funIndex = 0;
 
             for (int i = 0; i < obs.size() - 1; i++) {
                 ValidObservation ob1 = obs.get(i);
@@ -172,24 +169,24 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
                 double t2 = timeCoordSource.getXCoord(i + 1, obs);
                 functions.add(new LinearFunction(t1, t2, ob1.getMag(), ob2.getMag()));
             }
+
+            currFunc = functions.get(0);
+            funIndex = 0;
         }
 
         @Override
         public double value(double t) {
-            LinearFunction func = functions.get(funIndex);
-
-            if (t > func.endTime() && funIndex < functions.size() - 1) {
+            if (t > currFunc.endTime() && funIndex < functions.size() - 1) {
                 funIndex++;
-                func = functions.get(funIndex);
+                currFunc = functions.get(funIndex);
             }
 
-            return func.value(t);
+            return currFunc.value(t);
         }
 
         @Override
         public UnivariateRealFunction derivative() {
-            // Also needs to be differentiable to get 2nd derivative
-            return null;
+            return new LinearFunctionDerivative(currFunc);
         }
 
         public int numberOfFunctions() {
@@ -214,16 +211,10 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
     }
 
     class PiecewiseLinearModel extends AbstractModel {
-        private List<ValidObservation> meanObs;
         private PiecewiseLinearFunction piecewiseFunction;
 
-        PiecewiseLinearModel(List<ValidObservation> obs) {
+        public PiecewiseLinearModel(List<ValidObservation> obs, List<ValidObservation> meanObs) {
             super(obs);
-
-            // Get the mean observation list for the current mode
-            Mediator mediator = Mediator.getInstance();
-            ObservationAndMeanPlotModel plotModel = mediator.getObservationPlotModel(mediator.getAnalysisType());
-            meanObs = plotModel.getMeanObsList();
 
             // Create piecewise linear model
             piecewiseFunction = new PiecewiseLinearFunction(meanObs, timeCoordSource);
