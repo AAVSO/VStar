@@ -30,12 +30,14 @@ import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.util.AbstractExtremaFinder;
 import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.AbstractModel;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.apache.commons.math.analysis.DifferentiableUnivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
+import org.apache.commons.math.optimization.GoalType;
 
 /**
  * This plug-in creates a piecewise linear model from the current means series.
@@ -139,22 +141,7 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
         }
     }
 
-    public class LinearFunctionDerivative implements UnivariateRealFunction {
-
-        private LinearFunction function;
-
-        LinearFunctionDerivative(LinearFunction function) {
-            this.function = function;
-        }
-
-        @Override
-        public double value(double t) {
-            // the slope is the same everywhere along a line segment
-            return function.slope();
-        }
-    }
-
-    public class PiecewiseLinearFunction implements DifferentiableUnivariateRealFunction {
+    public class PiecewiseLinearFunction implements UnivariateRealFunction {
         private List<LinearFunction> functions;
         private LinearFunction currFunc;
         private int funIndex;
@@ -184,9 +171,25 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
             return currFunc.value(t);
         }
 
-        @Override
-        public UnivariateRealFunction derivative() {
-            return new LinearFunctionDerivative(currFunc);
+        /**
+         * Find the index of the function to which the target time corresponds.
+         * 
+         * @param t The target time.
+         * @return The index of the function or -1 if t does not correspond to the time
+         *         range of any linear function.
+         */
+        public int seekFunction(double t) {
+            int index = -1;
+
+            for (int i = 0; i < functions.size() - 1; i++) {
+                LinearFunction linearFunc = functions.get(i);
+                if (t >= linearFunc.t1 && t < linearFunc.t2) {
+                    index = i;
+                    break;
+                }
+            }
+
+            return index;
         }
 
         public int numberOfFunctions() {
@@ -240,6 +243,18 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
             rootMeanSquare();
             informationCriteria(piecewiseFunction.numberOfFunctions());
             fitMetrics();
+
+            PiecewiseLinearFunctionExtremaFinder finder = new PiecewiseLinearFunctionExtremaFinder(fit,
+                    piecewiseFunction, timeCoordSource);
+
+            String extremaStr = finder.toString();
+
+            if (extremaStr != null) {
+                String title = LocaleProps.get("MODEL_INFO_EXTREMA_TITLE");
+
+                functionStrMap.put(title, extremaStr);
+            }
+
             functionStrings();
         }
 
@@ -270,8 +285,47 @@ public class PiecewiseLinearMeanSeriesModel extends ModelCreatorPluginBase {
 
         @Override
         public ContinuousModelFunction getModelFunction() {
-            // TODO: None?
-            return null;
+            return new ContinuousModelFunction(piecewiseFunction, fit, 0);
+        }
+    }
+
+    public class PiecewiseLinearFunctionExtremaFinder extends AbstractExtremaFinder {
+        PiecewiseLinearFunction plf;
+
+        public PiecewiseLinearFunctionExtremaFinder(List<ValidObservation> obs, PiecewiseLinearFunction function,
+                ICoordSource timeCoordSource) {
+            super(obs, function, timeCoordSource, 0);
+            plf = function;
+        }
+
+        @Override
+        public void find(GoalType goal, int[] bracketRange) throws AlgorithmError {
+            extremeTime = Double.POSITIVE_INFINITY;
+            extremeMag = Double.POSITIVE_INFINITY;
+
+            double firstJD = obs.get(bracketRange[0]).getJD();
+            double lastJD = obs.get(bracketRange[1]).getJD();
+
+            int firstIndex = plf.seekFunction(firstJD);
+            int lastIndex = plf.seekFunction(lastJD);
+
+            // extrema should be at the meeting point of two linear functions
+            boolean found = false;
+            
+            if (lastIndex == firstIndex + 1) {
+                if (goal == GoalType.MINIMIZE && plf.functions.get(firstIndex).slope() < 0
+                        && plf.functions.get(lastIndex).slope() > 0) {
+                    found = true;
+                } else if (goal == GoalType.MAXIMIZE && plf.functions.get(firstIndex).slope() > 0
+                        && plf.functions.get(lastIndex).slope() < 0) {
+                    found = true;
+                }
+            }
+            
+            if (found) {
+                extremeTime = plf.functions.get(lastIndex).t1;
+                extremeMag = plf.functions.get(lastIndex).value(extremeTime);
+            }
         }
     }
 

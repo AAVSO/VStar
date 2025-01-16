@@ -60,7 +60,7 @@ abstract public class AbstractExtremaFinder implements IInteruptible {
 	 * @param goal
 	 *            Minimum or maximum?
 	 * @param bracketRange
-	 *            The inclusive time range within which to look for the
+	 *            The inclusive time range indices within which to look for the
 	 *            extremum.
 	 */
 	abstract public void find(GoalType goal, int[] bracketRange)
