@@ -52,286 +52,260 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 @SuppressWarnings("serial")
 public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane {
 
-	private Set<PeriodAnalysisDataPoint> refinedDataPoints;
-	private Set<PeriodAnalysisDataPoint> resultantDataPoints;
+    private Set<PeriodAnalysisDataPoint> refinedDataPoints;
+    private Set<PeriodAnalysisDataPoint> resultantDataPoints;
 
-	private JButton refineButton;
+    private JButton refineButton;
 
-	private Listener<PeriodAnalysisRefinementMessage> periodAnalysisRefinementListener;
-	
-	/**
-	 * Constructor.
-	 * 
-	 * @param topHitsModel
-	 *            The top hits data model.
-	 * @param fullDataModel
-	 *            The full data data model.
-	 * @param algorithm
-	 *            The period analysis algorithm.
-	 */
-	public PeriodAnalysisTopHitsTablePane(
-			PeriodAnalysisDataTableModel topHitsModel,
-			PeriodAnalysisDataTableModel fullDataModel,
-			IPeriodAnalysisAlgorithm algorithm) {
-		super(topHitsModel, algorithm);
+    private Listener<PeriodAnalysisRefinementMessage> periodAnalysisRefinementListener;
 
-		refinedDataPoints = new TreeSet<PeriodAnalysisDataPoint>(
-				PeriodAnalysisDataPointComparator.instance);
+    /**
+     * Constructor.
+     * 
+     * @param topHitsModel  The top hits data model.
+     * @param fullDataModel The full data data model.
+     * @param algorithm     The period analysis algorithm.
+     */
+    public PeriodAnalysisTopHitsTablePane(PeriodAnalysisDataTableModel topHitsModel,
+            PeriodAnalysisDataTableModel fullDataModel, IPeriodAnalysisAlgorithm algorithm) {
+        super(topHitsModel, algorithm);
 
-		resultantDataPoints = new TreeSet<PeriodAnalysisDataPoint>(
-				PeriodAnalysisDataPointComparator.instance);
-	}
+        refinedDataPoints = new TreeSet<PeriodAnalysisDataPoint>(PeriodAnalysisDataPointComparator.instance);
 
-	protected JPanel createButtonPanel() {
-		JPanel buttonPane = super.createButtonPanel();
+        resultantDataPoints = new TreeSet<PeriodAnalysisDataPoint>(PeriodAnalysisDataPointComparator.instance);
+    }
 
-		refineButton = new JButton(algorithm.getRefineByFrequencyName());
-		refineButton.setEnabled(false);
-		refineButton.addActionListener(createRefineButtonHandler());
-		buttonPane.add(refineButton, BorderLayout.LINE_START);
+    protected JPanel createButtonPanel() {
+        JPanel buttonPane = super.createButtonPanel();
 
-		return buttonPane;
-	}
+        String refineName = algorithm.getRefineByFrequencyName();
+        if (refineName != null) {
+            refineButton = new JButton(refineName);
+            refineButton.setEnabled(false);
+            refineButton.addActionListener(createRefineButtonHandler());
+            buttonPane.add(refineButton, BorderLayout.LINE_START);
+        }
 
-	// Refine button listener.
-	private ActionListener createRefineButtonHandler() {
-		final JPanel parent = this;
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// Collect frequencies to be used in refinement, ensuring that
-				// we don't try to use a frequency that has already been used
-				// for refinement. We also do not want to use the result of a
-				// previous refinement.
-				List<Double> freqs = new ArrayList<Double>();
-				int[] selectedTableRowIndices = table.getSelectedRows();
-				List<PeriodAnalysisDataPoint> inputDataPoints = new ArrayList<PeriodAnalysisDataPoint>();
+        return buttonPane;
+    }
 
-				for (int row : selectedTableRowIndices) {
-					int modelRow = table.convertRowIndexToModel(row);
-					PeriodAnalysisDataPoint dataPoint = model
-							.getDataPointFromRow(modelRow);
+    // Refine button listener.
+    private ActionListener createRefineButtonHandler() {
+        final JPanel parent = this;
+        return new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Collect frequencies to be used in refinement, ensuring that
+                // we don't try to use a frequency that has already been used
+                // for refinement. We also do not want to use the result of a
+                // previous refinement.
+                List<Double> freqs = new ArrayList<Double>();
+                int[] selectedTableRowIndices = table.getSelectedRows();
+                List<PeriodAnalysisDataPoint> inputDataPoints = new ArrayList<PeriodAnalysisDataPoint>();
 
-					if (!refinedDataPoints.contains(dataPoint)) {
-						inputDataPoints.add(dataPoint);
-						freqs.add(dataPoint.getFrequency());
-					} else {
-						String msg = String.format("Top Hit with frequency %s"
-								+ " and power %s"
-								+ " has previously been used.",
-								NumericPrecisionPrefs.formatOther(dataPoint
-										.getFrequency()), NumericPrecisionPrefs
-										.formatOther(dataPoint.getPower()));
-						MessageBox.showErrorDialog(parent, algorithm
-								.getRefineByFrequencyName(), msg);
-						freqs.clear();
-						break;
-					}
+                for (int row : selectedTableRowIndices) {
+                    int modelRow = table.convertRowIndexToModel(row);
+                    PeriodAnalysisDataPoint dataPoint = model.getDataPointFromRow(modelRow);
 
-					if (resultantDataPoints.contains(dataPoint)) {
-						String msg = String.format("Top Hit with frequency %s"
-								+ " and power %s" 
-								+ " was generated by %s so cannot be used.",
-								dataPoint.getFrequency(), dataPoint.getPower(),
-								algorithm.getRefineByFrequencyName());
-						MessageBox.showErrorDialog(parent, algorithm
-								.getRefineByFrequencyName(), msg);
-						freqs.clear();
-						break;
-					}
-				}
+                    if (!refinedDataPoints.contains(dataPoint)) {
+                        inputDataPoints.add(dataPoint);
+                        freqs.add(dataPoint.getFrequency());
+                    } else {
+                        String msg = String.format(
+                                "Top Hit with frequency %s" + " and power %s" + " has previously been used.",
+                                NumericPrecisionPrefs.formatOther(dataPoint.getFrequency()),
+                                NumericPrecisionPrefs.formatOther(dataPoint.getPower()));
+                        MessageBox.showErrorDialog(parent, algorithm.getRefineByFrequencyName(), msg);
+                        freqs.clear();
+                        break;
+                    }
 
-				if (!freqs.isEmpty()) {
-					try {
-						RefinementParameterDialog dialog = new RefinementParameterDialog(
-								parent, freqs, 6);
-						if (!dialog.isCancelled()) {
-							List<Double> variablePeriods = dialog
-									.getVariablePeriods();
-							List<Double> lockedPeriods = dialog
-									.getLockedPeriods();
+                    if (resultantDataPoints.contains(dataPoint)) {
+                        String msg = String.format(
+                                "Top Hit with frequency %s" + " and power %s"
+                                        + " was generated by %s so cannot be used.",
+                                dataPoint.getFrequency(), dataPoint.getPower(), algorithm.getRefineByFrequencyName());
+                        MessageBox.showErrorDialog(parent, algorithm.getRefineByFrequencyName(), msg);
+                        freqs.clear();
+                        break;
+                    }
+                }
 
-							// Perform a refinement operation and get the new
-							// top-hits resulting from the refinement.
-							List<PeriodAnalysisDataPoint> newTopHits = algorithm
-									.refineByFrequency(freqs, variablePeriods,
-											lockedPeriods);
-							// Mark input frequencies as refined so we don't
-							// try to refine them again.
-							refinedDataPoints.addAll(inputDataPoints);
+                if (!freqs.isEmpty()) {
+                    try {
+                        RefinementParameterDialog dialog = new RefinementParameterDialog(parent, freqs, 6);
+                        if (!dialog.isCancelled()) {
+                            List<Double> variablePeriods = dialog.getVariablePeriods();
+                            List<Double> lockedPeriods = dialog.getLockedPeriods();
 
-							// Update the model and tell anyone else who might
-							// be interested.
-							Map<PeriodAnalysisCoordinateType, List<Double>> data = algorithm
-									.getResultSeries();
-							Map<PeriodAnalysisCoordinateType, List<Double>> topHits = algorithm
-									.getTopHits();
+                            // Perform a refinement operation and get the new
+                            // top-hits resulting from the refinement.
+                            List<PeriodAnalysisDataPoint> newTopHits = algorithm.refineByFrequency(freqs,
+                                    variablePeriods, lockedPeriods);
+                            // Mark input frequencies as refined so we don't
+                            // try to refine them again.
+                            refinedDataPoints.addAll(inputDataPoints);
 
-							model.setData(topHits);
+                            // Update the model and tell anyone else who might
+                            // be interested.
+                            Map<PeriodAnalysisCoordinateType, List<Double>> data = algorithm.getResultSeries();
+                            Map<PeriodAnalysisCoordinateType, List<Double>> topHits = algorithm.getTopHits();
 
-							PeriodAnalysisRefinementMessage msg = new PeriodAnalysisRefinementMessage(
-									this, data, topHits, newTopHits);
-							msg.setTag(Mediator.getParentDialogName(PeriodAnalysisTopHitsTablePane.this));
-							Mediator.getInstance()
-									.getPeriodAnalysisRefinementNotifier()
-									.notifyListeners(msg);
-						}
-					} catch (AlgorithmError ex) {
-						MessageBox.showErrorDialog(parent, algorithm
-								.getRefineByFrequencyName(), ex
-								.getLocalizedMessage());
-					} catch (InterruptedException ex) {
-						// Do nothing; just return.
-					}
-				}
-			}
-		};
-	}
+                            model.setData(topHits);
 
-	/**
-	 * Select the row in the table corresponding to the period analysis
-	 * selection. We also enable the "refine" button.
-	 */
-	protected Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
-		final Component parent = this;
+                            PeriodAnalysisRefinementMessage msg = new PeriodAnalysisRefinementMessage(this, data,
+                                    topHits, newTopHits);
+                            msg.setTag(Mediator.getParentDialogName(PeriodAnalysisTopHitsTablePane.this));
+                            Mediator.getInstance().getPeriodAnalysisRefinementNotifier().notifyListeners(msg);
+                        }
+                    } catch (AlgorithmError ex) {
+                        MessageBox.showErrorDialog(parent, algorithm.getRefineByFrequencyName(),
+                                ex.getLocalizedMessage());
+                    } catch (InterruptedException ex) {
+                        // Do nothing; just return.
+                    }
+                }
+            }
+        };
+    }
 
-		return new Listener<PeriodAnalysisSelectionMessage>() {
-			@Override
-			public void update(PeriodAnalysisSelectionMessage info) {
-				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysisTopHitsTablePane.this), info))
-					return;
-				if (info.getSource() != parent) {
-					// Find data point in top hits table.
-					int row = -1;
-					for (int i = 0; i < model.getRowCount(); i++) {
-						if (model.getDataPointFromRow(i).equals(
-								info.getDataPoint())) {
-							row = i;
-							break;
-						}
-					}
+    /**
+     * Select the row in the table corresponding to the period analysis selection.
+     * We also enable the "refine" button.
+     */
+    protected Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
+        final Component parent = this;
 
-					// Note that the row may not correspond to anything in the
-					// top hits table since there's more data in the full
-					// dataset than there is here!
-					if (row != -1) {
-						// Convert to view index!
-						row = table.convertRowIndexToView(row);
+        return new Listener<PeriodAnalysisSelectionMessage>() {
+            @Override
+            public void update(PeriodAnalysisSelectionMessage info) {
+                if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysisTopHitsTablePane.this), info))
+                    return;
+                if (info.getSource() != parent) {
+                    // Find data point in top hits table.
+                    int row = -1;
+                    for (int i = 0; i < model.getRowCount(); i++) {
+                        if (model.getDataPointFromRow(i).equals(info.getDataPoint())) {
+                            row = i;
+                            break;
+                        }
+                    }
 
-						// Scroll to an arbitrary column (zeroth) within
-						// the selected row, then select that row.
-						// Assumption: we are specifying the zeroth cell
-						// within row i as an x,y coordinate relative to
-						// the top of the table pane.
-						// Note that we could call this on the scroll
-						// pane, which would then forward the request to
-						// the table pane anyway.
-						int colWidth = (int) table.getCellRect(row, 0, true)
-								.getWidth();
-						int rowHeight = table.getRowHeight(row);
-						table.scrollRectToVisible(new Rectangle(colWidth,
-								rowHeight * row, colWidth, rowHeight));
+                    // Note that the row may not correspond to anything in the
+                    // top hits table since there's more data in the full
+                    // dataset than there is here!
+                    if (row != -1) {
+                        // Convert to view index!
+                        row = table.convertRowIndexToView(row);
 
-						boolean state = disableValueChangeEvent();
-						try {
-							table.setRowSelectionInterval(row, row);
-						} finally {
-							setValueChangedDisabledState(state);
-						}
-						enableButtons();
-					} else {
-						boolean state = disableValueChangeEvent();
-						try {
-							table.clearSelection();
-						} finally {
-							setValueChangedDisabledState(state);
-						}
-					}
-				} else {
-					enableButtons();
-				}
-			}
+                        // Scroll to an arbitrary column (zeroth) within
+                        // the selected row, then select that row.
+                        // Assumption: we are specifying the zeroth cell
+                        // within row i as an x,y coordinate relative to
+                        // the top of the table pane.
+                        // Note that we could call this on the scroll
+                        // pane, which would then forward the request to
+                        // the table pane anyway.
+                        int colWidth = (int) table.getCellRect(row, 0, true).getWidth();
+                        int rowHeight = table.getRowHeight(row);
+                        table.scrollRectToVisible(new Rectangle(colWidth, rowHeight * row, colWidth, rowHeight));
 
-			@Override
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
+                        boolean state = disableValueChangeEvent();
+                        try {
+                            table.setRowSelectionInterval(row, row);
+                        } finally {
+                            setValueChangedDisabledState(state);
+                        }
+                        enableButtons();
+                    } else {
+                        boolean state = disableValueChangeEvent();
+                        try {
+                            table.clearSelection();
+                        } finally {
+                            setValueChangedDisabledState(state);
+                        }
+                    }
+                } else {
+                    enableButtons();
+                }
+            }
 
-	/**
-	 * @see org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane#enableButtons()
-	 */
-	@Override
-	protected void enableButtons() {
-		super.enableButtons();
-		refineButton.setEnabled(true);
-	}
+            @Override
+            public boolean canBeRemoved() {
+                return true;
+            }
+        };
+    }
 
-	/**
-	 * We send a period analysis selection message when the table selection
-	 * value has "settled". This event could be consumed by other views such as
-	 * plots.
-	 */
-	@Override
-	public void valueChanged(ListSelectionEvent e) {
-		if (isValueChangeDisabled())
-			return;
+    /**
+     * @see org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane#enableButtons()
+     */
+    @Override
+    protected void enableButtons() {
+        super.enableButtons();
+        refineButton.setEnabled(true);
+    }
 
-		if (e.getSource() == table.getSelectionModel()
-				&& table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
-			// Which row in the top hits table was selected?
-			int row = table.getSelectedRow();
+    /**
+     * We send a period analysis selection message when the table selection value
+     * has "settled". This event could be consumed by other views such as plots.
+     */
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        if (isValueChangeDisabled())
+            return;
 
-			if (row >= 0) {
-				row = table.convertRowIndexToModel(row);
-				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
-						this, model.getDataPointFromRow(row), row);
-				message.setTag(Mediator.getParentDialogName(this));
-				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-						.notifyListeners(message);
-			}
-		}
-	}
+        if (e.getSource() == table.getSelectionModel() && table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
+            // Which row in the top hits table was selected?
+            int row = table.getSelectedRow();
 
-	// Create a period analysis refinement listener which adds refinement
-	// results to a collection that is checked to ensure that the user does not
-	// select them (or the originating data row) again.
-	private Listener<PeriodAnalysisRefinementMessage> createRefinementListener() {
-		return new Listener<PeriodAnalysisRefinementMessage>() {
-			@Override
-			public void update(PeriodAnalysisRefinementMessage info) {
-				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysisTopHitsTablePane.this), info))
-					return;
-				resultantDataPoints.addAll(info.getNewTopHits());
-			}
+            if (row >= 0) {
+                row = table.convertRowIndexToModel(row);
+                PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(this,
+                        model.getDataPointFromRow(row), row);
+                message.setTag(Mediator.getParentDialogName(this));
+                Mediator.getInstance().getPeriodAnalysisSelectionNotifier().notifyListeners(message);
+            }
+        }
+    }
 
-			@Override
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
+    // Create a period analysis refinement listener which adds refinement
+    // results to a collection that is checked to ensure that the user does not
+    // select them (or the originating data row) again.
+    private Listener<PeriodAnalysisRefinementMessage> createRefinementListener() {
+        return new Listener<PeriodAnalysisRefinementMessage>() {
+            @Override
+            public void update(PeriodAnalysisRefinementMessage info) {
+                if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysisTopHitsTablePane.this), info))
+                    return;
+                resultantDataPoints.addAll(info.getNewTopHits());
+            }
 
-	/**
-	 * @see org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane#startup()
-	 */
-	@Override
-	public void startup() {
-		super.startup();
+            @Override
+            public boolean canBeRemoved() {
+                return true;
+            }
+        };
+    }
 
-		periodAnalysisRefinementListener = createRefinementListener();
-		Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
-				.addListener(periodAnalysisRefinementListener);
-	}
+    /**
+     * @see org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane#startup()
+     */
+    @Override
+    public void startup() {
+        super.startup();
 
-	/**
-	 * @see org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane#cleanup()
-	 */
-	@Override
-	public void cleanup() {
-		super.cleanup();
+        periodAnalysisRefinementListener = createRefinementListener();
+        Mediator.getInstance().getPeriodAnalysisRefinementNotifier().addListener(periodAnalysisRefinementListener);
+    }
 
-		Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
-				.removeListenerIfWilling(periodAnalysisRefinementListener);
-	}
+    /**
+     * @see org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane#cleanup()
+     */
+    @Override
+    public void cleanup() {
+        super.cleanup();
+
+        Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
+                .removeListenerIfWilling(periodAnalysisRefinementListener);
+    }
 }
