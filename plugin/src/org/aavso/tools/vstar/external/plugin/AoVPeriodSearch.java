@@ -301,30 +301,20 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
                 try {
                     // Compute binning result again for selected top-hit period.
                     double period = dataPoints.get(0).getPeriod();
-
-                    // Duplicate the obs (just JD and mag) so we can set phases
-                    // without disturbing the original observation object.
-                    List<ValidObservation> phObs = copyObs(obs);
-
                     double epoch = PhaseCalcs.epochStrategyMap.get("alpha").determineEpoch(obs);
-
-                    PhaseCalcs.setPhases(phObs, epoch, period);
-
-                    Collections.sort(phObs, StandardPhaseComparator.instance);
 
                     Mediator.getInstance().createPhasePlot(period, epoch);
                     Mediator.getInstance().waitForJobCompletion();
 
                     Mediator.getInstance().changeAnalysisType(AnalysisType.PHASE_PLOT);
-                    Mediator.getInstance().waitForJobCompletion();
 
                     // Note: 1 / bins = 1 cycle divided into N bins
-                    BinningResult binningResult = DescStats.createSymmetricBinnedObservations(phObs,
+                    BinningResult binningResult = DescStats.createSymmetricBinnedObservations(obs,
                             PhaseTimeElementEntity.instance, 1.0 / bins);
 
                     List<ValidObservation> meanObs = binningResult.getMeanObservations();
 
-                    PiecewiseLinearModel model = new PiecewiseLinearModel(phObs, meanObs);
+                    PiecewiseLinearModel model = new PiecewiseLinearModel(obs, meanObs);
 
                     Mediator.getInstance().performModellingOperation(model);
                 } catch (Exception ex) {
@@ -415,6 +405,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
         @Override
         public void multiPeriodicFit(List<Harmonic> harmonics, PeriodAnalysisDerivedMultiPeriodicModel model)
                 throws AlgorithmError {
+            // TODO: msg box: unsupported
         }
 
         @Override
