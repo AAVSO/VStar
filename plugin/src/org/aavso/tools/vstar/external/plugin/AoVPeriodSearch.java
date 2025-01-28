@@ -47,6 +47,7 @@ import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisTopHitsTablePane;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
@@ -300,16 +301,22 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
                 try {
                     // Compute binning result again for selected top-hit period.
                     double period = dataPoints.get(0).getPeriod();
-                    
+
                     // Duplicate the obs (just JD and mag) so we can set phases
                     // without disturbing the original observation object.
                     List<ValidObservation> phObs = copyObs(obs);
 
-                    double epoch = PhaseCalcs.epochStrategyMap.get("alpha").determineEpoch(phObs);
+                    double epoch = PhaseCalcs.epochStrategyMap.get("alpha").determineEpoch(obs);
 
                     PhaseCalcs.setPhases(phObs, epoch, period);
 
                     Collections.sort(phObs, StandardPhaseComparator.instance);
+
+                    Mediator.getInstance().createPhasePlot(period, epoch);
+                    Mediator.getInstance().waitForJobCompletion();
+
+                    Mediator.getInstance().changeAnalysisType(AnalysisType.PHASE_PLOT);
+                    Mediator.getInstance().waitForJobCompletion();
 
                     // Note: 1 / bins = 1 cycle divided into N bins
                     BinningResult binningResult = DescStats.createSymmetricBinnedObservations(phObs,
@@ -317,7 +324,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
                     List<ValidObservation> meanObs = binningResult.getMeanObservations();
 
-                    PiecewiseLinearModel model = new PiecewiseLinearModel(this.obs, meanObs);
+                    PiecewiseLinearModel model = new PiecewiseLinearModel(phObs, meanObs);
 
                     Mediator.getInstance().performModellingOperation(model);
                 } catch (Exception ex) {

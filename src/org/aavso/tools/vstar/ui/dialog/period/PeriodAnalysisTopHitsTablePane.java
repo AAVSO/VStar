@@ -242,7 +242,9 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
     @Override
     protected void enableButtons() {
         super.enableButtons();
-        refineButton.setEnabled(true);
+        if (refineButton != null) {
+            refineButton.setEnabled(true);
+        }
     }
 
     /**
