@@ -299,55 +299,32 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
                 final JPanel parent = this;
 
                 try {
-                    if (true) {
-                        // Duplicate the obs (just JD and mag) so we can set phases
-                        // without disturbing the original observation object.
-                        List<ValidObservation> phObs = obs; //copyObs(obs);
+                    // Duplicate the obs (just JD and mag) so we can set phases
+                    // without disturbing the original observation object.
+                    List<ValidObservation> phObs = obs; // copyObs(obs);
 
-                        // Compute binning result again for selected top-hit period.
-                        double period = dataPoints.get(0).getPeriod();
-                        double epoch = PhaseCalcs.epochStrategyMap.get("alpha").determineEpoch(phObs);
+                    // Compute binning result again for selected top-hit period.
+                    double period = dataPoints.get(0).getPeriod();
+                    double epoch = PhaseCalcs.epochStrategyMap.get("alpha").determineEpoch(phObs);
 
-                        Mediator mediator = Mediator.getInstance();
-                        mediator.createPhasePlot(period, epoch);
-                        mediator.waitForJobCompletion();
-                        mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
+                    Mediator mediator = Mediator.getInstance();
+                    mediator.createPhasePlot(period, epoch);
+                    mediator.waitForJobCompletion();
+                    mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
 
-                        PhaseCalcs.setPhases(phObs, epoch, period);
+                    PhaseCalcs.setPhases(phObs, epoch, period);
+                    Collections.sort(phObs, StandardPhaseComparator.instance);
 
-                        Collections.sort(phObs, StandardPhaseComparator.instance);
+                    // Note: 1 / bins = 1 cycle divided into N bins
+                    BinningResult binningResult = DescStats.createSymmetricBinnedObservations(phObs,
+                            PhaseTimeElementEntity.instance, 1.0 / bins);
 
-                        // Note: 1 / bins = 1 cycle divided into N bins
-                        BinningResult binningResult = DescStats.createSymmetricBinnedObservations(phObs,
-                                PhaseTimeElementEntity.instance, 1.0 / bins);
+                    List<ValidObservation> meanObs = binningResult.getMeanObservations();
 
-                        List<ValidObservation> meanObs = binningResult.getMeanObservations();
-
-                        // Compute binning result again for selected top-hit period.
-                        // Create piecewise linear model from resulting mean obs.
-                        PiecewiseLinearModel model = new PiecewiseLinearModel(phObs, meanObs);
-                        Mediator.getInstance().performModellingOperation(model);
-                    } else {
-                        // Create phase plot from selected top-hit period.
-                        double period = dataPoints.get(0).getPeriod();
-                        double epoch = PhaseCalcs.epochStrategyMap.get("alpha").determineEpoch(obs);
-
-                        Mediator mediator = Mediator.getInstance();
-                        mediator.createPhasePlot(period, epoch);
-                        mediator.waitForJobCompletion();
-                        mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
-
-                        // Compute binning result again for selected top-hit period.
-                        // Note: 1 / bins = 1 cycle divided into N bins.
-                        BinningResult binningResult = DescStats.createSymmetricBinnedObservations(obs,
-                                PhaseTimeElementEntity.instance, 1.0 / bins);
-
-                        List<ValidObservation> meanObs = binningResult.getMeanObservations();
-
-                        // Create piecewise linear model from resulting mean obs.
-                        PiecewiseLinearModel model = new PiecewiseLinearModel(obs, meanObs);
-                        Mediator.getInstance().performModellingOperation(model);
-                    }
+                    // Compute binning result again for selected top-hit period.
+                    // Create piecewise linear model from resulting mean obs.
+                    PiecewiseLinearModel model = new PiecewiseLinearModel(phObs, meanObs);
+                    Mediator.getInstance().performModellingOperation(model);
                 } catch (Exception ex) {
                     MessageBox.showErrorDialog(parent, "Modelling", ex.getLocalizedMessage());
                 }
