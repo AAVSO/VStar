@@ -68,7 +68,7 @@ public class PiecewiseLinearModelTest extends TestCase {
     }
 
     // Helpers
-    
+
     private List<ValidObservation> getTestMeanObs() {
         List<ValidObservation> obs = new ArrayList<ValidObservation>();
 
