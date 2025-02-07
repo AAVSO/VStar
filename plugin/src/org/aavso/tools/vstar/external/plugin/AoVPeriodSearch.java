@@ -47,11 +47,11 @@ import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisTopHitsTablePane;
-import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
@@ -162,7 +162,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
         private IPeriodAnalysisDatum selectedDataPoint;
 
         private PeriodAnalysisDataTablePane resultsTablePane;
-        private PeriodAnalysisTopHitsTablePane topHitsTablePane;
+        private AoVPeriodAnalysisTopHitsTablePane topHitsTablePane;
         private PeriodAnalysis2DChartPane plotPane;
         private PeriodAnalysis2DChartPane topHitsPlotPane;
 
@@ -219,17 +219,20 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
                     algorithm.getTopHits());
             topHitsTablePane = new AoVPeriodAnalysisTopHitsTablePane(obs, topHitsModel, dataTableModel, algorithm);
 
-            // Return tabbed pane of plot and period display component.
+            // Return tabbed pane of plot and table components.
             return PluginComponentFactory.createTabs(new NamedComponent("Periodogram", plotPane),
                     new NamedComponent("Results", resultsTablePane), new NamedComponent("Top Hits", topHitsTablePane));
         }
 
         // Send a period change message when the new-phase-plot button is
-        // clicked.
+        // clicked and enable the model button so a model can be created.
         @Override
         protected void newPhasePlotButtonAction() {
             sendPeriodChangeMessage(period);
+            topHitsTablePane.setModelButtonState(true);
         }
+
+        // TODO: need the next two or use base class versipns?
 
         @Override
         public void startup() {
@@ -292,6 +295,19 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
                     IPeriodAnalysisAlgorithm algorithm) {
                 super(topHitsModel, fullDataModel, algorithm);
                 this.obs = obs;
+                setModelButtonState(false);
+            }
+
+            @Override
+            protected void enableButtons() {
+                // Override base class to not enable model button.
+                // The intent is to allow the dialog to which an instance
+                // of this class will exist to control whether the model
+                // button is enabled.
+            }
+
+            public void setModelButtonState(boolean state) {
+                modelButton.setEnabled(state);
             }
 
             @Override
@@ -299,28 +315,13 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
                 final JPanel parent = this;
 
                 try {
-                    // Compute binning result again for selected top-hit period.
-                    double period = dataPoints.get(0).getPeriod();
-                    double epoch = PhaseCalcs.epochStrategyMap.get("alpha").determineEpoch(obs);
-
+                    // This will only be invoked when a phase plot has been created (see
+                    // setModelButtonState()).
                     Mediator mediator = Mediator.getInstance();
-                    mediator.createPhasePlot(period, epoch);
-                    mediator.waitForJobCompletion();
-                    mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
-
-                    PhaseCalcs.setPhases(obs, epoch, period);
-                    Collections.sort(obs, StandardPhaseComparator.instance);
-
-                    // Note: 1 / bins = 1 cycle divided into N bins
-                    BinningResult binningResult = DescStats.createSymmetricBinnedObservations(obs,
-                            PhaseTimeElementEntity.instance, 1.0 / bins);
-
-                    List<ValidObservation> meanObs = binningResult.getMeanObservations();
-
-                    // Compute binning result again for selected top-hit period.
-                    // Create piecewise linear model from resulting mean obs.
-                    PiecewiseLinearModel model = new PiecewiseLinearModel(obs, meanObs);
-                    Mediator.getInstance().performModellingOperation(model);
+                    ObservationAndMeanPlotModel plotModel = mediator
+                            .getObservationPlotModel(mediator.getAnalysisType());
+                    PiecewiseLinearModel model = new PiecewiseLinearModel(obs, plotModel.getMeanObsList());
+                    mediator.performModellingOperation(model);
                 } catch (Exception ex) {
                     MessageBox.showErrorDialog(parent, "Modelling", ex.getLocalizedMessage());
                 }
