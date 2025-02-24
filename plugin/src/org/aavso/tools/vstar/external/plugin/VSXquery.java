@@ -80,6 +80,7 @@ import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.util.date.YMD;
 import org.aavso.tools.vstar.util.help.Help;
@@ -92,7 +93,7 @@ import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 public class VSXquery extends GeneralToolPluginBase {
 
 	protected static final String VSX_URL = 
-			"https://vsx.aavso.org/index.php?view=api.object&ident=";
+	        ResourceAccessor.getVsxApiUrlBase() + "api.object&ident=";
 	
 	protected static final String IMAGE_URL_TEMPLATE = 
 			"https://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_red&r=%s&d=%s&e=J2000&h=5&w=5&f=gif&c=none&fov=NONE&v3=";

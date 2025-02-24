@@ -33,6 +33,7 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
@@ -40,7 +41,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		ObservationSourcePluginBase {
 
 	protected static final int MAX_OBS_AT_ONCE = 50000;
-	protected static final String BASE_URL = "https://vsx.aavso.org/index.php?view=";
+	protected static final String BASE_URL = ResourceAccessor.getVsxApiUrlBase();
 	protected String view;
 	protected String method;
 	protected static final MagnitudeFieldValidator magnitudeFieldValidator = new MagnitudeFieldValidator();

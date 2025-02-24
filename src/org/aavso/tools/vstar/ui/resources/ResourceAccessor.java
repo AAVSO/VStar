@@ -128,6 +128,13 @@ public class ResourceAccessor {
 		return url;
 	}
 
+	/**
+	 * Returns the base URL of the VSX API.
+	 */
+	public static String getVsxApiUrlBase() {
+	    return "https://vsx.aavso.org/index.php?view=";
+	}
+	
 	// ** Version info. **
 
 	public static String getVersionString() {

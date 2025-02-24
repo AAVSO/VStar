@@ -26,6 +26,7 @@ import java.net.URLEncoder;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
  * A discrepant reporter that writes to the Zapper log using the VSX web
@@ -39,7 +40,7 @@ public class VSXWebServiceZapperLogger implements IDiscrepantReporter {
 	 * Constructor
 	 */
 	public VSXWebServiceZapperLogger() {
-		this.endPoint = "https://vsx.aavso.org/index.php?view=api.zapperlog";
+		this.endPoint = ResourceAccessor.getVsxApiUrlBase() + "api.zapperlog";
 	}
 
 	@Override

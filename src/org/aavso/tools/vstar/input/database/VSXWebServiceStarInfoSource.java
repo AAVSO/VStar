@@ -29,6 +29,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.aavso.tools.vstar.input.IStarInfoSource;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
@@ -48,7 +49,7 @@ public class VSXWebServiceStarInfoSource implements IStarInfoSource {
 	private Map<String, String> data;
 
 	public VSXWebServiceStarInfoSource() {
-		baseVsxUrlString = "https://vsx.aavso.org/index.php?view=api.object";
+		baseVsxUrlString = ResourceAccessor.getVsxApiUrlBase() + "api.object";
 		data = new HashMap<String, String>();
 	}
 
