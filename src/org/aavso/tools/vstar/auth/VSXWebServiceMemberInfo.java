@@ -50,7 +50,7 @@ public class VSXWebServiceMemberInfo {
 			SAXException, IOException {
 
 		URL vsxUrl = new URL(
-				"https://www.aavso.org/vsx/index.php?view=api.member&id="
+				"https://vsx.aavso.org/index.php?view=api.member&id="
 						+ userID);
 
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

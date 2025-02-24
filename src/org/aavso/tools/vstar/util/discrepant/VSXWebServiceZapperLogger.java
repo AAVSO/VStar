@@ -39,7 +39,7 @@ public class VSXWebServiceZapperLogger implements IDiscrepantReporter {
 	 * Constructor
 	 */
 	public VSXWebServiceZapperLogger() {
-		this.endPoint = "https://www.aavso.org/vsx/index.php?view=api.zapperlog";
+		this.endPoint = "https://vsx.aavso.org/index.php?view=api.zapperlog";
 	}
 
 	@Override

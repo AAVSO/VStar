@@ -48,7 +48,7 @@ public class VSXWebServiceStarInfoSource implements IStarInfoSource {
 	private Map<String, String> data;
 
 	public VSXWebServiceStarInfoSource() {
-		baseVsxUrlString = "https://www.aavso.org/vsx/index.php?view=api.object";
+		baseVsxUrlString = "https://vsx.aavso.org/index.php?view=api.object";
 		data = new HashMap<String, String>();
 	}
 
