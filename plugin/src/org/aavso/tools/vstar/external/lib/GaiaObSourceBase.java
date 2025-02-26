@@ -69,6 +69,8 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 	protected boolean paramIgnoreFlags = false;
 	protected GaiaRelease paramGaiaRelease = GaiaRelease.DR3;	
 	
+	public static final String GAIA_OB_SOURCE_VERSION = "FEB 2025"; 
+	
 	/**
 	 * Constructor
 	 */
@@ -173,9 +175,160 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 
 		}
 
+		private List<String>convertDR3toDR2format(List<String> lines) throws ObservationReadError {
+			boolean isDR3 = false;
+			String headerLine = null;
+			int startLineN = 0;
+			for (String line : lines) {
+				String[] fields = line.split(delimiter);
+				if ((indexInArray("g_transit_time", fields) >= 0) &&
+					(indexInArray("bp_obs_time", fields)    >= 0) &&
+					(indexInArray("bp_obs_time", fields))   >= 0) {
+					headerLine = line;
+					isDR3 = true; 
+					break;
+				}
+				startLineN++;
+			}
+			if (!isDR3) {
+				// assume DR2
+				return lines;
+			}
+			startLineN++;
+			
+			String[] fields = headerLine.split(delimiter);
+			int source_id_idx = indexInArray("source_id", fields);
+			int transit_id_idx = indexInArray("transit_id", fields);
+			int time_g_idx = indexInArray("g_transit_time", fields);
+			int time_bp_idx = indexInArray("bp_obs_time", fields);
+			int time_rp_idx = indexInArray("rp_obs_time", fields);
+			int mag_g_idx = indexInArray("g_transit_mag", fields);			
+			int mag_bp_idx = indexInArray("bp_mag", fields);
+			int mag_rp_idx = indexInArray("rp_mag", fields);
+			int flux_g_idx = indexInArray("g_transit_flux", fields);
+			int flux_bp_idx = indexInArray("bp_flux", fields);
+			int flux_rp_idx = indexInArray("rp_flux", fields);
+			int flux_g_error_idx = indexInArray("g_transit_flux_error", fields);
+			int flux_bp_error_idx = indexInArray("bp_flux_error", fields);
+			int flux_rp_error_idx = indexInArray("rp_flux_error", fields);
+			int rejected_by_variability_g_idx = indexInArray("variability_flag_g_reject", fields);
+			int rejected_by_variability_bp_idx = indexInArray("variability_flag_bp_reject", fields);
+			int rejected_by_variability_rp_idx = indexInArray("variability_flag_rp_reject", fields);
+			int other_flags_g_idx = indexInArray("g_other_flags", fields);
+			int other_flags_bp_idx = indexInArray("bp_other_flags", fields);
+			int other_flags_rp_idx = indexInArray("rp_other_flags", fields);
+			int rejected_by_photometry_idx = indexInArray("rejected_by_photometry", fields);
+			int solution_id_idx = indexInArray("solution_id", fields);
+			
+			if (source_id_idx < 0 ||
+				transit_id_idx < 0 ||
+				time_g_idx < 0 ||
+				time_bp_idx < 0 ||
+				time_rp_idx < 0 ||
+				mag_g_idx < 0 ||
+				mag_bp_idx < 0 ||
+				mag_rp_idx < 0 ||
+				flux_g_idx < 0 ||
+				flux_bp_idx < 0 ||
+				flux_rp_idx < 0 ||
+				flux_g_error_idx < 0 ||
+				flux_bp_error_idx < 0 ||
+				flux_rp_error_idx < 0 ||
+				rejected_by_variability_g_idx < 0 ||
+				rejected_by_variability_bp_idx < 0 ||
+				rejected_by_variability_rp_idx < 0 ||
+				other_flags_g_idx < 0 ||
+				other_flags_bp_idx < 0 ||
+				other_flags_rp_idx < 0 ||
+				rejected_by_photometry_idx < 0 ||
+				solution_id_idx < 0) 
+			{
+				throw new ObservationReadError("GAIA DR3 Header differs from the expected one");
+			}
+
+			List<String> outList = new ArrayList<String>();
+			
+			// old header (DR2 and pre-Dec 2024 DR3)
+			outList.add("source_id,transit_id,band,time,mag,flux,flux_error,flux_over_error,rejected_by_photometry,rejected_by_variability,other_flags,solution_id");
+
+			// G
+			for (int i = startLineN; i < lines.size(); i++) {
+				String[] values = lines.get(i).split(delimiter);
+				String line = values[source_id_idx];
+				line += delimiter + values[transit_id_idx];
+				line += delimiter + "G"; // band
+				line += delimiter + values[time_g_idx];
+				line += delimiter + values[mag_g_idx];
+				line += delimiter + values[flux_g_idx];
+				line += delimiter + values[flux_g_error_idx];
+				line += delimiter + ""; // we do not use flux_over_error
+				line += delimiter + values[rejected_by_photometry_idx];
+				line += delimiter + values[rejected_by_variability_g_idx];
+				line += delimiter + values[other_flags_g_idx];
+				line += delimiter + values[solution_id_idx];
+				outList.add(line);
+			}
+			// BP
+			for (int i = startLineN; i < lines.size(); i++) {
+				String[] values = lines.get(i).split(delimiter);
+				String line = values[source_id_idx];
+				line += delimiter + values[transit_id_idx];
+				line += delimiter + "BP"; // band
+				line += delimiter + values[time_bp_idx];
+				line += delimiter + values[mag_bp_idx];
+				line += delimiter + values[flux_bp_idx];
+				line += delimiter + values[flux_bp_error_idx];
+				line += delimiter + ""; // we do not use flux_over_error
+				line += delimiter + values[rejected_by_photometry_idx];
+				line += delimiter + values[rejected_by_variability_bp_idx];
+				line += delimiter + values[other_flags_bp_idx];
+				line += delimiter + values[solution_id_idx];
+				outList.add(line);
+			}
+			// RP
+			for (int i = startLineN; i < lines.size(); i++) {
+				String[] values = lines.get(i).split(delimiter);
+				String line = values[source_id_idx];
+				line += delimiter + values[transit_id_idx];
+				line += delimiter + "RP"; // band
+				line += delimiter + values[time_rp_idx];
+				line += delimiter + values[mag_rp_idx];
+				line += delimiter + values[flux_rp_idx];
+				line += delimiter + values[flux_rp_error_idx];
+				line += delimiter + ""; // we do not use flux_over_error
+				line += delimiter + values[rejected_by_photometry_idx];
+				line += delimiter + values[rejected_by_variability_rp_idx];
+				line += delimiter + values[other_flags_rp_idx];
+				line += delimiter + values[solution_id_idx];
+				outList.add(line);
+			}
+			
+			return outList;
+		}
+		
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
+			
+// DR3 format changed (around Jan 2025).
+// DR3 header:
+//			solution_id,source_id,transit_id,
+//			g_transit_time,g_transit_flux,g_transit_flux_error,g_transit_flux_over_error,g_transit_mag,
+//			bp_obs_time,bp_flux,bp_flux_error,bp_flux_over_error,bp_mag,
+//			rp_obs_time,rp_flux,rp_flux_error,rp_flux_over_error,rp_mag,
+//			variability_flag_g_reject,
+//			variability_flag_bp_reject,
+//			variability_flag_rp_reject,
+//			g_other_flags,
+//			bp_other_flags,
+//			rp_other_flags,
+//			rejected_by_photometry
+// DR2 header:
+//			source_id,transit_id,band,time,
+//			mag,flux,flux_error,flux_over_error,
+//			rejected_by_photometry,rejected_by_variability,other_flags,solution_id
+
+			lines = convertDR3toDR2format(lines);
 			
 			setJDflavour(JDflavour.BJD);
 			
