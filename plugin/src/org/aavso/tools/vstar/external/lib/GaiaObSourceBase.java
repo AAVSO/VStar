@@ -176,27 +176,25 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 		}
 
 		private List<String>convertDR3toDR2format(List<String> lines) throws ObservationReadError {
-			boolean isDR3 = false;
-			String headerLine = null;
+			String headerLineDR3 = null;
 			int startLineN = 0;
 			for (String line : lines) {
 				String[] fields = line.split(delimiter);
 				if ((indexInArray("g_transit_time", fields) >= 0) &&
 					(indexInArray("bp_obs_time", fields)    >= 0) &&
-					(indexInArray("bp_obs_time", fields))   >= 0) {
-					headerLine = line;
-					isDR3 = true; 
+					(indexInArray("rp_obs_time", fields))   >= 0) {
+					headerLineDR3 = line;
 					break;
 				}
 				startLineN++;
 			}
-			if (!isDR3) {
+			if (headerLineDR3 == null) {
 				// assume DR2
 				return lines;
 			}
 			startLineN++;
 			
-			String[] fields = headerLine.split(delimiter);
+			String[] fields = headerLineDR3.split(delimiter);
 			int source_id_idx = indexInArray("source_id", fields);
 			int transit_id_idx = indexInArray("transit_id", fields);
 			int time_g_idx = indexInArray("g_transit_time", fields);
