@@ -106,7 +106,7 @@ public class GAIADR2XformFileObSource extends GaiaObSourceBase {
 		 * Constructor
 		 */
 		public GAIAParameterFileDialog() {
-			super("Gaia Load Parameters");
+			super("Gaia Load Parameters [Version " + GAIA_OB_SOURCE_VERSION + "]");
 
 			Container contentPane = this.getContentPane();
 
