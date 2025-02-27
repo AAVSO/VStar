@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -59,296 +60,311 @@ import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 @SuppressWarnings("serial")
 public class PeriodAnalysisDataTablePane extends JPanel implements ListSelectionListener, IStartAndCleanup {
 
-	protected JTable table;
-	protected PeriodAnalysisDataTableModel model;
-	protected TableRowSorter<PeriodAnalysisDataTableModel> rowSorter;
+    protected JTable table;
+    protected PeriodAnalysisDataTableModel model;
+    protected TableRowSorter<PeriodAnalysisDataTableModel> rowSorter;
 
-	protected JButton modelButton;
+    protected JButton modelButton;
 
-	protected IPeriodAnalysisAlgorithm algorithm;
+    protected IPeriodAnalysisAlgorithm algorithm;
 
-	protected boolean wantModelButton;
+    protected boolean wantModelButton;
 
-	protected Map<Double, List<Harmonic>> freqToHarmonicsMap;
+    protected Map<Double, List<Harmonic>> freqToHarmonicsMap;
 
-	protected Listener<HarmonicSearchResultMessage> harmonicSearchResultListener;
-	protected Listener<PeriodAnalysisSelectionMessage> periodAnalysisSelectionListener;
+    protected Listener<HarmonicSearchResultMessage> harmonicSearchResultListener;
+    protected Listener<PeriodAnalysisSelectionMessage> periodAnalysisSelectionListener;
 
-	private String tablePaneID = null;
-	
-	private boolean valueChangedDisabledState = false;
+    private String tablePaneID = null;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param model           The period analysis table model.
-	 * @param algorithm       The period analysis algorithm.
-	 * @param wantModelButton Add a model button?
-	 */
-	public PeriodAnalysisDataTablePane(PeriodAnalysisDataTableModel model, IPeriodAnalysisAlgorithm algorithm,
-			boolean wantModelButton) {
-		super(new GridLayout(1, 1));
+    private boolean valueChangedDisabledState = false;
 
-		this.model = model;
-		this.algorithm = algorithm;
-		this.wantModelButton = wantModelButton;
+    /**
+     * Constructor
+     * 
+     * @param model           The period analysis table model.
+     * @param algorithm       The period analysis algorithm.
+     * @param wantModelButton Add a model button?
+     */
+    public PeriodAnalysisDataTablePane(PeriodAnalysisDataTableModel model, IPeriodAnalysisAlgorithm algorithm,
+            boolean wantModelButton) {
+        super(new GridLayout(1, 1));
 
-		freqToHarmonicsMap = new HashMap<Double, List<Harmonic>>();
+        this.model = model;
+        this.algorithm = algorithm;
+        this.wantModelButton = wantModelButton;
 
-		table = new JTable(model);
-		JScrollPane scrollPane = new JScrollPane(table);
+        freqToHarmonicsMap = new HashMap<Double, List<Harmonic>>();
 
-		this.add(scrollPane);
+        table = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(table);
 
-		table.getSelectionModel().addListSelectionListener(this);
+        this.add(scrollPane);
 
-		table.setColumnSelectionAllowed(false);
-		table.setRowSelectionAllowed(true);
+        table.getSelectionModel().addListSelectionListener(this);
 
-		table.setAutoCreateRowSorter(true);
-		FormattedDoubleComparator comparator = FormattedDoubleComparator.getInstance();
-		rowSorter = new TableRowSorter<PeriodAnalysisDataTableModel>(model);
-		for (int i = 0; i < model.getColumnCount(); i++) {
-			rowSorter.setComparator(i, comparator);
-		}
-		table.setRowSorter(rowSorter);
+        table.setColumnSelectionAllowed(false);
+        table.setRowSelectionAllowed(true);
 
-		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		add(createButtonPanel());
-	}
+        table.setAutoCreateRowSorter(true);
+        FormattedDoubleComparator comparator = FormattedDoubleComparator.getInstance();
+        rowSorter = new TableRowSorter<PeriodAnalysisDataTableModel>(model);
+        for (int i = 0; i < model.getColumnCount(); i++) {
+            rowSorter.setComparator(i, comparator);
+        }
+        table.setRowSorter(rowSorter);
 
-	/**
-	 * Constructor for a period analysis data table pane with a model button.
-	 * 
-	 * @param model     The period analysis table model.
-	 * @param algorithm The period analysis algorithm.
-	 */
-	public PeriodAnalysisDataTablePane(PeriodAnalysisDataTableModel model, IPeriodAnalysisAlgorithm algorithm) {
-		this(model, algorithm, true);
-	}
+        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        add(createButtonPanel());
+    }
 
-	protected JPanel createButtonPanel() {
-		JPanel buttonPane = new JPanel();
+    /**
+     * Constructor for a period analysis data table pane with a model button.
+     * 
+     * @param model     The period analysis table model.
+     * @param algorithm The period analysis algorithm.
+     */
+    public PeriodAnalysisDataTablePane(PeriodAnalysisDataTableModel model, IPeriodAnalysisAlgorithm algorithm) {
+        this(model, algorithm, true);
+    }
 
-		modelButton = new JButton(LocaleProps.get("CREATE_MODEL_BUTTON"));
-		modelButton.setEnabled(false);
-		modelButton.addActionListener(createModelButtonHandler());
+    protected JPanel createButtonPanel() {
+        JPanel buttonPane = new JPanel();
 
-		if (!wantModelButton) {
-			modelButton.setVisible(false);
-		}
+        modelButton = new JButton(LocaleProps.get("CREATE_MODEL_BUTTON"));
+        modelButton.setEnabled(false);
+        modelButton.addActionListener(createModelButtonHandler());
 
-		buttonPane.add(modelButton, BorderLayout.LINE_END);
+        if (!wantModelButton) {
+            modelButton.setVisible(false);
+        }
 
-		return buttonPane;
-	}
+        buttonPane.add(modelButton, BorderLayout.LINE_END);
 
-	/**
-	 * We send a period analysis selection message when the table selection value
-	 * has "settled". This event could be consumed by other views such as plots.
-	 */
-	public void valueChanged(ListSelectionEvent e) {
-		if (isValueChangeDisabled())
-			return;
+        return buttonPane;
+    }
 
-		if (e.getSource() == table.getSelectionModel() && table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
-			int row = table.getSelectedRow();
+    /**
+     * We send a period analysis selection message when the table selection value
+     * has "settled". This event could be consumed by other views such as plots.
+     */
+    public void valueChanged(ListSelectionEvent e) {
+        if (isValueChangeDisabled())
+            return;
 
-			if (row >= 0) {
-				row = table.convertRowIndexToModel(row);
+        if (e.getSource() == table.getSelectionModel() && table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
+            int row = table.getSelectedRow();
 
-				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(this,
-						model.getDataPointFromRow(row), row);
-				message.setTag(Mediator.getParentDialogName(this));
-				Mediator.getInstance().getPeriodAnalysisSelectionNotifier().notifyListeners(message);
-			}
-		}
-	}
+            if (row >= 0) {
+                row = table.convertRowIndexToModel(row);
 
-	// Model button listener.
-	protected ActionListener createModelButtonHandler() {
-		final JPanel parent = this;
+                PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(this,
+                        model.getDataPointFromRow(row), row);
+                message.setTag(Mediator.getParentDialogName(this));
+                Mediator.getInstance().getPeriodAnalysisSelectionNotifier().notifyListeners(message);
+            }
+        }
+    }
 
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				List<PeriodAnalysisDataPoint> dataPoints = new ArrayList<PeriodAnalysisDataPoint>();
-				List<Double> userSelectedFreqs = new ArrayList<Double>();
-				int[] selectedTableRowIndices = table.getSelectedRows();
-				if (selectedTableRowIndices.length < 1) {
-					MessageBox.showMessageDialog(LocaleProps.get("CREATE_MODEL_BUTTON"), "Please select a row");
-					return;
-				}
-				for (int row : selectedTableRowIndices) {
-					int modelRow = table.convertRowIndexToModel(row);
+    // Model button listener.
+    protected ActionListener createModelButtonHandler() {
+        return new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // TODO: add a user selected frequencies protected method
+                // that can be called from an abstract method that implements
+                // the modelling operation
+                // TODO: only this vcaries: userSelectedFreqs.add(dataPoint.getFrequency());
 
-					PeriodAnalysisDataPoint dataPoint = model.getDataPointFromRow(modelRow);
-					dataPoints.add(dataPoint);
-					userSelectedFreqs.add(dataPoint.getFrequency());
-				}
+                List<PeriodAnalysisDataPoint> dataPoints = new ArrayList<PeriodAnalysisDataPoint>();
+                int[] selectedTableRowIndices = table.getSelectedRows();
+                if (selectedTableRowIndices.length < 1) {
+                    MessageBox.showMessageDialog(LocaleProps.get("CREATE_MODEL_BUTTON"), "Please select a row");
+                    return;
+                }
+                for (int row : selectedTableRowIndices) {
+                    int modelRow = table.convertRowIndexToModel(row);
 
-				HarmonicInputDialog dialog = new HarmonicInputDialog(parent, userSelectedFreqs, freqToHarmonicsMap);
+                    PeriodAnalysisDataPoint dataPoint = model.getDataPointFromRow(modelRow);
+                    dataPoints.add(dataPoint);
+                }
+                
+                modelAction(dataPoints);
+            }
+        };
+    }
+    
+    /**
+     * Modelling action. Subclasses can override.<br/>
+     * Note: should really make this class abstract on this method.
+     * 
+     * @param dataPoints The selected data points.
+     */
+    protected void modelAction(List<PeriodAnalysisDataPoint> dataPoints) {
+        final JPanel parent = this;
 
-				if (!dialog.isCancelled()) {
-					List<Harmonic> harmonics = dialog.getHarmonics();
-					if (!harmonics.isEmpty()) {
-						try {
-							PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
-									dataPoints.get(0), harmonics, algorithm);
+        List<Double> userSelectedFreqs = dataPoints.stream().map(point -> point.getFrequency()).collect(Collectors.toList());
+        
+        HarmonicInputDialog dialog = new HarmonicInputDialog(parent, userSelectedFreqs, freqToHarmonicsMap);
 
-							Mediator.getInstance().performModellingOperation(model);
-						} catch (Exception ex) {
-							MessageBox.showErrorDialog(parent, "Modelling", ex.getLocalizedMessage());
-						}
-					} else {
-						MessageBox.showErrorDialog("Create Model", "Period list error");
-					}
-				}
-			}
-		};
-	}
+        if (!dialog.isCancelled()) {
+            List<Harmonic> harmonics = dialog.getHarmonics();
+            if (!harmonics.isEmpty()) {
+                try {
+                    PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
+                            dataPoints.get(0), harmonics, algorithm);
 
-	/**
-	 * A listener to store the latest harmonic search result in a mapping from
-	 * (fundamental) frequency to harmonics.
-	 */
-	protected Listener<HarmonicSearchResultMessage> createHarmonicSearchResultListener() {
-		final PeriodAnalysisDataTablePane tablePane = this;
-		return new Listener<HarmonicSearchResultMessage>() {
-			@Override
-			public void update(HarmonicSearchResultMessage info) {
-				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(tablePane), info))
-					return;
-				freqToHarmonicsMap.put(info.getDataPoint().getFrequency(), info.getHarmonics());
-	
-				String id = tablePane.getTablePaneID();
-				String currentID = info.getIDstring();
-				if (currentID != null && currentID.equals(id)) {
-					if (info.getHarmonics().size() > 0) {
-						new HarmonicInfoDialog(info, tablePane);
-					} else {
-						MessageBox.showMessageDialog("Harmonics", "No top hit for this frequency");
-					}
-				}
-			}
+                    Mediator.getInstance().performModellingOperation(model);
+                } catch (Exception ex) {
+                    MessageBox.showErrorDialog(parent, "Modelling", ex.getLocalizedMessage());
+                }
+            } else {
+                MessageBox.showErrorDialog("Create Model", "Period list error");
+            }
+        }
+    }
 
-			@Override
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
+    /**
+     * A listener to store the latest harmonic search result in a mapping from
+     * (fundamental) frequency to harmonics.
+     */
+    protected Listener<HarmonicSearchResultMessage> createHarmonicSearchResultListener() {
+        final PeriodAnalysisDataTablePane tablePane = this;
+        return new Listener<HarmonicSearchResultMessage>() {
+            @Override
+            public void update(HarmonicSearchResultMessage info) {
+                if (!Mediator.isMsgForDialog(Mediator.getParentDialog(tablePane), info))
+                    return;
+                freqToHarmonicsMap.put(info.getDataPoint().getFrequency(), info.getHarmonics());
 
-	/**
-	 * Select the row in the table corresponding to the period analysis selection.
-	 * We also enable the "refine" button.
-	 */
-	protected Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
-		final Component parent = this;
+                String id = tablePane.getTablePaneID();
+                String currentID = info.getIDstring();
+                if (currentID != null && currentID.equals(id)) {
+                    if (info.getHarmonics().size() > 0) {
+                        new HarmonicInfoDialog(info, tablePane);
+                    } else {
+                        MessageBox.showMessageDialog("Harmonics", "No top hit for this frequency");
+                    }
+                }
+            }
 
-		return new Listener<PeriodAnalysisSelectionMessage>() {
-			@Override
-			public void update(PeriodAnalysisSelectionMessage info) {
-				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysisDataTablePane.this), info))
-					return;
-				if (info.getSource() != parent) {
-					// Find data point in table.
-					int row = -1;
-					for (int i = 0; i < model.getRowCount(); i++) {
-						if (model.getDataPointFromRow(i).equals(info.getDataPoint())) {
-							row = i;
-							break;
-						}
-					}
+            @Override
+            public boolean canBeRemoved() {
+                return true;
+            }
+        };
+    }
 
-					// Note that the row may not correspond to anything in the
-					// data table, e.g. in the case of period analysis
-					// refinement.
-					if (row != -1) {
-						// Convert to view index!
-						row = table.convertRowIndexToView(row);
+    /**
+     * Select the row in the table corresponding to the period analysis selection.
+     * We also enable the "refine" button.
+     */
+    protected Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
+        final Component parent = this;
 
-						// Scroll to an arbitrary column (zeroth) within
-						// the selected row, then select that row.
-						// Assumption: we are specifying the zeroth cell
-						// within row i as an x,y coordinate relative to
-						// the top of the table pane.
-						// Note that we could call this on the scroll
-						// pane, which would then forward the request to
-						// the table pane anyway.
-						int colWidth = (int) table.getCellRect(row, 0, true).getWidth();
-						int rowHeight = table.getRowHeight(row);
-						table.scrollRectToVisible(new Rectangle(colWidth, rowHeight * row, colWidth, rowHeight));
+        return new Listener<PeriodAnalysisSelectionMessage>() {
+            @Override
+            public void update(PeriodAnalysisSelectionMessage info) {
+                if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysisDataTablePane.this), info))
+                    return;
+                if (info.getSource() != parent) {
+                    // Find data point in table.
+                    int row = -1;
+                    for (int i = 0; i < model.getRowCount(); i++) {
+                        if (model.getDataPointFromRow(i).equals(info.getDataPoint())) {
+                            row = i;
+                            break;
+                        }
+                    }
 
-						boolean state = disableValueChangeEvent();
-						try {
-							table.setRowSelectionInterval(row, row);
-						} finally {
-							setValueChangedDisabledState(state);
-						}
-						enableButtons();
-					}
-				} else {
-					enableButtons();
-				}
-			}
+                    // Note that the row may not correspond to anything in the
+                    // data table, e.g. in the case of period analysis
+                    // refinement.
+                    if (row != -1) {
+                        // Convert to view index!
+                        row = table.convertRowIndexToView(row);
 
-			@Override
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
+                        // Scroll to an arbitrary column (zeroth) within
+                        // the selected row, then select that row.
+                        // Assumption: we are specifying the zeroth cell
+                        // within row i as an x,y coordinate relative to
+                        // the top of the table pane.
+                        // Note that we could call this on the scroll
+                        // pane, which would then forward the request to
+                        // the table pane anyway.
+                        int colWidth = (int) table.getCellRect(row, 0, true).getWidth();
+                        int rowHeight = table.getRowHeight(row);
+                        table.scrollRectToVisible(new Rectangle(colWidth, rowHeight * row, colWidth, rowHeight));
 
-	/**
-	 * Enable the buttons on this pane.
-	 */
-	protected void enableButtons() {
-		modelButton.setEnabled(true);
-	}
+                        boolean state = disableValueChangeEvent();
+                        try {
+                            table.setRowSelectionInterval(row, row);
+                        } finally {
+                            setValueChangedDisabledState(state);
+                        }
+                        enableButtons();
+                    }
+                } else {
+                    enableButtons();
+                }
+            }
 
-	@Override
-	public void startup() {
-		harmonicSearchResultListener = createHarmonicSearchResultListener();
-		Mediator.getInstance().getHarmonicSearchNotifier().addListener(harmonicSearchResultListener);
+            @Override
+            public boolean canBeRemoved() {
+                return true;
+            }
+        };
+    }
 
-		periodAnalysisSelectionListener = createPeriodAnalysisListener();
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier().addListener(periodAnalysisSelectionListener);
-	}
+    /**
+     * Enable the buttons on this pane.
+     */
+    protected void enableButtons() {
+        modelButton.setEnabled(true);
+    }
 
-	@Override
-	public void cleanup() {
-		Mediator.getInstance().getHarmonicSearchNotifier().removeListenerIfWilling(harmonicSearchResultListener);
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-				.removeListenerIfWilling(periodAnalysisSelectionListener);
-	}
+    @Override
+    public void startup() {
+        harmonicSearchResultListener = createHarmonicSearchResultListener();
+        Mediator.getInstance().getHarmonicSearchNotifier().addListener(harmonicSearchResultListener);
 
-	public void setTablePaneID(String tablePaneID) {
-		this.tablePaneID = tablePaneID;
-	}
-	
-	public String getTablePaneID() {
-		return tablePaneID;
-	}
-	
-	/**
-	 * @return the table
-	 */
-	public JTable getTable() {
-		return table;
-	}
+        periodAnalysisSelectionListener = createPeriodAnalysisListener();
+        Mediator.getInstance().getPeriodAnalysisSelectionNotifier().addListener(periodAnalysisSelectionListener);
+    }
 
-	public boolean disableValueChangeEvent() {
-		boolean state = valueChangedDisabledState;
-		valueChangedDisabledState = true;
-		return state;
-	}
+    @Override
+    public void cleanup() {
+        Mediator.getInstance().getHarmonicSearchNotifier().removeListenerIfWilling(harmonicSearchResultListener);
+        Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+                .removeListenerIfWilling(periodAnalysisSelectionListener);
+    }
 
-	public void setValueChangedDisabledState(boolean state) {
-		valueChangedDisabledState = state;
-	}
-	
-	public boolean isValueChangeDisabled() {
-		return valueChangedDisabledState;
-	}
-	
+    public void setTablePaneID(String tablePaneID) {
+        this.tablePaneID = tablePaneID;
+    }
+
+    public String getTablePaneID() {
+        return tablePaneID;
+    }
+
+    /**
+     * @return the table
+     */
+    public JTable getTable() {
+        return table;
+    }
+
+    public boolean disableValueChangeEvent() {
+        boolean state = valueChangedDisabledState;
+        valueChangedDisabledState = true;
+        return state;
+    }
+
+    public void setValueChangedDisabledState(boolean state) {
+        valueChangedDisabledState = state;
+    }
+
+    public boolean isValueChangeDisabled() {
+        return valueChangedDisabledState;
+    }
+
 }

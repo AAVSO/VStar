@@ -33,6 +33,7 @@ public class AllTests {
 
 		// $JUnit-BEGIN$
 		suite.addTestSuite(PluginTest.class);
+        suite.addTestSuite(PiecewiseLinearModelTest.class);
 		// $JUnit-END$
 		
 		return suite;
