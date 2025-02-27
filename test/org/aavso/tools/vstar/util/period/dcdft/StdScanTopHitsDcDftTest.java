@@ -26,19 +26,8 @@ import org.aavso.tools.vstar.util.TCasData;
  * (t1201.f) Fortran program's Fourier analysis menu with the tcas.dat file
  * supplied with that program.
  * 
- * The 20 top-hits results obtained from that program ("5: delete from table"
- * option in the Fourier analysis menu) are then:
- * 
- * 1 435.7435 144.40 11 254.8688 1.72 <br/>
- * 2 365.0824 7.34 12 146.8266 1.67 <br/>
- * 3 13508.0482 5.54 13 275.6745 1.49 <br/>
- * 4 540.3219 4.78 14 794.5911 1.06 <br/>
- * 5 643.2404 4.05 15 329.4646 1.05 <br/>
- * 6 201.6127 3.33 16 139.2582 0.80 <br/>
- * 7 221.4434 3.20 17 155.2649 0.52 <br/>
- * 8 1500.8942 2.91 18 125.0745 0.43 <br/>
- * 9 190.2542 2.86 19 170.9880 0.41 <br/>
- * 10 300.1788 2.54 20 115.4534 0.34 <br/>
+ * The 20 top-hits results obtained from Peranso 3.0.4.4
+ *  
  */
 public class StdScanTopHitsDcDftTest extends TopHitsDcDftTestBase {
 
@@ -54,8 +43,8 @@ public class StdScanTopHitsDcDftTest extends TopHitsDcDftTestBase {
 				254.8688, 146.8266, 275.6745, 794.5911, 329.4646, 139.2582,
 				155.2649, 125.0745, 170.9880, 115.4534 };
 
-		double[] expectedPowers = { 144.40, 7.34, 5.54, 4.78, 4.05, 3.33, 3.20,
-				2.91, 2.86, 2.54, 1.72, 1.67, 1.49, 1.06, 1.05, 0.80, 0.52,
+		double[] expectedPowers = { 144.83, 7.36, 5.55, 4.80, 4.06, 3.34, 3.21,
+				2.92, 2.87, 2.55, 1.72, 1.68, 1.50, 1.07, 1.05, 0.80, 0.52,
 				0.43, 0.41, 0.34 };
 
 		testDcDftTopHits(expectedPeriods, expectedPowers);
