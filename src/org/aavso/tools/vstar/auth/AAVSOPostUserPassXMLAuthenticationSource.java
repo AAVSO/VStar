@@ -40,7 +40,8 @@ import org.xml.sax.SAXException;
 /**
  * This class authenticates an AAVSO user via an http POST method that makes use
  * of a VSX web service to obtain user information.
- * @deprecated
+ * 
+ * @deprecated see Auth0JSONAutheticationSource
  */
 public class AAVSOPostUserPassXMLAuthenticationSource implements IAuthenticationSource {
 

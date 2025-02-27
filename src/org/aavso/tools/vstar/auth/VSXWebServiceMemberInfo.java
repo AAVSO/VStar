@@ -26,6 +26,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.aavso.tools.vstar.ui.resources.LoginInfo;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -33,42 +34,39 @@ import org.xml.sax.SAXException;
 /**
  * This class adds AAVSO observer code and membership status to a LoginInfo
  * object.
+ * 
+ * @deprecated see Auth0JSONAutheticationSource
  */
 public class VSXWebServiceMemberInfo {
 
-	/**
-	 * Given an AAVSO user ID, set observer code and membership status on the
-	 * supplied LoginInfo object.
-	 * 
-	 * @param userID
-	 *            The AAVSO user ID.
-	 * @param info
-	 *            The LoginInfo object to be modified.
-	 */
-	public void retrieveUserInfo(String userID, LoginInfo info)
-			throws MalformedURLException, ParserConfigurationException,
-			SAXException, IOException {
+    /**
+     * Given an AAVSO user ID, set observer code and membership status on the
+     * supplied LoginInfo object.
+     * 
+     * @param userID The AAVSO user ID.
+     * @param info   The LoginInfo object to be modified.
+     */
+    public void retrieveUserInfo(String userID, LoginInfo info)
+            throws MalformedURLException, ParserConfigurationException, SAXException, IOException {
 
-		URL vsxUrl = new URL(
-				"https://www.aavso.org/vsx/index.php?view=api.member&id="
-						+ userID);
+        URL vsxUrl = new URL(ResourceAccessor.getVsxApiUrlBase() + "api.member&id=" + userID);
 
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		Document document = builder.parse(vsxUrl.openStream());
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(vsxUrl.openStream());
 
-		document.getDocumentElement().normalize();
+        document.getDocumentElement().normalize();
 
-		NodeList obsCodeNodes = document.getElementsByTagName("ObsCode");
-		if (obsCodeNodes.getLength() == 1) {
-			info.setObserverCode(obsCodeNodes.item(0).getTextContent());
+        NodeList obsCodeNodes = document.getElementsByTagName("ObsCode");
+        if (obsCodeNodes.getLength() == 1) {
+            info.setObserverCode(obsCodeNodes.item(0).getTextContent());
 
-			NodeList memberNodes = document.getElementsByTagName("MemberBenefits");
-			if (memberNodes.getLength() == 1) {
-				String memberVal = memberNodes.item(0).getTextContent();
-				boolean isMember = Boolean.parseBoolean(memberVal);
-				info.setMember(isMember);
-			}
-		}
-	}
+            NodeList memberNodes = document.getElementsByTagName("MemberBenefits");
+            if (memberNodes.getLength() == 1) {
+                String memberVal = memberNodes.item(0).getTextContent();
+                boolean isMember = Boolean.parseBoolean(memberVal);
+                info.setMember(isMember);
+            }
+        }
+    }
 }
