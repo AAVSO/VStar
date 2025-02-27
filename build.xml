@@ -338,7 +338,10 @@
     
     	<!-- Run the tests -->
     
+<junit showoutput="true" printsummary="withOutAndErr" enabletestlistenerevents="true" fork="yes" haltonfailure="no" timeout="600000">
+<!--
     	<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
+-->
     		<formatter type="plain" />
     
     		<jvmarg value="-ea" />
