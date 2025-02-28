@@ -332,7 +332,7 @@
 
 		<!-- Run the tests -->
 
-		<junit showoutput="true" printsummary="withOutAndErr" enabletestlistenerevents="true" fork="no" haltonfailure="no" timeout="1800000">
+		<junit showoutput="true" printsummary="withOutAndErr" fork="no" haltonfailure="no" timeout="1800000">
 			<!--
     	<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
 -->
