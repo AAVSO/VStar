@@ -162,14 +162,11 @@
 			</filterchain>
 		</concat>
 
-		<!--
+		<exec command="cat ${test_report}/summary.txt" />
+
     	<concat>
     	  <fileset dir="${test_report}" includes="*"/>
     	</concat>
-    	-->
-
-		<exec command="cat ${test_report}/summary.txt" />
-        <exec command="find ${test_report} -name '*.txt' -exec cat {} \;" />
 
 		<!-- Exit with status 1 if there were UT failures or errors. -->
 
