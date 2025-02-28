@@ -332,10 +332,7 @@
 
 		<!-- Run the tests -->
 
-		<junit showoutput="true" printsummary="withOutAndErr" fork="no" haltonfailure="no" timeout="1800000">
-			<!--
-    	<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
--->
+    	<junit fork="yes" printsummary="withOutAndErr" showoutput="true" timeout="1800000">
 			<formatter type="plain" />
 
 			<jvmarg value="-ea" />
@@ -369,7 +366,7 @@
 		</concat>
 
 		<exec command="cat ${test_report}/summary.txt" />
-		<exec command="find ${test_report} -name '*.txt' -exec cat {} \;" />
+		<exec command="cat ${test_report}/*.txt" />
 		<!--
     		<exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.util.locale.NumberParserTest.txt"/>
     		<exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.vela.VeLaTest.txt"/>
