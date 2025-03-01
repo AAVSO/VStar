@@ -366,8 +366,13 @@
 		</concat>
 
 		<exec command="cat ${test_report}/summary.txt" />
+<!--
 		<exec command="ls -lR ${test_report}" />
 		<exec command="cat ${test_report}/TEST-*.txt" />
+-->		
+		<concat>
+		  <fileset dir="${test_report}" includes="TEST*"/>
+		</concat>
 
 		<!--
     		<exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.util.locale.NumberParserTest.txt"/>
