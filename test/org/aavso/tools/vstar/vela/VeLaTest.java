@@ -53,7 +53,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     private final static double DELTA = 0.001;
 
-    private final static boolean VERBOSE = true;
+    private final static boolean VERBOSE = false;
 
     private final static boolean ADD_VSTAR_API = false;
 
