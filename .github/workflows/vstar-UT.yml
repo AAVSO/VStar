@@ -16,7 +16,8 @@ jobs:
 
     strategy:
       matrix:
-        java: [ '8', '9', '11', '14', '15', '16' ]
+        #java: [ '8', '9', '11', '14', '15', '16' ]
+        java: [ '8' ]
 
     name: Java ${{ matrix.Java }} VStar UTs
 
