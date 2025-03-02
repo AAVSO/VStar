@@ -127,7 +127,7 @@
 
 		<!-- Run the tests -->
 
-		<junit fork="yes" printsummary="withOutAndErr" showoutput="false">
+		<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
 			<formatter type="plain" />
 
 			<jvmarg value="-ea" />

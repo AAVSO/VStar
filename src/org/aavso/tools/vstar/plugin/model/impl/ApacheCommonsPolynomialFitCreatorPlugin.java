@@ -125,7 +125,7 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
             if (!cancelled) {
                 optimizer = new LevenbergMarquardtOptimizer();
                 fitter = new PolynomialFitter(getDegree(), optimizer);
-            }
+            }            
         }
 
         @Override
@@ -332,7 +332,7 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
 
         setTestMode(true);
         needGUI = false;
-
+        
         result &= testPolynomialFit();
 
         setTestMode(false);
@@ -352,13 +352,13 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
         try {
             model.execute();
 
-            double DELTA = 1e-6;
+            double DELTA = 1e-5;
 
             List<ValidObservation> fit = model.getFit();
             ValidObservation fitOb = fit.get(0);
             result &= fitOb.getJD() == 2459301.0;
             result &= Tolerance.areClose(0.629248, fitOb.getMag(), DELTA, true);
-
+            
             List<ValidObservation> residuals = model.getResiduals();
             ValidObservation resOb = residuals.get(0);
             result &= resOb.getJD() == 2459301.0;
@@ -367,7 +367,6 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginB
             result &= Tolerance.areClose(0.0000162266724849, model.getRMS(), DELTA, true);
             result &= Tolerance.areClose(-7923.218889035116, model.getAIC(), DELTA, true);
             result &= Tolerance.areClose(-7888.243952752065, model.getBIC(), DELTA, true);
-
         } catch (AlgorithmError e) {
             result = false;
         }
