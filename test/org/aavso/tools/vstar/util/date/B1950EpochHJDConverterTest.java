@@ -17,11 +17,11 @@
  */
 package org.aavso.tools.vstar.util.date;
 
-import junit.framework.TestCase;
-
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
+
+import junit.framework.TestCase;
 
 /**
  * B1950HJDConverter unit tests.

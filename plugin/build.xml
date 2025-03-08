@@ -127,7 +127,7 @@
 
 		<!-- Run the tests -->
 
-		<junit fork="yes" printsummary="withOutAndErr" showoutput="false">
+		<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
 			<formatter type="plain" />
 
 			<jvmarg value="-ea" />
@@ -162,13 +162,14 @@
 			</filterchain>
 		</concat>
 
-		<!--
-    	<concat>
-    	  <fileset dir="${test_report}" includes="*"/>
-    	</concat>
-    	-->
-
 		<exec command="cat ${test_report}/summary.txt" />
+<!--
+        <exec command="ls -lR ${test_report}" />
+        <exec command="cat ${test_report}/TEST-*.txt" />
+-->		
+	    <concat>
+	      <fileset dir="${test_report}" includes="TEST*"/>
+	    </concat>
 
 		<!-- Exit with status 1 if there were UT failures or errors. -->
 
