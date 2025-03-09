@@ -1,6 +1,7 @@
 [![VStar Unit Tests](https://github.com/AAVSO/VStar/actions/workflows/vstar-UT.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/vstar-UT.yml)
 [![Plug-in Unit Tests](https://github.com/AAVSO/VStar/actions/workflows/plugin-UT.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/plugin-UT.yml)
 [![Snapshot release](https://github.com/AAVSO/VStar/actions/workflows/daily-release.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/daily-release.yml)
+[![CodeQL](https://github.com/AAVSO/VStar/actions/workflows/codeql.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/codeql.yml)
 [![ascl:1407.013](https://img.shields.io/badge/ascl-1407.013-blue.svg?colorB=262256)](https://ascl.net/1407.013)
 ## VStar
 
