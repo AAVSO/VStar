@@ -121,7 +121,9 @@ public enum Type {
 			vtype = LIST;
 		} else if ("function".equalsIgnoreCase(type)) {
 			vtype = FUNCTION;
-		} else {
+		} else if ("λ".equalsIgnoreCase(type)) {
+            vtype = FUNCTION;
+        } else {
 			throw new IllegalArgumentException("Invalid type: " + type);
 		}
 

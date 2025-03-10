@@ -825,7 +825,6 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void testFuncParameterlessAsSubexpression1() {
         Operand result = vela.expressionToOperand("2+today()");
-        double foo = today() + 2;
         assertTrue(Tolerance.areClose(today() + 2, result.doubleVal(), DELTA, true));
     }
 
@@ -1400,8 +1399,8 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void HOF2() {
         String prog = "";
-        prog += "g(f:function):function {";
-        prog += "    function(n:integer):integer {";
+        prog += "g(f:function) : function {";
+        prog += "    function(n:integer) : integer {";
         prog += "        f(n)";
         prog += "    }";
         prog += "}\n";
@@ -1420,6 +1419,50 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
         assertTrue(result.isPresent());
         assertEquals(27, result.get().intVal());
+    }
+
+    public void testHOF3() {
+        String prog = "";
+        // Lambda as function type instead of "function".
+        prog += "f(g:λ x:integer) : integer {";
+        prog += "    g(x)";
+        prog += "}\n";
+
+        prog += "f(λ(x:integer) : integer{x*x} 4)\n";
+
+        Optional<Operand> result = vela.program(prog);
+
+        assertTrue(result.isPresent());
+        assertEquals(16, result.get().intVal());
+    }
+
+    public void testYCombinator() {
+        // The Y Combinator is a good test of HOFs and revealed some bugs in VeLa in the
+        // past. This example defines and use Y to compute anonymous recursive
+        // factorial.
+        String prog = "";
+        prog += "Y is λ(h : λ) : λ {";
+        prog += "    λ(f : λ) : λ {";
+        prog += "        f(f)";
+        prog += "    } (λ(f : λ) : λ {";
+        prog += "        h(λ(n : integer) : integer {";
+        prog += "            (f(f))(n)";
+        prog += "        })";
+        prog += "    })";
+        prog += "}\n";
+
+        prog += "result is (Y(λ(g : λ) : λ {";
+        prog += "    λ(n : integer) : integer {";
+        prog += "        if n < 2 then 1 else n * g(n - 1)";
+        prog += "    }";
+        prog += "})) (8)\n";
+
+        prog += "result\n";
+
+        Optional<Operand> result = vela.program(prog);
+
+        assertTrue(result.isPresent());
+        assertEquals(40320, result.get().intVal());
     }
 
     public void testBoundFun() {
