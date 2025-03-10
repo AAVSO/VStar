@@ -284,6 +284,7 @@ type
     | STR_T
     | LIST_T
     | FUN
+    | LAMBDA
 ;
 
 // TODO: consider adding option that is just: sequence or sequence END
