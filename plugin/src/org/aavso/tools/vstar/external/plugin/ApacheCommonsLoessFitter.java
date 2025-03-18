@@ -35,6 +35,7 @@ import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.AbstractModel;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.analysis.interpolation.LoessInterpolator;
 import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
@@ -101,7 +102,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 
         @Override
         public boolean hasFuncDesc() {
-            return false;
+            return true;
         }
 
         @Override
@@ -113,19 +114,57 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
         public String toVeLaString() {
             String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"));
 
+            double[] knots = function.getKnots();
+            PolynomialFunction[] polyFuncs = function.getPolynomials();
+
             if (strRepr == null) {
-                /*
-                 * strRepr = "f(t:real) : real {\n";
-                 * 
-                 * double constCoeff = 0;
-                 * 
-                 * for (PolynomialFunction f : function.getPolynomials()) { double[] coeffs =
-                 * f.getCoefficients(); for (int i = coeffs.length - 1; i >= 1; i--) { strRepr
-                 * += "    " + NumericPrecisionPrefs.formatPolyCoef(coeffs[i]); strRepr += "*t^"
-                 * + i + "+\n"; } constCoeff += coeffs[0]; } strRepr += "    " +
-                 * NumericPrecisionPrefs.formatPolyCoef(constCoeff); strRepr += "\n}";
-                 */
-                strRepr = Mediator.NOT_IMPLEMENTED_YET;
+                strRepr = "f(t:real) : real {\n";
+                strRepr += "    when\n";
+
+                int i = 0;
+                StringBuffer buf = new StringBuffer();
+
+                // TODO: instead, have array of knot values and search
+                // for index as per docs, then use index in when or have
+                // an array of functions
+
+                try {
+                    for (i = 0; i < knots.length - 1; i++) {
+                        String knot = NumericPrecisionPrefs.formatTimeLocaleIndependent(knots[i]);
+                        String y = "*(t-" + knot + ")";
+                        buf.append("        ");
+                        buf.append(knot);
+                        buf.append(" <= t -> ");
+                        String polyFunc = polyFuncs[i].toString().replace(" x", y);
+                        buf.append(polyFunc);
+//                        PolynomialFunction f = polyFuncs[i];
+//                        double[] coeffs = f.getCoefficients();
+//
+//                        String x = "t - " + knot;
+//                        for (int j = coeffs.length - 1; j >= 1; j--) {
+//                            System.out.printf("i: %d, j: %d\n", i, j);
+//                            buf.append("    ");
+//                            buf.append(NumericPrecisionPrefs.formatCoef(coeffs[j]));
+//                            buf.append("*");
+//                            buf.append(x);
+//                            buf.append("^" + j);
+//                            buf.append("+\n");
+//                        }
+//
+//                        double coeff0 = coeffs[0];
+//                        buf.append("    ");
+//                        buf.append(NumericPrecisionPrefs.formatCoef(coeff0));
+                        buf.append("\n");
+                    }
+
+                    buf.append("}");
+                    strRepr += buf.toString();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    int klen = knots.length;
+                    int plen = polyFuncs.length;
+                    int x = i;
+                }
             }
 
             return strRepr;
@@ -245,6 +284,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 }
 
                 // TODO: what to use for degree (or N) here?
+                // Number of knots or polynomials or total coefficients?
                 double degree = 0;
 
                 for (PolynomialFunction f : function.getPolynomials()) {
@@ -287,7 +327,8 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 
                 // Excel, R equations.
                 // TODO: consider Python, e.g. for use with matplotlib.
-                // functionStrMap.put("Function", toString());
+//                functionStrMap.put("Function", toString());
+                functionStrings();
                 functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"), toString());
                 functionStrMap.put(LocaleProps.get("MODEL_INFO_EXCEL_TITLE"), toExcelString());
                 functionStrMap.put(LocaleProps.get("MODEL_INFO_R_TITLE"), toRString());
