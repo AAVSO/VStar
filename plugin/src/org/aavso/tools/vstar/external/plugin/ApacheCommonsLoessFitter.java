@@ -118,48 +118,62 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
             PolynomialFunction[] polyFuncs = function.getPolynomials();
 
             if (strRepr == null) {
-                strRepr = "f(t:real) : real {\n";
-                strRepr += "    when\n";
-
-                int i = 0;
                 StringBuffer buf = new StringBuffer();
 
-                // TODO: instead, have array of knot values and search
-                // for index as per docs, then use index in when or have
-                // an array of functions
+                buf.append("# Reversed list of knots, in order to find the largest first.\n");
+                buf.append("knots is [ ");
+                for (int i = knots.length - 1; i >= 0; i--) {
+                    String knot = NumericPrecisionPrefs.formatTimeLocaleIndependent(knots[i]);
+                    buf.append(knot);
+                    if (i % 10 == 0) {
+                        buf.append("\n   ");
+                    } else {
+                        buf.append(" ");
+                    }
+                }
+                buf.append("]\n\n");
+
+                buf.append("f(t:real) : real {\n");
+
+                buf.append("    # Find the index of the largest knot that is less\n");
+                buf.append("    # than or equal to the current time value.\n");
+                buf.append("    index is find( λ(knot:real) : boolean { ");
+                buf.append(" knot <= t } knots )\n\n");
+
+                buf.append("    # Get the knot given the found index, 0 if not found.\n");
+                buf.append("    knot is if index <> -1 then nth(knots index) else 0\n\n");
+
+                buf.append("    # Adjust the domain value.\n");
+                buf.append("    x is t-knot\n\n");
+
+                buf.append("    # Compute the magnitude value using the function\n");
+                buf.append("    # corresponding to the knot.\n");
+                
+                buf.append("    mag is when\n");
+
+                int i = 0;
 
                 try {
                     for (i = 0; i < knots.length - 1; i++) {
-                        String knot = NumericPrecisionPrefs.formatTimeLocaleIndependent(knots[i]);
-                        String y = "*(t-" + knot + ")";
                         buf.append("        ");
-                        buf.append(knot);
-                        buf.append(" <= t -> ");
+                        buf.append(" index = ");
+                        buf.append("" + i);
+                        buf.append(" -> ");
+                        String y = "*(x)";
                         String polyFunc = polyFuncs[i].toString().replace(" x", y);
                         buf.append(polyFunc);
-//                        PolynomialFunction f = polyFuncs[i];
-//                        double[] coeffs = f.getCoefficients();
-//
-//                        String x = "t - " + knot;
-//                        for (int j = coeffs.length - 1; j >= 1; j--) {
-//                            System.out.printf("i: %d, j: %d\n", i, j);
-//                            buf.append("    ");
-//                            buf.append(NumericPrecisionPrefs.formatCoef(coeffs[j]));
-//                            buf.append("*");
-//                            buf.append(x);
-//                            buf.append("^" + j);
-//                            buf.append("+\n");
-//                        }
-//
-//                        double coeff0 = coeffs[0];
-//                        buf.append("    ");
-//                        buf.append(NumericPrecisionPrefs.formatCoef(coeff0));
                         buf.append("\n");
                     }
 
-                    buf.append("}");
-                    strRepr += buf.toString();
+                    buf.append("         true -> 0  # need a way to flag error\n");
+                    buf.append("\n");
+                    buf.append("    mag\n");
+                    buf.append("}\n");
+                    
+                    strRepr = buf.toString();
                 } catch (Exception e) {
+                    // TODO: messagebox with errored values based on boolean;
+                    // put catch in loop
                     e.printStackTrace();
                     int klen = knots.length;
                     int plen = polyFuncs.length;
@@ -187,7 +201,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                  * 
                  * strRepr += NumericPrecisionPrefs.formatPolyCoef(constCoeff) + ")";
                  */
-                strRepr = Mediator.NOT_IMPLEMENTED_YET;
+                //strRepr = Mediator.NOT_IMPLEMENTED_YET;
             }
 
             return strRepr;
@@ -213,7 +227,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                  * 
                  * strRepr += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(constCoeff);
                  */
-                strRepr = Mediator.NOT_IMPLEMENTED_YET;
+                //strRepr = Mediator.NOT_IMPLEMENTED_YET;
             }
 
             return strRepr;
