@@ -2290,10 +2290,6 @@ public class Mediator {
      * 
      * Updates properties for charts (light curve, phase plot)
      * 
-     * @param backgroundColor Chart background
-     *
-     * @param gridlinesColor  Color of gridlines
-     * 
      */
     public void updateChartProperties() {
         List<AnalysisType> list = Arrays.asList(AnalysisType.values());

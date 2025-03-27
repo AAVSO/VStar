@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui.pane.plot;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
@@ -51,13 +52,16 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartTheme;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.SeriesRenderingOrder;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Range;
@@ -375,15 +379,35 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
      * 
      * Updates properties of the chart
      * 
-     * @param backgroundColor chart background color
-     * 
-     * @param gridlinesColor  color of gridlines
-     * 
      */
     public void updateChartProperties() {
-        this.chart.getXYPlot().setBackgroundPaint(ChartPropertiesPrefs.getChartBackgroundColor());
-        this.chart.getXYPlot().setDomainGridlinePaint(ChartPropertiesPrefs.getChartGridlinesColor());
-        this.chart.getXYPlot().setRangeGridlinePaint(ChartPropertiesPrefs.getChartGridlinesColor());
+        //StandardChartTheme chartTheme = (StandardChartTheme)org.jfree.chart.StandardChartTheme.createJFreeTheme();
+    	StandardChartTheme chartTheme = (StandardChartTheme)ChartFactory.getChartTheme();
+        try {
+        	Font font;
+	        font = ChartPropertiesPrefs.getChartExtraLargeFont();
+	        if (font != null) chartTheme.setExtraLargeFont(font);
+	        font = ChartPropertiesPrefs.getChartLargeFont();
+	        if (font != null) chartTheme.setLargeFont(font);
+	        font = ChartPropertiesPrefs.getChartRegularFont();
+	        if (font != null) chartTheme.setRegularFont(font);
+	        font = ChartPropertiesPrefs.getChartSmallFont();
+	        if (font != null) chartTheme.setSmallFont(font);
+	        chartTheme.apply(this.chart);
+        } catch(Exception e) {
+        	// ignore error
+        }
+
+        // chartTheme.apply() resets colors and sizes.
+        // We need to restore them.
+        setSeriesColors();
+        setSeriesSizes();
+        
+        XYPlot plot = this.chart.getXYPlot();
+        plot.setBackgroundPaint(ChartPropertiesPrefs.getChartBackgroundColor());
+        plot.setDomainGridlinePaint(ChartPropertiesPrefs.getChartGridlinesColor());
+        plot.setRangeGridlinePaint(ChartPropertiesPrefs.getChartGridlinesColor());
+     
     }
 
     // From ChartMouseListener interface.

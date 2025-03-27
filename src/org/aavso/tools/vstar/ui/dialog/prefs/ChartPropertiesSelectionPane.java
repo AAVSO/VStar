@@ -19,7 +19,9 @@ package org.aavso.tools.vstar.ui.dialog.prefs;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -37,9 +39,12 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.ChartPropertiesPrefs;
+import org.jfree.chart.StandardChartTheme;
+import org.jfree.chart.ui.FontChooserPanel;
 
 /**
  * This preferences pane permits the selection of general chart properties.
@@ -47,6 +52,66 @@ import org.aavso.tools.vstar.util.prefs.ChartPropertiesPrefs;
 @SuppressWarnings("serial")
 public class ChartPropertiesSelectionPane extends JPanel implements
 IPreferenceComponent {
+	
+	class FontDialog extends
+			AbstractOkCancelDialog {
+
+		private Font font = null;
+		private FontChooserPanel fontChooserPanel;
+		
+		/**
+		 * Constructor
+		 */
+		public FontDialog(Font font) {
+			super("Font");
+			this.font = font;
+			
+			Container contentPane = this.getContentPane();
+			JPanel topPane = new JPanel();
+			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));			
+			
+			fontChooserPanel = new FontChooserPanel(font);
+			topPane.add(fontChooserPanel);
+			
+			// OK, Cancel
+			topPane.add(createButtonPane());
+
+			contentPane.add(topPane);
+
+			this.pack();
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
+			this.setVisible(true);
+		}
+		
+		public Font getFont() {
+			return font;
+		}
+		
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
+		 */
+		@Override
+		protected void cancelAction() {
+			// Nothing to do.
+		}
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
+		 */
+		@Override
+		protected void okAction() {
+			boolean ok = true;
+
+			font = fontChooserPanel.getSelectedFont();
+			
+			if (ok) {
+				cancelled = false;
+				setVisible(false);
+				dispose();
+			}
+		}
+	}	
 	
 	/**
 	 * A color rectangle
@@ -96,9 +161,39 @@ IPreferenceComponent {
 		}
 	}
 	
+	class ChartFontLabel extends JLabel {
+		
+		private boolean fontChanged = false;
+		
+		public ChartFontLabel(String text) {
+			super(text);
+		}
+		
+		@Override
+		public void setFont(Font font) {
+			super.setFont(font);
+			fontChanged = true;
+		}
+		
+		public void resetFontChanged() {
+			fontChanged = false;
+		}
+		
+		public boolean isFontChanged() {
+			return fontChanged;
+		}
+		
+		public void setFontChanged(boolean status) {
+			fontChanged = status;
+		}
+	}
+	
 	private ColorRectComponent backColorRect;	
 	private ColorRectComponent gridColorRect;
-	
+	private ChartFontLabel regularFontLabel;
+	private ChartFontLabel smallFontLabel;
+	private ChartFontLabel extraLargeFontLabel;
+	private ChartFontLabel largeFontLabel;
 	
 	/**
 	 * Constructor.
@@ -136,6 +231,34 @@ IPreferenceComponent {
 		JButton gridColorBtn = new JButton("Select...");
 		gridColorBtn.addActionListener(createSelectGridlineColorActionListener());
 		panel.add(gridColorBtn);
+
+		panel.add(new JLabel("Regular Chart Font"));		
+		regularFontLabel = new ChartFontLabel("Regular 3.14159");
+		panel.add(regularFontLabel);
+		JButton regularFontButton = new JButton("Select...");
+		regularFontButton.addActionListener(createSelectRegularFontActionListener());
+		panel.add(regularFontButton);
+		
+		panel.add(new JLabel("Small Chart Font"));		
+		smallFontLabel = new ChartFontLabel("Small 3.14159");
+		panel.add(smallFontLabel);
+		JButton smallFontButton = new JButton("Select...");
+		smallFontButton.addActionListener(createSelectSmallFontActionListener());
+		panel.add(smallFontButton);
+
+		panel.add(new JLabel("Large Chart Font"));		
+		largeFontLabel = new ChartFontLabel("Large 3.14159");
+		panel.add(largeFontLabel);
+		JButton largeFontButton = new JButton("Select...");
+		largeFontButton.addActionListener(createSelectLargeFontActionListener());
+		panel.add(largeFontButton);
+
+		panel.add(new JLabel("XLarge Chart Font"));		
+		extraLargeFontLabel = new ChartFontLabel("XLarge 3.14159");
+		panel.add(extraLargeFontLabel);
+		JButton extraLargeFontButton = new JButton("Select...");
+		extraLargeFontButton.addActionListener(createSelectExtraLargeFontActionListener());
+		panel.add(extraLargeFontButton);
 		
 		return panel;
 	}
@@ -143,7 +266,7 @@ IPreferenceComponent {
 	protected JPanel createButtonPane() {
 		JPanel panel = new JPanel(new BorderLayout());
 
-		JButton setDefaultsButton = new JButton("Set Default Colors");
+		JButton setDefaultsButton = new JButton("Set Defaults");
 		setDefaultsButton.addActionListener(createSetDefaultsButtonActionListener());
 		panel.add(setDefaultsButton, BorderLayout.LINE_START);
 
@@ -181,7 +304,67 @@ IPreferenceComponent {
 				}
 			}
 		};
-	}	
+	}
+
+	// Select Regular Font action button listener.
+	private ActionListener createSelectRegularFontActionListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				FontDialog paramDialog = new FontDialog(regularFontLabel.getFont());
+				if (paramDialog.isCancelled())
+					return;
+				Font newFont = paramDialog.getFont();
+				if (newFont != null) {
+					regularFontLabel.setFont(newFont);
+				}
+			}
+		};
+	}
+
+	// Select Small Font action button listener.
+	private ActionListener createSelectSmallFontActionListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				FontDialog paramDialog = new FontDialog(smallFontLabel.getFont());
+				if (paramDialog.isCancelled())
+					return;
+				Font newFont = paramDialog.getFont();
+				if (newFont != null) {
+					smallFontLabel.setFont(newFont);
+				}
+			}
+		};
+	}
+
+	// Select Large Font action button listener.
+	private ActionListener createSelectLargeFontActionListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				FontDialog paramDialog = new FontDialog(largeFontLabel.getFont());
+				if (paramDialog.isCancelled())
+					return;
+				Font newFont = paramDialog.getFont();
+				if (newFont != null) {
+					largeFontLabel.setFont(newFont);
+				}
+			}
+		};
+	}
+
+	// Select Extra Large Font action button listener.
+	private ActionListener createSelectExtraLargeFontActionListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				FontDialog paramDialog = new FontDialog(extraLargeFontLabel.getFont());
+				if (paramDialog.isCancelled())
+					return;
+				Font newFont = paramDialog.getFont();
+				if (newFont != null) {
+					extraLargeFontLabel.setFont(newFont);
+				}
+			}
+		};
+	}
 	
 	// Set defaults action button listener.
 	private ActionListener createSetDefaultsButtonActionListener() {
@@ -221,10 +404,30 @@ IPreferenceComponent {
 			ChartPropertiesPrefs.setChartGridlinesColor(gridColorRect.getColor());
 			delta = true;
 		}
+		if (regularFontLabel.isFontChanged()) {
+			ChartPropertiesPrefs.setChartRegularFont(regularFontLabel.getFont());
+			delta = true;
+		}
+		if (smallFontLabel.isFontChanged()) {
+			ChartPropertiesPrefs.setChartSmallFont(smallFontLabel.getFont());
+			delta = true;
+		}
+		if (largeFontLabel.isFontChanged()) {
+			ChartPropertiesPrefs.setChartLargeFont(largeFontLabel.getFont());
+			delta = true;
+		}
+		if (extraLargeFontLabel.isFontChanged()) {
+			ChartPropertiesPrefs.setChartExtraLargeFont(extraLargeFontLabel.getFont());
+			delta = true;
+		}
 		if (delta) {
 			ChartPropertiesPrefs.storeChartPropertiesPrefs();
 			backColorRect.resetColorChanged();
 			gridColorRect.resetColorChanged();
+			regularFontLabel.resetFontChanged();
+			smallFontLabel.resetFontChanged();
+			largeFontLabel.resetFontChanged();
+			extraLargeFontLabel.resetFontChanged();
 			updateCharts();			
 		}
 	}
@@ -238,6 +441,33 @@ IPreferenceComponent {
 		gridColorRect.setColor(ChartPropertiesPrefs.getChartGridlinesColor());
 		backColorRect.resetColorChanged();		
 		gridColorRect.resetColorChanged();
+		
+		Font font;
+		StandardChartTheme chartTheme = (StandardChartTheme)org.jfree.chart.StandardChartTheme.createJFreeTheme();
+
+		font = ChartPropertiesPrefs.getChartRegularFont();
+		if (font == null)
+			font = chartTheme.getRegularFont();
+		regularFontLabel.setFont(font);
+		regularFontLabel.resetFontChanged();
+		
+		font = ChartPropertiesPrefs.getChartSmallFont();
+		if (font == null)
+			font = chartTheme.getSmallFont();
+		smallFontLabel.setFont(font);
+		smallFontLabel.resetFontChanged();
+
+		font = ChartPropertiesPrefs.getChartLargeFont();
+		if (font == null)
+			font = chartTheme.getLargeFont();
+		largeFontLabel.setFont(font);
+		largeFontLabel.resetFontChanged();
+		
+		font = ChartPropertiesPrefs.getChartExtraLargeFont();
+		if (font == null)
+			font = chartTheme.getExtraLargeFont();
+		extraLargeFontLabel.setFont(font);
+		extraLargeFontLabel.resetFontChanged();
 	}
 	
 }
