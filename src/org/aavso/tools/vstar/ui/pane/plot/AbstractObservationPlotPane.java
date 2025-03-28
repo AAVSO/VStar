@@ -381,8 +381,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
      * 
      */
     public void updateChartProperties() {
-        //StandardChartTheme chartTheme = (StandardChartTheme)org.jfree.chart.StandardChartTheme.createJFreeTheme();
-    	StandardChartTheme chartTheme = (StandardChartTheme)ChartFactory.getChartTheme();
+        StandardChartTheme chartTheme = (StandardChartTheme)StandardChartTheme.createJFreeTheme();
         try {
         	Font font;
 	        font = ChartPropertiesPrefs.getChartExtraLargeFont();

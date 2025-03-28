@@ -22,6 +22,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.print.PrinterException;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -154,6 +156,7 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
+import org.aavso.tools.vstar.util.prefs.ChartPropertiesPrefs;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
@@ -1984,7 +1987,8 @@ public class Mediator {
         ChartPanel chart = analysisTypeMap.get(analysisType).getObsAndMeanChartPane().getChartPanel();
 
         try {
-            ChartUtils.saveChartAsPNG(file, chart.getChart(), width, height);
+            //ChartUtils.saveChartAsPNG(file, chart.getChart(), width, height);
+        	savePlotToFileHelper(file, chart.getChart(), width, height, ChartPropertiesPrefs.getScaleFactor());
         } catch (IOException e) {
             MessageBox.showErrorDialog("Save plot to file", "Cannot save plot to " + "'" + file.getPath() + "'.");
         }
@@ -2101,13 +2105,21 @@ public class Mediator {
                 int width = chartPanel.getWidth();
                 int height = chartPanel.getHeight();
 
-                ChartUtils.saveChartAsPNG(path, chart, width, height);
+                //ChartUtils.saveChartAsPNG(path, chart, width, height);
+                savePlotToFileHelper(path, chart, width, height, ChartPropertiesPrefs.getScaleFactor());
             }
         } catch (IOException ex) {
             MessageBox.showErrorDialog(parent, "Save Observation and Means Plot", ex.getMessage());
         }
     }
 
+    private void savePlotToFileHelper(File path, JFreeChart chart, int width, int height, int scale)
+    		throws FileNotFoundException, IOException {
+    	try (FileOutputStream out = new FileOutputStream(path)) {
+            ChartUtils.writeScaledChartAsPNG(out, chart, width, height, scale, scale);
+        }
+    }
+    
     /**
      * Save observation list to a file in a separate thread. Note that we want to
      * save just those observations that are in view in the observation list

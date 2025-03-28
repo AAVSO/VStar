@@ -26,6 +26,9 @@ import java.util.prefs.Preferences;
  */
 public class ChartPropertiesPrefs {
 
+	public static int MIN_PNG_SCALE_FACTOR = 1;
+	public static int MAX_PNG_SCALE_FACTOR = 5;
+	
 	private static Color DEFAULT_CHART_BACKGROUND_COLOR = Color.WHITE;
 	private static Color DEFAULT_CHART_GRIDLINES_COLOR = Color.WHITE;
 	
@@ -35,7 +38,9 @@ public class ChartPropertiesPrefs {
 	private static Font extraLargeFont = null;
 	private static Font largeFont = null;
 	private static Font regularFont = null;
-	private static Font smallFont = null;	
+	private static Font smallFont = null;
+	
+	private static int scaleFactor = MIN_PNG_SCALE_FACTOR;
 
 	public static Color getChartBackgroundColor() {
 		return chartBackgroundColor;
@@ -84,6 +89,19 @@ public class ChartPropertiesPrefs {
 	public static void setChartSmallFont(Font font) {
 		smallFont = font;
 	}
+
+	public static int getScaleFactor() {
+		return scaleFactor;
+	}
+
+	public static void setScaleFactor(int value) {
+		if (value >= MIN_PNG_SCALE_FACTOR && value <= MAX_PNG_SCALE_FACTOR)
+			scaleFactor = value;
+		else if (value < MIN_PNG_SCALE_FACTOR)
+			scaleFactor = MIN_PNG_SCALE_FACTOR;
+		else if (value > MAX_PNG_SCALE_FACTOR)
+			scaleFactor = MAX_PNG_SCALE_FACTOR;
+	}
 	
 	// Preferences members.
 
@@ -131,7 +149,7 @@ public class ChartPropertiesPrefs {
 		largeFont = createFontFromPrefs("largeFont");
 		regularFont = createFontFromPrefs("regularFont");
 		smallFont = createFontFromPrefs("smallFont");
-		
+		setScaleFactor(prefs.getInt(PREFS_PREFIX + "scaleFactor", MIN_PNG_SCALE_FACTOR));
 	}
 
 	public static void storeChartPropertiesPrefs() {
@@ -142,6 +160,7 @@ public class ChartPropertiesPrefs {
 			saveFontToPrefs("largeFont", largeFont);
 			saveFontToPrefs("regularFont", regularFont);
 			saveFontToPrefs("smallFont", smallFont);
+			prefs.putInt(PREFS_PREFIX + "scaleFactor", scaleFactor);
 			prefs.flush();
 		} catch (Throwable t) {
 			// We need VStar to function in the absence of prefs.
@@ -154,7 +173,8 @@ public class ChartPropertiesPrefs {
 		extraLargeFont = null;
 		largeFont = null;
 		regularFont = null;
-		smallFont = null;	
+		smallFont = null;
+		scaleFactor = MIN_PNG_SCALE_FACTOR;
 		storeChartPropertiesPrefs();
 	}
 

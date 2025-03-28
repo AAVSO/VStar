@@ -38,8 +38,14 @@ import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.dialog.IntegerField;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.ChartPropertiesPrefs;
@@ -190,10 +196,14 @@ IPreferenceComponent {
 	
 	private ColorRectComponent backColorRect;	
 	private ColorRectComponent gridColorRect;
+
 	private ChartFontLabel regularFontLabel;
 	private ChartFontLabel smallFontLabel;
 	private ChartFontLabel extraLargeFontLabel;
 	private ChartFontLabel largeFontLabel;
+	
+	private JSpinner pngScaleFactor; 
+	private Integer changedScaleFactor = null;
 	
 	/**
 	 * Constructor.
@@ -207,6 +217,10 @@ IPreferenceComponent {
 
 		chartPropertiesPane.add(createControlPane());
 		
+		chartPropertiesPane.add(Box.createRigidArea(new Dimension(10, 10)));		
+		
+		chartPropertiesPane.add(createControlPane2());
+		
 		chartPropertiesPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		
 		chartPropertiesPane.add(createButtonPane());
@@ -215,50 +229,80 @@ IPreferenceComponent {
 		
 	}
 
+	private JSpinner createScaleSpinner(int initial, String title) {
+		SpinnerNumberModel spinnerModel = new SpinnerNumberModel(
+				initial, 
+				ChartPropertiesPrefs.MIN_PNG_SCALE_FACTOR,
+				ChartPropertiesPrefs.MAX_PNG_SCALE_FACTOR,
+				1);
+		JSpinner spinner = new JSpinner(spinnerModel);
+		spinner.setBorder(BorderFactory.createTitledBorder(title));
+		spinner.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSpinner src = (JSpinner)(e.getSource());
+				changedScaleFactor = (Integer)src.getValue();
+			}
+		});
+		return spinner;
+	}
+	
 	protected JPanel createControlPane() {
 		JPanel panel = new JPanel(new GridLayout(0, 3, 10, 10));
+		JButton selectBtn;
 
 		panel.add(new JLabel("Background Color"));
 		backColorRect = new ColorRectComponent(Color.WHITE);
 		panel.add(backColorRect);		
-		JButton backColorBtn = new JButton("Select...");
-		backColorBtn.addActionListener(createSelectBackgroundColorActionListener());
-		panel.add(backColorBtn);
+		selectBtn = new JButton("Select...");
+		selectBtn.addActionListener(createSelectBackgroundColorActionListener());
+		panel.add(selectBtn);
 				
 		panel.add(new JLabel("Gridline Color"));
 		gridColorRect = new ColorRectComponent(Color.WHITE);
 		panel.add(gridColorRect);		
-		JButton gridColorBtn = new JButton("Select...");
-		gridColorBtn.addActionListener(createSelectGridlineColorActionListener());
-		panel.add(gridColorBtn);
+		selectBtn = new JButton("Select...");
+		selectBtn.addActionListener(createSelectGridlineColorActionListener());
+		panel.add(selectBtn);
 
 		panel.add(new JLabel("Regular Chart Font"));		
 		regularFontLabel = new ChartFontLabel("Regular 3.14159");
 		panel.add(regularFontLabel);
-		JButton regularFontButton = new JButton("Select...");
-		regularFontButton.addActionListener(createSelectRegularFontActionListener());
-		panel.add(regularFontButton);
+		selectBtn = new JButton("Select...");
+		selectBtn.addActionListener(createSelectRegularFontActionListener());
+		panel.add(selectBtn);
 		
 		panel.add(new JLabel("Small Chart Font"));		
 		smallFontLabel = new ChartFontLabel("Small 3.14159");
 		panel.add(smallFontLabel);
-		JButton smallFontButton = new JButton("Select...");
-		smallFontButton.addActionListener(createSelectSmallFontActionListener());
-		panel.add(smallFontButton);
+		selectBtn = new JButton("Select...");
+		selectBtn.addActionListener(createSelectSmallFontActionListener());
+		panel.add(selectBtn);
 
 		panel.add(new JLabel("Large Chart Font"));		
 		largeFontLabel = new ChartFontLabel("Large 3.14159");
 		panel.add(largeFontLabel);
-		JButton largeFontButton = new JButton("Select...");
-		largeFontButton.addActionListener(createSelectLargeFontActionListener());
-		panel.add(largeFontButton);
+		selectBtn = new JButton("Select...");
+		selectBtn.addActionListener(createSelectLargeFontActionListener());
+		panel.add(selectBtn);
 
 		panel.add(new JLabel("XLarge Chart Font"));		
 		extraLargeFontLabel = new ChartFontLabel("XLarge 3.14159");
 		panel.add(extraLargeFontLabel);
-		JButton extraLargeFontButton = new JButton("Select...");
-		extraLargeFontButton.addActionListener(createSelectExtraLargeFontActionListener());
-		panel.add(extraLargeFontButton);
+		selectBtn = new JButton("Select...");
+		selectBtn.addActionListener(createSelectExtraLargeFontActionListener());
+		panel.add(selectBtn);
+		
+		return panel;
+	}
+	
+	protected JPanel createControlPane2() {
+		JPanel panel = new JPanel(new GridLayout(0, 3, 10, 10));
+
+		panel.add(new JLabel("Use the factor"));
+		pngScaleFactor = createScaleSpinner(ChartPropertiesPrefs.MIN_PNG_SCALE_FACTOR, "Factor");
+		panel.add(pngScaleFactor);
+		panel.add(new JLabel("while saving PNG"));
 		
 		return panel;
 	}
@@ -420,6 +464,10 @@ IPreferenceComponent {
 			ChartPropertiesPrefs.setChartExtraLargeFont(extraLargeFontLabel.getFont());
 			delta = true;
 		}
+		if (changedScaleFactor != null) {
+			ChartPropertiesPrefs.setScaleFactor(changedScaleFactor);
+			delta = true;
+		}
 		if (delta) {
 			ChartPropertiesPrefs.storeChartPropertiesPrefs();
 			backColorRect.resetColorChanged();
@@ -428,6 +476,7 @@ IPreferenceComponent {
 			smallFontLabel.resetFontChanged();
 			largeFontLabel.resetFontChanged();
 			extraLargeFontLabel.resetFontChanged();
+			changedScaleFactor = null; 
 			updateCharts();			
 		}
 	}
@@ -443,7 +492,7 @@ IPreferenceComponent {
 		gridColorRect.resetColorChanged();
 		
 		Font font;
-		StandardChartTheme chartTheme = (StandardChartTheme)org.jfree.chart.StandardChartTheme.createJFreeTheme();
+		StandardChartTheme chartTheme = (StandardChartTheme)StandardChartTheme.createJFreeTheme();
 
 		font = ChartPropertiesPrefs.getChartRegularFont();
 		if (font == null)
@@ -468,6 +517,9 @@ IPreferenceComponent {
 			font = chartTheme.getExtraLargeFont();
 		extraLargeFontLabel.setFont(font);
 		extraLargeFontLabel.resetFontChanged();
+		
+		pngScaleFactor.setValue(ChartPropertiesPrefs.getScaleFactor());
+		changedScaleFactor = null;
 	}
 	
 }
