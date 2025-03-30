@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.util.prefs;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.util.prefs.Preferences;
 
 /**
@@ -25,11 +26,21 @@ import java.util.prefs.Preferences;
  */
 public class ChartPropertiesPrefs {
 
+	public static int MIN_PNG_SCALE_FACTOR = 1;
+	public static int MAX_PNG_SCALE_FACTOR = 5;
+	
 	private static Color DEFAULT_CHART_BACKGROUND_COLOR = Color.WHITE;
 	private static Color DEFAULT_CHART_GRIDLINES_COLOR = Color.WHITE;
 	
 	private static Color chartBackgroundColor = DEFAULT_CHART_BACKGROUND_COLOR;
-	private static Color chartGridlinesColor = DEFAULT_CHART_GRIDLINES_COLOR;	
+	private static Color chartGridlinesColor = DEFAULT_CHART_GRIDLINES_COLOR;
+	
+	private static Font extraLargeFont = null;
+	private static Font largeFont = null;
+	private static Font regularFont = null;
+	private static Font smallFont = null;
+	
+	private static int scaleFactor = MIN_PNG_SCALE_FACTOR;
 
 	public static Color getChartBackgroundColor() {
 		return chartBackgroundColor;
@@ -45,6 +56,51 @@ public class ChartPropertiesPrefs {
 	
 	public static void setChartGridlinesColor(Color color) {
 		chartGridlinesColor = color;
+	}
+
+	public static Font getChartExtraLargeFont() {
+		return extraLargeFont;
+	}
+
+	public static void setChartExtraLargeFont(Font font) {
+		extraLargeFont = font;
+	}
+
+	public static Font getChartLargeFont() {
+		return largeFont;
+	}
+
+	public static void setChartLargeFont(Font font) {
+		largeFont = font;
+	}
+	
+	public static Font getChartRegularFont() {
+		return regularFont;
+	}
+
+	public static void setChartRegularFont(Font font) {
+		regularFont = font;
+	}
+
+	public static Font getChartSmallFont() {
+		return smallFont;
+	}
+
+	public static void setChartSmallFont(Font font) {
+		smallFont = font;
+	}
+
+	public static int getScaleFactor() {
+		return scaleFactor;
+	}
+
+	public static void setScaleFactor(int value) {
+		if (value >= MIN_PNG_SCALE_FACTOR && value <= MAX_PNG_SCALE_FACTOR)
+			scaleFactor = value;
+		else if (value < MIN_PNG_SCALE_FACTOR)
+			scaleFactor = MIN_PNG_SCALE_FACTOR;
+		else if (value > MAX_PNG_SCALE_FACTOR)
+			scaleFactor = MAX_PNG_SCALE_FACTOR;
 	}
 	
 	// Preferences members.
@@ -62,16 +118,49 @@ public class ChartPropertiesPrefs {
 			// We need VStar to function in the absence of prefs.
 		}
 	}
+
+	private static Font createFontFromPrefs(String key) {
+		String name = prefs.get(PREFS_PREFIX + key + "_Name", null);
+		if (name == null || "".equals(name))
+			return null;
+		int size = prefs.getInt(PREFS_PREFIX + key + "_Size", 0);
+		int style = prefs.getInt(PREFS_PREFIX + key + "_Style", 0);
+		Font font = new Font(name, style, size);
+		return font;
+	}
+	
+	private static void saveFontToPrefs(String key, Font font) {
+		if (font != null) {
+			prefs.put(PREFS_PREFIX + key + "_Name", font.getName());
+			prefs.putInt(PREFS_PREFIX + key + "_Style", font.getStyle());
+			prefs.putInt(PREFS_PREFIX + key + "_Size", font.getSize());
+		} else {
+			prefs.put(PREFS_PREFIX + key + "_Name", "");
+			prefs.putInt(PREFS_PREFIX + key + "_Style", 0);
+			prefs.putInt(PREFS_PREFIX + key + "_Size", 0);
+		}
+		
+	}
 	
 	private static void retrieveChartPropertiesPrefs() {
 		chartBackgroundColor = new Color(prefs.getInt(PREFS_PREFIX + "background_color", DEFAULT_CHART_BACKGROUND_COLOR.getRGB()));
 		chartGridlinesColor = new Color(prefs.getInt(PREFS_PREFIX + "gridlines_color", DEFAULT_CHART_GRIDLINES_COLOR.getRGB()));
+		extraLargeFont = createFontFromPrefs("extraLargeFont");
+		largeFont = createFontFromPrefs("largeFont");
+		regularFont = createFontFromPrefs("regularFont");
+		smallFont = createFontFromPrefs("smallFont");
+		setScaleFactor(prefs.getInt(PREFS_PREFIX + "scaleFactor", MIN_PNG_SCALE_FACTOR));
 	}
 
 	public static void storeChartPropertiesPrefs() {
 		try {
 			prefs.putInt(PREFS_PREFIX + "background_color",	chartBackgroundColor.getRGB());
 			prefs.putInt(PREFS_PREFIX + "gridlines_color", chartGridlinesColor.getRGB());
+			saveFontToPrefs("extraLargeFont", extraLargeFont);
+			saveFontToPrefs("largeFont", largeFont);
+			saveFontToPrefs("regularFont", regularFont);
+			saveFontToPrefs("smallFont", smallFont);
+			prefs.putInt(PREFS_PREFIX + "scaleFactor", scaleFactor);
 			prefs.flush();
 		} catch (Throwable t) {
 			// We need VStar to function in the absence of prefs.
@@ -81,6 +170,11 @@ public class ChartPropertiesPrefs {
 	public static void setDefaultChartPrefs() {
 		chartBackgroundColor = DEFAULT_CHART_BACKGROUND_COLOR;
 		chartGridlinesColor = DEFAULT_CHART_GRIDLINES_COLOR;
+		extraLargeFont = null;
+		largeFont = null;
+		regularFont = null;
+		smallFont = null;
+		scaleFactor = MIN_PNG_SCALE_FACTOR;
 		storeChartPropertiesPrefs();
 	}
 
