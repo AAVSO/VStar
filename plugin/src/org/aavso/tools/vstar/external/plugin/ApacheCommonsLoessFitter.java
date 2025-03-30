@@ -35,6 +35,7 @@ import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.AbstractModel;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.analysis.interpolation.LoessInterpolator;
 import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
@@ -101,7 +102,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 
         @Override
         public boolean hasFuncDesc() {
-            return false;
+            return true;
         }
 
         @Override
@@ -113,19 +114,71 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
         public String toVeLaString() {
             String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"));
 
+            double[] knots = function.getKnots();
+            PolynomialFunction[] polyFuncs = function.getPolynomials();
+
             if (strRepr == null) {
-                /*
-                 * strRepr = "f(t:real) : real {\n";
-                 * 
-                 * double constCoeff = 0;
-                 * 
-                 * for (PolynomialFunction f : function.getPolynomials()) { double[] coeffs =
-                 * f.getCoefficients(); for (int i = coeffs.length - 1; i >= 1; i--) { strRepr
-                 * += "    " + NumericPrecisionPrefs.formatPolyCoef(coeffs[i]); strRepr += "*t^"
-                 * + i + "+\n"; } constCoeff += coeffs[0]; } strRepr += "    " +
-                 * NumericPrecisionPrefs.formatPolyCoef(constCoeff); strRepr += "\n}";
-                 */
-                strRepr = Mediator.NOT_IMPLEMENTED_YET;
+                StringBuffer buf = new StringBuffer();
+
+                buf.append("# Reversed list of knots, in order to find the largest first.\n");
+                buf.append("knots is [ ");
+                for (int i = knots.length - 1; i >= 0; i--) {
+                    String knot = NumericPrecisionPrefs.formatTimeLocaleIndependent(knots[i]);
+                    buf.append(knot);
+                    if (i % 10 == 0) {
+                        buf.append("\n   ");
+                    } else {
+                        buf.append(" ");
+                    }
+                }
+                buf.append("]\n\n");
+
+                buf.append("f(t:real) : real {\n");
+
+                buf.append("    # Find the index of the largest knot that is less\n");
+                buf.append("    # than or equal to the current time value.\n");
+                buf.append("    index is find( λ(knot:real) : boolean { ");
+                buf.append(" knot <= t } knots )\n\n");
+
+                buf.append("    # Get the knot given the found index, 0 if not found.\n");
+                buf.append("    knot is if index <> -1 then nth(knots index) else 0\n\n");
+
+                buf.append("    # Adjust the domain value.\n");
+                buf.append("    x is t-knot\n\n");
+
+                buf.append("    # Compute the magnitude value using the function\n");
+                buf.append("    # corresponding to the knot.\n");
+                
+                buf.append("    mag is when\n");
+
+                int i = 0;
+
+                try {
+                    for (i = 0; i < knots.length - 1; i++) {
+                        buf.append("        ");
+                        buf.append(" index = ");
+                        buf.append("" + i);
+                        buf.append(" -> ");
+                        String y = "*(x)";
+                        String polyFunc = polyFuncs[i].toString().replace(" x", y);
+                        buf.append(polyFunc);
+                        buf.append("\n");
+                    }
+
+                    buf.append("         true -> 0  # need a way to flag error\n");
+                    buf.append("\n");
+                    buf.append("    mag\n");
+                    buf.append("}\n");
+                    
+                    strRepr = buf.toString();
+                } catch (Exception e) {
+                    // TODO: messagebox with errored values based on boolean;
+                    // put catch in loop
+                    e.printStackTrace();
+                    int klen = knots.length;
+                    int plen = polyFuncs.length;
+                    int x = i;
+                }
             }
 
             return strRepr;
@@ -148,7 +201,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                  * 
                  * strRepr += NumericPrecisionPrefs.formatPolyCoef(constCoeff) + ")";
                  */
-                strRepr = Mediator.NOT_IMPLEMENTED_YET;
+                //strRepr = Mediator.NOT_IMPLEMENTED_YET;
             }
 
             return strRepr;
@@ -174,7 +227,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                  * 
                  * strRepr += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(constCoeff);
                  */
-                strRepr = Mediator.NOT_IMPLEMENTED_YET;
+                //strRepr = Mediator.NOT_IMPLEMENTED_YET;
             }
 
             return strRepr;
@@ -245,6 +298,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 }
 
                 // TODO: what to use for degree (or N) here?
+                // Number of knots or polynomials or total coefficients?
                 double degree = 0;
 
                 for (PolynomialFunction f : function.getPolynomials()) {
@@ -287,7 +341,8 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 
                 // Excel, R equations.
                 // TODO: consider Python, e.g. for use with matplotlib.
-                // functionStrMap.put("Function", toString());
+//                functionStrMap.put("Function", toString());
+                functionStrings();
                 functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"), toString());
                 functionStrMap.put(LocaleProps.get("MODEL_INFO_EXCEL_TITLE"), toExcelString());
                 functionStrMap.put(LocaleProps.get("MODEL_INFO_R_TITLE"), toRString());

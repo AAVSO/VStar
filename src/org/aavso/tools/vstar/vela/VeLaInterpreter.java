@@ -1417,6 +1417,7 @@ public class VeLaInterpreter {
         addRealSeqFunction();
         addListMapFunction();
         addListFilterFunction();
+        addListFindFunction();
         addListForFunction();
 
         for (Type type : Type.values()) {
@@ -1747,18 +1748,7 @@ public class VeLaInterpreter {
                 List<Operand> list = operands.get(1).listVal();
                 List<Operand> resultList = new ArrayList<Operand>();
                 for (Operand item : list) {
-                    List<Operand> params = null;
-
-                    // If the list element is a list, use these as the actual
-                    // parameters, otherwise create an actual parameter list
-                    // from the list item.
-                    // if (item.getType() == Type.LIST) {
-                    // params = item.listVal();
-                    // } else {
-                    params = new ArrayList<Operand>();
-                    params.add(item);
-                    // }
-
+                    List<Operand> params = Arrays.asList(item);
                     applyFunction(fun, params);
 
                     if (!stack.isEmpty()) {
@@ -1773,7 +1763,7 @@ public class VeLaInterpreter {
     }
 
     private void addListFilterFunction() {
-        // Return type will always be LIST here.
+        // Return the elements of a list matching a predicate,
         addFunctionExecutor(new FunctionExecutor(Optional.of("FILTER"), Arrays.asList(Type.FUNCTION, Type.LIST),
                 Optional.of(Type.LIST)) {
             @Override
@@ -1782,18 +1772,7 @@ public class VeLaInterpreter {
                 List<Operand> list = operands.get(1).listVal();
                 List<Operand> resultList = new ArrayList<Operand>();
                 for (Operand item : list) {
-                    List<Operand> params = null;
-
-                    // If the list element is a list, use these as the actual
-                    // parameters, otherwise create an actual parameter list
-                    // from the list item.
-                    // if (item.getType() == Type.LIST) {
-                    // params = item.listVal();
-                    // } else {
-                    params = new ArrayList<Operand>();
-                    params.add(item);
-                    // }
-
+                    List<Operand> params = Arrays.asList(item);
                     applyFunction(fun, params);
 
                     if (!stack.isEmpty()) {
@@ -1814,6 +1793,39 @@ public class VeLaInterpreter {
         });
     }
 
+    private void addListFindFunction() {
+        // Return the index of the first element of a list matching a
+        // predicate, else -1.
+        addFunctionExecutor(new FunctionExecutor(Optional.of("FIND"), Arrays.asList(Type.FUNCTION, Type.LIST),
+                Optional.of(Type.INTEGER)) {
+            @Override
+            public Optional<Operand> apply(List<Operand> operands) {
+                FunctionExecutor fun = operands.get(0).functionVal();
+                List<Operand> list = operands.get(1).listVal();
+                int index = -1;
+                for (int i = 0; i < list.size(); i++) {
+                    List<Operand> params = Arrays.asList(list.get(i));
+                    applyFunction(fun, params);
+
+                    if (!stack.isEmpty()) {
+                        Operand retVal = stack.pop();
+                        if (retVal.getType() == Type.BOOLEAN) {
+                            if (retVal.booleanVal()) {
+                                index = i;
+                                break;
+                            }
+                        } else {
+                            throw new VeLaEvalError("Expected boolean value");
+                        }
+                    } else {
+                        throw new VeLaEvalError("Expected boolean value");
+                    }
+                }
+                return Optional.of(new Operand(Type.INTEGER, index));
+            }
+        });
+    }
+
     private void addListReduceFunction(Type reductionType) {
         // Return type will be same as function the parameter's type.
         addFunctionExecutor(new FunctionExecutor(Optional.of("REDUCE"),
@@ -1824,12 +1836,9 @@ public class VeLaInterpreter {
                 // Set return type on reduce dynamically each time.
                 setReturnType(fun.getReturnType());
                 List<Operand> list = operands.get(1).listVal();
-                Operand retVal = operands.get(2);
+                Operand retVal = operands.get(2); // base value
                 for (Operand item : list) {
-                    List<Operand> params = new ArrayList<Operand>();
-                    params.add(retVal);
-                    params.add(item);
-
+                    List<Operand> params = Arrays.asList(retVal, item);
                     applyFunction(fun, params);
 
                     if (!stack.isEmpty()) {
@@ -1850,9 +1859,7 @@ public class VeLaInterpreter {
                         FunctionExecutor fun = operands.get(0).functionVal();
                         List<Operand> list = operands.get(1).listVal();
                         for (Operand item : list) {
-                            List<Operand> params = new ArrayList<Operand>();
-                            params.add(item);
-
+                            List<Operand> params = Arrays.asList(item);
                             applyFunction(fun, params);
                         }
                         return Optional.empty();
