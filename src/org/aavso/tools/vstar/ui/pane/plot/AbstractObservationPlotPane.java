@@ -52,7 +52,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartTheme;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.NumberAxis;
@@ -64,6 +63,7 @@ import org.jfree.chart.plot.SeriesRenderingOrder;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.Range;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.general.DatasetChangeEvent;
@@ -406,7 +406,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
         plot.setBackgroundPaint(ChartPropertiesPrefs.getChartBackgroundColor());
         plot.setDomainGridlinePaint(ChartPropertiesPrefs.getChartGridlinesColor());
         plot.setRangeGridlinePaint(ChartPropertiesPrefs.getChartGridlinesColor());
-     
+        
+        this.chart.setPadding(new RectangleInsets(0, 0, 0, 30));
     }
 
     // From ChartMouseListener interface.
