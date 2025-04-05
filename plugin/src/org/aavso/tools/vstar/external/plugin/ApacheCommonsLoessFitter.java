@@ -120,9 +120,9 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
             if (strRepr == null) {
                 StringBuffer buf = new StringBuffer();
 
-                buf.append("# Reversed list of knots, in order to find the largest first.\n");
+                buf.append("# List of knots\n");
                 buf.append("knots is [ ");
-                for (int i = knots.length - 1; i >= 0; i--) {
+                for (int i = 0; i < knots.length; i++) {
                     String knot = NumericPrecisionPrefs.formatTimeLocaleIndependent(knots[i]);
                     buf.append(knot);
                     if (i % 10 == 0) {
@@ -133,12 +133,34 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 }
                 buf.append("]\n\n");
 
-                buf.append("f(t:real) : real {\n");
+                buf.append("# Find the lower index of the knot range within which\n");
+                buf.append("# the supplied (time) value lies.\n");
+                buf.append("findknot(x:real knots:list) : integer {\n");
+                buf.append("    index <- -1\n\n");
 
-                buf.append("    # Find the index of the largest knot that is less\n");
-                buf.append("    # than or equal to the current time value.\n");
-                buf.append("    index is find( λ(knot:real) : boolean { ");
-                buf.append(" knot <= t } knots )\n\n");
+                buf.append("    last_index is length(knots)-1\n\n");
+
+                buf.append("    if x < nth(knots 0) then {\n");
+                buf.append("        index <- 0\n");
+                buf.append("    } else if x >= nth(knots last_index) then {\n");
+                buf.append("        index <- last_index\n");
+                buf.append("#    } else if x = nth(knots length(knots)-1) then {\n");
+                buf.append("#        # Last knot\n");
+                buf.append("#        index <- length(knots) - 2\n");
+                buf.append("    } else {\n");
+                buf.append("       i <- 0\n");
+                buf.append("       while i < length(knots)-1 and index = -1 {\n");
+                buf.append("           if x >= nth(knots i) and x < nth(knots i+1) then { index <- i }\n");
+                buf.append("           i <- i+1\n");
+                buf.append("       }\n");
+                buf.append("    }\n\n");
+
+                buf.append("    index\n");
+                buf.append("  }\n\n");
+
+                buf.append("f(t:real) : real {\n");
+                buf.append("    # Find the index of the knot.\n");
+                buf.append("    index is findknot(t knots)\n\n");
 
                 buf.append("    # Get the knot given the found index, 0 if not found.\n");
                 buf.append("    knot is if index <> -1 then nth(knots index) else 0\n\n");
