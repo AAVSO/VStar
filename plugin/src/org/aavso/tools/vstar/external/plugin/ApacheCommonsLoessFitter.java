@@ -144,12 +144,13 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 buf.append("        index <- 0\n");
                 buf.append("    } else if x >= nth(knots last_index) then {\n");
                 buf.append("        index <- last_index\n");
-                buf.append("#    } else if x = nth(knots length(knots)-1) then {\n");
-                buf.append("#        # Last knot\n");
-                buf.append("#        index <- length(knots) - 2\n");
+                buf.append("#    } else if x = nth(knots last_index) then {\n");
+                buf.append("#        # Handle last knot\n");
+                // TODO: or index <- last_index ?
+                buf.append("#        index <- last_index - 1\n");
                 buf.append("    } else {\n");
                 buf.append("       i <- 0\n");
-                buf.append("       while i < length(knots)-1 and index = -1 {\n");
+                buf.append("       while i < last_index and index = -1 {\n");
                 buf.append("           if x >= nth(knots i) and x < nth(knots i+1) then { index <- i }\n");
                 buf.append("           i <- i+1\n");
                 buf.append("       }\n");
