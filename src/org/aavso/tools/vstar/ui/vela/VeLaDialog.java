@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.vela;
 
+import java.awt.Font;
 import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -64,6 +65,10 @@ public class VeLaDialog extends TextDialog {
 		// Arrays.asList("", ""), 10, 40, true, true);
 		resultTextArea = new TextArea("Output", "", 12, 42, true, true);
 
+		Font font = codeTextArea.getUIComponent().getFont();
+		codeTextArea.getUIComponent().setFont(new Font(Font.MONOSPACED, Font.PLAIN, font.getSize()));
+		resultTextArea.getUIComponent().setFont(new Font(Font.MONOSPACED, Font.PLAIN, font.getSize()));
+		
 		verbosityCheckBox = new JCheckBox("Verbose?");
 		verbosityCheckBox.setSelected(false);
 		verbosityCheckBox.setVisible(false);
@@ -72,7 +77,7 @@ public class VeLaDialog extends TextDialog {
 	}
 
 	public VeLaDialog(String title) {
-		super(title, Arrays.asList(codeTextArea, resultTextArea));
+		super(title, Arrays.asList(codeTextArea, resultTextArea), true, true);
 		path = "Untitled";
 	}
 

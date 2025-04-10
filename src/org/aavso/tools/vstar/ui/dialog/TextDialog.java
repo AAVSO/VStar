@@ -47,11 +47,17 @@ public class TextDialog extends AbstractOkCancelDialog {
 	 *            The title to be used for the dialog.
 	 * @param fields
 	 *            A list of text fields.
+	 *            
 	 * @param Show
 	 *            the dialog immediately?
+	 *            
+	 * @param scrollable
+	 *            Are text fields scrollable?           
+	 *            
 	 */
 	public TextDialog(String title, List<ITextComponent<String>> fields,
-			boolean show) {
+			boolean show,
+			boolean scrollable) {
 		super(title);
 		this.setModal(true);
 
@@ -65,7 +71,7 @@ public class TextDialog extends AbstractOkCancelDialog {
 
 		for (ITextComponent<String> field : fields) {
 			textFields.add(field);
-			topPane.add(createTextFieldPane(field));
+			topPane.add(createTextFieldPane(field, scrollable));
 			topPane.add(Box.createRigidArea(new Dimension(75, 10)));
 		}
 
@@ -79,6 +85,23 @@ public class TextDialog extends AbstractOkCancelDialog {
 		if (show) {
 			showDialog();
 		}
+	}
+
+	/**
+	 * Constructor<br/>
+	 * 
+	 * If there are only two fields, a split pane is used to contain the fields.
+	 * 
+	 * @param title
+	 *            The title to be used for the dialog.
+	 * @param fields
+	 *            A list of text fields.
+	 * @param Show
+	 *            the dialog immediately?
+	 */
+	public TextDialog(String title, List<ITextComponent<String>> fields,
+			boolean show) {
+		this(title, fields, show, false);
 	}
 
 	/**
@@ -124,13 +147,19 @@ public class TextDialog extends AbstractOkCancelDialog {
 		return strings;
 	}
 
-	private JPanel createTextFieldPane(ITextComponent<String> field) {
+	private JPanel createTextFieldPane(ITextComponent<String> field, boolean scrollable) {
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
 		field.setEditable(!field.isReadOnly());
-		panel.add(field.getUIComponent());
+		
+		if (scrollable) {
+			JScrollPane scrollPane = new JScrollPane(field.getUIComponent());
+			panel.add(scrollPane);
+		} else {
+			panel.add(field.getUIComponent());
+		}
 
 		return panel;
 	}
