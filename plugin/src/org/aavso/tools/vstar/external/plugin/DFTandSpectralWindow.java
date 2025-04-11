@@ -666,7 +666,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 				for (int i = 0; i < frequencies.size(); i++) {
 					boolean top = false;
 					if (i > 0 && i < frequencies.size() - 1) {
-						if (powers.get(i) > powers.get(i - 1) && powers.get(i) > powers.get(i + 1)) {
+						if (powers.get(i) > powers.get(i - 1) && powers.get(i) >= powers.get(i + 1)) {
 							top = true;
 						}
 					} else if (i == 0) {
