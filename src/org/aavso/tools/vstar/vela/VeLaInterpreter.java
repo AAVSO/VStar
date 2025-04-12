@@ -180,6 +180,13 @@ public class VeLaInterpreter {
     }
 
     /**
+     * @return The stack of environments
+     */
+    public Stack<VeLaEnvironment<Operand>> getEnvironments() {
+        return environments;
+    }
+
+    /**
      * Return all scopes (activation records) on the stack as a list in order from
      * oldest to newest.
      */
@@ -1164,25 +1171,37 @@ public class VeLaInterpreter {
         boolean bound = false;
 
         for (int i = environments.size() - 1; i >= 0; i--) {
-            Optional<Operand> possibleBinding = environments.get(i).lookup(name);
-            if (possibleBinding.isPresent()) {
-                Operand existingBinding = possibleBinding.get();
-                Operand convertedVal = value.convert(existingBinding.getType());
-                if (convertedVal.getType() == existingBinding.getType()) {
-                    // bind value to existing variable...
-                    environments.get(i).bind(name, convertedVal, isConstant);
-                    bound = true;
-                } else {
-                    throw new VeLaEvalError(String.format(
-                            "The type of the value (%s) is not compatible with the bound type of %s.", value, name));
+            VeLaEnvironment<Operand> env = environments.get(i);
+            if (env.isMutable()) {
+                Optional<Operand> possibleBinding = env.lookup(name);
+                if (possibleBinding.isPresent()) {
+                    Operand existingBinding = possibleBinding.get();
+                    Operand convertedVal = value.convert(existingBinding.getType());
+                    if (convertedVal.getType() == existingBinding.getType()) {
+                        // bind value to existing variable...
+                        environments.get(i).bind(name, convertedVal, isConstant);
+                        bound = true;
+                    } else {
+                        throw new VeLaEvalError(
+                                String.format("The type of the value (%s) is not compatible with the bound type of %s.",
+                                        value, name));
+                    }
+                    break;
                 }
-                break;
             }
         }
 
         if (!bound) {
-            // ...a new binding
-            environments.peek().bind(name, value, isConstant);
+            // If not bound to existing variable, create new binding in
+            // environment on top of stack.
+            VeLaEnvironment<Operand> env = environments.peek();
+            if (env.isMutable()) {
+                // ...a new binding
+                environments.peek().bind(name, value, isConstant);
+            } else {
+                // The environment at stack-top should be mutable...
+                throw new VeLaEvalError(String.format("The environment in which %s is bound is immutable.", name));
+            }
         }
     }
 

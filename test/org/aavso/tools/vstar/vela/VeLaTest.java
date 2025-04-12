@@ -1839,7 +1839,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     public void testClosureBasedCounter() {
         String prog = "";
         prog += "mkcounter(start:integer) : function {\n";
-        prog += "  count is start\n";
+        prog += "  count <- start\n";
         prog += "  counter(n:integer) : integer { count <- count + n  count }\n";
         prog += "  counter\n";
         prog += "}\n";
@@ -1857,7 +1857,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     public void testAnonymousClosureBasedCounter() {
         String prog = "";
         prog += "mkcounter(start:integer) : function {\n";
-        prog += "  count is start\n";
+        prog += "  count <- start\n";
         prog += "  function(n:integer) : integer { count <- count + n  count }\n";
         prog += "}\n";
         prog += "c is mkcounter(10)\n";

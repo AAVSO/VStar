@@ -24,95 +24,125 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * An unrestrictive symbol binding and lookup environment implementation.
+ * A generic symbol binding and lookup environment implementation,
+ * the base class for all VeLa environments.
  */
 public class VeLaEnvironment<T> {
 
-	// Named operand cache
-	protected Map<String, T> cache;
+    // Named operand cache
+    protected Map<String, T> cache;
 
-	// Constant binding map
-	protected Set<String> constants;
+    // Constant binding map
+    protected Set<String> constants;
 
-	/**
-	 * Construct an environment with an empty name and constant set.
-	 */
-	public VeLaEnvironment() {
-		cache = new HashMap<String, T>();
-		constants = new HashSet<String>();
-	}
+    /**
+     * Construct an environment with an empty name and constant set.
+     */
+    public VeLaEnvironment() {
+        cache = new HashMap<String, T>();
+        constants = new HashSet<String>();
+    }
 
-	/**
-	 * Construct an environment with a specified empty name and constant set.
-	 */
-	public VeLaEnvironment(Map<String, T> map, Set<String> isBoundConstants) {
-		cache = map;
-		constants = isBoundConstants;
-	}
+    /**
+     * Construct an environment with a specified empty name and constant set.
+     */
+    public VeLaEnvironment(Map<String, T> map, Set<String> isBoundConstants) {
+        cache = map;
+        constants = isBoundConstants;
+    }
 
-	/**
-	 * Lookup the named symbol in the environment.
-	 * 
-	 * @param name
-	 *            The symbol's name.
-	 * @return An optional Operand instance if it exists.
-	 */
-	public Optional<T> lookup(String name) {
-		return Optional.ofNullable(cache.get(name.toUpperCase()));
-	}
+    /**
+     * Is this environment mutable (can be modified)?
+     *
+     * @return true if mutable, false if not
+     */
+    public boolean isMutable() {
+        // default to not being mutable
+        return false;
+    }
 
-	/**
-	 * Does this environment contain the named binding?
-	 * 
-	 * @param name
-	 *            The name of the binding to lookup.
-	 * @return Whether the name is bound in this environment.
-	 * @deprecated less useful now, given the use of Optional values
-	 */
-	public boolean hasBinding(String name) {
-		return cache.containsKey(name);
-	}
+    /**
+     * Lookup the named symbol in the environment.
+     * 
+     * @param name The symbol's name.
+     * @return An optional Operand instance if it exists.
+     */
+    public Optional<T> lookup(String name) {
+        return Optional.ofNullable(cache.get(name.toUpperCase()));
+    }
 
-	/**
-	 * Bind a value to a name.<br/>
-	 * It is an invariant that a constant binding cannot be overridden.
-	 * 
-	 * @param name
-	 *            The name to which to bind the value.
-	 * @param value
-	 *            The value to be bound.
-	 * @param isConstant
-	 *            Is this a constant binding?
-	 */
-	public void bind(String name, T value, boolean isConstant) {
-		boolean isBoundConstant = false;
-		if (!constants.contains(name)) {
-			if (!isConstant) {
-				// Variable binding.
-				cache.put(name, value);
-			} else if (isConstant && !cache.containsKey(name)) {
-				// Bind name to constant value.
-				cache.put(name, value);
-				constants.add(name);
-			} else {
-				// We are trying to bind a constant to a name in the presence
-				// of a variable binding.
-				isBoundConstant = true;
-			}
-		} else {
-			isBoundConstant = true;
-		}
+    /**
+     * Does this environment contain the named binding?
+     * 
+     * @param name The name of the binding to lookup.
+     * @return Whether the name is bound in this environment.
+     * @deprecated less useful now, given the use of Optional values
+     */
+    public boolean hasBinding(String name) {
+        return cache.containsKey(name);
+    }
 
-		if (isBoundConstant) {
-			throw new VeLaEvalError("'" + name
-					+ "' is a constant binding in this environment.");
-		}
-	}
+    /**
+     * Bind a value to a name.<br/>
+     * It is an invariant that a constant binding cannot be overridden.
+     * 
+     * @param name       The name to which to bind the value.
+     * @param value      The value to be bound.
+     * @param isConstant Is this a constant binding?
+     */
+    public void bind(String name, T value, boolean isConstant) {
+        boolean isBoundConstant = false;
+        if (!constants.contains(name)) {
+            if (!isConstant) {
+                // Variable binding.
+                cache.put(name, value);
+            } else if (isConstant && !cache.containsKey(name)) {
+                // Bind name to constant value.
+                cache.put(name, value);
+                constants.add(name);
+            } else {
+                // We are trying to bind a constant to a name in the presence
+                // of a variable binding.
+                isBoundConstant = true;
+            }
+        } else {
+            isBoundConstant = true;
+        }
 
-	/**
-	 * Is this VeLa environment empty?
-	 */
-	public boolean isEmpty() {
-		return cache.isEmpty();
-	}
+        if (isBoundConstant) {
+            throw new VeLaEvalError("'" + name + "' is a constant binding in this environment.");
+        }
+    }
+
+    /**
+     * Add all symbol bindings from another scope to this one.
+     *
+     * @param other The scope to be added to this one.
+     */
+    public void addAll(VeLaEnvironment<T> other) {
+        cache.putAll(other.cache);
+        constants.addAll(other.constants);
+    }
+
+    /**
+     * Is this VeLa environment empty?
+     */
+    public boolean isEmpty() {
+        return cache.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+
+        for (String name : cache.keySet()) {
+            buf.append(" ");
+            buf.append(name);
+            buf.append(" = ");
+            buf.append(cache.get(name));
+            buf.append("\n");
+        }
+
+        return buf.toString();
+    }
 }
