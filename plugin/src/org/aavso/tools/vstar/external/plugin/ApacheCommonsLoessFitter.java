@@ -133,6 +133,19 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 }
                 buf.append("]\n\n");
 
+                buf.append("# List of knot to magnitude functions.\n");
+                buf.append("    mag_funcs is [\n");
+
+                for (int i = 0; i < knots.length - 1; i++) {
+                    String y = "*(x)";
+                    String polyFunc = polyFuncs[i].toString().replace(" x", y);
+                    buf.append("        λ(x:real):real{");
+                    buf.append(polyFunc);
+                    buf.append("}\n");
+                }
+
+                buf.append("    ]\n\n");
+
                 buf.append("# Find the lower index of the knot range within which\n");
                 buf.append("# the supplied (time) value lies.\n");
                 buf.append("findknot(x:real knots:list) : integer {\n");
@@ -143,11 +156,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 buf.append("    if x < nth(knots 0) then {\n");
                 buf.append("        index <- 0\n");
                 buf.append("    } else if x >= nth(knots last_index) then {\n");
-                buf.append("        index <- last_index\n");
-                buf.append("#    } else if x = nth(knots last_index) then {\n");
-                buf.append("#        # Handle last knot\n");
-                // TODO: or index <- last_index ?
-                buf.append("#        index <- last_index - 1\n");
+                buf.append("        index <- last_index - 1\n");
                 buf.append("    } else {\n");
                 buf.append("       i <- 0\n");
                 buf.append("       while i < last_index and index = -1 {\n");
@@ -163,45 +172,15 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 buf.append("    # Find the index of the knot.\n");
                 buf.append("    index is findknot(t knots)\n\n");
 
-                buf.append("    # Get the knot given the found index, 0 if not found.\n");
-                buf.append("    knot is if index <> -1 then nth(knots index) else 0\n\n");
-
-                buf.append("    # Adjust the domain value.\n");
-                buf.append("    x is t-knot\n\n");
-
                 buf.append("    # Compute the magnitude value using the function\n");
                 buf.append("    # corresponding to the knot.\n");
-                
-                buf.append("    mag is when\n");
+                buf.append("    mag_func is nth(mag_funcs index)\n\n");
 
-                int i = 0;
+                buf.append("    # Return the computed magnitude value.\n");
+                buf.append("    mag_func(t - nth(knots index))\n");
+                buf.append("}\n");
 
-                try {
-                    for (i = 0; i < knots.length - 1; i++) {
-                        buf.append("        ");
-                        buf.append(" index = ");
-                        buf.append("" + i);
-                        buf.append(" -> ");
-                        String y = "*(x)";
-                        String polyFunc = polyFuncs[i].toString().replace(" x", y);
-                        buf.append(polyFunc);
-                        buf.append("\n");
-                    }
-
-                    buf.append("         true -> 0  # need a way to flag error\n");
-                    buf.append("\n");
-                    buf.append("    mag\n");
-                    buf.append("}\n");
-                    
-                    strRepr = buf.toString();
-                } catch (Exception e) {
-                    // TODO: messagebox with errored values based on boolean;
-                    // put catch in loop
-                    e.printStackTrace();
-                    int klen = knots.length;
-                    int plen = polyFuncs.length;
-                    int x = i;
-                }
+                strRepr = buf.toString();
             }
 
             return strRepr;
@@ -211,20 +190,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
             String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_EXCEL_TITLE"));
 
             if (strRepr == null) {
-                /*
-                 * strRepr = "=SUM(";
-                 * 
-                 * double constCoeff = 0;
-                 * 
-                 * for (PolynomialFunction f : function.getPolynomials()) { double[] coeffs =
-                 * f.getCoefficients(); for (int i = coeffs.length - 1; i >= 1; i--) { strRepr
-                 * += NumericPrecisionPrefs.formatPolyCoef(coeffs[i]); strRepr += "*A1^" + i +
-                 * NumericPrecisionPrefs.getExcelFormulaSeparator() + "\n"; } constCoeff +=
-                 * coeffs[0]; }
-                 * 
-                 * strRepr += NumericPrecisionPrefs.formatPolyCoef(constCoeff) + ")";
-                 */
-                //strRepr = Mediator.NOT_IMPLEMENTED_YET;
+                strRepr = Mediator.NOT_IMPLEMENTED_YET;
             }
 
             return strRepr;
@@ -238,19 +204,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
             String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_R_TITLE"));
 
             if (strRepr == null) {
-                /*
-                 * strRepr = "model <- function(t)\n";
-                 * 
-                 * double constCoeff = 0;
-                 * 
-                 * for (PolynomialFunction f : function.getPolynomials()) { double[] coeffs =
-                 * f.getCoefficients(); for (int i = coeffs.length - 1; i >= 1; i--) { strRepr
-                 * += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(coeffs[i]); strRepr
-                 * += "*t^" + i + "+\n"; } constCoeff += coeffs[0]; }
-                 * 
-                 * strRepr += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(constCoeff);
-                 */
-                //strRepr = Mediator.NOT_IMPLEMENTED_YET;
+                strRepr = Mediator.NOT_IMPLEMENTED_YET;
             }
 
             return strRepr;
@@ -336,16 +290,16 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                     bic = commonIC + degree * Math.log(n);
                 }
 
-                ICoordSource timeCoordSource = null;
-                switch (Mediator.getInstance().getAnalysisType()) {
-                case RAW_DATA:
-                    timeCoordSource = JDCoordSource.instance;
-                    break;
-
-                case PHASE_PLOT:
-                    timeCoordSource = StandardPhaseCoordSource.instance;
-                    break;
-                }
+//                ICoordSource timeCoordSource = null;
+//                switch (Mediator.getInstance().getAnalysisType()) {
+//                case RAW_DATA:
+//                    timeCoordSource = JDCoordSource.instance;
+//                    break;
+//
+//                case PHASE_PLOT:
+//                    timeCoordSource = StandardPhaseCoordSource.instance;
+//                    break;
+//                }
 
                 // Minimum/maximum.
                 // TODO: use derivative approach
@@ -366,9 +320,9 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 // TODO: consider Python, e.g. for use with matplotlib.
 //                functionStrMap.put("Function", toString());
                 functionStrings();
-                functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"), toString());
-                functionStrMap.put(LocaleProps.get("MODEL_INFO_EXCEL_TITLE"), toExcelString());
-                functionStrMap.put(LocaleProps.get("MODEL_INFO_R_TITLE"), toRString());
+//                functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"), toString());
+//                functionStrMap.put(LocaleProps.get("MODEL_INFO_EXCEL_TITLE"), toExcelString());
+//                functionStrMap.put(LocaleProps.get("MODEL_INFO_R_TITLE"), toRString());
 
             } catch (MathException e) {
                 throw new AlgorithmError(e.getLocalizedMessage());
