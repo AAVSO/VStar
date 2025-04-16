@@ -2080,6 +2080,30 @@ public class DFTandSpectralWindowTest {
 				{42.50689111311753,0.023525597234078,0.000699239209942,0.026443131621306}
 		};
 
+		private static double[][] expectedDftFerrazMelloTopHits = {
+				{11.96168976762000,0.08360022868000,103.32745788221000,0.13373874974000},
+				{11.75927600040000,0.08503924901000,103.24776293539000,0.13402869638000},
+				{12.15446478402000,0.08227429326000,102.96695094253000,0.13344250469000},
+				{12.35687855124000,0.08092658642000,102.11344165058000,0.13287382784000},
+				{11.55686223318000,0.08652867706000,101.93279592023000,0.13362996882000},
+				{12.55929231846000,0.07962232064000,100.03823663919000,0.13161988266000},
+				{11.36408721678000,0.08799650873000,99.94750829883000,0.13297633978000},
+				{11.16167344956000,0.08959230034000,97.80270172984000,0.13232990255000},
+				{12.75206733486000,0.07841865744000,96.98187529129000,0.12990305694000},
+				{10.95925968234000,0.09124703940000,94.42264776112000,0.13083146047000},
+				{12.95448110208000,0.07719336592000,93.89489697040000,0.12810461696000},
+				{10.76648466594000,0.09288082703000,90.47645277843000,0.12939775349000},
+				{13.15689486930000,0.07600577567000,89.66164240284000,0.12550752755000},
+				{10.56407089872000,0.09466047791000,86.35315917402000,0.12745153984000},
+				{13.35930863652000,0.07485417301000,84.38318482707000,0.12209241047000},
+				{10.36165713150000,0.09650965934000,81.07797858156000,0.12441631601000},
+				{13.55208365292000,0.07378939103000,78.82571030610000,0.11827839155000},
+				{10.16888211510000,0.09833922635000,75.43342899487000,0.12181903722000},
+				{13.75449742014000,0.07270349250000,72.84974953425000,0.11397450118000},
+				{9.96646834788000,0.10033644468000,69.58532186553000,0.11794861451000}
+				// First 20
+		};
+				
 		private List<ValidObservation> obs;
 		
 		public DFTandSpectralWindowTest(String name) {
@@ -2101,11 +2125,11 @@ public class DFTandSpectralWindowTest {
 			Map<PeriodAnalysisCoordinateType, List<Double>> series = algorithm.getResultSeries();
 			Map<PeriodAnalysisCoordinateType, List<Double>> topHits = algorithm.getTopHits();
 			
-			compareDftResult(expectedDftResult, series, "DFT ");
+			compareDftResult(expectedDftResult, series, "DFT ", 1e-8);
 			
 			if (expectedDftTopHits.length != topHits.get(PeriodAnalysisCoordinateType.FREQUENCY).size())
 				throw new Exception("DFT TopHits array length mismatch");
-			compareDftResult(expectedDftTopHits, topHits, "TopHits ");
+			compareDftResult(expectedDftTopHits, topHits, "TopHits ", 1e-8);
 
 		}
 
@@ -2118,23 +2142,40 @@ public class DFTandSpectralWindowTest {
 			//Map<PeriodAnalysisCoordinateType, List<Double>> series = algorithm.getResultSeries();
 			Map<PeriodAnalysisCoordinateType, List<Double>> topHits = algorithm.getTopHits();
 			
-			// not yet implemented. At this point
-			//compareDftResult(expectedDftResult, series, "DFT ");
+			// not yet implemented.
+			//compareDftResult(expectedDftResult, series, "DFT ", 1e-8);
 			
 			if (expectedDftTopHits.length != topHits.get(PeriodAnalysisCoordinateType.FREQUENCY).size())
 				throw new Exception("DFT TopHits array length mismatch");
-			compareDftResult(expectedDftTopHits, topHits, "TopHits ");
+			compareDftResult(expectedDftTopHits, topHits, "TopHits ", 1e-8);
+
+		}
+
+		private static void dftFerrazMelloTest(DFTandSpectralWindow.DFTandSpectralWindowAlgorithm algorithm, 
+				double[][] expectedDftResult, double[][] expectedDftTopHits)
+				throws Exception {
+			
+			algorithm.execute();
+			
+			//Map<PeriodAnalysisCoordinateType, List<Double>> series = algorithm.getResultSeries();
+			Map<PeriodAnalysisCoordinateType, List<Double>> topHits = algorithm.getTopHits();
+			
+			// not yet implemented.
+			//compareDftResult(expectedDftResult, series, "DFT ", 1e-8);
+			
+			if (expectedDftTopHits.length > topHits.get(PeriodAnalysisCoordinateType.FREQUENCY).size())
+				throw new Exception("Invalid DFT TopHits array length");
+			compareDftResult(expectedDftTopHits, topHits, "TopHits ", 1e-8);
 
 		}
 		
-		private static void compareDftResult(double[][] expected, Map<PeriodAnalysisCoordinateType, List<Double>> result, String prefix) throws Exception {
+		private static void compareDftResult(double[][] expected, Map<PeriodAnalysisCoordinateType, List<Double>> result, String prefix, double delta) throws Exception {
 			int i = 0;
 			for (double[] d : expected) {
 				double frequency = result.get(PeriodAnalysisCoordinateType.FREQUENCY).get(i);
 				double period = result.get(PeriodAnalysisCoordinateType.PERIOD).get(i);
 				double power = result.get(PeriodAnalysisCoordinateType.POWER).get(i);
 				double semiamp = result.get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).get(i);
-				double delta = 1e-8;
 				compareDouble(frequency, d[0], delta, i + 1, prefix + "Frequency comparison failed: ");
 				compareDouble(period,    d[1], delta, i + 1, prefix + "Period comparison failed: ");
 				compareDouble(power,     d[2], delta, i + 1, prefix + "Power comparison failed: ");
@@ -2163,6 +2204,11 @@ public class DFTandSpectralWindowTest {
 			DFTandSpectralWindow.DFTandSpectralWindowAlgorithm spw_algorithm = 
 					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(0.0, 50.0, 0.009638750819301, ftResult);  
 			spwTest(spw_algorithm, null, expectedSpwTopHits);
+			
+			ftResult.setAnalysisType(DFTandSpectralWindow.FAnalysisType.DCDFT);
+			DFTandSpectralWindow.DFTandSpectralWindowAlgorithm dcdft_algorithm =
+					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(0.0, 50.0, 0.00963875082, ftResult);
+			dftFerrazMelloTest(dcdft_algorithm, null, expectedDftFerrazMelloTopHits);
 		}
 		
 	}
