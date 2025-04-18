@@ -147,7 +147,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 buf.append("    ]\n\n");
 
                 buf.append("# Find the lower index of the knot range within which\n");
-                buf.append("# the supplied (time) value lies.\n");
+                buf.append("# the supplied time value (x) lies.\n");
                 buf.append("findknot(x:real knots:list) : integer {\n");
                 buf.append("    index <- -1\n\n");
 
@@ -158,11 +158,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 buf.append("    } else if x >= nth(knots last_index) then {\n");
                 buf.append("        index <- last_index - 1\n");
                 buf.append("    } else {\n");
-                buf.append("       i <- 0\n");
-                buf.append("       while i < last_index and index = -1 {\n");
-                buf.append("           if x >= nth(knots i) and x < nth(knots i+1) then { index <- i }\n");
-                buf.append("           i <- i+1\n");
-                buf.append("       }\n");
+                buf.append("       index <- pairwisefind(λ(x1:real x2:real):boolean {x >= x1 and x < x2} knots 1)\n");
                 buf.append("    }\n\n");
 
                 buf.append("    index\n");
@@ -329,4 +325,6 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
             }
         }
     }
+
+    // TODO: add a test!
 }

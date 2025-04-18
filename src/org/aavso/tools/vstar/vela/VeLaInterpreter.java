@@ -1437,6 +1437,7 @@ public class VeLaInterpreter {
         addListMapFunction();
         addListFilterFunction();
         addListFindFunction();
+        addListPairwiseFindFunction();
         addListForFunction();
 
         for (Type type : Type.values()) {
@@ -1477,18 +1478,6 @@ public class VeLaInterpreter {
     }
 
     private void addZeroArityFunctions() {
-        addFunctionExecutor(new FunctionExecutor(Optional.of("TODAY"), Optional.of(Type.REAL)) {
-            @Override
-            public Optional<Operand> apply(List<Operand> operands) {
-                Calendar cal = Calendar.getInstance();
-                int year = cal.get(Calendar.YEAR);
-                int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
-                int day = cal.get(Calendar.DAY_OF_MONTH);
-                double jd = AbstractDateUtil.getInstance().calendarToJD(year, month, day);
-                return Optional.of(new Operand(Type.REAL, jd));
-            }
-        });
-
         addFunctionExecutor(new FunctionExecutor(Optional.of("INTRINSICS"), Optional.of(Type.STRING)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) throws VeLaEvalError {
@@ -1504,6 +1493,26 @@ public class VeLaInterpreter {
                     }
                 }
                 return Optional.of(new Operand(Type.STRING, buf.toString()));
+            }
+        });
+
+        addFunctionExecutor(new FunctionExecutor(Optional.of("MILLISECONDS"), Optional.of(Type.INTEGER)) {
+            @Override
+            public Optional<Operand> apply(List<Operand> operands) {
+                long milliseconds = System.currentTimeMillis();
+                return Optional.of(new Operand(Type.INTEGER, milliseconds));
+            }
+        });
+
+        addFunctionExecutor(new FunctionExecutor(Optional.of("TODAY"), Optional.of(Type.REAL)) {
+            @Override
+            public Optional<Operand> apply(List<Operand> operands) {
+                Calendar cal = Calendar.getInstance();
+                int year = cal.get(Calendar.YEAR);
+                int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
+                int day = cal.get(Calendar.DAY_OF_MONTH);
+                double jd = AbstractDateUtil.getInstance().calendarToJD(year, month, day);
+                return Optional.of(new Operand(Type.REAL, jd));
             }
         });
     }
@@ -1824,6 +1833,42 @@ public class VeLaInterpreter {
                 int index = -1;
                 for (int i = 0; i < list.size(); i++) {
                     List<Operand> params = Arrays.asList(list.get(i));
+                    applyFunction(fun, params);
+
+                    if (!stack.isEmpty()) {
+                        Operand retVal = stack.pop();
+                        if (retVal.getType() == Type.BOOLEAN) {
+                            if (retVal.booleanVal()) {
+                                index = i;
+                                break;
+                            }
+                        } else {
+                            throw new VeLaEvalError("Expected boolean value");
+                        }
+                    } else {
+                        throw new VeLaEvalError("Expected boolean value");
+                    }
+                }
+                return Optional.of(new Operand(Type.INTEGER, index));
+            }
+        });
+    }
+
+    private void addListPairwiseFindFunction() {
+        // Return the index of the first element of a list matching a
+        // predicate applied to two list elements, else -1. Whereas FIND's predicate
+        // takes a single list element,
+        // PAIRWISEFIND takes two elements separated by a "step" value.
+        addFunctionExecutor(new FunctionExecutor(Optional.of("PAIRWISEFIND"),
+                Arrays.asList(Type.FUNCTION, Type.LIST, Type.INTEGER), Optional.of(Type.INTEGER)) {
+            @Override
+            public Optional<Operand> apply(List<Operand> operands) {
+                FunctionExecutor fun = operands.get(0).functionVal();
+                List<Operand> list = operands.get(1).listVal();
+                long step = operands.get(2).intVal();
+                int index = -1;
+                for (int i = 0; i < list.size() - 1; i += step) {
+                    List<Operand> params = Arrays.asList(list.get(i), list.get(i + 1));
                     applyFunction(fun, params);
 
                     if (!stack.isEmpty()) {
