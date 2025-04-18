@@ -1865,7 +1865,7 @@ public class VeLaInterpreter {
             public Optional<Operand> apply(List<Operand> operands) {
                 FunctionExecutor fun = operands.get(0).functionVal();
                 List<Operand> list = operands.get(1).listVal();
-                long step = operands.get(2).intVal();
+                long step = (int)operands.get(2).intVal();
                 int index = -1;
                 for (int i = 0; i < list.size() - 1; i += step) {
                     List<Operand> params = Arrays.asList(list.get(i), list.get(i + 1));
