@@ -72,8 +72,6 @@ public class VeLaDialog extends TextDialog {
 		verbosityCheckBox = new JCheckBox("Verbose?");
 		verbosityCheckBox.setSelected(false);
 		verbosityCheckBox.setVisible(false);
-
-		// vela = new VeLaInterpreter(false);
 	}
 
 	public VeLaDialog(String title) {
