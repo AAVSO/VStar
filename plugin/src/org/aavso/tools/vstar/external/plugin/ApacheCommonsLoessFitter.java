@@ -17,23 +17,16 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.aavso.tools.vstar.data.DateInfo;
-import org.aavso.tools.vstar.data.Magnitude;
-import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
-import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
-import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
-import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.AbstractModel;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
@@ -84,12 +77,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
             super(obs);
         }
 
-        // TODO: create a dialog to permit entry of params for other
-        // forms of ctor (Loess algorithm variants).
-
         PolynomialSplineFunction function;
-        double aic = Double.NaN;
-        double bic = Double.NaN;
 
         @Override
         public String getDescription() {
@@ -215,63 +203,50 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 
             // The Loess fitter requires a strictly increasing sequence
             // on the domain (i.e. JD values), i.e. no duplicates.
-            Map<Double, Double> jdToMagMap = new TreeMap<Double, Double>();
+            Map<Double, Double> timeToMagMap = new TreeMap<Double, Double>();
 
             for (int i = 0; i < obs.size(); i++) {
                 ValidObservation ob = obs.get(i);
                 // This means that the last magnitude for a JD wins!
-                jdToMagMap.put(ob.getJD(), ob.getMag());
+                timeToMagMap.put(ob.getJD(), ob.getMag());
             }
 
-            double[] xvals = new double[jdToMagMap.size()];
-            double[] yvals = new double[jdToMagMap.size()];
+            double[] xvals = new double[timeToMagMap.size()];
+            double[] yvals = new double[timeToMagMap.size()];
 
             int index = 0;
-            for (Double jd : jdToMagMap.keySet()) {
+            for (Double jd : timeToMagMap.keySet()) {
                 xvals[index] = jd;
-                yvals[index++] = jdToMagMap.get(jd);
+                yvals[index++] = timeToMagMap.get(jd);
             }
 
             try {
                 final LoessInterpolator interpolator = new LoessInterpolator();
                 function = interpolator.interpolate(xvals, yvals);
 
-                fit = new ArrayList<ValidObservation>();
-                residuals = new ArrayList<ValidObservation>();
-                double sumSqResiduals = 0;
-
                 String comment = "From Loess fit";
 
-                // Create fit and residual observations and
-                // compute the sum of squares of residuals for
-                // Akaike and Bayesean Information Criteria.
-                for (int i = 0; i < xvals.length && !interrupted; i++) {
-                    double jd = xvals[i];
-                    double mag = yvals[i];
+                for (int i = 0; i < obs.size() && !interrupted; i++) {
+                    ValidObservation ob = obs.get(i);
 
-                    double y = function.value(jd);
+                    double x = timeCoordSource.getXCoord(i, obs);
+                    double y = function.value(x);
 
-                    ValidObservation fitOb = new ValidObservation();
-                    fitOb.setDateInfo(new DateInfo(jd));
-                    fitOb.setMagnitude(new Magnitude(y, 0));
-                    fitOb.setBand(SeriesType.Model);
-                    fitOb.setComments(comment);
-                    fit.add(fitOb);
-
-                    ValidObservation resOb = new ValidObservation();
-                    resOb.setDateInfo(new DateInfo(jd));
-                    double residual = mag - y;
-                    resOb.setMagnitude(new Magnitude(residual, 0));
-                    resOb.setBand(SeriesType.Residuals);
-                    resOb.setComments(comment);
-                    residuals.add(resOb);
-
-                    sumSqResiduals += (residual * residual);
+                    collectObs(y, ob, comment);
                 }
 
-                // Get the maximum degree value of all polynomials for goodness of fit.
-                // I suspect this will always be 3 if the Apache implementation is the classical
-                // one. Best not to make that assumption though.
+                // Get the maximum degree value of all polynomials for
+                // goodness of fit. I suspect this will always be 3 if
+                // the Apache implementation is the classical one. Best
+                // not to make that assumption though. From the viewpoint of
+                // goodness-of-fit purposes, a fixed degree value seems
+                // unsatisfactory since the BIC and AIC will never change.
+                // On the other hand, compared with a piecewise linear model,
+                // where the number of piecewise functions differs with the
+                // number of binned means, a clear visual improvement can be
+                // seen, so the number of functions seems like a better value
+                // to use for degrees there. But what about loess? Knots,
+                // polynomial functions as a proxy for degrees?
                 //
                 // References
                 // ----------
@@ -282,13 +257,9 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                         .max()
                         .getAsDouble();
 
-                // Fit metrics (AIC, BIC).
-                int n = residuals.size();
-                if (n != 0 && sumSqResiduals / n != 0) {
-                    double commonIC = n * Math.log(sumSqResiduals / n);
-                    aic = commonIC + 2 * degree;
-                    bic = commonIC + degree * Math.log(n);
-                }
+                rootMeanSquare();
+                informationCriteria(degree);
+                fitMetrics();
 
                 // Minimum/maximum.
                 // TODO: use derivative approach
@@ -309,7 +280,6 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 // TODO: consider Python, e.g. for use with matplotlib.
                 functionStrings();
 //                functionStrMap.put(LocaleProps.get("MODEL_INFO_R_TITLE"), toRString());
-
             } catch (MathException e) {
                 throw new AlgorithmError(e.getLocalizedMessage());
             }
