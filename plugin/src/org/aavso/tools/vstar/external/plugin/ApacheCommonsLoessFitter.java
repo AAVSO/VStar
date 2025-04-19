@@ -169,19 +169,9 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
             return strRepr;
         }
 
-        public String toExcelString() {
-            String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_EXCEL_TITLE"));
-
-            if (strRepr == null) {
-                strRepr = Mediator.NOT_IMPLEMENTED_YET;
-            }
-
-            return strRepr;
-        }
-
         // Note: There is already a Loess fit function in R, so it
         // would be interesting to compare the results of that and this
-        // plugin.
+        // plug-in.
         // toRString must be locale-independent!
         public String toRString() {
             String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_R_TITLE"));
@@ -251,9 +241,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 // ----------
                 // https://people.computing.clemson.edu/~dhouse/courses/405/notes/splines.pdf
                 // https://en.wikipedia.org/wiki/Spline_interpolation
-                double degree = Arrays.asList(function.getPolynomials()).stream()
-                        .mapToDouble(p -> p.degree())
-                        .max()
+                double degree = Arrays.asList(function.getPolynomials()).stream().mapToDouble(p -> p.degree()).max()
                         .getAsDouble();
 
                 rootMeanSquare();
@@ -261,24 +249,22 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 fitMetrics();
 
                 // Minimum/maximum.
-                // TODO: use derivative approach
-                // ApacheCommonsBrentOptimiserExtremaFinder finder = new
-                // ApacheCommonsBrentOptimiserExtremaFinder(
-                // fit, function, timeCoordSource, 0);
-                //
-                // String extremaStr = finder.toString();
-                //
-                // if (extremaStr != null) {
-                // String title = LocaleProps
-                // .get("MODEL_INFO_EXTREMA_TITLE");
-                //
-                // functionStrMap.put(title, extremaStr);
-                // }
 
-                // Excel, R equations.
-                // TODO: consider Python, e.g. for use with matplotlib.
+//                ApacheCommonsBrentOptimiserExtremaFinder finder = new ApacheCommonsBrentOptimiserExtremaFinder(fit,
+//                        function, timeCoordSource, zeroPoint);
+// or...
+//                ApacheCommonsDerivativeBasedExtremaFinder finder = new ApacheCommonsDerivativeBasedExtremaFinder(
+//                        fit, (DifferentiableUnivariateRealFunction) function, timeCoordSource, zeroPoint);
+//
+//                String extremaStr = finder.toString();
+//
+//                if (extremaStr != null) {
+//                    String title = LocaleProps.get("MODEL_INFO_EXTREMA_TITLE");
+//
+//                    functionStrMap.put(title, extremaStr);
+//                }
+
                 functionStrings();
-//                functionStrMap.put(LocaleProps.get("MODEL_INFO_R_TITLE"), toRString());
             } catch (MathException e) {
                 throw new AlgorithmError(e.getLocalizedMessage());
             }
