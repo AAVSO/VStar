@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -149,16 +150,14 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 buf.append("# Find the lower index of the knot range within which\n");
                 buf.append("# the supplied time value (x) lies.\n");
                 buf.append("findknot(x:real knots:list) : integer {\n");
-                buf.append("    index <- -1\n\n");
-
                 buf.append("    last_index is length(knots)-1\n\n");
 
                 buf.append("    if x < nth(knots 0) then {\n");
-                buf.append("        index <- 0\n");
+                buf.append("        index is 0\n");
                 buf.append("    } else if x >= nth(knots last_index) then {\n");
-                buf.append("        index <- last_index - 1\n");
+                buf.append("        index is last_index - 1\n");
                 buf.append("    } else {\n");
-                buf.append("       index <- pairwisefind(λ(x1:real x2:real):boolean {x >= x1 and x < x2} knots 1)\n");
+                buf.append("       index is pairwisefind(λ(x1:real x2:real):boolean {x >= x1 and x < x2} knots 1)\n");
                 buf.append("    }\n\n");
 
                 buf.append("    index\n");
@@ -270,13 +269,18 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                     sumSqResiduals += (residual * residual);
                 }
 
-                // TODO: what to use for degree (or N) here?
-                // Number of knots or polynomials or total coefficients?
-                double degree = 0;
-
-                for (PolynomialFunction f : function.getPolynomials()) {
-                    degree += f.getCoefficients().length;
-                }
+                // Get the maximum degree value of all polynomials for goodness of fit.
+                // I suspect this will always be 3 if the Apache implementation is the classical
+                // one. Best not to make that assumption though.
+                //
+                // References
+                // ----------
+                // https://people.computing.clemson.edu/~dhouse/courses/405/notes/splines.pdf
+                // https://en.wikipedia.org/wiki/Spline_interpolation
+                double degree = Arrays.asList(function.getPolynomials()).stream()
+                        .mapToDouble(p -> p.degree())
+                        .max()
+                        .getAsDouble();
 
                 // Fit metrics (AIC, BIC).
                 int n = residuals.size();
@@ -285,17 +289,6 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                     aic = commonIC + 2 * degree;
                     bic = commonIC + degree * Math.log(n);
                 }
-
-//                ICoordSource timeCoordSource = null;
-//                switch (Mediator.getInstance().getAnalysisType()) {
-//                case RAW_DATA:
-//                    timeCoordSource = JDCoordSource.instance;
-//                    break;
-//
-//                case PHASE_PLOT:
-//                    timeCoordSource = StandardPhaseCoordSource.instance;
-//                    break;
-//                }
 
                 // Minimum/maximum.
                 // TODO: use derivative approach
@@ -314,10 +307,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 
                 // Excel, R equations.
                 // TODO: consider Python, e.g. for use with matplotlib.
-//                functionStrMap.put("Function", toString());
                 functionStrings();
-//                functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"), toString());
-//                functionStrMap.put(LocaleProps.get("MODEL_INFO_EXCEL_TITLE"), toExcelString());
 //                functionStrMap.put(LocaleProps.get("MODEL_INFO_R_TITLE"), toRString());
 
             } catch (MathException e) {
@@ -326,5 +316,20 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
         }
     }
 
-    // TODO: add a test!
+    // Plug-in test
+
+    double[][] test_data = { { 47551.614000, 9.30710 }, { 47560.675000, 9.34120 }, { 47568.928000, 9.44000 },
+            { 47580.007200, 9.39380 }, { 47599.200100, 9.38330 }, { 47609.626200, 9.44620 }, { 47630.002000, 9.26000 },
+            { 47638.450000, 9.27500 }, { 47650.587000, 8.87000 }, { 47662.466700, 8.86670 }, { 47671.247800, 8.65000 },
+            { 47680.044400, 8.43330 }, { 47691.020000, 8.06000 }, { 47698.759600, 8.05560 }, { 47710.560700, 8.13570 },
+            { 47719.444600, 8.27500 }, { 47730.007800, 8.40710 }, { 47741.224600, 8.57220 }, { 47749.907000, 8.92000 },
+            { 47761.632300, 9.35620 } };
+
+    @Override
+    public Boolean test() {
+        boolean result = true;
+
+        return result;
+    }
+
 }
