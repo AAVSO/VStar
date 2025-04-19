@@ -202,22 +202,21 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
         public void execute() throws AlgorithmError {
 
             // The Loess fitter requires a strictly increasing sequence
-            // on the domain (i.e. JD values), i.e. no duplicates.
+            // on the domain (e.g. JD, phase values), i.e. no duplicates.
             Map<Double, Double> timeToMagMap = new TreeMap<Double, Double>();
 
             for (int i = 0; i < obs.size(); i++) {
                 ValidObservation ob = obs.get(i);
-                // This means that the last magnitude for a JD wins!
-                timeToMagMap.put(ob.getJD(), ob.getMag());
+                timeToMagMap.put(timeCoordSource.getXCoord(i, obs), ob.getMag());
             }
 
             double[] xvals = new double[timeToMagMap.size()];
             double[] yvals = new double[timeToMagMap.size()];
 
             int index = 0;
-            for (Double jd : timeToMagMap.keySet()) {
-                xvals[index] = jd;
-                yvals[index++] = timeToMagMap.get(jd);
+            for (Double time : timeToMagMap.keySet()) {
+                xvals[index] = time;
+                yvals[index++] = timeToMagMap.get(time);
             }
 
             try {
