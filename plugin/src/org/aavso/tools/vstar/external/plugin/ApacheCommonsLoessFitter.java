@@ -71,6 +71,8 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
         return new LoessFitCreator(obs);
     }
 
+    // Loess model creator class
+
     class LoessFitCreator extends AbstractModel {
 
         LoessFitCreator(List<ValidObservation> obs) {
