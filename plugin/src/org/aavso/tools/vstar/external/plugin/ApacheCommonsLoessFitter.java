@@ -239,12 +239,14 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 // the Apache implementation is the classical one. Best
                 // not to make that assumption though. From the viewpoint of
                 // goodness-of-fit purposes, a fixed degree value seems
-                // unsatisfactory since the BIC and AIC will never change.
+                // unsatisfactory since the BIC and AIC will never change,
+                // although maximum polynomial degree for loess makes AIC/BIC
+                // directly comparable to a polynomial fit.
                 // On the other hand, compared with a piecewise linear model,
                 // where the number of piecewise functions differs with the
                 // number of binned means, a clear visual improvement can be
                 // seen, so the number of functions seems like a better value
-                // to use for degrees there. But what about loess? Knots,
+                // to use for degrees there. But what about loess? Number of
                 // polynomial functions as a proxy for degrees?
                 //
                 // References
