@@ -17,19 +17,27 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
+import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.external.plugin.VeLaModelCreator.VeLaModel;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
+import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.AbstractModel;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.aavso.tools.vstar.vela.Operand;
+import org.aavso.tools.vstar.vela.Type;
+import org.aavso.tools.vstar.vela.VeLaInterpreter;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.analysis.interpolation.LoessInterpolator;
 import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
@@ -275,18 +283,121 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 
     // Plug-in test
 
-    double[][] test_data = { { 47551.614000, 9.30710 }, { 47560.675000, 9.34120 }, { 47568.928000, 9.44000 },
+    // Max's test data from https://github.com/AAVSO/VStar/pull/479
+
+    double[][] testData = { { 47551.614000, 9.30710 }, { 47560.675000, 9.34120 }, { 47568.928000, 9.44000 },
             { 47580.007200, 9.39380 }, { 47599.200100, 9.38330 }, { 47609.626200, 9.44620 }, { 47630.002000, 9.26000 },
             { 47638.450000, 9.27500 }, { 47650.587000, 8.87000 }, { 47662.466700, 8.86670 }, { 47671.247800, 8.65000 },
             { 47680.044400, 8.43330 }, { 47691.020000, 8.06000 }, { 47698.759600, 8.05560 }, { 47710.560700, 8.13570 },
             { 47719.444600, 8.27500 }, { 47730.007800, 8.40710 }, { 47741.224600, 8.57220 }, { 47749.907000, 8.92000 },
             { 47761.632300, 9.35620 } };
 
+    double[] expectedFit = { 9.32427713698, 9.353292510661, 9.375505873301, 9.397557609056, 9.400853350758,
+            9.369149154407, 9.221411150705, 9.148846450102, 8.981614180433, 8.78140656781, 8.621607416169,
+            8.434780938625, 8.24424033749, 8.16158493011, 8.172503978765, 8.269947627992, 8.447879132802,
+            8.700017593701, 8.95298995942, 9.30568196334 };
+
+    double[] expectedResiduals = { -0.01717713698, -0.012092510661, 0.064494126699, -0.003757609056, -0.017553350758,
+            0.077050845593, 0.038588849295, 0.126153549898, -0.111614180433, 0.08529343219, 0.028392583831,
+            -0.001480938625, -0.18424033749, -0.10598493011, -0.036803978765, 0.005052372008, -0.040779132802,
+            -0.127817593701, -0.03298995942, 0.05051803666 };
+
     @Override
     public Boolean test() {
         boolean result = true;
 
+        setTestMode(true);
+
+        List<ValidObservation> obs = genObs(testData);
+        ApacheCommonsLoessFitter loess = new ApacheCommonsLoessFitter();
+        AbstractModel loessModel = loess.getModel(obs);
+        try {
+            // Run the model and check the fit and residuals.
+            loessModel.execute();
+            result &= checkObs(loessModel.getFit(), expectedFit);
+            result &= checkObs(loessModel.getResiduals(), expectedResiduals);
+
+            // Check that the corresponding VeLa model gives same result.
+            VeLaInterpreter vela = new VeLaInterpreter();
+            String loessVeLaStr = loessModel.toVeLaString();
+            loessVeLaStr += "\n";
+            loessVeLaStr += "ts is ";
+            loessVeLaStr += getVeLaTestTimesList(testData);
+            loessVeLaStr += "map(f ts)\n";
+
+            Optional<Operand> loessModelResult = vela.program(loessVeLaStr);
+            result &= loessModelResult.isPresent();
+
+            if (result) {
+                Operand mapResult = loessModelResult.get();
+                List<Operand> fitList = mapResult.listVal();
+                if (mapResult.getType() == Type.LIST) {
+                    double[] velaFit = fitList.stream().mapToDouble(elt -> elt.doubleVal()).toArray();
+                    result &= checkObs(velaFit, expectedFit);
+                } else {
+                    result = false;
+                }
+            }
+
+        } catch (AlgorithmError e) {
+            result = false;
+        }
+
+        setTestMode(false);
+
         return result;
     }
 
+    // Loess model from observation helpers
+
+    private List<ValidObservation> genObs(double[][] timeMagPairs) {
+        List<ValidObservation> obs = new ArrayList<ValidObservation>();
+
+        for (double[] pair : timeMagPairs) {
+            ValidObservation ob = new ValidObservation();
+            ob.setJD(pair[0]);
+            ob.setMagnitude(new Magnitude(pair[1], 0));
+            obs.add(ob);
+        }
+
+        return obs;
+    }
+
+    private boolean checkObs(List<ValidObservation> actual, double[] expected) {
+        boolean result = true;
+
+        for (int i = 0; i < actual.size(); i++) {
+            ValidObservation fitOb = actual.get(i);
+            result &= Tolerance.areClose(expected[i], fitOb.getMag(), 1e-6, true);
+        }
+
+        return result;
+    }
+
+    // VeLa loess model helpers
+
+    private String getVeLaTestTimesList(double[][] timeMagPairs) {
+        StringBuffer buf = new StringBuffer();
+
+        buf.append("[ ");
+
+        for (double[] pair : timeMagPairs) {
+            buf.append(pair[0]);
+            buf.append(" ");
+        }
+
+        buf.append("]\n\n");
+
+        return buf.toString();
+    }
+
+    private boolean checkObs(double[] actual, double[] expected) {
+        boolean result = true;
+
+        for (int i = 0; i < actual.length; i++) {
+            result &= Tolerance.areClose(expected[i], actual[i], 1e-6, true);
+        }
+
+        return result;
+    }
 }
