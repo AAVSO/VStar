@@ -165,8 +165,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
                 buf.append("    # Find the index of the knot.\n");
                 buf.append("    index is findknot(t knots)\n\n");
 
-                buf.append("    # Compute the magnitude value using the function\n");
-                buf.append("    # corresponding to the knot.\n");
+                buf.append("    # Extract the function corresponding to the knot.\n");
                 buf.append("    mag_func is nth(mag_funcs index)\n\n");
 
                 buf.append("    # Return the computed magnitude value.\n");
