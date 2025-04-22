@@ -403,14 +403,12 @@ public class Operand {
             str = "\"" + stringVal + "\"";
             break;
         case LIST:
-            str = listVal.toString().replace(",", "").replace("[", "'(").replace("]", ")");
+            str = listVal.toString().replace(",", "");
             break;
         case FUNCTION:
             str = functionVal.toString();
             break;
         }
-
-        // str += " (" + type + ")";
 
         return str;
     }

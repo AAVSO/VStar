@@ -1469,21 +1469,20 @@ public class VeLaInterpreter {
             }
         });
 
-        addFunctionExecutor(new FunctionExecutor(Optional.of("INTRINSICS"), Optional.of(Type.STRING)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("INTRINSICS"), Optional.of(Type.LIST)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) throws VeLaEvalError {
-                StringBuffer buf = new StringBuffer();
+                List<Operand> funcInfoList = new ArrayList<Operand>();
                 VeLaScope environment = (VeLaScope) environments.get(0);
                 Map<String, List<FunctionExecutor>> functionMap = new TreeMap<String, List<FunctionExecutor>>(
                         environment.getFunctions());
                 for (String name : functionMap.keySet()) {
-                    List<FunctionExecutor> functions = functionMap.get(name);
-                    for (FunctionExecutor function : functions) {
-                        buf.append(function);
-                        buf.append("\n");
+                    for (FunctionExecutor function : functionMap.get(name)) {
+                        Operand funcInfo = new Operand(Type.STRING, function.toString());
+                        funcInfoList.add(funcInfo);
                     }
                 }
-                return Optional.of(new Operand(Type.STRING, buf.toString()));
+                return Optional.of(new Operand(Type.LIST, funcInfoList));
             }
         });
     }
