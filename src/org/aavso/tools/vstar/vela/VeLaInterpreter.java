@@ -1485,6 +1485,20 @@ public class VeLaInterpreter {
                 return Optional.of(new Operand(Type.LIST, funcInfoList));
             }
         });
+        
+        addFunctionExecutor(
+                new FunctionExecutor(Optional.of("HELP"), FunctionExecutor.ANY_FORMALS, Optional.of(Type.STRING)) {
+                    @Override
+                    public Optional<Operand> apply(List<Operand> operands) {
+                        StringBuffer buf = new StringBuffer();
+                        for (Operand operand : operands) {
+                            buf.append(operand.getType());
+                            buf.append(": ");
+                            buf.append(operand.toHumanReadableString());
+                        }
+                        return Optional.of(new Operand(Type.STRING, buf.toString()));
+                    }
+                });
     }
 
     private void addExit() {
