@@ -19,23 +19,30 @@ package org.aavso.tools.vstar.vela;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * The base class for all function executors. Each subclass must implement
- * apply().
+ * apply(). TODO: Note that there should really be a JavaFunctionExecutor
+ * subclass as well, since we refer to Java methods in this class and have to
+ * subclass it in VeLaInterpreter. parameterNames should also be part of the
+ * base class as well, not just in UserDefinedFunction; that will also make
+ * help() output better.
  */
 public abstract class FunctionExecutor {
 
-    public static final List<Type> ANY_FORMALS = Collections.emptyList();
-    public static final List<Type> NO_FORMALS = Collections.emptyList();
+    // Note: this can go away when union types are implemented, especially since ANY
+    // is not actually a type in VeLa.
+    public static final List<Type> ANY_FORMALS = new ArrayList<Type>();
+
+    public static final List<Type> NO_FORMALS = new ArrayList<Type>();
     public static final List<Operand> NO_ACTUALS = new ArrayList<Operand>();
 
     protected Optional<String> funcName;
     protected List<Type> parameterTypes;
     protected Optional<Type> returnType;
+    protected Optional<String> helpString;
 
     protected Method method;
 
@@ -56,24 +63,39 @@ public abstract class FunctionExecutor {
      * @param method         The corresponding Java method object.
      * @param parameterTypes The function's parameter types.
      * @param returnType     The function's optional return type.
+     * @param helpString     The optional help string.
      */
     public FunctionExecutor(Optional<String> funcName, Method method, List<Type> parameterTypes,
-            Optional<Type> returnType) {
+            Optional<Type> returnType, Optional<String> helpString) {
         this.funcName = funcName;
         this.method = method;
         this.parameterTypes = parameterTypes;
         this.returnType = returnType;
+        this.helpString = helpString;
     }
 
     /**
-     * Constructor
+     * Constructor for functions with no Java method to invoke.
+     *
+     * @param funcName       The function's name.
+     * @param parameterTypes The function's parameter types.
+     * @param returnType     The function's return type.
+     * @param helpString     The optional help string.
+     */
+    public FunctionExecutor(Optional<String> funcName, List<Type> parameterTypes, Optional<Type> returnType,
+            Optional<String> helpString) {
+        this(funcName, null, parameterTypes, returnType, helpString);
+    }
+
+    /**
+     * Constructor for functions with no Java method to invoke.
      * 
      * @param funcName       The function's name.
      * @param parameterTypes The function's parameter types.
      * @param returnType     The function's return type.
      */
     public FunctionExecutor(Optional<String> funcName, List<Type> parameterTypes, Optional<Type> returnType) {
-        this(funcName, null, parameterTypes, returnType);
+        this(funcName, null, parameterTypes, returnType, Optional.empty());
     }
 
     /**
@@ -84,9 +106,11 @@ public abstract class FunctionExecutor {
      * @param method         The corresponding Java method object.
      * @param parameterTypes The function's parameter types.
      * @param returnType     The function's return type.
+     * @param helpString     The optional help string.
      */
-    public FunctionExecutor(Optional<String> funcName, Method method, Optional<Type> returnType) {
-        this(funcName, method, NO_FORMALS, returnType);
+    public FunctionExecutor(Optional<String> funcName, Method method, Optional<Type> returnType,
+            Optional<String> helpString) {
+        this(funcName, method, NO_FORMALS, returnType, helpString);
     }
 
     /**
@@ -95,9 +119,10 @@ public abstract class FunctionExecutor {
      * @param funcName       The function's name.
      * @param parameterTypes The function's parameter types.
      * @param returnType     The function's return type.
+     * @param helpString     The optional help string.
      */
-    public FunctionExecutor(Optional<String> funcName, Optional<Type> returnType) {
-        this(funcName, null, NO_FORMALS, returnType);
+    public FunctionExecutor(Optional<String> funcName, Optional<Type> returnType, Optional<String> helpString) {
+        this(funcName, null, NO_FORMALS, returnType, helpString);
     }
 
     /**
@@ -168,12 +193,23 @@ public abstract class FunctionExecutor {
         this.returnType = returnType;
     }
 
+    public Optional<String> getHelpString() {
+        return helpString;
+    }
+
     @Override
     public String toString() {
         StringBuffer buf = new StringBuffer();
 
-        buf.append(String.format("%s (%s)", funcName.isPresent() ? funcName.get() : "λ",
-                parameterTypes.toString().replace("[", "").replace("]", "").replace(",", "")));
+        String paramsStr;
+
+        if (parameterTypes == ANY_FORMALS) {
+            paramsStr = "ANY";
+        } else {
+            paramsStr = parameterTypes.toString().replace("[", "").replace("]", "").replace(",", "");
+        }
+
+        buf.append(String.format("%s (%s)", funcName.isPresent() ? funcName.get() : "λ", paramsStr));
 
         if (returnType.isPresent()) {
             buf.append(String.format(" : %s", returnType.get()));

@@ -25,126 +25,112 @@ import java.util.Optional;
  */
 public class UserDefinedFunctionExecutor extends FunctionExecutor {
 
-	private VeLaInterpreter vela;
-	private List<String> parameterNames;
-	private Optional<AST> ast;
-	private VeLaScope env;
+    private VeLaInterpreter vela;
+    private List<String> parameterNames;
+    private Optional<AST> ast;
+    private VeLaScope env;
 
-	/**
-	 * Construct a named function definition
-	 * 
-	 * @param vela
-	 *            The interpreter instance from which this object is being
-	 *            created.
-	 * @param funcName
-	 *            The function's name.
-	 * @param parameterNames
-	 *            The function's formal parameter names.
-	 * @param parameterTypes
-	 *            The function's formal parameter types.
-	 * @param returnType
-	 *            The function's return type.
-	 * @param ast
-	 *            The AST corresponding to the body of the function.
-	 */
-	public UserDefinedFunctionExecutor(VeLaInterpreter vela,
-			Optional<String> funcName, List<String> parameterNames,
-			List<Type> parameterTypes, Optional<Type> returnType,
-			Optional<AST> ast) {
-		super(funcName, parameterTypes, returnType);
-		this.vela = vela;
-		this.parameterNames = parameterNames;
-		this.ast = ast;
+    /**
+     * Construct a named function definition
+     *
+     * @param vela           The interpreter instance from which this object is
+     *                       being created.
+     * @param funcName       The function's name.
+     * @param parameterNames The function's formal parameter names.
+     * @param parameterTypes The function's formal parameter types.
+     * @param returnType     The function's return type.
+     * @param ast            The AST corresponding to the body of the function.
+     * @param helpString     The optional help string.
+     */
+    public UserDefinedFunctionExecutor(VeLaInterpreter vela, Optional<String> funcName, List<String> parameterNames,
+            List<Type> parameterTypes, Optional<Type> returnType, Optional<AST> ast, Optional<String> helpString) {
+        super(funcName, parameterTypes, returnType, helpString);
 
-		// Capture current environment by coalescing all but the global scope
-		// into one environment, starting from the first to the last such that
-		// newer definitions override older ones.
-		env = new VeLaScope();
-		List<VeLaScope> scopes = vela.getScopes();
-		for (int i = 1; i < scopes.size(); i++) {
-			env.addAll(scopes.get(i));
-		}
-	}
+        this.vela = vela;
+        this.parameterNames = parameterNames;
+        this.ast = ast;
 
-	/**
-	 * Construct an anonymous function definition
-	 * 
-	 * @param vela
-	 *            The interpreter instance from which this object is being
-	 *            created.
-	 * @param parameterNames
-	 *            The function's formal parameter names.
-	 * @param parameterTypes
-	 *            The function's formal parameter types.
-	 * @param returnType
-	 *            The function's return type.
-	 * @param ast
-	 *            The AST corresponding to the body of the function.
-	 */
-	public UserDefinedFunctionExecutor(VeLaInterpreter vela,
-			List<String> parameterNames, List<Type> parameterTypes,
-			Optional<Type> returnType, Optional<AST> ast) {
-		this(vela, Optional.empty(), parameterNames, parameterTypes,
-				returnType, ast);
-	}
+        // Capture current environment by coalescing all but the global scope
+        // into one environment, starting from the first to the last such that
+        // newer definitions override older ones.
+        env = new VeLaScope();
+        List<VeLaScope> scopes = vela.getScopes();
+        for (int i = 1; i < scopes.size(); i++) {
+            env.addAll(scopes.get(i));
+        }
+    }
 
-	@Override
-	public Optional<Operand> apply(List<Operand> operands) throws VeLaEvalError {
-		// If the function has a body, push a new scope and the environment if
-		// non-empty, bind the actual parameters to the formal parameters,
-		// evaluate the body AST and pop the scope and the environment if
-		// non-empty.
-		int initialStackSize = vela.getStack().size();
+    /**
+     * Construct an anonymous function definition
+     *
+     * @param vela           The interpreter instance from which this object is
+     *                       being created.
+     * @param parameterNames The function's formal parameter names.
+     * @param parameterTypes The function's formal parameter types.
+     * @param returnType     The function's return type.
+     * @param ast            The AST corresponding to the body of the function.
+     * @param helpString     The optional help string.
+     */
+    public UserDefinedFunctionExecutor(VeLaInterpreter vela, List<String> parameterNames, List<Type> parameterTypes,
+            Optional<Type> returnType, Optional<AST> ast, Optional<String> helpString) {
+        this(vela, Optional.empty(), parameterNames, parameterTypes, returnType, ast, helpString);
+    }
 
-		if (ast.isPresent()) {
-			
-			if (!isTailRecursive()) {
-				if (!env.isEmpty()) {
-					vela.pushEnvironment(env);
-				}
-				vela.pushEnvironment(new VeLaScope());
-			}
+    @Override
+    public Optional<Operand> apply(List<Operand> operands) throws VeLaEvalError {
+        // If the function has a body, push a new scope and the environment if
+        // non-empty, bind the actual parameters to the formal parameters,
+        // evaluate the body AST and pop the scope and the environment if
+        // non-empty.
+        int initialStackSize = vela.getStack().size();
 
-			for (int i = 0; i < operands.size(); i++) {
-				vela.peekEnvironment().bind(parameterNames.get(i), operands.get(i), false);
-			}
+        if (ast.isPresent()) {
 
-			vela.eval(ast.get());
+            if (!isTailRecursive()) {
+                if (!env.isEmpty()) {
+                    vela.pushEnvironment(env);
+                }
+                vela.pushEnvironment(new VeLaScope());
+            }
 
-			if (!isTailRecursive()) {
-				vela.popEnvironment();
-				if (!env.isEmpty()) {
-					vela.popEnvironment();
-				}
-			}
-		}
+            for (int i = 0; i < operands.size(); i++) {
+                vela.peekEnvironment().bind(parameterNames.get(i), operands.get(i), false);
+            }
 
-		// The result, if any, will be on the stack.
-		Optional<Operand> result = Optional.empty();
-		
-		if (vela.getStack().size() > initialStackSize) {
-			result = Optional.of(vela.getStack().pop());
-		}
-		
-		return result;
-	}
+            vela.eval(ast.get());
 
-	/**
-	 * Is the function body tail recursive?
-	 */
-	private boolean isTailRecursive() {
-		boolean isTailRecursive = false;
+            if (!isTailRecursive()) {
+                vela.popEnvironment();
+                if (!env.isEmpty()) {
+                    vela.popEnvironment();
+                }
+            }
+        }
 
-		AST lastChild = ast.get().lastChild();
+        // The result, if any, will be on the stack.
+        Optional<Operand> result = Optional.empty();
 
-		if (lastChild.getOp() == Operation.FUNCALL) {
-			if (getFuncName().isPresent()
-					&& getFuncName().get().equalsIgnoreCase(
-							lastChild.getToken())) {
-				isTailRecursive = true;
-			}
-		}
+        if (vela.getStack().size() > initialStackSize) {
+            result = Optional.of(vela.getStack().pop());
+        }
 
-		return isTailRecursive;
-	}
+        return result;
+    }
+
+    /**
+     * Is the function body tail recursive?
+     */
+    private boolean isTailRecursive() {
+        boolean isTailRecursive = false;
+
+        AST lastChild = ast.get().lastChild();
+
+        if (lastChild.getOp() == Operation.FUNCALL) {
+            if (getFuncName().isPresent() && getFuncName().get().equalsIgnoreCase(lastChild.getToken())) {
+                isTailRecursive = true;
+            }
+        }
+
+        return isTailRecursive;
+    }
 }
