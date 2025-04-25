@@ -1268,6 +1268,8 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertEquals(4, operand.intVal());
     }
 
+    // TODO: add more, e.g. length(intrinsics()) != 0
+
     // User defined functions
 
     public void testNamedFunSquare() {
