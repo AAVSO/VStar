@@ -45,7 +45,12 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 		return functions;
 	}
 
-	/**
+	@Override
+    public boolean isMutable() {
+        return true;
+    }
+
+    /**
 	 * Add a function executor to the multi-map.<br/>
 	 * If the new executor has the same signature as one already in existence,
 	 * it will be replaced.
@@ -86,15 +91,15 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 	}
 
 	/**
-	 * Add all symbol bindings and functions from another scope to this one.
-	 * 
-	 * @param other
-	 *            The scope to be added to this one.
-	 */
-	public void addAll(VeLaScope other) {
-		cache.putAll(other.cache);
-		functions.putAll(other.functions);
-	}
+     * Add all symbol bindings and functions from another scope to this one.
+     *
+     * @param other
+     *            The scope to be added to this one.
+     */
+    public void addAll(VeLaScope other) {
+        super.addAll(other);
+        functions.putAll(other.functions);
+    }
 
 	/**
 	 * Lookup the named function, returning an optional list of functions.
