@@ -1442,7 +1442,7 @@ public class VeLaInterpreter {
                 + "in the supplied string, returning the empty list if\n"
                 + "there is no result, or a single element list if\n" + "there is a result.";
 
-        addFunctionExecutor(new FunctionExecutor(Optional.of("EVAL"), Arrays.asList(Type.STRING),
+        addFunctionExecutor(new FunctionExecutor(Optional.of("EVAL"), Arrays.asList("code"), Arrays.asList(Type.STRING),
                 Optional.of(Type.LIST), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
@@ -1505,8 +1505,8 @@ public class VeLaInterpreter {
     private void addHelp() {
         String help = "Returns a help string given an arbitrary parameter.";
 
-        addFunctionExecutor(new FunctionExecutor(Optional.of("HELP"), FunctionExecutor.ANY_FORMALS,
-                Optional.of(Type.STRING), Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("HELP"), FunctionExecutor.ANY_FORMAL_NAMES,
+                FunctionExecutor.ANY_FORMAL_TYPES, Optional.of(Type.STRING), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 String helpMessage = null;
@@ -1537,8 +1537,8 @@ public class VeLaInterpreter {
     private void addExit() {
         String help = "Exits the current program with the specified exit code.";
 
-        addFunctionExecutor(new FunctionExecutor(Optional.of("EXIT"), Arrays.asList(Type.INTEGER), Optional.empty(),
-                Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("EXIT"), Arrays.asList("exitCode"),
+                Arrays.asList(Type.INTEGER), Optional.empty(), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 System.exit((int) operands.get(0).intVal());
@@ -1551,8 +1551,8 @@ public class VeLaInterpreter {
         // Any number or type of parameters will do.
         String printHelp = "Prints an arbitrary number of parameters (or none) to standard output.";
 
-        addFunctionExecutor(new FunctionExecutor(Optional.of("PRINT"), FunctionExecutor.ANY_FORMALS, Optional.empty(),
-                Optional.of(printHelp)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("PRINT"), FunctionExecutor.ANY_FORMAL_NAMES,
+                FunctionExecutor.ANY_FORMAL_TYPES, Optional.empty(), Optional.of(printHelp)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 return commonPrintProcedure(operands, false);
@@ -1563,8 +1563,8 @@ public class VeLaInterpreter {
         // prints literally. Why?
         String printlnHelp = "Prints an arbitrary number of parameters (or none) to standard output, followed by a newline sequence.";
 
-        addFunctionExecutor(new FunctionExecutor(Optional.of("PRINTLN"), FunctionExecutor.ANY_FORMALS, Optional.empty(),
-                Optional.of(printlnHelp)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("PRINTLN"), FunctionExecutor.ANY_FORMAL_NAMES,
+                FunctionExecutor.ANY_FORMAL_TYPES, Optional.empty(), Optional.of(printlnHelp)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 return commonPrintProcedure(operands, true);
@@ -1601,8 +1601,8 @@ public class VeLaInterpreter {
     private void addFormatFunction() {
         String help = "Given a format string and a list of expressions, yields a formatted string.";
 
-        addFunctionExecutor(new FunctionExecutor(Optional.of("FORMAT"), Arrays.asList(Type.STRING, Type.LIST),
-                Optional.of(Type.STRING), Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("FORMAT"), Arrays.asList("formatString", "valueList"),
+                Arrays.asList(Type.STRING, Type.LIST), Optional.of(Type.STRING), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 List<Object> args = new ArrayList<Object>();
@@ -1638,8 +1638,8 @@ public class VeLaInterpreter {
     private void addChrFunction() {
         String help = "Returns a single character string given an ordinal value.";
 
-        addFunctionExecutor(new FunctionExecutor(Optional.of("CHR"), Arrays.asList(Type.INTEGER),
-                Optional.of(Type.STRING), Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("CHR"), Arrays.asList("ordinalValue"),
+                Arrays.asList(Type.INTEGER), Optional.of(Type.STRING), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 long ordVal = operands.get(0).intVal();
@@ -1652,8 +1652,8 @@ public class VeLaInterpreter {
     private void addOrdFunction() {
         String help = "Returns an ordinal value given a single character string.";
 
-        addFunctionExecutor(new FunctionExecutor(Optional.of("ORD"), Arrays.asList(Type.STRING),
-                Optional.of(Type.INTEGER), Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("ORD"), Arrays.asList("character"),
+                Arrays.asList(Type.STRING), Optional.of(Type.INTEGER), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 char chrVal = operands.get(0).stringVal().charAt(0);
@@ -1666,8 +1666,8 @@ public class VeLaInterpreter {
         String help = "Returns the head of a list or the empty list if the list is empty.";
 
         // Return type will change with invocation.
-        addFunctionExecutor(new FunctionExecutor(Optional.of("HEAD"), Arrays.asList(Type.LIST), Optional.empty(),
-                Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("HEAD"), Arrays.asList("aList"), Arrays.asList(Type.LIST),
+                Optional.empty(), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 List<Operand> list = operands.get(0).listVal();
@@ -1687,8 +1687,8 @@ public class VeLaInterpreter {
         String help = "Returns the tail of a list or the empty list if the list is empty.";
 
         // Return type will always be a list.
-        addFunctionExecutor(new FunctionExecutor(Optional.of("TAIL"), Arrays.asList(Type.LIST), Optional.of(Type.LIST),
-                Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("TAIL"), Arrays.asList("aList"), Arrays.asList(Type.LIST),
+                Optional.of(Type.LIST), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 List<Operand> list = operands.get(0).listVal();
@@ -1709,8 +1709,8 @@ public class VeLaInterpreter {
         String help = "Returns the nth element of a list or the empty list if the list is empty.";
 
         // Return type will change with invocation.
-        addFunctionExecutor(new FunctionExecutor(Optional.of("NTH"), Arrays.asList(Type.LIST, Type.INTEGER),
-                Optional.empty(), Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("NTH"), Arrays.asList("aList", "index"),
+                Arrays.asList(Type.LIST, Type.INTEGER), Optional.empty(), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 List<Operand> list = operands.get(0).listVal();
@@ -1730,8 +1730,8 @@ public class VeLaInterpreter {
         String help = "Returns the length of a list.";
 
         // Return type will always be integer.
-        addFunctionExecutor(new FunctionExecutor(Optional.of("LENGTH"), Arrays.asList(Type.LIST),
-                Optional.of(Type.INTEGER), Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("LENGTH"), Arrays.asList("aList"),
+                Arrays.asList(Type.LIST), Optional.of(Type.INTEGER), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 return Optional.of(new Operand(Type.INTEGER, operands.get(0).listVal().size()));
@@ -1743,8 +1743,8 @@ public class VeLaInterpreter {
         String help = "Returns the concatenation of two lists.";
 
         // Return type will always be LIST here.
-        addFunctionExecutor(new FunctionExecutor(Optional.of("CONCAT"), Arrays.asList(Type.LIST, Type.LIST),
-                Optional.of(Type.LIST), Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("CONCAT"), Arrays.asList("aList", "anotherList"),
+                Arrays.asList(Type.LIST, Type.LIST), Optional.of(Type.LIST), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 List<Operand> list1 = operands.get(0).listVal();
@@ -1761,8 +1761,8 @@ public class VeLaInterpreter {
         String help = "Returns the result of appending an expression to a list.";
 
         // Return type will always be LIST here.
-        addFunctionExecutor(new FunctionExecutor(Optional.of("APPEND"), Arrays.asList(Type.LIST, secondParameterType),
-                Optional.of(Type.LIST), Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("APPEND"), Arrays.asList("aList", "newElement"),
+                Arrays.asList(Type.LIST, secondParameterType), Optional.of(Type.LIST), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 List<Operand> newList = new ArrayList<Operand>();
@@ -1774,12 +1774,12 @@ public class VeLaInterpreter {
     }
 
     private void addIntegerSeqFunction() {
-        String help = "Returns a list which is the sequence of the range\n"
+        String help = "Returns a list which is the sequence of the (inclusive) range\n"
                 + "specified by the first and second parameters,\n"
                 + "combined with the step, specified by the third parameter.";
 
         // Return type will always be LIST here..
-        addFunctionExecutor(new FunctionExecutor(Optional.of("SEQ"),
+        addFunctionExecutor(new FunctionExecutor(Optional.of("SEQ"), Arrays.asList("firstIndex", "lastIndex", "step"),
                 Arrays.asList(Type.INTEGER, Type.INTEGER, Type.INTEGER), Optional.of(Type.LIST), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
@@ -1801,8 +1801,8 @@ public class VeLaInterpreter {
                 + "combined with the step, specified by the third parameter.";
 
         // Return type will always be LIST here..
-        addFunctionExecutor(new FunctionExecutor(Optional.of("SEQ"), Arrays.asList(Type.REAL, Type.REAL, Type.REAL),
-                Optional.of(Type.LIST), Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("SEQ"), Arrays.asList("firstIndex", "lastIndex", "step"),
+                Arrays.asList(Type.REAL, Type.REAL, Type.REAL), Optional.of(Type.LIST), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 Double first = operands.get(0).doubleVal();
@@ -1821,8 +1821,8 @@ public class VeLaInterpreter {
         String help = "Applies a function to each element of a list and returns a corresponding list.";
 
         // Return type will always be LIST here.
-        addFunctionExecutor(new FunctionExecutor(Optional.of("MAP"), Arrays.asList(Type.FUNCTION, Type.LIST),
-                Optional.of(Type.LIST), Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("MAP"), Arrays.asList("unaryFunction", "aList"),
+                Arrays.asList(Type.FUNCTION, Type.LIST), Optional.of(Type.LIST), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 FunctionExecutor fun = operands.get(0).functionVal();
@@ -1859,8 +1859,8 @@ public class VeLaInterpreter {
                 + "the subset of those elements that satisfy the predicate.";
 
         // Return type will always be LIST here.
-        addFunctionExecutor(new FunctionExecutor(Optional.of("FILTER"), Arrays.asList(Type.FUNCTION, Type.LIST),
-                Optional.of(Type.LIST), Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("FILTER"), Arrays.asList("unaryFunction", "aList"),
+                Arrays.asList(Type.FUNCTION, Type.LIST), Optional.of(Type.LIST), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 FunctionExecutor fun = operands.get(0).functionVal();
@@ -1904,37 +1904,38 @@ public class VeLaInterpreter {
                 + "a value whose initial value is also provided.";
 
         // Return type will be same as function the parameter's type.
-        addFunctionExecutor(new FunctionExecutor(Optional.of("REDUCE"),
-                Arrays.asList(Type.FUNCTION, Type.LIST, reductionType), Optional.empty(), Optional.of(help)) {
-            @Override
-            public Optional<Operand> apply(List<Operand> operands) {
-                FunctionExecutor fun = operands.get(0).functionVal();
-                // Set return type on reduce dynamically each time.
-                setReturnType(fun.getReturnType());
-                List<Operand> list = operands.get(1).listVal();
-                Operand retVal = operands.get(2);
-                for (Operand item : list) {
-                    List<Operand> params = new ArrayList<Operand>();
-                    params.add(retVal);
-                    params.add(item);
+        addFunctionExecutor(
+                new FunctionExecutor(Optional.of("REDUCE"), Arrays.asList("unaryFunction", "aList", "initialValue"),
+                        Arrays.asList(Type.FUNCTION, Type.LIST, reductionType), Optional.empty(), Optional.of(help)) {
+                    @Override
+                    public Optional<Operand> apply(List<Operand> operands) {
+                        FunctionExecutor fun = operands.get(0).functionVal();
+                        // Set return type on reduce dynamically each time.
+                        setReturnType(fun.getReturnType());
+                        List<Operand> list = operands.get(1).listVal();
+                        Operand retVal = operands.get(2);
+                        for (Operand item : list) {
+                            List<Operand> params = new ArrayList<Operand>();
+                            params.add(retVal);
+                            params.add(item);
 
-                    applyFunction(fun, params);
+                            applyFunction(fun, params);
 
-                    if (!stack.isEmpty()) {
-                        retVal = stack.pop();
+                            if (!stack.isEmpty()) {
+                                retVal = stack.pop();
+                            }
+                        }
+                        return Optional.of(retVal);
                     }
-                }
-                return Optional.of(retVal);
-            }
-        });
+                });
     }
 
     private void addListForFunction() {
         String help = "Invokes a function on each element of a list.";
 
         // FOR should not return anything.
-        addFunctionExecutor(new FunctionExecutor(Optional.of("FOR"), Arrays.asList(Type.FUNCTION, Type.LIST),
-                Optional.empty(), Optional.of(help)) {
+        addFunctionExecutor(new FunctionExecutor(Optional.of("FOR"), Arrays.asList("unaryFunction", "aList"),
+                Arrays.asList(Type.FUNCTION, Type.LIST), Optional.empty(), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 FunctionExecutor fun = operands.get(0).functionVal();
@@ -1983,11 +1984,12 @@ public class VeLaInterpreter {
                 // parameter type for the object on which the method will be
                 // invoked.
 
+                List<String> paramNames = getJavaParameterNames(declaredMethod, permittedTypes);
                 List<Type> types = paramTypes.stream().map(t -> Type.java2Vela(t)).collect(Collectors.toList());
 
                 Optional<String> helpString = Optional.empty();
 
-                function = new FunctionExecutor(Optional.of(funcName), declaredMethod, types,
+                function = new FunctionExecutor(Optional.of(funcName), declaredMethod, paramNames, types,
                         Optional.of(Type.java2Vela(returnType)), helpString) {
                     @Override
                     public Optional<Operand> apply(List<Operand> operands) {
@@ -2041,6 +2043,24 @@ public class VeLaInterpreter {
         } catch (IllegalAccessException e) {
             throw new VeLaEvalError(e.getLocalizedMessage());
         }
+    }
+
+    // TODO: unify these two methods, e.g. via Parameter class
+
+//    next: make another class that knows how to run Java functions
+
+    private static List<String> getJavaParameterNames(Method method, Set<Class<?>> targetTypes) {
+        Parameter[] parameters = method.getParameters();
+        List<String> parameterNames = new ArrayList<String>();
+
+        for (Parameter parameter : parameters) {
+            String name = parameter.getName();
+            if (targetTypes.contains(parameter.getType())) {
+                parameterNames.add(name);
+            }
+        }
+
+        return parameterNames;
     }
 
     private static List<Class<?>> getJavaParameterTypes(Method method, Set<Class<?>> targetTypes) {

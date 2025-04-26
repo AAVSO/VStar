@@ -26,7 +26,6 @@ import java.util.Optional;
 public class UserDefinedFunctionExecutor extends FunctionExecutor {
 
     private VeLaInterpreter vela;
-    private List<String> parameterNames;
     private Optional<AST> ast;
     private VeLaScope env;
 
@@ -44,10 +43,9 @@ public class UserDefinedFunctionExecutor extends FunctionExecutor {
      */
     public UserDefinedFunctionExecutor(VeLaInterpreter vela, Optional<String> funcName, List<String> parameterNames,
             List<Type> parameterTypes, Optional<Type> returnType, Optional<AST> ast, Optional<String> helpString) {
-        super(funcName, parameterTypes, returnType, helpString);
+        super(funcName, parameterNames, parameterTypes, returnType, helpString);
 
         this.vela = vela;
-        this.parameterNames = parameterNames;
         this.ast = ast;
 
         // Capture current environment by coalescing all but the global scope
