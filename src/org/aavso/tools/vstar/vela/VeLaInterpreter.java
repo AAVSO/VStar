@@ -1510,7 +1510,7 @@ public class VeLaInterpreter {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 String helpMessage = null;
-                if (operands.size() == 1) {
+                if (operands.size() >= 1) {
                     StringBuffer buf = new StringBuffer();
                     for (Operand operand : operands) {
                         if (operand.getType() != Type.FUNCTION) {
@@ -1518,15 +1518,19 @@ public class VeLaInterpreter {
                             buf.append(" : ");
                         }
                         buf.append(operand.toHumanReadableString());
-                        Optional<String> helpString = operand.functionVal().helpString;
-                        if (helpString.isPresent()) {
-                            buf.append("\n");
-                            buf.append(helpString.get());
+
+                        if (operand.getType() == Type.FUNCTION) {
+                            Optional<String> helpString = operand.functionVal().helpString;
+                            if (helpString.isPresent()) {
+                                buf.append("\n");
+                                buf.append(helpString.get());
+                            }
                         }
+                        buf.append("\n");
                     }
                     helpMessage = buf.toString();
                 } else {
-                    throw new VeLaEvalError("One expression expected.");
+                    throw new VeLaEvalError("One or more expression expected.");
                 }
 
                 return Optional.of(new Operand(Type.STRING, helpMessage));
