@@ -36,237 +36,237 @@ import org.aavso.tools.vstar.ui.model.list.ITableColumnInfoSource;
  */
 public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 
-	private static Map<String, String> symbol2CanonicalSymbol;
+    private static Map<String, String> symbol2CanonicalSymbol;
 
-	static {
-		symbol2CanonicalSymbol = new TreeMap<String, String>();
-	}
+    static {
+        symbol2CanonicalSymbol = new TreeMap<String, String>();
+    }
 
-	private static ITableColumnInfoSource columnInfoSource = null;
+    private static ITableColumnInfoSource columnInfoSource = null;
 
-	private ValidObservation ob;
+    private ValidObservation ob;
 
-	public VeLaValidObservationEnvironment(ValidObservation ob) {
-		super();
-		this.ob = ob;
-		reset();
-	}
+    public VeLaValidObservationEnvironment(ValidObservation ob) {
+        super();
+        this.ob = ob;
+        reset();
+    }
 
-	@Override
-	public Optional<Operand> lookup(String name) {
-		boolean contained = false;
-		Operand operand = null;
+    @Override
+    public Optional<Operand> lookup(String name) {
+        boolean contained = false;
+        Operand operand = null;
 
-		name = name.toUpperCase();
+        name = name.toUpperCase();
 
-		contained = symbol2CanonicalSymbol.containsKey(name);
+        contained = symbol2CanonicalSymbol.containsKey(name);
 
-		if (contained) {
-			name = symbol2CanonicalSymbol.get(name);
-		}
+        if (contained) {
+            name = symbol2CanonicalSymbol.get(name);
+        }
 
-		if ("TIME".equals(name)) {
-			operand = operand(name, ob.getJD());
-		} else if ("MAGNITUDE".equals(name)) {
-			operand = operand(name, ob.getMag());
-		} else if ("UNCERTAINTY".equals(name)) {
-			operand = operand(name, ob.getMagnitude().getUncertainty());
-		} else if ("BAND".equals(name)) {
-			operand = operand(name, ob.getBand().getDescription());
-		} else if ("SHORTBAND".equals(name)) {
-			operand = operand(name, ob.getBand().getShortName());
-		} else if ("SERIES".equals(name)) {
-			operand = operand(name, ob.getSeries().getDescription());
-		} else if ("STANDARDPHASE".equals(name)) {
-			contained &= ob.getStandardPhase() != null;
-			if (contained) {
-				operand = operand(name, ob.getStandardPhase());
-			}
-		} else if ("PREVIOUSCYCLEPHASE".equals(name)) {
-			contained &= ob.getPreviousCyclePhase() != null;
-			if (contained) {
-				operand = operand(name, ob.getPreviousCyclePhase());
-			}
-		} else {
-			if (columnInfoSource != null) {
-			    try {
-			        int index = columnInfoSource.getColumnIndexByName(name);
-			        operand = objToOperand(name, columnInfoSource.getTableColumnValue(index, ob));
-			    } catch (IllegalArgumentException e) {
-			        // default to a null operand 
-			    }
-			}
-		}
+        if ("TIME".equals(name)) {
+            operand = operand(name, ob.getJD());
+        } else if ("MAGNITUDE".equals(name)) {
+            operand = operand(name, ob.getMag());
+        } else if ("UNCERTAINTY".equals(name)) {
+            operand = operand(name, ob.getMagnitude().getUncertainty());
+        } else if ("BAND".equals(name)) {
+            operand = operand(name, ob.getBand().getDescription());
+        } else if ("SHORTBAND".equals(name)) {
+            operand = operand(name, ob.getBand().getShortName());
+        } else if ("SERIES".equals(name)) {
+            operand = operand(name, ob.getSeries().getDescription());
+        } else if ("STANDARDPHASE".equals(name)) {
+            contained &= ob.getStandardPhase() != null;
+            if (contained) {
+                operand = operand(name, ob.getStandardPhase());
+            }
+        } else if ("PREVIOUSCYCLEPHASE".equals(name)) {
+            contained &= ob.getPreviousCyclePhase() != null;
+            if (contained) {
+                operand = operand(name, ob.getPreviousCyclePhase());
+            }
+        } else {
+            if (columnInfoSource != null) {
+                try {
+                    int index = columnInfoSource.getColumnIndexByName(name);
+                    operand = objToOperand(name, columnInfoSource.getTableColumnValue(index, ob));
+                } catch (IllegalArgumentException e) {
+                    // default to a null operand
+                }
+            }
+        }
 
-		return Optional.ofNullable(operand);
-	}
+        return Optional.ofNullable(operand);
+    }
 
-	// Cached operand creation methods
+    // Cached operand creation methods
 
-	protected Operand operand(String name, Integer value) {
-		return operand(Type.INTEGER, name, value);
-	}
+    protected Operand operand(String name, Integer value) {
+        return operand(Type.INTEGER, name, value);
+    }
 
-	protected Operand operand(String name, Double value) {
-		return operand(Type.REAL, name, value);
-	}
+    protected Operand operand(String name, Double value) {
+        return operand(Type.REAL, name, value);
+    }
 
-	protected Operand operand(String name, String value) {
-		return operand(Type.STRING, name, value);
-	}
+    protected Operand operand(String name, String value) {
+        return operand(Type.STRING, name, value);
+    }
 
-	protected Operand operand(String name, Boolean value) {
-		return operand(Type.BOOLEAN, name, value);
-	}
+    protected Operand operand(String name, Boolean value) {
+        return operand(Type.BOOLEAN, name, value);
+    }
 
-	protected Operand objToOperand(String name, Object value) {
-		Type type = Type.NONE;
+    protected Operand objToOperand(String name, Object value) {
+        Type type = Type.NONE;
 
-		if (value instanceof Integer) {
-			type = Type.INTEGER;
-		} else if (value instanceof Double) {
-			type = Type.REAL;
-		} else if (value instanceof String) {
-			type = Type.STRING;
-		} else if (value instanceof Boolean) {
-			type = Type.BOOLEAN;
-		} else if (value instanceof Property) {
-			Property prop = (Property)value;
-			type = Type.propertyToVela(prop);
-			switch(prop.getType()) {
-				case INTEGER:
-					value = prop.getIntVal();
-					break;
-				case REAL:
-					value = prop.getRealVal();
-					break;
-				case BOOLEAN:
-					value = prop.getBoolVal();
-					break;
-				case STRING:
-					value = prop.getStrVal();
-					break;
-				case NONE:
-				default:
-					value = null;
-			}
-		}
+        if (value instanceof Integer) {
+            type = Type.INTEGER;
+        } else if (value instanceof Double) {
+            type = Type.REAL;
+        } else if (value instanceof String) {
+            type = Type.STRING;
+        } else if (value instanceof Boolean) {
+            type = Type.BOOLEAN;
+        } else if (value instanceof Property) {
+            Property prop = (Property) value;
+            type = Type.propertyToVela(prop);
+            switch (prop.getType()) {
+            case INTEGER:
+                value = prop.getIntVal();
+                break;
+            case REAL:
+                value = prop.getRealVal();
+                break;
+            case BOOLEAN:
+                value = prop.getBoolVal();
+                break;
+            case STRING:
+                value = prop.getStrVal();
+                break;
+            case NONE:
+            default:
+                value = null;
+            }
+        }
 
-		return operand(type, name, value);
-	}
+        return operand(type, name, value);
+    }
 
-	// Common operand factory method
+    // Common operand factory method
 
-	protected Operand operand(Type type, String name, Object value) {
-		Operand operand = null;
+    protected Operand operand(Type type, String name, Object value) {
+        Operand operand = null;
 
-		name = name.toUpperCase();
+        name = name.toUpperCase();
 
-		if (cache.containsKey(name)) {
-			operand = cache.get(name);
-		} else {
-			switch (type) {
-			case INTEGER:
-				operand = new Operand(type, (int) value);
-				break;
-			case REAL:
-				operand = new Operand(type, (double) value);
-				break;
-			case STRING:
-				operand = new Operand(type, (String) value);
-				break;
-			case BOOLEAN:
-				operand = new Operand(type, (boolean) value);
-				break;
-			case LIST:
-				operand = new Operand(type, (List<Operand>) value);
-			}
+        if (cache.containsKey(name)) {
+            operand = cache.get(name);
+        } else {
+            switch (type) {
+            case INTEGER:
+                operand = new Operand(type, (int) value);
+                break;
+            case REAL:
+                operand = new Operand(type, (double) value);
+                break;
+            case STRING:
+                operand = new Operand(type, (String) value);
+                break;
+            case BOOLEAN:
+                operand = new Operand(type, (boolean) value);
+                break;
+            case LIST:
+                operand = new Operand(type, (List<Operand>) value);
+            }
 
-			bind(name, operand, true);
-		}
+            bind(name, operand, true);
+        }
 
-		return operand;
-	}
+        return operand;
+    }
 
-	/**
-	 * Return the symbols associated with currently loaded observations.
-	 * 
-	 * @param info A new star information message.
-	 * @return An array of symbol names.
-	 */
-	public static String[] symbols() {
-		reset();
+    /**
+     * Return the symbols associated with currently loaded observations.
+     * 
+     * @param info A new star information message.
+     * @return An array of symbol names.
+     */
+    public static String[] symbols() {
+        reset();
 
-		String[] symbols = new String[symbol2CanonicalSymbol.size()];
-		int i = 0;
-		for (String symbol : symbol2CanonicalSymbol.keySet()) {
-			symbols[i++] = symbol.toLowerCase();
-		}
+        String[] symbols = new String[symbol2CanonicalSymbol.size()];
+        int i = 0;
+        for (String symbol : symbol2CanonicalSymbol.keySet()) {
+            symbols[i++] = symbol.toLowerCase();
+        }
 
-		return symbols;
-	}
+        return symbols;
+    }
 
-	/**
-	 * Clear the canonical symbol map.
-	 */
-	public static void reset() {
-		populateMap();
-	}
+    /**
+     * Clear the canonical symbol map.
+     */
+    public static void reset() {
+        populateMap();
+    }
 
-	// Helpers
+    // Helpers
 
-	private static void populateMap() {
-		symbol2CanonicalSymbol.clear();
+    private static void populateMap() {
+        symbol2CanonicalSymbol.clear();
 
-		// Use current observation list column names as VeLa variables
+        // Use current observation list column names as VeLa variables
 
-		Mediator mediator = Mediator.getInstance();
-		NewStarMessage newStarMsg = mediator.getLatestNewStarMessage();
-		AnalysisType analysisType = mediator.getAnalysisType();
+        Mediator mediator = Mediator.getInstance();
+        NewStarMessage newStarMsg = mediator.getLatestNewStarMessage();
+        AnalysisType analysisType = mediator.getAnalysisType();
 
-		if (newStarMsg != null) {
+        if (newStarMsg != null) {
 
-			NewStarType newStarType = newStarMsg.getNewStarType();
+            NewStarType newStarType = newStarMsg.getNewStarType();
 
-			if (analysisType == AnalysisType.RAW_DATA) {
-				columnInfoSource = newStarType.getRawDataTableColumnInfoSource();
-			} else {
-				columnInfoSource = newStarType.getPhasePlotTableColumnInfoSource();
-			}
+            if (analysisType == AnalysisType.RAW_DATA) {
+                columnInfoSource = newStarType.getRawDataTableColumnInfoSource();
+            } else {
+                columnInfoSource = newStarType.getPhasePlotTableColumnInfoSource();
+            }
 
-			if (columnInfoSource != null) {
-				Collection<String> columnNames = columnInfoSource.getColumnNames();
+            if (columnInfoSource != null) {
+                Collection<String> columnNames = columnInfoSource.getColumnNames();
 
-				for (String columnName : columnNames) {
-					if (columnName != null) {
-						String velaName = columnName.replace(" ", "_");
-						symbol2CanonicalSymbol.put(velaName.toUpperCase(), columnName);
-					}
-				}
-			}
-		}
-		// Add common variables
+                for (String columnName : columnNames) {
+                    if (columnName != null) {
+                        String velaName = columnName.replace(" ", "_");
+                        symbol2CanonicalSymbol.put(velaName.toUpperCase(), columnName);
+                    }
+                }
+            }
+        }
+        // Add common variables
 
-		symbol2CanonicalSymbol.put("TIME", "TIME");
-		symbol2CanonicalSymbol.put("T", "TIME");
-		symbol2CanonicalSymbol.put("JD", "TIME");
+        symbol2CanonicalSymbol.put("TIME", "TIME");
+        symbol2CanonicalSymbol.put("T", "TIME");
+        symbol2CanonicalSymbol.put("JD", "TIME");
 
-		symbol2CanonicalSymbol.put("MAGNITUDE", "MAGNITUDE");
-		symbol2CanonicalSymbol.put("MAG", "MAGNITUDE");
+        symbol2CanonicalSymbol.put("MAGNITUDE", "MAGNITUDE");
+        symbol2CanonicalSymbol.put("MAG", "MAGNITUDE");
 
-		symbol2CanonicalSymbol.put("UNCERTAINTY", "UNCERTAINTY");
-		symbol2CanonicalSymbol.put("ERROR", "UNCERTAINTY");
+        symbol2CanonicalSymbol.put("UNCERTAINTY", "UNCERTAINTY");
+        symbol2CanonicalSymbol.put("ERROR", "UNCERTAINTY");
 
-		symbol2CanonicalSymbol.put("BAND", "BAND");
-		symbol2CanonicalSymbol.put("SERIES", "SERIES");
-		symbol2CanonicalSymbol.put("SHORTBAND", "SHORTBAND");
-		
-		// Add phase variables if we're in phase plot mode
+        symbol2CanonicalSymbol.put("BAND", "BAND");
+        symbol2CanonicalSymbol.put("SERIES", "SERIES");
+        symbol2CanonicalSymbol.put("SHORTBAND", "SHORTBAND");
 
-		if (analysisType == AnalysisType.PHASE_PLOT) {
-			symbol2CanonicalSymbol.put("STANDARDPHASE", "STANDARDPHASE");
-			symbol2CanonicalSymbol.put("PHASE", "STANDARDPHASE");
-			symbol2CanonicalSymbol.put("PREVIOUSCYCLEPHASE", "PREVIOUSCYCLEPHASE");
-		}
-	}
+        // Add phase variables if we're in phase plot mode
+
+        if (analysisType == AnalysisType.PHASE_PLOT) {
+            symbol2CanonicalSymbol.put("STANDARDPHASE", "STANDARDPHASE");
+            symbol2CanonicalSymbol.put("PHASE", "STANDARDPHASE");
+            symbol2CanonicalSymbol.put("PREVIOUSCYCLEPHASE", "PREVIOUSCYCLEPHASE");
+        }
+    }
 }

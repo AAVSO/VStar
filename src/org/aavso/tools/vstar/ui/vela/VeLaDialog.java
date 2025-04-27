@@ -240,11 +240,11 @@ public class VeLaDialog extends TextDialog {
 
 	private String showOutput(ByteArrayOutputStream stream) {
 		String str = "";
+    
+    if (stream.size() != 0) {
+        str = stream.toString() + "\n";
+    }
 
-		if (stream.size() != 0) {
-			str = stream.toString() + "\n";
-		}
-
-		return str;
-	}
+    return str;
+  }
 }

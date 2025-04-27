@@ -180,6 +180,13 @@ public class VeLaInterpreter {
     }
 
     /**
+     * @return The stack of environments
+     */
+    public Stack<VeLaEnvironment<Operand>> getEnvironments() {
+        return environments;
+    }
+
+    /**
      * Return all scopes (activation records) on the stack as a list in order from
      * oldest to newest.
      */
@@ -1164,25 +1171,37 @@ public class VeLaInterpreter {
         boolean bound = false;
 
         for (int i = environments.size() - 1; i >= 0; i--) {
-            Optional<Operand> possibleBinding = environments.get(i).lookup(name);
-            if (possibleBinding.isPresent()) {
-                Operand existingBinding = possibleBinding.get();
-                Operand convertedVal = value.convert(existingBinding.getType());
-                if (convertedVal.getType() == existingBinding.getType()) {
-                    // bind value to existing variable...
-                    environments.get(i).bind(name, convertedVal, isConstant);
-                    bound = true;
-                } else {
-                    throw new VeLaEvalError(String.format(
-                            "The type of the value (%s) is not compatible with the bound type of %s.", value, name));
+            VeLaEnvironment<Operand> env = environments.get(i);
+            if (env.isMutable()) {
+                Optional<Operand> possibleBinding = env.lookup(name);
+                if (possibleBinding.isPresent()) {
+                    Operand existingBinding = possibleBinding.get();
+                    Operand convertedVal = value.convert(existingBinding.getType());
+                    if (convertedVal.getType() == existingBinding.getType()) {
+                        // bind value to existing variable...
+                        environments.get(i).bind(name, convertedVal, isConstant);
+                        bound = true;
+                    } else {
+                        throw new VeLaEvalError(
+                                String.format("The type of the value (%s) is not compatible with the bound type of %s.",
+                                        value, name));
+                    }
+                    break;
                 }
-                break;
             }
         }
 
         if (!bound) {
-            // ...a new binding
-            environments.peek().bind(name, value, isConstant);
+            // If not bound to existing variable, create new binding in
+            // environment on top of stack.
+            VeLaEnvironment<Operand> env = environments.peek();
+            if (env.isMutable()) {
+                // ...a new binding
+                environments.peek().bind(name, value, isConstant);
+            } else {
+                // The environment at stack-top should be mutable...
+                throw new VeLaEvalError(String.format("The environment in which %s is bound is immutable.", name));
+            }
         }
     }
 
@@ -1417,6 +1436,8 @@ public class VeLaInterpreter {
         addRealSeqFunction();
         addListMapFunction();
         addListFilterFunction();
+        addListFindFunction();
+        addListPairwiseFindFunction();
         addListForFunction();
 
         for (Type type : Type.values()) {
@@ -1457,18 +1478,6 @@ public class VeLaInterpreter {
     }
 
     private void addZeroArityFunctions() {
-        addFunctionExecutor(new FunctionExecutor(Optional.of("TODAY"), Optional.of(Type.REAL)) {
-            @Override
-            public Optional<Operand> apply(List<Operand> operands) {
-                Calendar cal = Calendar.getInstance();
-                int year = cal.get(Calendar.YEAR);
-                int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
-                int day = cal.get(Calendar.DAY_OF_MONTH);
-                double jd = AbstractDateUtil.getInstance().calendarToJD(year, month, day);
-                return Optional.of(new Operand(Type.REAL, jd));
-            }
-        });
-
         addFunctionExecutor(new FunctionExecutor(Optional.of("INTRINSICS"), Optional.of(Type.STRING)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) throws VeLaEvalError {
@@ -1484,6 +1493,26 @@ public class VeLaInterpreter {
                     }
                 }
                 return Optional.of(new Operand(Type.STRING, buf.toString()));
+            }
+        });
+
+        addFunctionExecutor(new FunctionExecutor(Optional.of("MILLISECONDS"), Optional.of(Type.INTEGER)) {
+            @Override
+            public Optional<Operand> apply(List<Operand> operands) {
+                long milliseconds = System.currentTimeMillis();
+                return Optional.of(new Operand(Type.INTEGER, milliseconds));
+            }
+        });
+
+        addFunctionExecutor(new FunctionExecutor(Optional.of("TODAY"), Optional.of(Type.REAL)) {
+            @Override
+            public Optional<Operand> apply(List<Operand> operands) {
+                Calendar cal = Calendar.getInstance();
+                int year = cal.get(Calendar.YEAR);
+                int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
+                int day = cal.get(Calendar.DAY_OF_MONTH);
+                double jd = AbstractDateUtil.getInstance().calendarToJD(year, month, day);
+                return Optional.of(new Operand(Type.REAL, jd));
             }
         });
     }
@@ -1747,18 +1776,7 @@ public class VeLaInterpreter {
                 List<Operand> list = operands.get(1).listVal();
                 List<Operand> resultList = new ArrayList<Operand>();
                 for (Operand item : list) {
-                    List<Operand> params = null;
-
-                    // If the list element is a list, use these as the actual
-                    // parameters, otherwise create an actual parameter list
-                    // from the list item.
-                    // if (item.getType() == Type.LIST) {
-                    // params = item.listVal();
-                    // } else {
-                    params = new ArrayList<Operand>();
-                    params.add(item);
-                    // }
-
+                    List<Operand> params = Arrays.asList(item);
                     applyFunction(fun, params);
 
                     if (!stack.isEmpty()) {
@@ -1773,7 +1791,7 @@ public class VeLaInterpreter {
     }
 
     private void addListFilterFunction() {
-        // Return type will always be LIST here.
+        // Return the elements of a list matching a predicate,
         addFunctionExecutor(new FunctionExecutor(Optional.of("FILTER"), Arrays.asList(Type.FUNCTION, Type.LIST),
                 Optional.of(Type.LIST)) {
             @Override
@@ -1782,18 +1800,7 @@ public class VeLaInterpreter {
                 List<Operand> list = operands.get(1).listVal();
                 List<Operand> resultList = new ArrayList<Operand>();
                 for (Operand item : list) {
-                    List<Operand> params = null;
-
-                    // If the list element is a list, use these as the actual
-                    // parameters, otherwise create an actual parameter list
-                    // from the list item.
-                    // if (item.getType() == Type.LIST) {
-                    // params = item.listVal();
-                    // } else {
-                    params = new ArrayList<Operand>();
-                    params.add(item);
-                    // }
-
+                    List<Operand> params = Arrays.asList(item);
                     applyFunction(fun, params);
 
                     if (!stack.isEmpty()) {
@@ -1814,6 +1821,75 @@ public class VeLaInterpreter {
         });
     }
 
+    private void addListFindFunction() {
+        // Return the index of the first element of a list matching a
+        // predicate, else -1.
+        addFunctionExecutor(new FunctionExecutor(Optional.of("FIND"), Arrays.asList(Type.FUNCTION, Type.LIST),
+                Optional.of(Type.INTEGER)) {
+            @Override
+            public Optional<Operand> apply(List<Operand> operands) {
+                FunctionExecutor fun = operands.get(0).functionVal();
+                List<Operand> list = operands.get(1).listVal();
+                int index = -1;
+                for (int i = 0; i < list.size(); i++) {
+                    List<Operand> params = Arrays.asList(list.get(i));
+                    applyFunction(fun, params);
+
+                    if (!stack.isEmpty()) {
+                        Operand retVal = stack.pop();
+                        if (retVal.getType() == Type.BOOLEAN) {
+                            if (retVal.booleanVal()) {
+                                index = i;
+                                break;
+                            }
+                        } else {
+                            throw new VeLaEvalError("Expected boolean value");
+                        }
+                    } else {
+                        throw new VeLaEvalError("Expected boolean value");
+                    }
+                }
+                return Optional.of(new Operand(Type.INTEGER, index));
+            }
+        });
+    }
+
+    private void addListPairwiseFindFunction() {
+        // Return the index of the first element of a list matching a
+        // predicate applied to two list elements, else -1. Whereas FIND's predicate
+        // takes a single list element,
+        // PAIRWISEFIND takes two elements separated by a "step" value.
+        addFunctionExecutor(new FunctionExecutor(Optional.of("PAIRWISEFIND"),
+                Arrays.asList(Type.FUNCTION, Type.LIST, Type.INTEGER), Optional.of(Type.INTEGER)) {
+            @Override
+            public Optional<Operand> apply(List<Operand> operands) {
+                FunctionExecutor fun = operands.get(0).functionVal();
+                List<Operand> list = operands.get(1).listVal();
+                long step = (int)operands.get(2).intVal();
+                int index = -1;
+                for (int i = 0; i < list.size() - 1; i += step) {
+                    List<Operand> params = Arrays.asList(list.get(i), list.get(i + 1));
+                    applyFunction(fun, params);
+
+                    if (!stack.isEmpty()) {
+                        Operand retVal = stack.pop();
+                        if (retVal.getType() == Type.BOOLEAN) {
+                            if (retVal.booleanVal()) {
+                                index = i;
+                                break;
+                            }
+                        } else {
+                            throw new VeLaEvalError("Expected boolean value");
+                        }
+                    } else {
+                        throw new VeLaEvalError("Expected boolean value");
+                    }
+                }
+                return Optional.of(new Operand(Type.INTEGER, index));
+            }
+        });
+    }
+
     private void addListReduceFunction(Type reductionType) {
         // Return type will be same as function the parameter's type.
         addFunctionExecutor(new FunctionExecutor(Optional.of("REDUCE"),
@@ -1824,12 +1900,9 @@ public class VeLaInterpreter {
                 // Set return type on reduce dynamically each time.
                 setReturnType(fun.getReturnType());
                 List<Operand> list = operands.get(1).listVal();
-                Operand retVal = operands.get(2);
+                Operand retVal = operands.get(2); // base value
                 for (Operand item : list) {
-                    List<Operand> params = new ArrayList<Operand>();
-                    params.add(retVal);
-                    params.add(item);
-
+                    List<Operand> params = Arrays.asList(retVal, item);
                     applyFunction(fun, params);
 
                     if (!stack.isEmpty()) {
@@ -1850,9 +1923,7 @@ public class VeLaInterpreter {
                         FunctionExecutor fun = operands.get(0).functionVal();
                         List<Operand> list = operands.get(1).listVal();
                         for (Operand item : list) {
-                            List<Operand> params = new ArrayList<Operand>();
-                            params.add(item);
-
+                            List<Operand> params = Arrays.asList(item);
                             applyFunction(fun, params);
                         }
                         return Optional.empty();
