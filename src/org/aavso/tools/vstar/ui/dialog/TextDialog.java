@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 
 /**
  * This class implements a dialog to obtain one or more string values from text
@@ -36,126 +38,155 @@ import javax.swing.JScrollPane;
 @SuppressWarnings("serial")
 public class TextDialog extends AbstractOkCancelDialog {
 
-	private List<ITextComponent<String>> textFields;
+    private List<ITextComponent<String>> textFields;
 
-	/**
-	 * Constructor<br/>
-	 * 
-	 * If there are only two fields, a split pane is used to contain the fields.
-	 * 
-	 * @param title
-	 *            The title to be used for the dialog.
-	 * @param fields
-	 *            A list of text fields.
-	 * @param Show
-	 *            the dialog immediately?
-	 */
-	public TextDialog(String title, List<ITextComponent<String>> fields,
-			boolean show) {
-		super(title);
-		this.setModal(true);
+    /**
+     * Constructor<br/>
+     * 
+     * If there are only two fields, a split pane is used to contain the fields.
+     * 
+     * @param title      The title to be used for the dialog.
+     * @param fields     A list of text fields.
+     * 
+     * @param Show       the dialog immediately?
+     * 
+     * @param scrollable Are text fields scrollable?
+     * 
+     */
+    public TextDialog(String title, List<ITextComponent<String>> fields, boolean show, boolean scrollable) {
+        super(title);
+        this.setModal(true);
 
-		Container contentPane = this.getContentPane();
+        Container contentPane = this.getContentPane();
 
-		JPanel topPane = new JPanel();
-		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        JPanel topPane = new JPanel();
 
-		textFields = new ArrayList<ITextComponent<String>>();
+        textFields = new ArrayList<ITextComponent<String>>();
 
-		for (ITextComponent<String> field : fields) {
-			textFields.add(field);
-			topPane.add(createTextFieldPane(field));
-			topPane.add(Box.createRigidArea(new Dimension(75, 10)));
-		}
+        for (ITextComponent<String> field : fields) {
+            textFields.add(field);
+        }
 
-		// OK, Cancel
-		topPane.add(createButtonPane());
+        if (fields.size() == 2) {
+            topPane.setLayout(new BorderLayout());
+            JSplitPane splitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+            splitter.add(createTextFieldPane(fields.get(0), scrollable));
+            splitter.add(createTextFieldPane(fields.get(1), scrollable));
+            splitter.setResizeWeight(0.5);
+            topPane.add(splitter, BorderLayout.CENTER);
+        } else {
+            topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+            for (ITextComponent<String> field : fields) {
+                topPane.add(createTextFieldPane(field, scrollable));
+                topPane.add(Box.createRigidArea(new Dimension(75, 10)));
+            }
+        }
 
-		contentPane.add(new JScrollPane(topPane));
+        topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		this.pack();
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.add(createButtonPane(), BorderLayout.CENTER);
+        topPane.add(bottomPanel, BorderLayout.PAGE_END);
 
-		if (show) {
-			showDialog();
-		}
-	}
+        contentPane.add(topPane);
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param title
-	 *            The title to be used for the dialog.
-	 * @param fields
-	 *            A list of text fields.
-	 */
-	public TextDialog(String title, List<ITextComponent<String>> fields) {
-		this(title, fields, true);
-	}
+        this.pack();
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param title
-	 *            The title to be used for the dialog.
-	 * @param fields
-	 *            A variable number of text fields.
-	 */
-	public TextDialog(String title, ITextComponent<String>... fields) {
-		this(title, Arrays.asList(fields), true);
-	}
+        if (show) {
+            showDialog();
+        }
+    }
 
-	public List<ITextComponent<String>> getTextFields() {
-		return textFields;
-	}
+    /**
+     * Constructor<br/>
+     * 
+     * If there are only two fields, a split pane is used to contain the fields.
+     * 
+     * @param title  The title to be used for the dialog.
+     * @param fields A list of text fields.
+     * @param Show   the dialog immediately?
+     */
+    public TextDialog(String title, List<ITextComponent<String>> fields, boolean show) {
+        this(title, fields, show, false);
+    }
 
-	/**
-	 * Get a list of strings from the text fields.
-	 * 
-	 * @return a list of strings.
-	 */
-	public List<String> getTextStrings() {
-		List<String> strings = new ArrayList<String>();
+    /**
+     * Constructor.
+     * 
+     * @param title  The title to be used for the dialog.
+     * @param fields A list of text fields.
+     */
+    public TextDialog(String title, List<ITextComponent<String>> fields) {
+        this(title, fields, true);
+    }
 
-		for (ITextComponent<String> field : textFields) {
-			strings.add(field.getValue());
-		}
+    /**
+     * Constructor.
+     * 
+     * @param title  The title to be used for the dialog.
+     * @param fields A variable number of text fields.
+     */
+    public TextDialog(String title, ITextComponent<String>... fields) {
+        this(title, Arrays.asList(fields), true);
+    }
 
-		return strings;
-	}
+    public List<ITextComponent<String>> getTextFields() {
+        return textFields;
+    }
 
-	private JPanel createTextFieldPane(ITextComponent<String> field) {
-		JPanel panel = new JPanel();
+    /**
+     * Get a list of strings from the text fields.
+     * 
+     * @return a list of strings.
+     */
+    public List<String> getTextStrings() {
+        List<String> strings = new ArrayList<String>();
 
-		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+        for (ITextComponent<String> field : textFields) {
+            strings.add(field.getValue());
+        }
 
-		field.setEditable(!field.isReadOnly());
-		panel.add(field.getUIComponent());
+        return strings;
+    }
 
-		return panel;
-	}
+    private JPanel createTextFieldPane(ITextComponent<String> field, boolean scrollable) {
+        JPanel panel = new JPanel();
 
-	/**
-	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
-	 */
-	protected void cancelAction() {
-		// Nothing to do
-	}
+        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
-	/**
-	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
-	 */
-	protected void okAction() {
-		// If there is a field that cannot be empty, but is, we cannot dismiss
-		// the dialog.
-		for (ITextComponent<String> field : textFields) {
-			if (!field.canBeEmpty() && field.getValue().trim().length() == 0) {
-				return;
-			}
-		}
+        field.setEditable(!field.isReadOnly());
 
-		cancelled = false;
-		setVisible(false);
-		dispose();
-	}
+        if (scrollable) {
+            JScrollPane scrollPane = new JScrollPane(field.getUIComponent());
+            panel.add(scrollPane);
+        } else {
+            panel.add(field.getUIComponent());
+        }
+
+        return panel;
+    }
+
+    /**
+     * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
+     */
+    protected void cancelAction() {
+        // Nothing to do
+    }
+
+    /**
+     * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
+     */
+    protected void okAction() {
+        // If there is a field that cannot be empty, but is, we cannot dismiss
+        // the dialog.
+        for (ITextComponent<String> field : textFields) {
+            if (!field.canBeEmpty() && field.getValue().trim().length() == 0) {
+                return;
+            }
+        }
+
+        cancelled = false;
+        setVisible(false);
+        dispose();
+    }
 }
