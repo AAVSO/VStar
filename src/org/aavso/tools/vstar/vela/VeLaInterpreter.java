@@ -1967,9 +1967,11 @@ public class VeLaInterpreter {
 
         for (Method declaredMethod : declaredMethods) {
             String funcName = declaredMethod.getName().toUpperCase();
-            Class<?> returnType = declaredMethod.getReturnType();
             List<Class<?>> paramTypes = getJavaParameterTypes(declaredMethod, permittedTypes);
+            Class<?> returnType = declaredMethod.getReturnType();
 
+            // If the method is non-static, we need to include a parameter
+            // type for the object on which the method will be invoked.
             if (!Modifier.isStatic(declaredMethod.getModifiers()) && instance == null) {
                 List<Class<?>> newParamTypes = new ArrayList<Class<?>>();
                 newParamTypes.add(clazz);
@@ -1980,16 +1982,12 @@ public class VeLaInterpreter {
             FunctionExecutor function = null;
 
             if (!exclusions.contains(funcName) && permittedTypes.contains(returnType)) {
-                // If the method is non-static, we need to include a
-                // parameter type for the object on which the method will be
-                // invoked.
-
-                List<String> paramNames = getJavaParameterNames(declaredMethod, permittedTypes);
+                List<String> names = getJavaParameterNames(declaredMethod, permittedTypes);
                 List<Type> types = paramTypes.stream().map(t -> Type.java2Vela(t)).collect(Collectors.toList());
 
                 Optional<String> helpString = Optional.empty();
 
-                function = new FunctionExecutor(Optional.of(funcName), declaredMethod, paramNames, types,
+                function = new FunctionExecutor(Optional.of(funcName), declaredMethod, names, types,
                         Optional.of(Type.java2Vela(returnType)), helpString) {
                     @Override
                     public Optional<Operand> apply(List<Operand> operands) {

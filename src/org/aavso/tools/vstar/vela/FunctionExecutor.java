@@ -113,7 +113,6 @@ public abstract class FunctionExecutor {
      * 
      * @param funcName       The function's name.
      * @param method         The corresponding Java method object.
-     * @param parameterTypes The function's parameter types.
      * @param returnType     The function's return type.
      * @param helpString     The optional help string.
      */
@@ -126,12 +125,11 @@ public abstract class FunctionExecutor {
      * Constructor for zero-arity functions.
      * 
      * @param funcName       The function's name.
-     * @param parameterTypes The function's parameter types.
      * @param returnType     The function's return type.
      * @param helpString     The optional help string.
      */
     public FunctionExecutor(Optional<String> funcName, Optional<Type> returnType, Optional<String> helpString) {
-        this(funcName, null, NO_FORMAL_TYPES, returnType, helpString);
+        this(funcName, NO_FORMAL_NAMES, NO_FORMAL_TYPES, returnType, helpString);
     }
 
     /**
@@ -215,13 +213,21 @@ public abstract class FunctionExecutor {
         if (parameterTypes == ANY_FORMAL_TYPES) {
             paramsStr = "ANY";
         } else {
+            int paramsStartIndex = 0;
+            if (parameterTypes.size() == parameterNames.size() + 1) {
+                // We will get here if there is an underlying non-static Java method executor,
+                // since this will require an extra parameter.
+                paramsStartIndex = 1;
+            }
+
             StringBuffer paramsBuf = new StringBuffer();
-            for (int i = 0; i < parameterTypes.size(); i++) {
-                paramsBuf.append(parameterNames.get(i));
+            for (int i = paramsStartIndex; i < parameterTypes.size(); i++) {
+                paramsBuf.append(parameterNames.get(i - paramsStartIndex));
                 paramsBuf.append(":");
                 paramsBuf.append(parameterTypes.get(i));
                 paramsBuf.append(" ");
             }
+
             paramsStr = paramsBuf.toString().trim();
         }
 
