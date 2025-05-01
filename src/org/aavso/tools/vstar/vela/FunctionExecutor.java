@@ -51,8 +51,6 @@ public abstract class FunctionExecutor {
     protected Optional<Type> returnType;
     protected Optional<String> helpString;
 
-    protected Method method;
-
     /**
      * Apply the function to the specified operands and return a result of the
      * specified type.
@@ -64,47 +62,21 @@ public abstract class FunctionExecutor {
     public abstract Optional<Operand> apply(List<Operand> operands) throws VeLaEvalError;
 
     /**
-     * Constructor for functions with a corresponding Java method to invoke.
+     * Constructor for functions.
      * 
      * @param funcName       The function's name.
-     * @param method         The corresponding Java method object.
      * @param parameterNames The function's formal parameter names.
      * @param parameterTypes The function's parameter types.
      * @param returnType     The function's optional return type.
      * @param helpString     The optional help string.
      */
-    public FunctionExecutor(Optional<String> funcName, Method method, List<String> parameterNames,
+    public FunctionExecutor(Optional<String> funcName, List<String> parameterNames,
             List<Type> parameterTypes, Optional<Type> returnType, Optional<String> helpString) {
         this.funcName = funcName;
-        this.method = method;
         this.parameterNames = parameterNames;
         this.parameterTypes = parameterTypes;
         this.returnType = returnType;
         this.helpString = helpString;
-    }
-
-    /**
-     * Constructor for functions with no Java method to invoke.
-     *
-     * @param funcName       The function's name.
-     * @param parameterTypes The function's parameter types.
-     * @param returnType     The function's return type.
-     * @param helpString     The optional help string.
-     */
-    public FunctionExecutor(Optional<String> funcName, List<String> parameterNames, List<Type> parameterTypes,
-            Optional<Type> returnType, Optional<String> helpString) {
-        this(funcName, null, parameterNames, parameterTypes, returnType, helpString);
-    }
-
-    /**
-     * Constructor for functions with no Java method to invoke.
-     * 
-     * @param funcName       The function's name.
-     * @param parameterTypes The function's parameter types.
-     * @param returnType     The function's return type.
-     */
-    public FunctionExecutor(Optional<String> funcName, List<Type> parameterTypes, Optional<Type> returnType) {
-        this(funcName, null, parameterTypes, returnType, Optional.empty());
     }
 
     /**
@@ -118,7 +90,7 @@ public abstract class FunctionExecutor {
      */
     public FunctionExecutor(Optional<String> funcName, Method method, Optional<Type> returnType,
             Optional<String> helpString) {
-        this(funcName, method, NO_FORMAL_NAMES, NO_FORMAL_TYPES, returnType, helpString);
+        this(funcName, NO_FORMAL_NAMES, NO_FORMAL_TYPES, returnType, helpString);
     }
 
     /**
@@ -170,13 +142,6 @@ public abstract class FunctionExecutor {
      */
     public Optional<String> getFuncName() {
         return funcName;
-    }
-
-    /**
-     * @return the method
-     */
-    public Method getMethod() {
-        return method;
     }
 
     /**
@@ -245,7 +210,6 @@ public abstract class FunctionExecutor {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((funcName == null) ? 0 : funcName.hashCode());
-        result = prime * result + ((method == null) ? 0 : method.hashCode());
         result = prime * result + ((parameterTypes == null) ? 0 : parameterTypes.hashCode());
         result = prime * result + ((returnType == null) ? 0 : returnType.hashCode());
         return result;
@@ -268,13 +232,6 @@ public abstract class FunctionExecutor {
                 return false;
             }
         } else if (!funcName.equals(other.funcName)) {
-            return false;
-        }
-        if (method == null) {
-            if (other.method != null) {
-                return false;
-            }
-        } else if (!method.equals(other.method)) {
             return false;
         }
         if (parameterTypes == null) {

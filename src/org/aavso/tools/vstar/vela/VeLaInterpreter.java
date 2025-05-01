@@ -1991,65 +1991,20 @@ public class VeLaInterpreter {
 
                 Optional<String> helpString = Optional.empty();
 
-                function = new FunctionExecutor(Optional.of(funcName), declaredMethod, names, types,
-                        Optional.of(Type.java2Vela(returnType)), helpString) {
-                    @Override
-                    public Optional<Operand> apply(List<Operand> operands) {
-                        return invokeJavaMethod(getMethod(), instance, operands, getReturnType());
-                    }
-                };
+                function = new JavaMethodExecutor(instance, declaredMethod, Optional.of(funcName), names, types,
+                        Optional.of(Type.java2Vela(returnType)), helpString);
 
                 javaClassFunctionExecutors.add(function);
             }
         }
     }
 
-    private static Optional<Operand> invokeJavaMethod(Method method, Object instance, List<Operand> operands,
-            Optional<Type> retType) {
-        Operand result = null;
+//    next  - subclass FunctionExecutor to run Java functions;
+//            FunctionExecutor can be used as it is now otherwise
+//          - add (* ... *) to lexer/parser before variables, functions
 
-        try {
-            Object obj = null;
-
-            if (!Modifier.isStatic(method.getModifiers())) {
-                // For non-static methods, if instance is null, assume the first
-                // operand is an object instance.
-                if (instance == null) {
-                    obj = operands.get(0).toObject();
-                    operands.remove(0);
-                } else {
-                    // ...otherwise, use what's been passed in.
-                    obj = instance;
-                }
-            }
-
-            // Note that this is the first use of Java 8
-            // lambda expressions in VStar!
-
-            // obj is null for static methods
-            result = Operand.object2Operand(retType.get(),
-                    method.invoke(obj, operands.stream().map(op -> op.toObject()).toArray()));
-
-            Optional<Operand> retVal = null;
-
-            if (result != null) {
-                retVal = Optional.of(result);
-            } else {
-                retVal = Optional.of(Operand.NO_VALUE);
-            }
-
-            return retVal;
-
-        } catch (InvocationTargetException e) {
-            throw new VeLaEvalError(e.getLocalizedMessage());
-        } catch (IllegalAccessException e) {
-            throw new VeLaEvalError(e.getLocalizedMessage());
-        }
-    }
-
-    // TODO: unify these two methods, e.g. via Parameter class
-
-//    next: make another class that knows how to run Java functions
+    // TODO
+    // unify these two methods, e.g. via Parameter class
 
     private static List<String> getJavaParameterNames(Method method, Set<Class<?>> targetTypes) {
         Parameter[] parameters = method.getParameters();
