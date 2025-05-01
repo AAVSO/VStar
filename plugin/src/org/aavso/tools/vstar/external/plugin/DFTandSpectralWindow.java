@@ -103,7 +103,6 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	private volatile boolean plugin_interrupted;
 	private volatile boolean algorithmCreated;
 	private boolean cancelled;
-	private boolean resetParams;
 
 	private FtResult ftResult;
 	private double minFrequency, maxFrequency, resolution;
@@ -163,21 +162,39 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			firstInvocation = false;
 		}
 
-		if (resetParams) {
+		// Full reset if a new dataset was loaded (reset() was called)  
+		if (ftResult == null) {
 			ftResult = new FtResult(obs);
 			minFrequency = 0.0;
 			maxFrequency = 0.0;
 			resolution = 0.0;
 			double interval = ftResult.getMedianTimeInterval();
-			if (interval > 0.0) {
+			double timeSpan = ftResult.getObservationTimeSpan();
+			if (interval > 0.0 && timeSpan > 0.0) {
 				// Trying to estimate the Nyquist frequency from the median interval between observations.
 				// Restrict it if it is too high.
 				maxFrequency = Math.min(0.5 / interval, 50.0);
 				// The peak width in the frequency domain ~ the length of the observation time span.    
-				resolution = 0.05 / ftResult.getObservationTimeSpan(); 
+				resolution = 0.05 / timeSpan; 
 			}
 			analysisType = FAnalysisType.DFT;
-			resetParams = false;
+		} else {
+			//// Does the new dataset have a different time span and resolution?
+			//double previousInterval = ftResult.getMedianTimeInterval();
+			//double previousTimeSpan = ftResult.getObservationTimeSpan();
+			ftResult = new FtResult(obs);
+			//double interval = ftResult.getMedianTimeInterval();
+			//double timeSpan = ftResult.getObservationTimeSpan();
+			//if (interval != previousInterval || timeSpan != previousTimeSpan) {
+			//	maxFrequency = 0.0;
+			//	resolution = 0.0;
+			//	if (interval > 0.0 && timeSpan > 0.0) {
+			//		maxFrequency = Math.min(0.5 / interval, 50.0);
+			//		resolution = 0.05 / timeSpan;
+			//	}
+			//	if (maxFrequency <= minFrequency)
+			//		minFrequency = 0.0;
+			//}
 		}
 		
 		cancelled = !parametersDialog();
@@ -1188,15 +1205,14 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 	@Override
 	public void reset() {
+		ftResult = null;		
 		cancelled = false;
 		plugin_interrupted = false;
 		algorithmCreated = false;
-		resetParams = true;
 		minFrequency = 0.0;
 		maxFrequency = 0.0;
 		resolution = 0.0;
 		analysisType = FAnalysisType.DFT;
-		ftResult = null;
 		if (resultDialogList != null) {
 			List<PeriodAnalysisDialog> tempResultDialogList = resultDialogList;
 			resultDialogList = null;
