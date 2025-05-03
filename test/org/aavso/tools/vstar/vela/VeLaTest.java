@@ -1302,6 +1302,9 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void testNamedFunRecursiveLoop() {
         String prog = "";
+        prog += "<<";
+        prog += " Not properly tail recursive loop function.";
+        prog += ">>";
         prog += "loop(n:integer) {";
         prog += "    print(n \"^2 = \" n*n \"\n\")";
         prog += "    when n < 10 -> loop(n+1)";
@@ -1326,6 +1329,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void testNamedFunRecursiveFactorial() {
         String prog = "";
+        prog += "<< Recursive factorial function >>";
         prog += "fact(n:integer) : integer {";
         prog += "    when";
         prog += "      n <= 0 -> 1";

@@ -24,11 +24,7 @@ import java.util.Optional;
 
 /**
  * The base class for all function executors. Each subclass must implement
- * apply(). TODO: Note that there should really be a JavaFunctionExecutor
- * subclass as well, since we refer to Java methods in this class and have to
- * subclass it in VeLaInterpreter. parameterNames should also be part of the
- * base class as well, not just in UserDefinedFunction; that will also make
- * help() output better.
+ * apply().
  */
 public abstract class FunctionExecutor {
 

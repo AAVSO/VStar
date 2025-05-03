@@ -60,6 +60,7 @@ public class JavaMethodExecutor extends FunctionExecutor {
         Operand result = null;
 
         try {
+            // obj is null for static methods
             Object obj = null;
 
             if (!Modifier.isStatic(method.getModifiers())) {
@@ -75,9 +76,8 @@ public class JavaMethodExecutor extends FunctionExecutor {
             }
 
             // Note that this is the first use of Java 8
-            // lambda expressions in VStar!
+            // lambda expressions in VStar
 
-            // obj is null for static methods
             result = Operand.object2Operand(retType.get(),
                     method.invoke(obj, operands.stream().map(op -> op.toObject()).toArray()));
 

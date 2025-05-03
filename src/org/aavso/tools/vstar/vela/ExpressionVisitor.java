@@ -97,6 +97,12 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
     public AST visitNamedFundef(NamedFundefContext ctx) {
         AST ast = new AST(Operation.FUNDEF);
         ast.addChild(ctx.symbol().accept(this));
+        String helpStr = null;
+        if (ctx.HELP_COMMENT() != null) {
+            // Optional help comment
+            helpStr = ctx.HELP_COMMENT().getText();
+            ast.addChild(new AST(helpStr, Operation.HELP_COMMENT));
+        }
         ctx.formalParameter().forEach(param -> ast.addChild(param.accept(this)));
         if (ctx.type() != null) {
             // Optional return type

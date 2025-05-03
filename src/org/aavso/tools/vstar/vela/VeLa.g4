@@ -35,6 +35,7 @@ sequence
 
 binding
 :
+    HELP_COMMENT?
     symbol
     (
         BACK_ARROW
@@ -53,13 +54,15 @@ binding
 
 namedFundef
 :
+    HELP_COMMENT?
     symbol LPAREN formalParameter?
     (
         formalParameter
     )* RPAREN
     (
         COLON type
-    )? block
+    )?
+    block
 ;
 
 expression
@@ -643,11 +646,20 @@ WS
     [ \r\t\n]+ -> skip
 ;
 
+
+HELP_COMMENT
+:
+    LESS_THAN LESS_THAN
+    [ \r\t\n]*
+    ~[\r\n]*
+    [ \r\t\n]*
+    GREATER_THAN GREATER_THAN
+;
+
 COMMENT
 :
 // Could use channel(HIDDEN) instead of skip,
 // e.g. https://stackoverflow.com/questions/23976617/parsing-single-line-comments
-// The first pays homage to SQL. The second is a concession to the shebang mechanism.
 
     (
        '#'

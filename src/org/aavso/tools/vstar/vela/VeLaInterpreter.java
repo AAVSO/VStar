@@ -617,6 +617,7 @@ public class VeLaInterpreter {
 
             // Extract components from AST in order to create a function
             // executor.
+            Optional<String> helpString = Optional.empty();
             List<String> parameterNames = new ArrayList<String>();
             List<Type> parameterTypes = new ArrayList<Type>();
             Optional<Type> returnType = Optional.empty();
@@ -625,6 +626,12 @@ public class VeLaInterpreter {
             for (int i = name.isPresent() ? 1 : 0; i < ast.getChildren().size(); i++) {
                 AST child = ast.getChildren().get(i);
                 switch (child.getOp()) {
+                case HELP_COMMENT:
+                    String help = child.getToken();
+                    help = help.replace("<<", "").replace(">>", "").trim();
+                    helpString = Optional.of(help);
+                    break;
+
                 case PAIR:
                     parameterNames.add(child.left().getToken());
                     parameterTypes.add(Type.name2Vela(child.right().getToken()));
@@ -642,9 +649,6 @@ public class VeLaInterpreter {
                     break;
                 }
             }
-
-            // TODO: once in the language, replace if exists
-            Optional<String> helpString = Optional.of("");
 
             // Add the named function to the top-most scope's function namespace
             // or the push the anonymous function to the operand stack.
@@ -1519,13 +1523,11 @@ public class VeLaInterpreter {
                         }
                         buf.append(operand.toHumanReadableString());
 
-                        if (operand.getType() == Type.FUNCTION) {
-                            Optional<String> helpString = operand.functionVal().helpString;
-                            if (helpString.isPresent()) {
-                                buf.append("\n");
-                                buf.append(helpString.get());
-                            }
+                        if (helpString.isPresent()) {
+                            buf.append("\n");
+                            buf.append(helpString.get());
                         }
+
                         buf.append("\n");
                     }
                     helpMessage = buf.toString();
@@ -1999,9 +2001,7 @@ public class VeLaInterpreter {
         }
     }
 
-//    next  - subclass FunctionExecutor to run Java functions;
-//            FunctionExecutor can be used as it is now otherwise
-//          - add (* ... *) to lexer/parser before variables, functions
+// add (* ... *) to lexer/parser before variables, functions
 
     // TODO
     // unify these two methods, e.g. via Parameter class
