@@ -1523,12 +1523,14 @@ public class VeLaInterpreter {
                             buf.append(operand.getType());
                             buf.append(" : ");
                             buf.append(humanStr);
+                            buf.append("\n");
                         } else {
                             buf.append(humanStr);
                             buf.append("\n");
                             Optional<String> helpStrOpt = operand.functionVal().helpString;
                             if (helpStrOpt.isPresent()) {
                                 buf.append(helpStrOpt.get());
+                                buf.append("\n");
                             }
                         }
 
