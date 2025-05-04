@@ -1679,7 +1679,7 @@ public class VeLaInterpreter {
 
         // Return type will change with invocation.
         addFunctionExecutor(new FunctionExecutor(Optional.of("HEAD"), Arrays.asList("aList"), Arrays.asList(Type.LIST),
-                Optional.empty(), Optional.of(help)) {
+                Optional.of(Type.LIST), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 List<Operand> list = operands.get(0).listVal();
@@ -1720,7 +1720,7 @@ public class VeLaInterpreter {
     private void addListNthFunction() {
         String help = "Returns the nth element of a list or the empty list if the list is empty.";
 
-        // Return type will change with invocation.
+        // Return type will change with invocation; need a union type!
         addFunctionExecutor(new FunctionExecutor(Optional.of("NTH"), Arrays.asList("aList", "index"),
                 Arrays.asList(Type.LIST, Type.INTEGER), Optional.empty(), Optional.of(help)) {
             @Override
@@ -1918,7 +1918,7 @@ public class VeLaInterpreter {
         // Return type will be same as function the parameter's type.
         addFunctionExecutor(
                 new FunctionExecutor(Optional.of("REDUCE"), Arrays.asList("unaryFunction", "aList", "initialValue"),
-                        Arrays.asList(Type.FUNCTION, Type.LIST, reductionType), Optional.empty(), Optional.of(help)) {
+                        Arrays.asList(Type.FUNCTION, Type.LIST, reductionType), Optional.of(Type.LIST), Optional.of(help)) {
                     @Override
                     public Optional<Operand> apply(List<Operand> operands) {
                         FunctionExecutor fun = operands.get(0).functionVal();
