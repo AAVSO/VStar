@@ -1871,7 +1871,7 @@ public class VeLaInterpreter {
                 + "the subset of those elements that satisfy the predicate.";
 
         // Return type will always be LIST here.
-        addFunctionExecutor(new FunctionExecutor(Optional.of("FILTER"), Arrays.asList("unaryFunction", "aList"),
+        addFunctionExecutor(new FunctionExecutor(Optional.of("FILTER"), Arrays.asList("predicate", "aList"),
                 Arrays.asList(Type.FUNCTION, Type.LIST), Optional.of(Type.LIST), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
@@ -1916,30 +1916,30 @@ public class VeLaInterpreter {
                 + "a value whose initial value is also provided.";
 
         // Return type will be same as function the parameter's type.
-        addFunctionExecutor(
-                new FunctionExecutor(Optional.of("REDUCE"), Arrays.asList("unaryFunction", "aList", "initialValue"),
-                        Arrays.asList(Type.FUNCTION, Type.LIST, reductionType), Optional.of(Type.LIST), Optional.of(help)) {
-                    @Override
-                    public Optional<Operand> apply(List<Operand> operands) {
-                        FunctionExecutor fun = operands.get(0).functionVal();
-                        // Set return type on reduce dynamically each time.
-                        setReturnType(fun.getReturnType());
-                        List<Operand> list = operands.get(1).listVal();
-                        Operand retVal = operands.get(2);
-                        for (Operand item : list) {
-                            List<Operand> params = new ArrayList<Operand>();
-                            params.add(retVal);
-                            params.add(item);
+        addFunctionExecutor(new FunctionExecutor(Optional.of("REDUCE"),
+                Arrays.asList("unaryFunction", "aList", "initialValue"),
+                Arrays.asList(Type.FUNCTION, Type.LIST, reductionType), Optional.of(reductionType), Optional.of(help)) {
+            @Override
+            public Optional<Operand> apply(List<Operand> operands) {
+                FunctionExecutor fun = operands.get(0).functionVal();
+                // Set return type on reduce dynamically each time.
+                setReturnType(fun.getReturnType());
+                List<Operand> list = operands.get(1).listVal();
+                Operand retVal = operands.get(2);
+                for (Operand item : list) {
+                    List<Operand> params = new ArrayList<Operand>();
+                    params.add(retVal);
+                    params.add(item);
 
-                            applyFunction(fun, params);
+                    applyFunction(fun, params);
 
-                            if (!stack.isEmpty()) {
-                                retVal = stack.pop();
-                            }
-                        }
-                        return Optional.of(retVal);
+                    if (!stack.isEmpty()) {
+                        retVal = stack.pop();
                     }
-                });
+                }
+                return Optional.of(retVal);
+            }
+        });
     }
 
     private void addListForFunction() {
