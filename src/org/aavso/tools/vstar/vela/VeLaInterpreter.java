@@ -1468,7 +1468,7 @@ public class VeLaInterpreter {
     }
 
     private void addZeroArityFunctions() {
-        String todayHelp = "Yields the Julian Day corresponding to today (year, month, day).";
+        String todayHelp = "Yields the Julian Day corresponding to the current year, month and day.";
 
         addFunctionExecutor(new FunctionExecutor(Optional.of("TODAY"), Optional.of(Type.REAL), Optional.of(todayHelp)) {
             @Override
@@ -1517,15 +1517,19 @@ public class VeLaInterpreter {
                 if (operands.size() >= 1) {
                     StringBuffer buf = new StringBuffer();
                     for (Operand operand : operands) {
+                        String humanStr = operand.toHumanReadableString();
+
                         if (operand.getType() != Type.FUNCTION) {
                             buf.append(operand.getType());
                             buf.append(" : ");
-                        }
-                        buf.append(operand.toHumanReadableString());
-
-                        if (helpString.isPresent()) {
+                            buf.append(humanStr);
+                        } else {
+                            buf.append(humanStr);
                             buf.append("\n");
-                            buf.append(helpString.get());
+                            Optional<String> helpStrOpt = operand.functionVal().helpString;
+                            if (helpStrOpt.isPresent()) {
+                                buf.append(helpStrOpt.get());
+                            }
                         }
 
                         buf.append("\n");

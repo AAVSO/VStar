@@ -4,8 +4,13 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - Doc strings for functions; use ;; rather than -- ?
 // - Generate Java class files from VeLa ASTs
+// - It should be possible to unify namedFunDef and anonFunDef;
+//   the latter could/should be primary from the viewpoint of
+//   everything being an expression; the "e" in VeLa!
+// - Treat funcall (and subscripting) as right-assoc? treat as operator?
+// - Alternative to block rule: sequence "end" 
+// - Add whileLoop to expression?
 
 // ** Parser rules **
 
@@ -24,18 +29,17 @@ sequence
 :
     (
         binding
-        | whileLoop // TODO: add to logicExpression?
+        | whileLoop
         | namedFundef
         | expression
     )*
 ;
 
-// F# (+ OCaml, ML?) uses <- for modifying mutable values while 
-// R uses it for regular assignment.
+// F# (+ OCaml, ML?) uses <- for modifying mutable values
+// (like VeLa) while R uses it for regular assignment.
 
 binding
 :
-    HELP_COMMENT?
     symbol
     (
         BACK_ARROW
@@ -47,10 +51,6 @@ binding
 // environment and allows all VeLa program elements operating over that 
 // environment and its predecessors. name:type pays homage to Pascal, 
 // OCaml/F#, Swift, and other languages.
-
-// TODO: it should be possible to unify this and anonFunDef;
-// the latter could/should be primary from the viewpoint of
-// everything being an expression; the "e" in VeLa!
 
 namedFundef
 :
@@ -202,7 +202,6 @@ exponentiationExpression
     )*
 ;
 
-// TODO: treat as right-assoc? treat as operator? need to do same for subscripting
 funcall
 :
     factor
@@ -290,8 +289,6 @@ type
     | LAMBDA
 ;
 
-// TODO: consider adding option that is just: sequence or sequence END
-
 block
 :
     LBRACE sequence RBRACE
@@ -345,7 +342,6 @@ WHILE
 ;
 
 // Used for function definition and type
-// TODO: or define? or just fun as per ML ...
 
 FUN
 :
