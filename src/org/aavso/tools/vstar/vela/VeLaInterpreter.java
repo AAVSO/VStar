@@ -2007,10 +2007,8 @@ public class VeLaInterpreter {
         }
     }
 
-// add (* ... *) to lexer/parser before variables, functions
-
     // TODO
-    // unify these two methods, e.g. via Parameter class
+    // unify these two methods, e.g. via a Parameter class
 
     private static List<String> getJavaParameterNames(Method method, Set<Class<?>> targetTypes) {
         Parameter[] parameters = method.getParameters();

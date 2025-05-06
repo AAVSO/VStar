@@ -52,11 +52,10 @@ public class JavaMethodExecutor extends FunctionExecutor {
 
     @Override
     public Optional<Operand> apply(List<Operand> operands) throws VeLaEvalError {
-        return invokeJavaMethod(method, instance, operands, getReturnType());
+        return invokeJavaMethod(method, operands, getReturnType());
     }
 
-    private static Optional<Operand> invokeJavaMethod(Method method, Object instance, List<Operand> operands,
-            Optional<Type> retType) {
+    private Optional<Operand> invokeJavaMethod(Method method, List<Operand> operands, Optional<Type> retType) {
         Operand result = null;
 
         try {
@@ -67,7 +66,7 @@ public class JavaMethodExecutor extends FunctionExecutor {
                 // For non-static methods, if instance is null, assume the first
                 // operand is an object instance.
                 if (instance == null) {
-                    obj = operands.get(0).toObject();
+                    obj = operands.get(0).toObject(method.getClass());
                     operands.remove(0);
                 } else {
                     // ...otherwise, use what's been passed in.
@@ -75,11 +74,16 @@ public class JavaMethodExecutor extends FunctionExecutor {
                 }
             }
 
-            // Note that this is the first use of Java 8
-            // lambda expressions in VStar
+            Class<?>[] javaParamTypes = method.getParameterTypes();
 
-            result = Operand.object2Operand(retType.get(),
-                    method.invoke(obj, operands.stream().map(op -> op.toObject()).toArray()));
+            Object[] objParams = new Object[operands.size()];
+            int paramIndex = 0;
+            for (Operand op : operands) {
+                objParams[paramIndex] = op.toObject(javaParamTypes[paramIndex]);
+                paramIndex++;
+            }
+
+            result = Operand.object2Operand(retType.get(), method.invoke(obj, objParams));
 
             Optional<Operand> retVal = null;
 
@@ -96,5 +100,34 @@ public class JavaMethodExecutor extends FunctionExecutor {
         } catch (IllegalAccessException e) {
             throw new VeLaEvalError(e.getLocalizedMessage());
         }
+    }
+
+    @Override
+    protected String getParametersString() {
+        String paramsStr;
+
+        if (parameterTypes == ANY_FORMAL_TYPES) {
+            paramsStr = "ANY";
+        } else {
+            int paramsStartIndex = 0;
+            if (parameterTypes.size() == parameterNames.size() + 1) {
+                // We will get here if there is an underlying non-static Java method executor,
+                // since this will require an extra parameter.
+                paramsStartIndex = 1;
+            }
+
+            StringBuffer paramsBuf = new StringBuffer();
+            for (int i = paramsStartIndex; i < parameterTypes.size(); i++) {
+                // Note: when we can get real names from Javadoc, re-enable
+//                paramsBuf.append(parameterNames.get(i - paramsStartIndex));
+//                paramsBuf.append(":");
+                paramsBuf.append(parameterTypes.get(i));
+                paramsBuf.append(" ");
+            }
+
+            paramsStr = paramsBuf.toString().trim();
+        }
+
+        return paramsStr;
     }
 }
