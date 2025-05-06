@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.vela;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,6 +49,15 @@ public class JavaMethodExecutor extends FunctionExecutor {
         super(funcName, parameterNames, parameterTypes, returnType, helpString);
         this.instance = instance;
         this.method = method;
+
+        if (parameterTypes.size() == parameterNames.size() + 1) {
+            // We will get here if there is an underlying non-static Java method executor,
+            // since this will require an extra parameter.
+            ArrayList<String> extendedParams = new ArrayList<String>();
+            extendedParams.add("OBJ");
+            extendedParams.addAll(parameterNames);
+            parameterNames = extendedParams;
+        }
     }
 
     @Override
@@ -109,17 +119,11 @@ public class JavaMethodExecutor extends FunctionExecutor {
         if (parameterTypes == ANY_FORMAL_TYPES) {
             paramsStr = "ANY";
         } else {
-            int paramsStartIndex = 0;
-            if (parameterTypes.size() == parameterNames.size() + 1) {
-                // We will get here if there is an underlying non-static Java method executor,
-                // since this will require an extra parameter.
-                paramsStartIndex = 1;
-            }
-
             StringBuffer paramsBuf = new StringBuffer();
-            for (int i = paramsStartIndex; i < parameterTypes.size(); i++) {
+
+            for (int i = 0; i < parameterTypes.size(); i++) {
                 // Note: when we can get real names from Javadoc, re-enable
-//                paramsBuf.append(parameterNames.get(i - paramsStartIndex));
+//                paramsBuf.append(parameterNames.get(i - 1));
 //                paramsBuf.append(":");
                 paramsBuf.append(parameterTypes.get(i));
                 paramsBuf.append(" ");
