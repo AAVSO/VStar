@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.vela;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -73,20 +72,6 @@ public abstract class FunctionExecutor {
         this.parameterTypes = parameterTypes;
         this.returnType = returnType;
         this.helpString = helpString;
-    }
-
-    /**
-     * Constructor for zero-arity functions with a corresponding Java method to
-     * invoke.
-     * 
-     * @param funcName   The function's name.
-     * @param method     The corresponding Java method object.
-     * @param returnType The function's return type.
-     * @param helpString The optional help string.
-     */
-    public FunctionExecutor(Optional<String> funcName, Method method, Optional<Type> returnType,
-            Optional<String> helpString) {
-        this(funcName, NO_FORMAL_NAMES, NO_FORMAL_TYPES, returnType, helpString);
     }
 
     /**

@@ -1525,6 +1525,30 @@ public class VeLaInterpreter {
                     }
                 });
 
+        String millisecsHelp = "Returns the number of milliseconds between the current time and midnight, January 1, 1970 UTC";
+
+        addFunctionExecutor(new FunctionExecutor(Optional.of("MILLISECONDS"), Optional.of(Type.INTEGER),
+                Optional.of(millisecsHelp)) {
+            @Override
+            public Optional<Operand> apply(List<Operand> operands) {
+                long milliseconds = System.currentTimeMillis();
+                return Optional.of(new Operand(Type.INTEGER, milliseconds));
+            }
+        });
+
+    }
+
+    private void addExit() {
+        String help = "Exits the current program with the specified exit code.";
+
+        addFunctionExecutor(new FunctionExecutor(Optional.of("EXIT"), Arrays.asList("exitCode"),
+                Arrays.asList(Type.INTEGER), Optional.empty(), Optional.of(help)) {
+            @Override
+            public Optional<Operand> apply(List<Operand> operands) {
+                System.exit((int) operands.get(0).intVal());
+                return Optional.empty();
+            }
+        });
     }
 
     private void addHelp() {
@@ -1532,7 +1556,7 @@ public class VeLaInterpreter {
 
         addFunctionExecutor(new FunctionExecutor(Optional.of("HELP"), FunctionExecutor.ANY_FORMAL_NAMES,
                 FunctionExecutor.ANY_FORMAL_TYPES, Optional.of(Type.STRING), Optional.of(help)) {
-          
+
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 String helpMessage = null;
@@ -1564,39 +1588,6 @@ public class VeLaInterpreter {
                 }
 
                 return Optional.of(new Operand(Type.STRING, helpMessage));
-            }
-        });
-
-        addFunctionExecutor(new FunctionExecutor(Optional.of("MILLISECONDS"), Optional.of(Type.INTEGER)) {
-            @Override
-            public Optional<Operand> apply(List<Operand> operands) {
-                long milliseconds = System.currentTimeMillis();
-                return Optional.of(new Operand(Type.INTEGER, milliseconds));
-            }
-        });
-
-        addFunctionExecutor(new FunctionExecutor(Optional.of("TODAY"), Optional.of(Type.REAL)) {
-            @Override
-            public Optional<Operand> apply(List<Operand> operands) {
-                Calendar cal = Calendar.getInstance();
-                int year = cal.get(Calendar.YEAR);
-                int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
-                int day = cal.get(Calendar.DAY_OF_MONTH);
-                double jd = AbstractDateUtil.getInstance().calendarToJD(year, month, day);
-                return Optional.of(new Operand(Type.REAL, jd));
-            }
-        });
-    }
-
-    private void addExit() {
-        String help = "Exits the current program with the specified exit code.";
-
-        addFunctionExecutor(new FunctionExecutor(Optional.of("EXIT"), Arrays.asList("exitCode"),
-                Arrays.asList(Type.INTEGER), Optional.empty(), Optional.of(help)) {
-            @Override
-            public Optional<Operand> apply(List<Operand> operands) {
-                System.exit((int) operands.get(0).intVal());
-                return Optional.empty();
             }
         });
     }
@@ -1934,8 +1925,12 @@ public class VeLaInterpreter {
     private void addListFindFunction() {
         // Return the index of the first element of a list matching a
         // predicate, else -1.
-        addFunctionExecutor(new FunctionExecutor(Optional.of("FIND"), Arrays.asList(Type.FUNCTION, Type.LIST),
-                Optional.of(Type.INTEGER)) {
+
+        String findHelp = "Return the index of the first element of a list matching a\n"
+                + "predicate applied to a list element, else -1";
+
+        addFunctionExecutor(new FunctionExecutor(Optional.of("FIND"), Arrays.asList("unaryFunction", "aList"),
+                Arrays.asList(Type.FUNCTION, Type.LIST), Optional.of(Type.INTEGER), Optional.of(findHelp)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 FunctionExecutor fun = operands.get(0).functionVal();
@@ -1969,13 +1964,18 @@ public class VeLaInterpreter {
         // predicate applied to two list elements, else -1. Whereas FIND's predicate
         // takes a single list element,
         // PAIRWISEFIND takes two elements separated by a "step" value.
+
+        String pairwiseFindHelp = "Return the index of the first element of a list matching a\n"
+                + "predicate applied to two list elements, else -1";
+
         addFunctionExecutor(new FunctionExecutor(Optional.of("PAIRWISEFIND"),
-                Arrays.asList(Type.FUNCTION, Type.LIST, Type.INTEGER), Optional.of(Type.INTEGER)) {
+                Arrays.asList("unaryFunction", "aList", "step"), Arrays.asList(Type.FUNCTION, Type.LIST, Type.INTEGER),
+                Optional.of(Type.INTEGER), Optional.of(pairwiseFindHelp)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
                 FunctionExecutor fun = operands.get(0).functionVal();
                 List<Operand> list = operands.get(1).listVal();
-                long step = (int)operands.get(2).intVal();
+                long step = (int) operands.get(2).intVal();
                 int index = -1;
                 for (int i = 0; i < list.size() - 1; i += step) {
                     List<Operand> params = Arrays.asList(list.get(i), list.get(i + 1));

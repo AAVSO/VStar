@@ -19,7 +19,6 @@ package org.aavso.tools.vstar.vela;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Stack;
 
 /**
  * This class executes user defined functions.
@@ -27,7 +26,6 @@ import java.util.Stack;
 public class UserDefinedFunctionExecutor extends FunctionExecutor {
 
     private VeLaInterpreter vela;
-    private List<String> parameterNames;
     private Optional<AST> ast;
     private VeLaScope env;
 
