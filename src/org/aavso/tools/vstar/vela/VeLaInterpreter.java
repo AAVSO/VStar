@@ -1913,7 +1913,7 @@ public class VeLaInterpreter {
 
     private void addListReduceFunction(Type reductionType) {
         String help = "Applies a function to each element of a list, returning\n"
-                + "a value whose initial value is also provided.";
+                + "a single value. An initial value must be provided.";
 
         // Return type will be same as function the parameter's type.
         addFunctionExecutor(new FunctionExecutor(Optional.of("REDUCE"),
