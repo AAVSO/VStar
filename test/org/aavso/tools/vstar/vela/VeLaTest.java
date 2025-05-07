@@ -1588,6 +1588,36 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertEquals(expected, actual);
     }
 
+    public void testFunFindPositive() {
+        // Return the index of the first value > 150 then check that index corresponds
+        // to 151.
+        String prog = "";
+        prog += "xs is seq(100 200 1)\n";
+        prog += "index is find(function(n:integer):boolean{n>150} xs)\n";
+        prog += "nth(xs index)";
+
+        Optional<Operand> result = vela.program(prog);
+
+        assertTrue(result.isPresent());
+        Operand expected = new Operand(Type.INTEGER, 151);
+        Operand actual = result.get();
+        assertEquals(expected, actual);
+    }
+
+    public void testFunFindNegative() {
+        // Search for a value that does not exist and expect -1 as the result.
+        String prog = "";
+        prog += "xs is seq(100 200 1)\n";
+        prog += "find(function(n:integer):boolean{n=50} xs)";
+
+        Optional<Operand> result = vela.program(prog);
+
+        assertTrue(result.isPresent());
+        Operand expected = new Operand(Type.INTEGER, -1);
+        Operand actual = result.get();
+        assertEquals(expected, actual);
+    }
+
     public void testFunReduceInteger() {
         String prog = "";
         prog += "sum(x:integer y:integer) : integer {";
@@ -1841,7 +1871,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     public void testClosureBasedCounter() {
         String prog = "";
         prog += "mkcounter(start:integer) : function {\n";
-        prog += "  count is start\n";
+        prog += "  count <- start\n";
         prog += "  counter(n:integer) : integer { count <- count + n  count }\n";
         prog += "  counter\n";
         prog += "}\n";
@@ -1859,7 +1889,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     public void testAnonymousClosureBasedCounter() {
         String prog = "";
         prog += "mkcounter(start:integer) : function {\n";
-        prog += "  count is start\n";
+        prog += "  count <- start\n";
         prog += "  function(n:integer) : integer { count <- count + n  count }\n";
         prog += "}\n";
         prog += "c is mkcounter(10)\n";

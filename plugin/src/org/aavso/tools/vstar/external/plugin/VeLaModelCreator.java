@@ -35,6 +35,7 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
  */
 public class VeLaModelCreator extends ModelCreatorPluginBase {
 
+    private static final String DIALOG_TITLE = "Function Code [model: f(t), optional derivative: df(t)]";
     private static final String FUNC_NAME = "F";
     private static final String DERIV_FUNC_NAME = "DF";
     private static final String RESOLUTION_VAR = "RESOLUTION";
@@ -151,9 +152,10 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
                 modelNameStr = getTestModelName();
             } else {
                 if (velaDialog == null) {
-                    velaDialog = new VeLaDialog("Function Code [model: f(t), optional derivative: df(t)]");
+                    velaDialog = new VeLaDialog(DIALOG_TITLE);
                 } else {
-                    velaDialog.showDialog();
+                    String code = velaDialog.getCode();
+                    velaDialog = new VeLaDialog(DIALOG_TITLE, code);
                 }
 
                 if (!velaDialog.isCancelled()) {
@@ -200,98 +202,100 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
         public void execute() throws AlgorithmError {
             if (!interrupted) {
                 try {
-                    // Evaluate the VeLa model code.
-                    // A univariate function f(t:real):real is
-                    // assumed to exist after this completes.
-                    vela.program(velaModelFunctionStr);
+                    if (velaModelFunctionStr != null) {
+                        // Evaluate the VeLa model code.
+                        // A univariate function f(t:real):real is
+                        // assumed to exist after this completes.
+                        vela.program(velaModelFunctionStr);
 
-                    String funcName = FUNC_NAME;
+                        String funcName = FUNC_NAME;
 
-                    // Has a model function been defined?
-                    if (!vela.lookupFunctions(FUNC_NAME).isPresent()) {
-                        MessageBox.showErrorDialog("VeLa Model Error", "f(t:real):real undefined");
-                    } else {
-                        function = new VeLaUnivariateRealFunction(vela, funcName);
+                        // Has a model function been defined?
+                        if (!vela.lookupFunctions(FUNC_NAME).isPresent()) {
+                            MessageBox.showErrorDialog("VeLa Model Error", "f(t:real):real undefined");
+                        } else {
+                            function = new VeLaUnivariateRealFunction(vela, funcName);
 
-                        fit = new ArrayList<ValidObservation>();
-                        residuals = new ArrayList<ValidObservation>();
+                            fit = new ArrayList<ValidObservation>();
+                            residuals = new ArrayList<ValidObservation>();
 
-                        String comment = "\n" + velaModelFunctionStr;
+                            String comment = "\n" + velaModelFunctionStr;
 
-                        // Create fit and residual observations.
-                        for (int i = 0; i < obs.size() && !interrupted; i++) {
-                            ValidObservation ob = obs.get(i);
+                            // Create fit and residual observations.
+                            for (int i = 0; i < obs.size() && !interrupted; i++) {
+                                ValidObservation ob = obs.get(i);
 
-                            // Push an environment that makes the
-                            // observation available to VeLa code.
-                            vela.pushEnvironment(new VeLaValidObservationEnvironment(ob));
+                                // Push an environment that makes the
+                                // observation available to VeLa code.
+                                vela.pushEnvironment(new VeLaValidObservationEnvironment(ob));
 
-                            double x = timeCoordSource.getXCoord(i, obs);
+                                double x = timeCoordSource.getXCoord(i, obs);
 
-                            // double zeroedX = x - zeroPoint;
-                            double y = function.value(x);
+                                // double zeroedX = x - zeroPoint;
+                                double y = function.value(x);
 
-                            ValidObservation fitOb = new ValidObservation();
-                            fitOb.setDateInfo(new DateInfo(ob.getJD()));
-                            if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
-                                fitOb.setPreviousCyclePhase(ob.getPreviousCyclePhase());
-                                fitOb.setStandardPhase(ob.getStandardPhase());
-                            }
-                            fitOb.setMagnitude(new Magnitude(y, 0));
-                            fitOb.setBand(SeriesType.Model);
-                            fitOb.setComments(comment);
-                            fit.add(fitOb);
-
-                            ValidObservation resOb = new ValidObservation();
-                            resOb.setDateInfo(new DateInfo(ob.getJD()));
-                            if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
-                                resOb.setPreviousCyclePhase(ob.getPreviousCyclePhase());
-                                resOb.setStandardPhase(ob.getStandardPhase());
-                            }
-                            double residual = ob.getMag() - y;
-                            resOb.setMagnitude(new Magnitude(residual, 0));
-                            resOb.setBand(SeriesType.Residuals);
-                            resOb.setComments(comment);
-                            residuals.add(resOb);
-
-                            // Pop the observation environment.
-                            vela.popEnvironment();
-                        }
-
-                        functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"), toString());
-
-                        // Has a derivative function been defined?
-                        // If so, carry out extrema determination.
-                        if (vela.lookupFunctions(DERIV_FUNC_NAME).isPresent()) {
-                            // Use a real VeLa resolution variable
-                            // if it exists, else use a value of
-                            // 0.1.
-                            double resolution = 0.1;
-                            Optional<Operand> resVar = vela.lookupBinding(RESOLUTION_VAR);
-                            if (resVar.isPresent()) {
-                                switch (resVar.get().getType()) {
-                                case REAL:
-                                    resolution = resVar.get().doubleVal();
-                                    break;
-                                case INTEGER:
-                                    resolution = resVar.get().intVal();
-                                    break;
-                                default:
-                                    MessageBox.showErrorDialog("VeLa Model Error", "Resolution must be numeric");
-                                    break;
+                                ValidObservation fitOb = new ValidObservation();
+                                fitOb.setDateInfo(new DateInfo(ob.getJD()));
+                                if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
+                                    fitOb.setPreviousCyclePhase(ob.getPreviousCyclePhase());
+                                    fitOb.setStandardPhase(ob.getStandardPhase());
                                 }
+                                fitOb.setMagnitude(new Magnitude(y, 0));
+                                fitOb.setBand(SeriesType.Model);
+                                fitOb.setComments(comment);
+                                fit.add(fitOb);
+
+                                ValidObservation resOb = new ValidObservation();
+                                resOb.setDateInfo(new DateInfo(ob.getJD()));
+                                if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
+                                    resOb.setPreviousCyclePhase(ob.getPreviousCyclePhase());
+                                    resOb.setStandardPhase(ob.getStandardPhase());
+                                }
+                                double residual = ob.getMag() - y;
+                                resOb.setMagnitude(new Magnitude(residual, 0));
+                                resOb.setBand(SeriesType.Residuals);
+                                resOb.setComments(comment);
+                                residuals.add(resOb);
+
+                                // Pop the observation environment.
+                                vela.popEnvironment();
                             }
 
-                            ApacheCommonsDerivativeBasedExtremaFinder finder = new ApacheCommonsDerivativeBasedExtremaFinder(
-                                    fit, (DifferentiableUnivariateRealFunction) function, timeCoordSource, zeroPoint,
-                                    resolution);
+                            functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"), toString());
 
-                            String extremaStr = finder.toString();
+                            // Has a derivative function been defined?
+                            // If so, carry out extrema determination.
+                            if (vela.lookupFunctions(DERIV_FUNC_NAME).isPresent()) {
+                                // Use a real VeLa resolution variable
+                                // if it exists, else use a value of
+                                // 0.1.
+                                double resolution = 0.1;
+                                Optional<Operand> resVar = vela.lookupBinding(RESOLUTION_VAR);
+                                if (resVar.isPresent()) {
+                                    switch (resVar.get().getType()) {
+                                    case REAL:
+                                        resolution = resVar.get().doubleVal();
+                                        break;
+                                    case INTEGER:
+                                        resolution = resVar.get().intVal();
+                                        break;
+                                    default:
+                                        MessageBox.showErrorDialog("VeLa Model Error", "Resolution must be numeric");
+                                        break;
+                                    }
+                                }
 
-                            if (extremaStr != null) {
-                                String title = LocaleProps.get("MODEL_INFO_EXTREMA_TITLE");
+                                ApacheCommonsDerivativeBasedExtremaFinder finder = new ApacheCommonsDerivativeBasedExtremaFinder(
+                                        fit, (DifferentiableUnivariateRealFunction) function, timeCoordSource,
+                                        zeroPoint, resolution);
 
-                                functionStrMap.put(title, extremaStr);
+                                String extremaStr = finder.toString();
+
+                                if (extremaStr != null) {
+                                    String title = LocaleProps.get("MODEL_INFO_EXTREMA_TITLE");
+
+                                    functionStrMap.put(title, extremaStr);
+                                }
                             }
                         }
                     }

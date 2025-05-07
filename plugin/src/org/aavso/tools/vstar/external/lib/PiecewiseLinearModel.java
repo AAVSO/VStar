@@ -99,12 +99,13 @@ public class PiecewiseLinearModel extends AbstractModel {
 
     @Override
     public String getDescription() {
-        return DESC;
+        return getKind() + " with " + piecewiseFunction.numberOfFunctions() + " functions for " + obs.get(0).getBand()
+                + " series";
     }
 
     @Override
     public String getKind() {
-        return "Piecewise linear model";
+        return DESC;
     }
 
     @Override

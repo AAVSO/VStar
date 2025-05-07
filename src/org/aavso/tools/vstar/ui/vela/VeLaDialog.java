@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.vela;
 
+import java.awt.Font;
 import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -47,201 +48,209 @@ import org.aavso.tools.vstar.vela.VeLaInterpreter;
 @SuppressWarnings("serial")
 public class VeLaDialog extends TextDialog {
 
-	private static ITextComponent<String> codeTextArea;
-	private static TextArea resultTextArea;
-	private static JCheckBox verbosityCheckBox;
+    private static ITextComponent<String> codeTextArea;
+    private static TextArea resultTextArea;
+    private static JCheckBox verbosityCheckBox;
 
-	private static VeLaInterpreter vela;
+    private static VeLaInterpreter vela;
 
-	private String path;
+    private String path;
 
-	static {
-		codeTextArea = new TextArea("VeLa Code", "", 12, 42, false, true);
-		// resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error",
-		// "AST", "DOT"), Arrays.asList("", "", "", ""), 15, 70,
-		// true, true);
-		// resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error"),
-		// Arrays.asList("", ""), 10, 40, true, true);
-		resultTextArea = new TextArea("Output", "", 12, 42, true, true);
+    static {
+        codeTextArea = new TextArea("VeLa Code", "", 12, 42, false, true);
+        // resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error",
+        // "AST", "DOT"), Arrays.asList("", "", "", ""), 15, 70,
+        // true, true);
+        // resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error"),
+        // Arrays.asList("", ""), 10, 40, true, true);
+        resultTextArea = new TextArea("Output", "", 12, 42, true, true);
 
-		verbosityCheckBox = new JCheckBox("Verbose?");
-		verbosityCheckBox.setSelected(false);
-		verbosityCheckBox.setVisible(false);
+        Font font = codeTextArea.getUIComponent().getFont();
+        codeTextArea.getUIComponent().setFont(new Font(Font.MONOSPACED, Font.PLAIN, font.getSize()));
+        resultTextArea.getUIComponent().setFont(new Font(Font.MONOSPACED, Font.PLAIN, font.getSize()));
 
-		// vela = new VeLaInterpreter(false);
-	}
+        verbosityCheckBox = new JCheckBox("Verbose?");
+        verbosityCheckBox.setSelected(false);
+        verbosityCheckBox.setVisible(false);
+    }
 
-	public VeLaDialog(String title) {
-		super(title, Arrays.asList(codeTextArea, resultTextArea));
-		path = "Untitled";
-	}
+    public VeLaDialog(String title) {
+        super(title, Arrays.asList(codeTextArea, resultTextArea), true, true);
+        path = "Untitled";
+    }
 
-	public VeLaDialog() {
-		this("VeLa");
-	}
+    public VeLaDialog(String title, String code) {
+        this(title);
+        codeTextArea.setValue(code);
+    }
 
-	/**
-	 * @return the most recently loaded/saved file path
-	 */
-	public String getPath() {
-		return path;
-	}
+    public VeLaDialog() {
+        this("VeLa");
+    }
 
-	/**
-	 * Get the VeLa code.
-	 * 
-	 * @return A string containing the code.
-	 */
-	public String getCode() {
-		return codeTextArea.getStringValue();
-	}
+    /**
+     * @return the most recently loaded/saved file path
+     */
+    public String getPath() {
+        return path;
+    }
 
-	@Override
-	protected JPanel createButtonPane() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+    /**
+     * Get the VeLa code.
+     * 
+     * @return A string containing the code.
+     */
+    public String getCode() {
+        return codeTextArea.getStringValue();
+    }
 
-		JButton cancelButton = new JButton(LocaleProps.get("CANCEL_BUTTON"));
-		cancelButton.addActionListener(createCancelButtonListener());
-		panel.add(cancelButton);
+    @Override
+    protected JPanel createButtonPane() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
-		JButton clearButton = new JButton(LocaleProps.get("CLEAR_BUTTON"));
-		clearButton.addActionListener(e -> {
-			codeTextArea.setValue("");
-			resultTextArea.setValue("");
-		});
-		panel.add(clearButton);
+        JButton cancelButton = new JButton(LocaleProps.get("CANCEL_BUTTON"));
+        cancelButton.addActionListener(createCancelButtonListener());
+        panel.add(cancelButton);
 
-		JButton runButton = new JButton(LocaleProps.get("RUN_BUTTON"));
-		runButton.addActionListener(e -> {
-			execute();
-		});
-		panel.add(runButton);
+        JButton clearButton = new JButton(LocaleProps.get("CLEAR_BUTTON"));
+        clearButton.addActionListener(e -> {
+            codeTextArea.setValue("");
+            resultTextArea.setValue("");
+        });
+        panel.add(clearButton);
 
-		JButton loadButton = new JButton(LocaleProps.get("LOAD_BUTTON"));
-		loadButton.addActionListener(e -> {
-			try {
-				Pair<String, String> content = Mediator.getInstance().getVelaFileLoadDialog().readFileAsString(this, null);
-				if (content != null) {
-					codeTextArea.setValue(content.first);
-				}
-			} catch (Exception ex) {
-				MessageBox.showErrorDialog(this, getTitle(), ex);
-			}
-		});
+        JButton runButton = new JButton(LocaleProps.get("RUN_BUTTON"));
+        runButton.addActionListener(e -> {
+            execute();
+        });
+        panel.add(runButton);
 
-		panel.add(loadButton);
+        JButton loadButton = new JButton(LocaleProps.get("LOAD_BUTTON"));
+        loadButton.addActionListener(e -> {
+            try {
+                Pair<String, String> content = Mediator.getInstance().getVelaFileLoadDialog().readFileAsString(this,
+                        null);
+                if (content != null) {
+                    codeTextArea.setValue(content.first);
+                }
+            } catch (Exception ex) {
+                MessageBox.showErrorDialog(this, getTitle(), ex);
+            }
+        });
 
-		JButton saveButton = new JButton(LocaleProps.get("SAVE_BUTTON"));
-		saveButton.addActionListener(e -> {
-			try {
-				String content = codeTextArea.getValue();
-				Mediator.getInstance().getVelaFileSaveDialog().writeStringToFile(this, content, null);
-			} catch (Exception ex) {
-				MessageBox.showErrorDialog(this, getTitle(), ex);
-			}
-		});
-		panel.add(saveButton);
+        panel.add(loadButton);
 
-		JButton dismissButton = new JButton(LocaleProps.get("OK_BUTTON"));
-		dismissButton.addActionListener(e -> {
-			okAction();
-		});
-		panel.add(dismissButton);
+        JButton saveButton = new JButton(LocaleProps.get("SAVE_BUTTON"));
+        saveButton.addActionListener(e -> {
+            try {
+                String content = codeTextArea.getValue();
+                Mediator.getInstance().getVelaFileSaveDialog().writeStringToFile(this, content, null);
+            } catch (Exception ex) {
+                MessageBox.showErrorDialog(this, getTitle(), ex);
+            }
+        });
+        panel.add(saveButton);
 
-		panel.add(verbosityCheckBox);
+        JButton dismissButton = new JButton(LocaleProps.get("OK_BUTTON"));
+        dismissButton.addActionListener(e -> {
+            okAction();
+        });
+        panel.add(dismissButton);
 
-		return panel;
-	}
+        panel.add(verbosityCheckBox);
 
-	// Helpers
+        return panel;
+    }
 
-	private void execute() {
-		boolean verbose = verbosityCheckBox.isSelected();
+    // Helpers
 
-		String text = codeTextArea.getValue();
+    private void execute() {
+        boolean verbose = verbosityCheckBox.isSelected();
 
-		String output = "";
-		String error = "";
-		String lispAST = "";
-		String dotAST = "";
+        String text = codeTextArea.getValue();
 
-		// Capture standard output and error
-		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-		System.setOut(new PrintStream(outStream));
+        String output = "";
+        String error = "";
+        String lispAST = "";
+        String dotAST = "";
 
-		ByteArrayOutputStream errStream = new ByteArrayOutputStream();
-		System.setErr(new PrintStream(errStream));
+        // Capture standard output and error
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outStream));
 
-		try {
-			Mediator.getUI().setScriptingStatus(true);
+        ByteArrayOutputStream errStream = new ByteArrayOutputStream();
+        System.setErr(new PrintStream(errStream));
 
-			// Compile and execute the code.
-			vela = new VeLaInterpreter(false, true, Collections.emptyList());
-			vela.setVerbose(verbose);
+        try {
+            Mediator.getUI().setScriptingStatus(true);
 
-			Pair<Optional<Operand>, AST> pair = vela.veLaToResultASTPair(text);
+            // Compile and execute the code.
+            vela = new VeLaInterpreter(false, true, Collections.emptyList());
+            vela.setVerbose(verbose);
 
-			Optional<Operand> result = pair.first;
+            Pair<Optional<Operand>, AST> pair = vela.veLaToResultASTPair(text);
 
-			if (result.isPresent()) {
-				AST ast = pair.second;
-				if (verbose && ast != null) {
-					lispAST = ast.toString();
-					dotAST = ast.toFullDOT();
-				}
-			}
+            Optional<Operand> result = pair.first;
 
-			// Any standard error or output to show?
-			error = showOutput(errStream);
-			output = showOutput(outStream);
+            if (result.isPresent()) {
+                AST ast = pair.second;
+                if (verbose && ast != null) {
+                    lispAST = ast.toString();
+                    dotAST = ast.toFullDOT();
+                }
+            }
 
-			// Is there a result to show and no error?
-			if (result.isPresent() && "".equals(error)) {
-				output += result.get().toHumanReadableString();
-			}
-		} catch (Exception e) {
-			// Show error in text area.
-			String msg = e.getLocalizedMessage();
-			if (msg != null) {
-				error = msg;
-			}
+            // Any standard error or output to show?
+            error = showOutput(errStream);
+            output = showOutput(outStream);
 
-			if (msg != null && !msg.equals(errStream.toString())) {
-				// Any standard error to show in relation to this exception?
-				// Don't repeat msg.
-				error += showOutput(errStream);
-			}
-		} finally {
-			// Reset standard output and error to console.
-			System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
+            // Is there a result to show and no error?
+            if (result.isPresent() && "".equals(error)) {
+                output += result.get().toHumanReadableString();
+            }
+        } catch (Exception e) {
+            // Show error in text area.
+            String msg = e.getLocalizedMessage();
+            if (msg != null) {
+                error = msg;
+            }
 
-			System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
+            if (msg != null && !msg.equals(errStream.toString())) {
+                // Any standard error to show in relation to this exception?
+                // Don't repeat msg.
+                error += showOutput(errStream);
+            }
+        } finally {
+            // Reset standard output and error to console.
+            System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
 
-			Mediator.getUI().setScriptingStatus(false);
-		}
+            System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
 
-		resultTextArea.setValue(areaTabsPayload(output, error));
-	}
+            Mediator.getUI().setScriptingStatus(false);
+        }
 
-	private String areaTabsPayload(String... strings) {
-		StringBuffer buf = new StringBuffer();
+        resultTextArea.setValue(areaTabsPayload(output, error));
+    }
 
-		for (String str : strings) {
-			buf.append(str);
-			buf.append("\n");
-		}
+    private String areaTabsPayload(String... strings) {
+        StringBuffer buf = new StringBuffer();
 
-		return buf.toString().trim();
-	}
+        for (String str : strings) {
+            buf.append(str);
+            buf.append("\n");
+        }
 
-	private String showOutput(ByteArrayOutputStream stream) {
-		String str = "";
+        return buf.toString().trim();
+    }
 
-		if (stream.size() != 0) {
-			str = stream.toString() + "\n";
-		}
+    private String showOutput(ByteArrayOutputStream stream) {
+        String str = "";
 
-		return str;
-	}
+        if (stream.size() != 0) {
+            str = stream.toString() + "\n";
+        }
+
+        return str;
+    }
 }
