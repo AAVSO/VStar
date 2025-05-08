@@ -1268,6 +1268,34 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertEquals(4, operand.intVal());
     }
 
+    public void testIntrinsics() {
+        Operand operand = vela.expressionToOperand("length(intrinsics()) <> 0");
+        assertEquals(Type.BOOLEAN, operand.getType());
+        assertEquals(true, operand.booleanVal());
+    }
+
+    public void testHelpVar() {
+        Operand operand = vela.expressionToOperand("help(pi)");
+        assertEquals(Type.STRING, operand.getType());
+        assertEquals("REAL : 3.14159265359\n\n", operand.stringVal());
+    }
+
+    public void testHelpCos() {
+        Operand operand = vela.expressionToOperand("help(cos)");
+        assertEquals(Type.STRING, operand.getType());
+        assertEquals("COS(REAL) : REAL\n\n", operand.stringVal());
+    }
+
+    public void testHelpHelp() {
+        Operand operand = vela.expressionToOperand("help(help)");
+        assertEquals(Type.STRING, operand.getType());
+        StringBuffer expected = new StringBuffer();
+        expected.append("HELP(ANY) : STRING\n");
+        expected.append("Returns a help string given ");
+        expected.append("an arbitrary parameter.\n\n");
+        assertEquals(expected.toString(), operand.stringVal());
+    }
+
     // User defined functions
 
     public void testNamedFunSquare() {
@@ -1300,6 +1328,9 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void testNamedFunRecursiveLoop() {
         String prog = "";
+        prog += "<<";
+        prog += " Not properly tail recursive loop function.";
+        prog += ">>";
         prog += "loop(n:integer) {";
         prog += "    print(n \"^2 = \" n*n \"\n\")";
         prog += "    when n < 10 -> loop(n+1)";
@@ -1324,6 +1355,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     public void testNamedFunRecursiveFactorial() {
         String prog = "";
+        prog += "<< Recursive factorial function >>";
         prog += "fact(n:integer) : integer {";
         prog += "    when";
         prog += "      n <= 0 -> 1";

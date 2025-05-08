@@ -136,17 +136,18 @@ public class Operand {
     /**
      * Return a Java object corresponding to this Operand instance.
      * 
+     * @param javaType The target Java type.
      * @return A corresponding Java object.
      */
-    public Object toObject() {
+    public Object toObject(Class<?> javaType) {
         Object obj = null;
 
         switch (type) {
         case INTEGER:
-            obj = intVal;
+            obj = numericVeLaToJava(javaType, intVal);
             break;
         case REAL:
-            obj = doubleVal;
+            obj = numericVeLaToJava(javaType, doubleVal);
             break;
         case STRING:
             obj = stringVal;
@@ -403,14 +404,12 @@ public class Operand {
             str = "\"" + stringVal + "\"";
             break;
         case LIST:
-            str = listVal.toString().replace(",", "").replace("[", "'(").replace("]", ")");
+            str = listVal.toString().replace(",", "");
             break;
         case FUNCTION:
             str = functionVal.toString();
             break;
         }
-
-        // str += " (" + type + ")";
 
         return str;
     }
@@ -497,5 +496,20 @@ public class Operand {
         }
 
         return operand;
+    }
+
+    // Helpers
+
+    private Object numericVeLaToJava(Class<?> javaType, Object obj) {
+
+        if (javaType.equals(int.class)) {
+            // could be int or long
+            obj = ((Long)obj).intValue();
+        } else if (javaType.equals(float.class)) {
+            // could be float or double
+            obj = ((Float)obj).floatValue();
+        }
+
+        return obj;
     }
 }

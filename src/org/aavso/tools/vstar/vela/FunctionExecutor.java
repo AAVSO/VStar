@@ -17,9 +17,7 @@
  */
 package org.aavso.tools.vstar.vela;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,15 +27,24 @@ import java.util.Optional;
  */
 public abstract class FunctionExecutor {
 
-    public static final List<Type> ANY_FORMALS = Collections.emptyList();
-    public static final List<Type> NO_FORMALS = Collections.emptyList();
+    // Note: this can go away when union types are implemented, or ANY is added as a
+    // type to VeLa; also need to distinguish between one ANY and many ANYs; current
+    // cases:
+    // print, println, help
+
+    public static final List<Type> ANY_FORMAL_TYPES = new ArrayList<Type>();
+    public static final List<String> ANY_FORMAL_NAMES = new ArrayList<String>();
+
+    public static final List<String> NO_FORMAL_NAMES = new ArrayList<String>();
+    public static final List<Type> NO_FORMAL_TYPES = new ArrayList<Type>();
+
     public static final List<Operand> NO_ACTUALS = new ArrayList<Operand>();
 
     protected Optional<String> funcName;
     protected List<Type> parameterTypes;
+    protected List<String> parameterNames;
     protected Optional<Type> returnType;
-
-    protected Method method;
+    protected Optional<String> helpString;
 
     /**
      * Apply the function to the specified operands and return a result of the
@@ -50,54 +57,32 @@ public abstract class FunctionExecutor {
     public abstract Optional<Operand> apply(List<Operand> operands) throws VeLaEvalError;
 
     /**
-     * Constructor for functions with a corresponding Java method to invoke.
+     * Constructor for functions.
      * 
      * @param funcName       The function's name.
-     * @param method         The corresponding Java method object.
+     * @param parameterNames The function's formal parameter names.
      * @param parameterTypes The function's parameter types.
      * @param returnType     The function's optional return type.
+     * @param helpString     The optional help string.
      */
-    public FunctionExecutor(Optional<String> funcName, Method method, List<Type> parameterTypes,
-            Optional<Type> returnType) {
+    public FunctionExecutor(Optional<String> funcName, List<String> parameterNames, List<Type> parameterTypes,
+            Optional<Type> returnType, Optional<String> helpString) {
         this.funcName = funcName;
-        this.method = method;
+        this.parameterNames = parameterNames;
         this.parameterTypes = parameterTypes;
         this.returnType = returnType;
-    }
-
-    /**
-     * Constructor
-     * 
-     * @param funcName       The function's name.
-     * @param parameterTypes The function's parameter types.
-     * @param returnType     The function's return type.
-     */
-    public FunctionExecutor(Optional<String> funcName, List<Type> parameterTypes, Optional<Type> returnType) {
-        this(funcName, null, parameterTypes, returnType);
-    }
-
-    /**
-     * Constructor for zero-arity functions with a corresponding Java method to
-     * invoke.
-     * 
-     * @param funcName       The function's name.
-     * @param method         The corresponding Java method object.
-     * @param parameterTypes The function's parameter types.
-     * @param returnType     The function's return type.
-     */
-    public FunctionExecutor(Optional<String> funcName, Method method, Optional<Type> returnType) {
-        this(funcName, method, NO_FORMALS, returnType);
+        this.helpString = helpString;
     }
 
     /**
      * Constructor for zero-arity functions.
      * 
-     * @param funcName       The function's name.
-     * @param parameterTypes The function's parameter types.
-     * @param returnType     The function's return type.
+     * @param funcName   The function's name.
+     * @param returnType The function's return type.
+     * @param helpString The optional help string.
      */
-    public FunctionExecutor(Optional<String> funcName, Optional<Type> returnType) {
-        this(funcName, null, NO_FORMALS, returnType);
+    public FunctionExecutor(Optional<String> funcName, Optional<Type> returnType, Optional<String> helpString) {
+        this(funcName, NO_FORMAL_NAMES, NO_FORMAL_TYPES, returnType, helpString);
     }
 
     /**
@@ -112,7 +97,7 @@ public abstract class FunctionExecutor {
     public boolean conforms(List<Operand> actualParameters) {
         boolean result = true;
 
-        if (parameterTypes == ANY_FORMALS) {
+        if (parameterTypes == ANY_FORMAL_TYPES) {
             result = true;
         } else if (actualParameters.size() != parameterTypes.size()) {
             result = false;
@@ -141,13 +126,6 @@ public abstract class FunctionExecutor {
     }
 
     /**
-     * @return the method
-     */
-    public Method getMethod() {
-        return method;
-    }
-
-    /**
      * @return the parameterTypes
      */
     public List<Type> getParameterTypes() {
@@ -168,12 +146,15 @@ public abstract class FunctionExecutor {
         this.returnType = returnType;
     }
 
+    public Optional<String> getHelpString() {
+        return helpString;
+    }
+
     @Override
     public String toString() {
         StringBuffer buf = new StringBuffer();
 
-        buf.append(String.format("%s (%s)", funcName.isPresent() ? funcName.get() : "λ",
-                parameterTypes.toString().replace("[", "").replace("]", "").replace(",", "")));
+        buf.append(String.format("%s(%s)", funcName.isPresent() ? funcName.get() : "λ", getParametersString()));
 
         if (returnType.isPresent()) {
             buf.append(String.format(" : %s", returnType.get()));
@@ -182,12 +163,31 @@ public abstract class FunctionExecutor {
         return buf.toString();
     }
 
+    protected String getParametersString() {
+        String paramsStr;
+
+        if (parameterTypes == ANY_FORMAL_TYPES) {
+            paramsStr = "ANY";
+        } else {
+            StringBuffer paramsBuf = new StringBuffer();
+            for (int i = 0; i < parameterTypes.size(); i++) {
+                paramsBuf.append(parameterNames.get(i));
+                paramsBuf.append(":");
+                paramsBuf.append(parameterTypes.get(i));
+                paramsBuf.append(" ");
+            }
+
+            paramsStr = paramsBuf.toString().trim();
+        }
+
+        return paramsStr;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((funcName == null) ? 0 : funcName.hashCode());
-        result = prime * result + ((method == null) ? 0 : method.hashCode());
         result = prime * result + ((parameterTypes == null) ? 0 : parameterTypes.hashCode());
         result = prime * result + ((returnType == null) ? 0 : returnType.hashCode());
         return result;
@@ -210,13 +210,6 @@ public abstract class FunctionExecutor {
                 return false;
             }
         } else if (!funcName.equals(other.funcName)) {
-            return false;
-        }
-        if (method == null) {
-            if (other.method != null) {
-                return false;
-            }
-        } else if (!method.equals(other.method)) {
             return false;
         }
         if (parameterTypes == null) {

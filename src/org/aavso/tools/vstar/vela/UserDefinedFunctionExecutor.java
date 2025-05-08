@@ -19,7 +19,6 @@ package org.aavso.tools.vstar.vela;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Stack;
 
 /**
  * This class executes user defined functions.
@@ -27,7 +26,6 @@ import java.util.Stack;
 public class UserDefinedFunctionExecutor extends FunctionExecutor {
 
     private VeLaInterpreter vela;
-    private List<String> parameterNames;
     private Optional<AST> ast;
     private VeLaScope env;
 
@@ -41,39 +39,39 @@ public class UserDefinedFunctionExecutor extends FunctionExecutor {
      * @param parameterTypes The function's formal parameter types.
      * @param returnType     The function's return type.
      * @param ast            The AST corresponding to the body of the function.
+     * @param helpString     The optional help string.
      */
     public UserDefinedFunctionExecutor(VeLaInterpreter vela, Optional<String> funcName, List<String> parameterNames,
-            List<Type> parameterTypes, Optional<Type> returnType, Optional<AST> ast) {
-        super(funcName, parameterTypes, returnType);
+            List<Type> parameterTypes, Optional<Type> returnType, Optional<AST> ast, Optional<String> helpString) {
+        super(funcName, parameterNames, parameterTypes, returnType, helpString);
+
         this.vela = vela;
-        this.parameterNames = parameterNames;
         this.ast = ast;
 
-        // Capture current (mutable) environment by coalescing all but the global
-        // scope into one environment, starting from the first to the last,
-        // such that newer definitions override older ones, enabling closures.
+        // Capture current environment by coalescing all but the global scope
+        // into one environment, starting from the first to the last such that
+        // newer definitions override older ones.
         env = new VeLaScope();
-        Stack<VeLaEnvironment<Operand>> envs = vela.getEnvironments();
-        for (int i = 1; i < envs.size(); i++) {
-            if (env.isMutable()) {
-                env.addAll(envs.get(i));
-            }
+        List<VeLaScope> scopes = vela.getScopes();
+        for (int i = 1; i < scopes.size(); i++) {
+            env.addAll(scopes.get(i));
         }
     }
 
     /**
-     * Construct an anonymous function definition.
-     * 
+     * Construct an anonymous function definition
+     *
      * @param vela           The interpreter instance from which this object is
      *                       being created.
      * @param parameterNames The function's formal parameter names.
      * @param parameterTypes The function's formal parameter types.
      * @param returnType     The function's return type.
      * @param ast            The AST corresponding to the body of the function.
+     * @param helpString     The optional help string.
      */
     public UserDefinedFunctionExecutor(VeLaInterpreter vela, List<String> parameterNames, List<Type> parameterTypes,
-            Optional<Type> returnType, Optional<AST> ast) {
-        this(vela, Optional.empty(), parameterNames, parameterTypes, returnType, ast);
+            Optional<Type> returnType, Optional<AST> ast, Optional<String> helpString) {
+        this(vela, Optional.empty(), parameterNames, parameterTypes, returnType, ast, helpString);
     }
 
     @Override
