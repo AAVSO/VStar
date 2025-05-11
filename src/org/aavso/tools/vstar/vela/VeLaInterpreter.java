@@ -1824,7 +1824,7 @@ public class VeLaInterpreter {
                 + "combined with the step, specified by the third parameter.";
 
         // Return type will always be LIST here..
-        addFunctionExecutor(new FunctionExecutor(Optional.of("SEQ"), Arrays.asList("firstIndex", "lastIndex", "step"),
+        addFunctionExecutor(new FunctionExecutor(Optional.of("SEQ"), Arrays.asList("first", "last", "step"),
                 Arrays.asList(Type.INTEGER, Type.INTEGER, Type.INTEGER), Optional.of(Type.LIST), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
