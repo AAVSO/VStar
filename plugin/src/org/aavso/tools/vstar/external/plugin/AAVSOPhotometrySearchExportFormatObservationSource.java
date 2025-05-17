@@ -43,6 +43,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.ui.mediator.NewStarType;
 
 import com.csvreader.CsvReader;
 
@@ -102,6 +103,11 @@ public class AAVSOPhotometrySearchExportFormatObservationSource extends Observat
     @Override
     public InputType getInputType() {
         return InputType.FILE;
+    }
+
+    @Override
+    public NewStarType getNewStarType() {
+        return NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE;
     }
 
     @Override
@@ -214,7 +220,7 @@ public class AAVSOPhotometrySearchExportFormatObservationSource extends Observat
                 break;
 
             case AUID:
-                ob.addDetail("AUID", value, "AUID");
+                ob.setName(ob.getName() + " (" + value+ ")");
                 break;
 
             case JD:
