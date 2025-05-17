@@ -42,8 +42,7 @@ public class CKMagValidator extends AbstractStringValidator<String> {
 	}
 
 	@Override
-	public String validate(String str) throws ObservationValidationError,
-			ObservationValidationWarning {
+	public String validate(String str) throws ObservationValidationError {
 		if (this.isLegallyEmpty(str))
 			return "";
 
