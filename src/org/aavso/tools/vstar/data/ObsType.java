@@ -1,4 +1,5 @@
 /**
+
  * VStar: a statistical analysis tool for variable star data.
  * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
  *

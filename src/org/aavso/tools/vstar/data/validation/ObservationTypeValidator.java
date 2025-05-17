@@ -22,9 +22,9 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 
 /**
- * 
+ * This class validates observation types (e.g. CCD, DSLR, Visual).
  */
-public class ObserverTypeValidator extends AbstractStringValidator<String> {
+public class ObservationTypeValidator extends AbstractStringValidator<String> {
 
     @Override
     public String validate(String str) throws ObservationValidationError {

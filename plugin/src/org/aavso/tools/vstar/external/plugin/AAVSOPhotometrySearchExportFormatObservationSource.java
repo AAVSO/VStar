@@ -34,8 +34,8 @@ import org.aavso.tools.vstar.data.validation.CKMagValidator;
 import org.aavso.tools.vstar.data.validation.CommentCodeValidator;
 import org.aavso.tools.vstar.data.validation.CompStarValidator;
 import org.aavso.tools.vstar.data.validation.JulianDayValidator;
+import org.aavso.tools.vstar.data.validation.ObservationTypeValidator;
 import org.aavso.tools.vstar.data.validation.ObserverCodeValidator;
-import org.aavso.tools.vstar.data.validation.ObserverTypeValidator;
 import org.aavso.tools.vstar.data.validation.OptionalityFieldValidator;
 import org.aavso.tools.vstar.data.validation.RealValueValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
@@ -122,7 +122,7 @@ public class AAVSOPhotometrySearchExportFormatObservationSource extends Observat
         private final JulianDayValidator jdValidator;
         private final RealValueValidator magValidator;
         private final RealValueValidator uncertaintyValidator;
-        private final ObserverTypeValidator observerTypeValidator;
+        private final ObservationTypeValidator observationTypeValidator;
         private final ObserverCodeValidator observerCodeValidator;
         private final CommentCodeValidator commentCodeValidator;
         private final CKMagValidator cMagValidator;
@@ -138,7 +138,7 @@ public class AAVSOPhotometrySearchExportFormatObservationSource extends Observat
             this.uncertaintyValidator = new RealValueValidator(FIELD.UNCERTAINTY.name, false, true);
 
             this.observerCodeValidator = new ObserverCodeValidator();
-            this.observerTypeValidator = new ObserverTypeValidator();
+            this.observationTypeValidator = new ObservationTypeValidator();
 
             this.compStarValidator = new CompStarValidator();
 
@@ -251,7 +251,7 @@ public class AAVSOPhotometrySearchExportFormatObservationSource extends Observat
                 break;
 
             case TYPE:
-                ob.setObsType(observerTypeValidator.validate(value));
+                ob.setObsType(observationTypeValidator.validate(value));
                 break;
 
             case OBSERVER:
