@@ -22,7 +22,6 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This class validates magnitude values (e.g. magnitude, uncertainty).
- * @deprecated
  */
 public class MagnitudeValueValidator extends AbstractStringValidator<Double> {
 

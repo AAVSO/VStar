@@ -38,6 +38,7 @@ import org.aavso.tools.vstar.data.validation.CKMagValidator;
 import org.aavso.tools.vstar.data.validation.CommentCodeValidator;
 import org.aavso.tools.vstar.data.validation.CompStarValidator;
 import org.aavso.tools.vstar.data.validation.JulianDayValidator;
+import org.aavso.tools.vstar.data.validation.MagnitudeFieldValidator;
 import org.aavso.tools.vstar.data.validation.ObservationTypeValidator;
 import org.aavso.tools.vstar.data.validation.ObserverCodeValidator;
 import org.aavso.tools.vstar.data.validation.OptionalityFieldValidator;
@@ -126,7 +127,7 @@ public class AAVSOPhotometrySearchExportFormatObservationSource extends Observat
         private final OptionalityFieldValidator nonOptionalFieldValidator;
         private final CompStarValidator compStarValidator;
         private final JulianDayValidator jdValidator;
-        private final RealValueValidator magValidator;
+        private final MagnitudeFieldValidator magValidator;
         private final RealValueValidator uncertaintyValidator;
         private final ObservationTypeValidator observationTypeValidator;
         private final ObserverCodeValidator observerCodeValidator;
@@ -140,7 +141,7 @@ public class AAVSOPhotometrySearchExportFormatObservationSource extends Observat
 
             this.jdValidator = new JulianDayValidator(JulianDayValidator.CAN_BE_EMPTY);
 
-            this.magValidator = new RealValueValidator(FIELD.MAG.name, true, false);
+            this.magValidator = new MagnitudeFieldValidator();
             this.uncertaintyValidator = new RealValueValidator(FIELD.UNCERTAINTY.name, false, true);
 
             this.observerCodeValidator = new ObserverCodeValidator();
@@ -171,7 +172,7 @@ public class AAVSOPhotometrySearchExportFormatObservationSource extends Observat
                         lineNum++;
 
                         ValidObservation ob = new ValidObservation();
-                        ob.setMagnitude(new Magnitude());
+                        //ob.setMagnitude(new Magnitude());
 
                         String[] values = csvReader.getValues();
 
@@ -236,8 +237,8 @@ public class AAVSOPhotometrySearchExportFormatObservationSource extends Observat
                 break;
 
             case MAG:
-                double mag = magValidator.validate(value);
-                ob.getMagnitude().setMagValue(mag);
+                Magnitude mag= magValidator.validate(value);
+                ob.setMagnitude(mag);
                 break;
 
             case UNCERTAINTY:
