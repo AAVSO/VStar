@@ -18,9 +18,13 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.CommentType;
@@ -44,6 +48,8 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
+import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.Tolerance;
 
 import com.csvreader.CsvReader;
 
@@ -64,7 +70,7 @@ public class AAVSOPhotometrySearchExportFormatObservationSource extends Observat
         UNCERTAINTY("uncertainty", 5), FAINTERTHAN("fainterthan", 6), BAND("band", 7), TYPE("type", 8),
         OBSERVER("observer", 9), AIRMASS("airmass", 10), TRANSFORMED("transformed", 11), COMP1_C("comp1_c", 12),
         CMAG("cmag", 13), COMP2_K("comp2_k", 14), KMAG("kmag", 15), CHART("chart", 16), COMMENTCODE("commentcode", 17),
-        COMMENTS("comments", 18); 
+        COMMENTS("comments", 18);
 
         String name;
         int index;
@@ -174,6 +180,7 @@ public class AAVSOPhotometrySearchExportFormatObservationSource extends Observat
                         }
 
                         collectObservation(ob);
+
                     } catch (ObservationValidationError e) {
                         // Create an invalid observation.
                         // Record the line number rather than observation number for
@@ -220,7 +227,7 @@ public class AAVSOPhotometrySearchExportFormatObservationSource extends Observat
                 break;
 
             case AUID:
-                ob.setName(ob.getName() + " (" + value+ ")");
+                ob.setName(ob.getName() + " (" + value + ")");
                 break;
 
             case JD:
@@ -295,5 +302,127 @@ public class AAVSOPhotometrySearchExportFormatObservationSource extends Observat
                 break;
             }
         }
+    }
+
+    // Test methods
+
+    @Override
+    public Boolean test() {
+        return noCompStarsTest() && withCompStarsTest();
+    }
+
+    private boolean noCompStarsTest() {
+        boolean success = true;
+
+        try {
+            setTextStream(noCompStarsText());
+
+            AbstractObservationRetriever retriever = getObservationRetriever();
+            try {
+                retriever.retrieveObservations();
+
+                List<ValidObservation> obs = retriever.getValidObservations();
+
+                success &= commonObsTests(obs).second;
+
+            } catch (Exception e) {
+                success = false;
+            }
+        } catch (ObservationReadError e) {
+            success = false;
+        } catch (IOException e) {
+            success = false;
+        }
+
+        return success;
+    }
+
+    private boolean withCompStarsTest() {
+        boolean success = true;
+
+        try {
+            setTextStream(withCompStarsText());
+
+            AbstractObservationRetriever retriever = getObservationRetriever();
+            try {
+                retriever.retrieveObservations();
+
+                List<ValidObservation> obs = retriever.getValidObservations();
+
+                Pair<ValidObservation, Boolean> result = commonObsTests(obs);
+                ValidObservation ob = result.first;
+
+                success &= result.second;
+                success &= ob.getCompStar1().equals("ENSEMBLE");
+                success &= ob.getCompStar2().equals("65_1");
+                success &= ob.getKMag().equals("6.432");
+                success &= ob.getComments()
+                        .equals("|OBSERVAT=BSM_NM|PROJNAME=AAVSO_P74_JCMAT_AUTO|"
+                                + "KDEC=-59.87489|KMAGINS=-13.007|KMAGSTD=6.432|"
+                                + "KRA=161.93645|KREFMAG=6.470|VMAGINS=-15.328");
+
+            } catch (Exception e) {
+                success = false;
+            }
+        } catch (ObservationReadError e) {
+            success = false;
+        } catch (IOException e) {
+            success = false;
+        }
+
+        return success;
+    }
+
+    private String noCompStarsText() {
+        StringBuffer buf = new StringBuffer();
+
+        buf.append("#,target,auid,jd,mag,uncertainty,fainterthan,band,type,observer,airmass,transformed\n");
+        buf.append("1,ETA CAR,000-BBR-655,2460684.18973,4.112,0.053,False,Johnson V,CCD,UIS01,1.365,False\n");
+        buf.append("2,ETA CAR,000-BBR-655,2460684.18671,4.744,0.043,False,Johnson B,CCD,UIS01,1.373,False");
+
+        return buf.toString();
+    }
+
+    private String withCompStarsText() {
+        StringBuffer buf = new StringBuffer();
+
+        buf.append(
+                "#,target,auid,jd,mag,uncertainty,fainterthan,band,type,observer,airmass,transformed,comp1_c,cmag,comp2_k,kmag,chart,commentcode,comments\n");
+        buf.append(
+                "1,ETA CAR,000-BBR-655,2460684.18973,4.112,0.053,False,Johnson V,CCD,UIS01,1.365,False,ENSEMBLE,,65_1,6.432,,,|OBSERVAT=BSM_NM|PROJNAME=AAVSO_P74_JCMAT_AUTO|KDEC=-59.87489|KMAGINS=-13.007|KMAGSTD=6.432|KRA=161.93645|KREFMAG=6.470|VMAGINS=-15.328\n");
+        buf.append(
+                "2,ETA CAR,000-BBR-655,2460684.18671,4.744,0.043,False,Johnson B,CCD,UIS01,1.373,False,ENSEMBLE,,65_1,6.335,,,|OBSERVAT=BSM_NM|PROJNAME=AAVSO_P74_JCMAT_AUTO|KDEC=-59.87489|KMAGINS=-13.088|KMAGSTD=6.335|KRA=161.93645|KREFMAG=6.350|VMAGINS=-14.680");
+
+        return buf.toString();
+    }
+
+    private void setTextStream(String content) {
+        InputStream in = new ByteArrayInputStream(content.toString().getBytes());
+        List<InputStream> streams = new ArrayList<InputStream>();
+        streams.add(in);
+        setInputInfo(streams, inputName);
+    }
+
+    private Pair<ValidObservation, Boolean> commonObsTests(List<ValidObservation> obs) {
+        boolean success = true;
+        double DELTA = 1e-5;
+
+        // Note that the obs in noCompStarsText() are in reverse JD order!
+        ValidObservation ob = obs.get(1);
+
+        success &= 2 == obs.size();
+
+        success &= "ETA CAR (000-BBR-655)".equals(ob.getName());
+        success &= Tolerance.areClose(2460684.18973, ob.getJD(), DELTA, true);
+        success &= Tolerance.areClose(4.112, ob.getMag(), DELTA, true);
+        success &= Tolerance.areClose(0.053, ob.getMagnitude().getUncertainty(), DELTA, success);
+        success &= !ob.getMagnitude().isFainterThan();
+        success &= ob.getBand().equals(SeriesType.Johnson_V);
+        success &= ob.getObsType().equals("CCD");
+        success &= ob.getObsCode().equals("UIS01");
+        success &= ob.getAirmass().equals("1.365");
+        success &= !ob.isTransformed();
+
+        return new Pair<ValidObservation, Boolean>(ob, success);
     }
 }

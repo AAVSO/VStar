@@ -1466,5 +1466,4 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		
 		return success;
 	}
-
 }
