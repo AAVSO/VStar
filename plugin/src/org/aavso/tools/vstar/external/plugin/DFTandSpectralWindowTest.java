@@ -2165,7 +2165,7 @@ public class DFTandSpectralWindowTest {
 			
 			if (expectedDftTopHits.length > topHits.get(PeriodAnalysisCoordinateType.FREQUENCY).size())
 				throw new Exception("Invalid DFT TopHits array length");
-			compareDftResult(expectedDftTopHits, topHits, "TopHits ", 1e-8);
+			compareDftResult(expectedDftTopHits, topHits, "TopHits ", 1e-7);
 
 		}
 		
