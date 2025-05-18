@@ -157,7 +157,10 @@ public abstract class FunctionExecutor {
         buf.append(String.format("%s(%s)", funcName.isPresent() ? funcName.get() : "λ", getParametersString()));
 
         if (returnType.isPresent()) {
-            buf.append(String.format(" : %s", returnType.get()));
+            Type retType = returnType.get();
+            if (retType != Type.NONE) {
+                buf.append(String.format(" : %s", retType));
+            }
         }
 
         return buf.toString();

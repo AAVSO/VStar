@@ -19,7 +19,6 @@ package org.aavso.tools.vstar.vela;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -377,6 +376,35 @@ public class VeLaInterpreter {
     }
 
     /**
+     * Common VeLa evaluation entry point. This will be most effective when prog is
+     * an often used expression.
+     * 
+     * @param prog The VeLa program string to be interpreted.
+     * @param tree The result of parsing the VeLa expression.
+     * @return An optional result depending upon whether a value is left on the
+     *         stack and the AST that was constructed and evaluated.
+     * @throws VeLaEvalError If an evaluation error occurs.
+     */
+    public Pair<Optional<Operand>, AST> commonInterpreter(String prog, ParserRuleContext tree) throws VeLaEvalError {
+
+        Optional<Operand> result = Optional.empty();
+
+        AST ast = commonParseTreeWalker(prog, tree);
+
+        if (ast != null) {
+            // Evaluate the abstract syntax tree and cache the result.
+            eval(ast);
+            if (!stack.isEmpty()) {
+                result = Optional.of(stack.pop());
+            } else {
+                result = Optional.empty();
+            }
+        }
+
+        return new Pair<Optional<Operand>, AST>(result, ast);
+    }
+
+    /**
      * Common parse tree walker and AST generator.
      * 
      * @param prog The VeLa program to be interpreted.
@@ -417,35 +445,6 @@ public class VeLaInterpreter {
 //		}
 
         return ast;
-    }
-
-    /**
-     * Common VeLa evaluation entry point. This will be most effective when prog is
-     * an often used expression.
-     * 
-     * @param prog The VeLa program string to be interpreted.
-     * @param tree The result of parsing the VeLa expression.
-     * @return An optional result depending upon whether a value is left on the
-     *         stack and the AST that was constructed and evaluated.
-     * @throws VeLaEvalError If an evaluation error occurs.
-     */
-    public Pair<Optional<Operand>, AST> commonInterpreter(String prog, ParserRuleContext tree) throws VeLaEvalError {
-
-        Optional<Operand> result = Optional.empty();
-
-        AST ast = commonParseTreeWalker(prog, tree);
-
-        if (ast != null) {
-            // Evaluate the abstract syntax tree and cache the result.
-            eval(ast);
-            if (!stack.isEmpty()) {
-                result = Optional.of(stack.pop());
-            } else {
-                result = Optional.empty();
-            }
-        }
-
-        return new Pair<Optional<Operand>, AST>(result, ast);
     }
 
     /**
@@ -1257,15 +1256,6 @@ public class VeLaInterpreter {
         }
     }
 
-    /**
-     * Add useful/important bindings
-     */
-    private void initBindings() {
-        bind("Π", new Operand(Type.REAL, Math.PI), true);
-        bind("PI", new Operand(Type.REAL, Math.PI), true);
-        bind("E", new Operand(Type.REAL, Math.E), true);
-    }
-
     // ** Function related methods *
 
     /**
@@ -1412,6 +1402,15 @@ public class VeLaInterpreter {
                 scope.addFunctionExecutor(executor);
             }
         }
+    }
+
+    /**
+     * Add useful/important bindings
+     */
+    private void initBindings() {
+        bind("Π", new Operand(Type.REAL, Math.PI), true);
+        bind("PI", new Operand(Type.REAL, Math.PI), true);
+        bind("E", new Operand(Type.REAL, Math.E), true);
     }
 
     /**
@@ -1824,7 +1823,7 @@ public class VeLaInterpreter {
                 + "combined with the step, specified by the third parameter.";
 
         // Return type will always be LIST here..
-        addFunctionExecutor(new FunctionExecutor(Optional.of("SEQ"), Arrays.asList("firstIndex", "lastIndex", "step"),
+        addFunctionExecutor(new FunctionExecutor(Optional.of("SEQ"), Arrays.asList("first", "last", "step"),
                 Arrays.asList(Type.INTEGER, Type.INTEGER, Type.INTEGER), Optional.of(Type.LIST), Optional.of(help)) {
             @Override
             public Optional<Operand> apply(List<Operand> operands) {
