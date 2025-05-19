@@ -1283,14 +1283,17 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		
 		public static double calcPopVariance(double d[]) {
 			double sum_n = 0.0;
-			double sum_nn = 0.0;
+			double sum_nn = 0.0;			
 			int count = d.length;
 			for (int i = 0; i < count; i++) {
 				sum_n += d[i];				
-				sum_nn += d[i] * d[i];
 			}
 			double mean = sum_n / count; 
-			return sum_nn / count - mean * mean; 
+			for (int i = 0; i < count; i++) {
+				double v = d[i] - mean; 
+				sum_nn += v * v;
+			}
+			return sum_nn / count;
 		}
 		
 		public static double calcMedianTimeInterval(double[] times) {
