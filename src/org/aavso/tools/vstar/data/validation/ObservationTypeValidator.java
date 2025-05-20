@@ -17,26 +17,24 @@
  */
 package org.aavso.tools.vstar.data.validation;
 
+import org.aavso.tools.vstar.data.ObsType;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 
 /**
- * This class specialises magnitude value validator to handle
- * optional uncertainty values.
- * @deprecated
+ * This class validates observation types (e.g. CCD, DSLR, Visual).
  */
-public class UncertaintyValueValidator extends MagnitudeValueValidator {
+public class ObservationTypeValidator extends AbstractStringValidator<String> {
 
-	public UncertaintyValueValidator(RangePredicate rangePredicate) {
-		super(rangePredicate);
-		this.kind = "uncertainty";
-	}
-	
-	public Double validate(String str) throws ObservationValidationError {
-		if (this.isLegallyEmpty(str)) return null;
-		return super.validate(str);
-	}
-
-	protected boolean canBeEmpty() {
-		return true;
-	}
+    @Override
+    public String validate(String str) throws ObservationValidationError {
+        ObsType obsType = ObsType.getObsTypeFromName(str);
+        
+        if (obsType == ObsType.UNKNOWN) {
+            String msg = "Unknown observation type";
+            throw new ObservationValidationError(msg);
+        }
+        
+        return obsType.getDescription();
+    }
 }

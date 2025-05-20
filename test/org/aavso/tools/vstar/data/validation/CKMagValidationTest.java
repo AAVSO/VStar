@@ -99,8 +99,6 @@ public class CKMagValidationTest extends TestCase {
 			fail();
 		} catch (ObservationValidationError e) {
 			assertTrue(true);
-		} catch (ObservationValidationWarning w) {
-			fail();
 		}
 	}
 }

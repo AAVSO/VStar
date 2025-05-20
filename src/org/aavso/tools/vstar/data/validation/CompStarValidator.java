@@ -18,7 +18,6 @@
 package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.exception.ObservationValidationError;
-import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 
 /**
  * This is a validator for comparison star (1 and 2) field values.
@@ -35,8 +34,7 @@ public class CompStarValidator extends AbstractStringValidator<String> {
 	}
 
 	@Override
-	public String validate(String str) throws ObservationValidationError,
-			ObservationValidationWarning {
+	public String validate(String str) throws ObservationValidationError {
 		if (this.isLegallyEmpty(str))
 			return "";
 
