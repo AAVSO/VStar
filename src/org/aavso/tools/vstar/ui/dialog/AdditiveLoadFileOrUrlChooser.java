@@ -50,283 +50,318 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
  */
 public class AdditiveLoadFileOrUrlChooser {
 
-	private JFileChooser fileChooser;
-	private JCheckBox additiveLoadCheckbox;
-	private boolean urlProvided;
-	private JButton urlRequestButton;
-	private TextField urlField;
-	private TextArea velaFilterField;
-	private List<String> DEFAULT_EXTENSIONS = new ArrayList<String>();
-	private List<String> extensions = new ArrayList<String>();
-	private Map<String, ObservationSourcePluginBase> plugins;
-	private JComboBox<String> pluginChooser;
+    private JFileChooser fileChooser;
+    private JCheckBox additiveLoadCheckbox;
+    private boolean urlProvided;
+    private boolean obsTextProvided;
+    private JButton urlRequestButton;
+    private JButton obsTextRequestButton;
+    private TextField urlField;
+    private TextArea obsTextField;
+    private TextArea velaFilterField;
+    private List<String> DEFAULT_EXTENSIONS = new ArrayList<String>();
+    private List<String> extensions = new ArrayList<String>();
+    private Map<String, ObservationSourcePluginBase> plugins;
+    private JComboBox<String> pluginChooser;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param allowURL
-	 *            Should a URL entry be allowed?
-	 */
-	public AdditiveLoadFileOrUrlChooser(boolean allowURL) {
-		fileChooser = new JFileChooser();
+    /**
+     * Constructor
+     * 
+     * @param allowURL Should a URL entry be allowed?
+     */
+    public AdditiveLoadFileOrUrlChooser(boolean allowURL) {
+        fileChooser = new JFileChooser();
 
-	    fileChooser.setMultiSelectionEnabled(true);
+        fileChooser.setMultiSelectionEnabled(true);
 
-		urlProvided = false;
-		plugins = new TreeMap<String, ObservationSourcePluginBase>();
+        urlProvided = false;
+        plugins = new TreeMap<String, ObservationSourcePluginBase>();
 
-		// Default file extensions.
-		DEFAULT_EXTENSIONS.add("csv");
-		DEFAULT_EXTENSIONS.add("dat");
-		DEFAULT_EXTENSIONS.add("tsv");
-		DEFAULT_EXTENSIONS.add("txt");
-		setFileExtensions(DEFAULT_EXTENSIONS);
+        // Default file extensions.
+        DEFAULT_EXTENSIONS.add("csv");
+        DEFAULT_EXTENSIONS.add("dat");
+        DEFAULT_EXTENSIONS.add("tsv");
+        DEFAULT_EXTENSIONS.add("txt");
+        setFileExtensions(DEFAULT_EXTENSIONS);
 
-		JPanel accessoryPane = new JPanel();
-		accessoryPane.setLayout(new BoxLayout(accessoryPane,
-				BoxLayout.PAGE_AXIS));
-		accessoryPane.add(createAdditiveLoadCheckboxPane());
-		if (allowURL) {
-			accessoryPane.add(createUrlPane());
-		}
+        JPanel accessoryPane = new JPanel();
+        accessoryPane.setLayout(new BoxLayout(accessoryPane, BoxLayout.PAGE_AXIS));
+        accessoryPane.add(createAdditiveLoadCheckboxPane());
+        if (allowURL) {
+            accessoryPane.add(createUrlPane());
+        }
 
-		if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
-			accessoryPane.add(createPluginsList());
-		}
+        accessoryPane.add(createObsTextPane());
 
-		Pair<TextArea, JPanel> pair = PluginComponentFactory
-				.createVeLaFilterPane();
-		velaFilterField = pair.first;
-		accessoryPane.add(pair.second);
+        if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
+            accessoryPane.add(createPluginsList());
+        }
 
-		fileChooser.setAccessory(accessoryPane);
-	}
+        Pair<TextArea, JPanel> pair = PluginComponentFactory.createVeLaFilterPane();
+        velaFilterField = pair.first;
+        accessoryPane.add(pair.second);
 
-	/**
-	 * Returns the default file extensions.
-	 * 
-	 * @return the list of file extension strings.
-	 */
-	public List<String> getDefaultFileExtensions() {
-		return extensions;
-	}
+        fileChooser.setAccessory(accessoryPane);
+    }
 
-	/**
-	 * Set file chooser extensions filter.
-	 * 
-	 * @param extensions the list of extensions to filter files with
-	 */
-	public synchronized void setFileExtensions(List<String> extensions) {
-		fileChooser.removeChoosableFileFilter(fileChooser.getFileFilter());
-		fileChooser.setFileFilter(new FileExtensionFilter(extensions));
-	}
+    /**
+     * Returns the default file extensions.
+     * 
+     * @return the list of file extension strings.
+     */
+    public List<String> getDefaultFileExtensions() {
+        return extensions;
+    }
 
-	/**
-	 * Returns the content of the VeLa filter field.
-	 * 
-	 * @return the string content of the VeLa filter field.
-	 */
-	public String getVeLaFilter() {
-		return velaFilterField.getValue().trim();
-	}
+    /**
+     * Set file chooser extensions filter.
+     * 
+     * @param extensions the list of extensions to filter files with
+     */
+    public synchronized void setFileExtensions(List<String> extensions) {
+        fileChooser.removeChoosableFileFilter(fileChooser.getFileFilter());
+        fileChooser.setFileFilter(new FileExtensionFilter(extensions));
+    }
 
-	/**
-	 * This component provides an additive load checkbox.
-	 */
-	private JPanel createAdditiveLoadCheckboxPane() {
-		JPanel panel = new JPanel();
-		panel.setBorder(BorderFactory.createTitledBorder("Additive Load"));
+    /**
+     * Returns the content of the VeLa filter field.
+     * 
+     * @return the string content of the VeLa filter field.
+     */
+    public String getVeLaFilter() {
+        return velaFilterField.getValue().trim();
+    }
 
-		additiveLoadCheckbox = new JCheckBox("Add to current?");
-		panel.add(additiveLoadCheckbox);
+    /**
+     * This component provides an additive load checkbox.
+     */
+    private JPanel createAdditiveLoadCheckboxPane() {
+        JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createTitledBorder("Additive Load"));
 
-		return panel;
-	}
+        additiveLoadCheckbox = new JCheckBox("Add to current?");
+        panel.add(additiveLoadCheckbox);
 
-	/**
-	 * This component creates a URL request button and corresponding action.
-	 */
-	private JPanel createUrlPane() {
-		JPanel pane = new JPanel();
+        return panel;
+    }
 
-		urlRequestButton = new JButton("Request URL");
+    /**
+     * This component creates a URL request button and corresponding action.
+     */
+    private JPanel createUrlPane() {
+        JPanel pane = new JPanel();
 
-		urlRequestButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				urlField = new TextField("URL");
-				TextDialog urlDialog = new TextDialog("Enter URL", urlField);
-				if (!urlDialog.isCancelled()
-						&& !urlField.getValue().matches("^\\s*$")) {
-					urlProvided = true;
-					fileChooser.cancelSelection();
-				}
-			}
-		});
+        urlRequestButton = new JButton("Request URL");
 
-		pane.add(urlRequestButton);
+        urlRequestButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                urlField = new TextField("URL");
+                TextDialog urlDialog = new TextDialog("Enter URL", urlField);
+                if (!urlDialog.isCancelled() && !urlField.getValue().matches("^\\s*$")) {
+                    urlProvided = true;
+                    fileChooser.approveSelection();
+                }
+            }
+        });
 
-		return pane;
-	}
+        pane.add(urlRequestButton);
 
-	/**
-	 * Create plugin list and add a listener to change extensions when a plugin
-	 * is selected.
-	 */
-	private JPanel createPluginsList() {
-		JPanel pane = new JPanel();
+        return pane;
+    }
 
-		pane.setBorder(BorderFactory.createTitledBorder("Source"));
-		
-		for (ObservationSourcePluginBase plugin : PluginLoader
-				.getObservationSourcePlugins()) {
+    /**
+     * This component creates an observation text request button and corresponding
+     * action.
+     */
+    private JPanel createObsTextPane() {
+        JPanel pane = new JPanel();
 
-			switch (plugin.getInputType()) {
-			case FILE:
-			case FILE_OR_URL:
-				String name = plugin.getDisplayName();
-				if (name.equals(LocaleProps.get("FILE_MENU_NEW_STAR_FROM_FILE"))) {
-					// Handle localised "New Star from File"
-					name = LocaleProps.get("TEXT_FORMAT_FILE");
-				} else {
-					// Shorten other "New Star from " plugin names.
-					name = name.replace("New Star from ", "");
-					name = name.replace(" File", "");
-					name = name.replace("...", "");
-				}
-				plugins.put(name, plugin);
-			default:
-			}
-		}
+        obsTextRequestButton = new JButton("Request Observation Text");
 
-		pluginChooser = new JComboBox<String>(plugins.keySet().toArray(
-				new String[0]));
-		pluginChooser.setSelectedItem(LocaleProps.get("TEXT_FORMAT_FILE"));
-		//pluginChooser.setBorder(BorderFactory.createTitledBorder("Source"));
+        obsTextRequestButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                obsTextField = new TextArea("Observation Text", "", 30, 60, false, false);
+                TextDialog obsTextDialog = new TextDialog("Enter Observation Text", true, true, obsTextField);
+                if (!obsTextDialog.isCancelled() && !obsTextField.getValue().matches("^\\s*$")) {
+                    obsTextProvided = true;
+                    fileChooser.approveSelection();
+                }
+            }
+        });
 
-		pluginChooser
-				.addActionListener(e -> {
-		            updateFileAndUrlWidgetsForPlugin();
-				});
+        pane.add(obsTextRequestButton);
 
-		pane.add(pluginChooser);
+        return pane;
+    }
 
-		JButton helpButton = new JButton("?");
+    /**
+     * Create plugin list and add a listener to change extensions when a plugin is
+     * selected.
+     */
+    private JPanel createPluginsList() {
+        JPanel pane = new JPanel();
 
-		helpButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Optional<ObservationSourcePluginBase> plugin = getSelectedPlugin();
-				Help.openPluginHelp(plugin.isPresent() ? plugin.get().getDocName() : null);
-			}
-		});
+        pane.setBorder(BorderFactory.createTitledBorder("Source"));
 
-		pane.add(helpButton);
+        for (ObservationSourcePluginBase plugin : PluginLoader.getObservationSourcePlugins()) {
 
-		return pane;
-	}
+            switch (plugin.getInputType()) {
+            case FILE:
+            case FILE_OR_URL:
+                String name = plugin.getDisplayName();
+                if (name.equals(LocaleProps.get("FILE_MENU_NEW_STAR_FROM_FILE"))) {
+                    // Handle localised "New Star from File"
+                    name = LocaleProps.get("TEXT_FORMAT_FILE");
+                } else {
+                    // Shorten other "New Star from " plugin names.
+                    name = name.replace("New Star from ", "");
+                    name = name.replace(" File", "");
+                    name = name.replace("...", "");
+                }
+                plugins.put(name, plugin);
+            default:
+            }
+        }
 
-	/**
-	 * Show the file dialog.
-	 * 
-	 * @param parent
-	 *            The parent component to which this dialog should be positioned
-	 *            relative.
-	 * @return Whether the dialog was "approved".
-	 */
-	public synchronized boolean showDialog(Component parent) {
-	    if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
-	        updateFileAndUrlWidgetsForPlugin();
-	    }
+        pluginChooser = new JComboBox<String>(plugins.keySet().toArray(new String[0]));
+        pluginChooser.setSelectedItem(LocaleProps.get("TEXT_FORMAT_FILE"));
+        // pluginChooser.setBorder(BorderFactory.createTitledBorder("Source"));
 
-		int result = fileChooser.showOpenDialog(parent);
-		return result == JFileChooser.APPROVE_OPTION;
-	}
+        pluginChooser.addActionListener(e -> {
+            updateFileAndUrlWidgetsForPlugin();
+        });
 
-	/**
-	 * Set the multiple file selection state.
-	 * 
-	 * @param isAllowed Is multiple file selection permitted?
-	 */
-	public void setMultiFileSelectionState(boolean isAllowed) {
-	    fileChooser.setMultiSelectionEnabled(isAllowed);
-	}
+        pane.add(pluginChooser);
 
-	/**
-	 * @return The selected files.
-	 */
-	public File[] getSelectedFiles() {
-	    File[] selectedFiles = null;
-	    
-	    if (fileChooser.isMultiSelectionEnabled()) {
-	        selectedFiles = fileChooser.getSelectedFiles();
-	    } else {
-	        selectedFiles = new File[] {fileChooser.getSelectedFile()};
-	    }
-	    
-	    return selectedFiles;
-	}
+        JButton helpButton = new JButton("?");
 
-	/**
-	 * Was a URL string of some kind provided and accepted?
-	 * 
-	 * @return True or false.
-	 */
-	public boolean isUrlProvided() {
-		return urlProvided;
-	}
+        helpButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Optional<ObservationSourcePluginBase> plugin = getSelectedPlugin();
+                Help.openPluginHelp(plugin.isPresent() ? plugin.get().getDocName() : null);
+            }
+        });
 
-	/**
-	 * @param urlProvided
-	 *            the urlProvided to set
-	 */
-	public synchronized void setUrlProvided(boolean urlProvided) {
-		this.urlProvided = urlProvided;
-	}
+        pane.add(helpButton);
 
-	/**
-	 * @return The URL string.
-	 */
-	public String getUrlString() {
-		return urlField.getValue().trim();
-	}
+        return pane;
+    }
 
-	/**
-	 * Return whether or not the load is additive.
-	 * 
-	 * @return Whether or not the load is additive.
-	 */
-	public boolean isLoadAdditive() {
-		return additiveLoadCheckbox.isSelected();
-	}
-	
-	/**
-	 * Return the optional currently selected observation source plugin.
-	 * 
-	 * @return The optional plugin instance.
-	 */
-	public Optional<ObservationSourcePluginBase> getSelectedPlugin() {
-		Optional<ObservationSourcePluginBase> plugin;
+    /**
+     * Show the file dialog.
+     * 
+     * @param parent The parent component to which this dialog should be positioned
+     *               relative.
+     * @return Whether the dialog was "approved".
+     */
+    public synchronized boolean showDialog(Component parent) {
+        if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
+            updateFileAndUrlWidgetsForPlugin();
+        }
 
-		if (PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
-			plugin = Optional.empty();
-		} else {
-			plugin = Optional.of(plugins.get(pluginChooser.getSelectedItem()));
-		}
+        int result = fileChooser.showOpenDialog(parent);
+        return result == JFileChooser.APPROVE_OPTION;
+    }
 
-		return plugin;
-	}
+    /**
+     * Set the multiple file selection state.
+     * 
+     * @param isAllowed Is multiple file selection permitted?
+     */
+    public void setMultiFileSelectionState(boolean isAllowed) {
+        fileChooser.setMultiSelectionEnabled(isAllowed);
+    }
 
-	/**
-	 * Reset this file selector's state before use.
-	 */
-	public synchronized void reset() {
-		setUrlProvided(false);
-	}
+    /**
+     * @return The selected files.
+     */
+    public File[] getSelectedFiles() {
+        File[] selectedFiles = null;
 
-	// Helpers
+        if (fileChooser.isMultiSelectionEnabled()) {
+            selectedFiles = fileChooser.getSelectedFiles();
+        } else {
+            selectedFiles = new File[] { fileChooser.getSelectedFile() };
+        }
 
-	private void updateFileAndUrlWidgetsForPlugin() {
+        return selectedFiles;
+    }
+
+    /**
+     * Was a URL string of some kind provided and accepted?
+     * 
+     * @return True or false.
+     */
+    public boolean isUrlProvided() {
+        return urlProvided;
+    }
+
+    /**
+     * @param urlProvided the urlProvided to set
+     */
+    public synchronized void setUrlProvided(boolean urlProvided) {
+        this.urlProvided = urlProvided;
+    }
+
+    /**
+     * @return The URL string.
+     */
+    public String getUrlString() {
+        return urlField.getValue().trim();
+    }
+
+    public boolean isObsTextProvided() {
+        return obsTextProvided;
+    }
+
+    public void setObsTextProvided(boolean obsTextProvided) {
+        this.obsTextProvided = obsTextProvided;
+    }
+
+    public String getObsTextString() {
+        return obsTextField.getValue().trim();
+    }
+
+    /**
+     * Return whether or not the load is additive.
+     * 
+     * @return Whether or not the load is additive.
+     */
+    public boolean isLoadAdditive() {
+        return additiveLoadCheckbox.isSelected();
+    }
+
+    /**
+     * Return the optional currently selected observation source plugin.
+     * 
+     * @return The optional plugin instance.
+     */
+    public Optional<ObservationSourcePluginBase> getSelectedPlugin() {
+        Optional<ObservationSourcePluginBase> plugin;
+
+        if (PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
+            plugin = Optional.empty();
+        } else {
+            plugin = Optional.of(plugins.get(pluginChooser.getSelectedItem()));
+        }
+
+        return plugin;
+    }
+
+    /**
+     * Reset this file selector's state before use.
+     */
+    public synchronized void reset() {
+        setUrlProvided(false);
+        setObsTextProvided(false);
+    }
+
+    // Helpers
+
+    private void updateFileAndUrlWidgetsForPlugin() {
         String name = (String) pluginChooser.getSelectedItem();
         ObservationSourcePluginBase plugin = plugins.get(name);
 
@@ -342,5 +377,5 @@ public class AdditiveLoadFileOrUrlChooser {
 
         boolean urlAllowed = plugin.getInputType() == InputType.FILE_OR_URL;
         urlRequestButton.setEnabled(urlAllowed);
-	}
+    }
 }

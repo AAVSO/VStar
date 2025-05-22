@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.task;
 
 import java.awt.Cursor;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -55,348 +56,318 @@ import org.aavso.tools.vstar.util.plugin.URLAuthenticator;
  */
 public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 
-	private Mediator mediator = Mediator.getInstance();
+    private Mediator mediator = Mediator.getInstance();
 
-	private ObservationSourcePluginBase obSourcePlugin;
+    private ObservationSourcePluginBase obSourcePlugin;
 
-	private List<InputStream> streams;
+    private List<InputStream> streams;
 
-	private AbstractObservationRetriever retriever;
+    private AbstractObservationRetriever retriever;
 
-	private int obsCount;
+    private int obsCount;
 
-	private boolean cancelled;
+    private boolean cancelled;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param obSourcePlugin
-	 *            The plugin that will be used to obtain observations.
-	 */
-	public NewStarFromObSourcePluginTask(
-			ObservationSourcePluginBase obSourcePlugin) {
-		this.obSourcePlugin = obSourcePlugin;
-		obsCount = 0;
-		cancelled = false;
-	}
+    /**
+     * Constructor.
+     * 
+     * @param obSourcePlugin The plugin that will be used to obtain observations.
+     */
+    public NewStarFromObSourcePluginTask(ObservationSourcePluginBase obSourcePlugin) {
+        this.obSourcePlugin = obSourcePlugin;
+        obsCount = 0;
+        cancelled = false;
+    }
 
-	/**
-	 * Configure the plug-in for observation retrieval.
-	 */
-	public void configure() {
-		try {
-			if (obSourcePlugin.requiresAuthentication()) {
-				Mediator.getUI().setCursor(
-						Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    /**
+     * Configure the plug-in for observation retrieval.
+     */
+    public void configure() {
+        try {
+            if (obSourcePlugin.requiresAuthentication()) {
+                Mediator.getUI().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-				Authenticator.getInstance().authenticate();
+                Authenticator.getInstance().authenticate();
 
-				if (!obSourcePlugin
-						.additionalAuthenticationSatisfied(ResourceAccessor
-								.getLoginInfo())) {
-					throw new AuthenticationError(
-							"Plug-in authentication failed");
-				}
-			}
+                if (!obSourcePlugin.additionalAuthenticationSatisfied(ResourceAccessor.getLoginInfo())) {
+                    throw new AuthenticationError("Plug-in authentication failed");
+                }
+            }
 
-			// Set input streams and name, if requested by the plug-in.
-			streams = new ArrayList<InputStream>();
+            // Set input streams and name, if requested by the plug-in.
+            streams = new ArrayList<InputStream>();
 
-			switch (obSourcePlugin.getInputType()) {
-			case FILE:
-			case FILE_OR_URL:
-				// Does the plug-in supply files? Or do we have to ask the user
-				// for a file?
-				List<File> files = obSourcePlugin.getFiles();
-				if (files != null) {
-					String fileNames = "";
-                    obSourcePlugin.clearStreamNameMap(); 
-					for (File file : files) {
-					    InputStream stream = new FileInputStream(file);
-                        obSourcePlugin.addStreamNamePair(stream, file.getName());
-						streams.add(stream);
-						fileNames += file.getName() + ", ";
-					}
-					fileNames = fileNames.substring(0,
-							fileNames.lastIndexOf(", "));
-					obSourcePlugin.setInputInfo(streams, fileNames);
-				} else {
-					// Request a file or URL from the user.
-					AdditiveLoadFileOrUrlChooser fileChooser = PluginComponentFactory
-							.chooseFileForReading(
-									obSourcePlugin.getDisplayName(),
-									obSourcePlugin
-											.getAdditionalFileExtensions(),
-									obSourcePlugin.getInputType() == InputType.FILE_OR_URL,
-									obSourcePlugin.isMultipleFileSelectionAllowed());
-
-					if (fileChooser != null) {
-						// Which plugin was selected in the end?
-						// We only ask this for plugins that can share the
-						// common file/URL dialog approach (with a list of
-						// plugins). There will only be a non-empty optional
-						// value if all observation source plugins
-						// have been not been requested to be shown in the file
-						// menu.
-						if (obSourcePlugin.getInputType() == InputType.FILE_OR_URL) {
-							Optional<ObservationSourcePluginBase> selectedPlugin = fileChooser
-									.getSelectedPlugin();
-							if (selectedPlugin.isPresent()) {
-								obSourcePlugin = selectedPlugin.get();
-							}
-						}
-
-						// If a file was chosen or a URL obtained, use as input.
-						obSourcePlugin
-								.setAdditive(fileChooser.isLoadAdditive());
-
-						// Set multiple file selection state now that we know
-						// what plugin we have.
-
-						if (fileChooser.isUrlProvided()) {
-							String urlStr = fileChooser.getUrlString();
-							URL url = new URL(urlStr);
-							InputStream stream = url.openConnection().getInputStream();
-							streams.add(stream);
-							obSourcePlugin.setInputInfo(streams, urlStr);
-                            obSourcePlugin.clearStreamNameMap(); 
-                            obSourcePlugin.addStreamNamePair(stream, urlStr);
-						} else {
-							File[] selectedFiles = fileChooser.getSelectedFiles();
-							if (selectedFiles.length != 0) {
-				                String fileNames = "";
-				                obSourcePlugin.clearStreamNameMap(); 
-							    for (File file : selectedFiles) {
-							        InputStream stream = new FileInputStream(file);
-    								streams.add(stream);    								
-    		                        obSourcePlugin.addStreamNamePair(stream, file.getName());
-    		                        fileNames += file.getName() + ", ";
-			                    }
-			                    fileNames = fileNames.substring(0,
-			                            fileNames.lastIndexOf(", "));
-			                    obSourcePlugin.setInputInfo(streams, fileNames);
-							} else {
-								throw new CancellationException();
-							}
-						}
-
-						obSourcePlugin.setVelaFilterStr(fileChooser
-								.getVeLaFilter());
-					} else {
-						throw new CancellationException();
-					}
-				}
-				break;
-
-			case URL:
-				// If the plug-in specifies a basic auth http username and
-				// password, create and set an authenticator.
-				String userName = obSourcePlugin.getUsername();
-				String password = obSourcePlugin.getPassword();
-
-				if (userName != null && password != null) {
-					java.net.Authenticator.setDefault(new URLAuthenticator(
-							userName, password));
-				}
-
-				// Does the plug-in supply URLs? Or do we have to ask the user
-				// for a URL?
-				List<URL> urls = obSourcePlugin.getURLs();
-				if (urls != null) {
-					String urlStrs = "";
+            switch (obSourcePlugin.getInputType()) {
+            case FILE:
+            case FILE_OR_URL:
+                // Does the plug-in supply files? Or do we have to ask the user
+                // for a file?
+                List<File> files = obSourcePlugin.getFiles();
+                if (files != null) {
+                    String fileNames = "";
                     obSourcePlugin.clearStreamNameMap();
-					for (URL url : urls) {
-					    InputStream stream = url.openStream();
-						streams.add(stream);
+                    for (File file : files) {
+                        InputStream stream = new FileInputStream(file);
+                        obSourcePlugin.addStreamNamePair(stream, file.getName());
+                        streams.add(stream);
+                        fileNames += file.getName() + ", ";
+                    }
+                    fileNames = fileNames.substring(0, fileNames.lastIndexOf(", "));
+                    obSourcePlugin.setInputInfo(streams, fileNames);
+                } else {
+                    // Request a file or URL from the user.
+                    AdditiveLoadFileOrUrlChooser fileChooser = PluginComponentFactory.chooseFileForReading(
+                            obSourcePlugin.getDisplayName(), obSourcePlugin.getAdditionalFileExtensions(),
+                            obSourcePlugin.getInputType() == InputType.FILE_OR_URL,
+                            obSourcePlugin.isMultipleFileSelectionAllowed());
+
+                    if (fileChooser != null) {
+                        // Which plugin was selected in the end?
+                        // We only ask this for plugins that can share the
+                        // common file/URL dialog approach (with a list of
+                        // plugins). There will only be a non-empty optional
+                        // value if all observation source plugins
+                        // have been not been requested to be shown in the file
+                        // menu.
+                        if (obSourcePlugin.getInputType() == InputType.FILE_OR_URL) {
+                            Optional<ObservationSourcePluginBase> selectedPlugin = fileChooser.getSelectedPlugin();
+                            if (selectedPlugin.isPresent()) {
+                                obSourcePlugin = selectedPlugin.get();
+                            }
+                        }
+
+                        // If a file was chosen or a URL obtained, use as input.
+                        obSourcePlugin.setAdditive(fileChooser.isLoadAdditive());
+
+                        // Set multiple file selection state now that we know
+                        // what plugin we have.
+
+                        if (fileChooser.isUrlProvided()) {
+                            String urlStr = fileChooser.getUrlString();
+                            URL url = new URL(urlStr);
+                            InputStream stream = url.openConnection().getInputStream();
+                            streams.add(stream);
+                            obSourcePlugin.setInputInfo(streams, urlStr);
+                            obSourcePlugin.clearStreamNameMap();
+                            obSourcePlugin.addStreamNamePair(stream, urlStr);
+                        } else if (fileChooser.isObsTextProvided()) {
+                            String obsTextStr = fileChooser.getObsTextString();
+                            InputStream stream = new ByteArrayInputStream(obsTextStr.toString().getBytes());
+                            streams.add(stream);
+                            obSourcePlugin.setInputInfo(streams, "Observation Text");
+                            obSourcePlugin.clearStreamNameMap();
+                            obSourcePlugin.addStreamNamePair(stream, obsTextStr);
+                        } else {
+                            File[] selectedFiles = fileChooser.getSelectedFiles();
+                            if (selectedFiles.length != 0) {
+                                String fileNames = "";
+                                obSourcePlugin.clearStreamNameMap();
+                                for (File file : selectedFiles) {
+                                    InputStream stream = new FileInputStream(file);
+                                    streams.add(stream);
+                                    obSourcePlugin.addStreamNamePair(stream, file.getName());
+                                    fileNames += file.getName() + ", ";
+                                }
+                                fileNames = fileNames.substring(0, fileNames.lastIndexOf(", "));
+                                obSourcePlugin.setInputInfo(streams, fileNames);
+                            } else {
+                                throw new CancellationException();
+                            }
+                        }
+
+                        obSourcePlugin.setVelaFilterStr(fileChooser.getVeLaFilter());
+                    } else {
+                        throw new CancellationException();
+                    }
+                }
+                break;
+
+            case URL:
+                // If the plug-in specifies a basic auth http username and
+                // password, create and set an authenticator.
+                String userName = obSourcePlugin.getUsername();
+                String password = obSourcePlugin.getPassword();
+
+                if (userName != null && password != null) {
+                    java.net.Authenticator.setDefault(new URLAuthenticator(userName, password));
+                }
+
+                // Does the plug-in supply URLs? Or do we have to ask the user
+                // for a URL?
+                List<URL> urls = obSourcePlugin.getURLs();
+                if (urls != null) {
+                    String urlStrs = "";
+                    obSourcePlugin.clearStreamNameMap();
+                    for (URL url : urls) {
+                        InputStream stream = url.openStream();
+                        streams.add(stream);
                         obSourcePlugin.addStreamNamePair(stream, url.getPath());
-						urlStrs += url.getPath() + ", ";
-					}
-					urlStrs = urlStrs.substring(0, urlStrs.lastIndexOf(", "));
-					obSourcePlugin.setInputInfo(streams, urlStrs);
-				} else {
-					// Request a URL from the user.
-					TextField urlField = new TextField("URL");
-					TextField velaFilterField = new TextField("VeLa Filter");
-					Checkbox additiveLoadCheckbox = new Checkbox(
-							"Add to current?", false);
-					MultiEntryComponentDialog urlDialog = new MultiEntryComponentDialog(
-							"Enter URL", urlField, additiveLoadCheckbox);
-					if (!urlDialog.isCancelled()
-							&& !urlField.getValue().matches("^\\s*$")) {
-						String urlStr = urlField.getValue();
-						obSourcePlugin.setVelaFilterStr(velaFilterField
-								.getValue());
-						obSourcePlugin.setAdditive(additiveLoadCheckbox
-								.getValue());
-						URL url = new URL(urlStr);
-						InputStream stream = url.openStream();
-						streams.add(stream);
-						obSourcePlugin.setInputInfo(streams, urlStr);
-	                    obSourcePlugin.clearStreamNameMap();
+                        urlStrs += url.getPath() + ", ";
+                    }
+                    urlStrs = urlStrs.substring(0, urlStrs.lastIndexOf(", "));
+                    obSourcePlugin.setInputInfo(streams, urlStrs);
+                } else {
+                    // Request a URL from the user.
+                    TextField urlField = new TextField("URL");
+                    TextField velaFilterField = new TextField("VeLa Filter");
+                    Checkbox additiveLoadCheckbox = new Checkbox("Add to current?", false);
+                    MultiEntryComponentDialog urlDialog = new MultiEntryComponentDialog("Enter URL", urlField,
+                            additiveLoadCheckbox);
+                    if (!urlDialog.isCancelled() && !urlField.getValue().matches("^\\s*$")) {
+                        String urlStr = urlField.getValue();
+                        obSourcePlugin.setVelaFilterStr(velaFilterField.getValue());
+                        obSourcePlugin.setAdditive(additiveLoadCheckbox.getValue());
+                        URL url = new URL(urlStr);
+                        InputStream stream = url.openStream();
+                        streams.add(stream);
+                        obSourcePlugin.setInputInfo(streams, urlStr);
+                        obSourcePlugin.clearStreamNameMap();
                         obSourcePlugin.addStreamNamePair(stream, urlStr);
-					} else {
-						throw new CancellationException();
-					}
-				}
+                    } else {
+                        throw new CancellationException();
+                    }
+                }
 
-				break;
+                break;
 
-			case NONE:
-				obSourcePlugin.setInputInfo(null, null);
-				break;
-			}
+            case NONE:
+                obSourcePlugin.setInputInfo(null, null);
+                break;
+            }
 
-			// Retrieve the observations. If the retriever can return
-			// the number of records, we can show updated progress,
-			// otherwise just show busy state.
-			retriever = obSourcePlugin.getObservationRetriever();
-			
-			// #PMAK#20211229#1#:
-			//	if the retriever has configuration dialog (see, for example, ASAS-SN plug-in)
-			//  that was canceled, getObservationRetriever() returns null.
-			//  It is essentially the same as CancellationException
-			//  that cannot be thrown from within getObservationRetriever()
-			if (retriever == null)
-				cancelled = true;
-		} catch (CancellationException ex) {
-			cancelled = true;
-		} catch (ConnectionException ex) {
-			MessageBox.showErrorDialog("Authentication Source Error",
-					ex.getLocalizedMessage());
-		} catch (AuthenticationError ex) {
-			MessageBox.showErrorDialog("Authentication Error",
-					ex.getLocalizedMessage());
-		} catch (Exception ex) {
-			MessageBox.showErrorDialog("Observation Source Error",
-					ex.getLocalizedMessage());
-		} finally {
-			// #PMAK#20201121#1#: close input streams if no retriever returned.
-			if (retriever == null)
-				try {
-					closeStreams();
-				} catch (IOException ex) {
-					// we unlikely be here
-					MessageBox.showErrorDialog("Observation Source Error",
-							ex.getLocalizedMessage());
-				}
-			Mediator.getUI().setCursor(null);
-		}
-	}
+            // Retrieve the observations. If the retriever can return
+            // the number of records, we can show updated progress,
+            // otherwise just show busy state.
+            retriever = obSourcePlugin.getObservationRetriever();
 
-	public boolean isConfigured() {
-		return retriever != null;
-	}
+            // #PMAK#20211229#1#:
+            // if the retriever has configuration dialog (see, for example, ASAS-SN plug-in)
+            // that was canceled, getObservationRetriever() returns null.
+            // It is essentially the same as CancellationException
+            // that cannot be thrown from within getObservationRetriever()
+            if (retriever == null)
+                cancelled = true;
+        } catch (CancellationException ex) {
+            cancelled = true;
+        } catch (ConnectionException ex) {
+            MessageBox.showErrorDialog("Authentication Source Error", ex.getLocalizedMessage());
+        } catch (AuthenticationError ex) {
+            MessageBox.showErrorDialog("Authentication Error", ex.getLocalizedMessage());
+        } catch (Exception ex) {
+            MessageBox.showErrorDialog("Observation Source Error", ex.getLocalizedMessage());
+        } finally {
+            // #PMAK#20201121#1#: close input streams if no retriever returned.
+            if (retriever == null)
+                try {
+                    closeStreams();
+                } catch (IOException ex) {
+                    // we unlikely be here
+                    MessageBox.showErrorDialog("Observation Source Error", ex.getLocalizedMessage());
+                }
+            Mediator.getUI().setCursor(null);
+        }
+    }
 
-	/**
-	 * Main task. Executed in background thread.
-	 */
-	public Void doInBackground() {
-		try {
+    public boolean isConfigured() {
+        return retriever != null;
+    }
 
-			createObservationArtefacts();
+    /**
+     * Main task. Executed in background thread.
+     */
+    public Void doInBackground() {
+        try {
 
-		} catch (Exception ex) {
-			// Experience shows that if we get to this point, a different
-			// exception has already been caught and reported in the event
-			// thread. There is no point in reporting a null exception!
-			if (ex.getLocalizedMessage() != null) {
-				MessageBox.showErrorDialog("Observation Source Error",
-						ex.getLocalizedMessage());
-			}
-		} finally {
-			Mediator.getUI().setCursor(null);
-		}
+            createObservationArtefacts();
 
-		return null;
-	}
+        } catch (Exception ex) {
+            // Experience shows that if we get to this point, a different
+            // exception has already been caught and reported in the event
+            // thread. There is no point in reporting a null exception!
+            if (ex.getLocalizedMessage() != null) {
+                MessageBox.showErrorDialog("Observation Source Error", ex.getLocalizedMessage());
+            }
+        } finally {
+            Mediator.getUI().setCursor(null);
+        }
 
-	/**
-	 * Create observation table and plot models from an observation source
-	 * plug-in.
-	 */
-	protected void createObservationArtefacts() {
-		try {
-			int plotPortion = 0;
-			Integer numRecords = retriever.getNumberOfRecords();
-			if (numRecords == null) {
-				// Show busy.
-				mediator.getProgressNotifier().notifyListeners(
-						ProgressInfo.BUSY_PROGRESS);
-			} else {
-				// Start progress tracking.
-				plotPortion = (int) (numRecords * 0.2);
+        return null;
+    }
 
-				mediator.getProgressNotifier().notifyListeners(
-						new ProgressInfo(ProgressType.MAX_PROGRESS, numRecords
-								+ plotPortion));
+    /**
+     * Create observation table and plot models from an observation source plug-in.
+     */
+    protected void createObservationArtefacts() {
+        try {
+            int plotPortion = 0;
+            Integer numRecords = retriever.getNumberOfRecords();
+            if (numRecords == null) {
+                // Show busy.
+                mediator.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);
+            } else {
+                // Start progress tracking.
+                plotPortion = (int) (numRecords * 0.2);
 
-				mediator.getProgressNotifier().notifyListeners(
-						ProgressInfo.START_PROGRESS);
-			}
+                mediator.getProgressNotifier()
+                        .notifyListeners(new ProgressInfo(ProgressType.MAX_PROGRESS, numRecords + plotPortion));
 
-			// Note: A reset may cause problems if isAdditive() is true, so make
-			// conditional.
-			if (!obSourcePlugin.isAdditive()) {
-				ValidObservation.reset();
-			}
+                mediator.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
+            }
 
-			try {
-				retriever.retrieveObservations();
+            // Note: A reset may cause problems if isAdditive() is true, so make
+            // conditional.
+            if (!obSourcePlugin.isAdditive()) {
+                ValidObservation.reset();
+            }
 
-				if (retriever.getValidObservations().isEmpty()) {
-					String msg = "No observations found.";
-					MessageBox.showErrorDialog("Observation Read Error", msg);
-				} else {
-					// Create plots, tables.
-					mediator.createNewStarObservationArtefacts(
-							obSourcePlugin.getNewStarType(),
-							retriever.getStarInfo(), plotPortion,
-							obSourcePlugin.isAdditive());
+            try {
+                retriever.retrieveObservations();
 
-					obsCount = retriever.getValidObservations().size();
-				}
-			} finally {
-				closeStreams();
-			}
-		} catch (InterruptedException e) {
-			ValidObservation.restore();
-			done();
-		} catch (Throwable t) {
-			ValidObservation.restore();
-			done();
-			MessageBox.showErrorDialog(
-					"Observation Source Read Error",
-					t.getLocalizedMessage());
-		}
-	}
+                if (retriever.getValidObservations().isEmpty()) {
+                    String msg = "No observations found.";
+                    MessageBox.showErrorDialog("Observation Read Error", msg);
+                } else {
+                    // Create plots, tables.
+                    mediator.createNewStarObservationArtefacts(obSourcePlugin.getNewStarType(), retriever.getStarInfo(),
+                            plotPortion, obSourcePlugin.isAdditive());
 
-	/**
-	 * Executed in event dispatching thread.
-	 */
-	public void done() {
-		if (cancelled
-				|| obsCount != 0
-				|| (obSourcePlugin.isAdditive() && !mediator
-						.getNewStarMessageList().isEmpty())) {
-			// Either there were observations loaded or this was a failed
-			// additive load and there exist previously loaded observations, so
-			// we want to complete progress. We also want to complete progress
-			// if the dialog is cancelled. Doing so ensures menu and tool bar
-			// icons have their state restored. Question: why not just do this
-			// unconditionally then?
-			mediator.getProgressNotifier().notifyListeners(
-					ProgressInfo.COMPLETE_PROGRESS);
-		}
+                    obsCount = retriever.getValidObservations().size();
+                }
+            } finally {
+                closeStreams();
+            }
+        } catch (InterruptedException e) {
+            ValidObservation.restore();
+            done();
+        } catch (Throwable t) {
+            ValidObservation.restore();
+            done();
+            MessageBox.showErrorDialog("Observation Source Read Error", t.getLocalizedMessage());
+        }
+    }
 
-		mediator.getProgressNotifier().notifyListeners(
-				ProgressInfo.CLEAR_PROGRESS);
-	}
-	
-	private void closeStreams() throws IOException
-	{
-		// Close all streams
-		for (InputStream stream : streams) {
-			stream.close();
-		}
-	}
+    /**
+     * Executed in event dispatching thread.
+     */
+    public void done() {
+        if (cancelled || obsCount != 0
+                || (obSourcePlugin.isAdditive() && !mediator.getNewStarMessageList().isEmpty())) {
+            // Either there were observations loaded or this was a failed
+            // additive load and there exist previously loaded observations, so
+            // we want to complete progress. We also want to complete progress
+            // if the dialog is cancelled. Doing so ensures menu and tool bar
+            // icons have their state restored. Question: why not just do this
+            // unconditionally then?
+            mediator.getProgressNotifier().notifyListeners(ProgressInfo.COMPLETE_PROGRESS);
+        }
+
+        mediator.getProgressNotifier().notifyListeners(ProgressInfo.CLEAR_PROGRESS);
+    }
+
+    private void closeStreams() throws IOException {
+        // Close all streams
+        for (InputStream stream : streams) {
+            stream.close();
+        }
+    }
 }
