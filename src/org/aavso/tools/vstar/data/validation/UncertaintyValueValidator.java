@@ -22,7 +22,6 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 /**
  * This class specialises magnitude value validator to handle
  * optional uncertainty values.
- * @deprecated
  */
 public class UncertaintyValueValidator extends MagnitudeValueValidator {
 

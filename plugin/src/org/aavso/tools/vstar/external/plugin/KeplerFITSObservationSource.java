@@ -172,6 +172,12 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
         return true;
     }
 
+	
+    @Override
+    public boolean isTextSource() {
+        return false;
+    }
+
     class KeplerFITSObservationRetriever extends TESSObservationRetrieverBase {
 
 		private static final String BJDREF_INT   = "BJDREFI";

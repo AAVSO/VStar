@@ -301,6 +301,14 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
         return false;
     }
 
+	/** 
+	 * @return whether this plug-in is a source of text based observations
+	 */
+	public boolean isTextSource() {
+	    // this is the common case
+	    return true;
+	}
+	
     /**
 	 * @return the velaFilterStr
 	 */
