@@ -119,6 +119,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
                     AdditiveLoadFileOrUrlChooser fileChooser = PluginComponentFactory.chooseFileForReading(
                             obSourcePlugin.getDisplayName(), obSourcePlugin.getAdditionalFileExtensions(),
                             obSourcePlugin.getInputType() == InputType.FILE_OR_URL,
+                            true,
                             obSourcePlugin.isMultipleFileSelectionAllowed());
 
                     if (fileChooser != null) {
@@ -139,10 +140,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
                         // If a file was chosen or a URL obtained, use as input.
                         obSourcePlugin.setAdditive(fileChooser.isLoadAdditive());
 
-                        // Set multiple file selection state now that we know
-                        // what plugin we have.
-
                         if (fileChooser.isUrlProvided()) {
+                            // User-supplied URL source
                             String urlStr = fileChooser.getUrlString();
                             URL url = new URL(urlStr);
                             InputStream stream = url.openConnection().getInputStream();
@@ -151,6 +150,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
                             obSourcePlugin.clearStreamNameMap();
                             obSourcePlugin.addStreamNamePair(stream, urlStr);
                         } else if (fileChooser.isObsTextProvided()) {
+                            // Text source (from text input dialog)
                             String obsTextStr = fileChooser.getObsTextString();
                             InputStream stream = new ByteArrayInputStream(obsTextStr.toString().getBytes());
                             streams.add(stream);
@@ -158,6 +158,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
                             obSourcePlugin.clearStreamNameMap();
                             obSourcePlugin.addStreamNamePair(stream, obsTextStr);
                         } else {
+                            // One or more selected files
                             File[] selectedFiles = fileChooser.getSelectedFiles();
                             if (selectedFiles.length != 0) {
                                 String fileNames = "";

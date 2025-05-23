@@ -67,9 +67,10 @@ public class AdditiveLoadFileOrUrlChooser {
     /**
      * Constructor
      * 
-     * @param allowURL Should a URL entry be allowed?
+     * @param allowURL  Should a URL entry be allowed?
+     * @param allowText Should a text entry be allowed?
      */
-    public AdditiveLoadFileOrUrlChooser(boolean allowURL) {
+    public AdditiveLoadFileOrUrlChooser(boolean allowURL, boolean allowText) {
         fileChooser = new JFileChooser();
 
         fileChooser.setMultiSelectionEnabled(true);
@@ -87,10 +88,7 @@ public class AdditiveLoadFileOrUrlChooser {
         JPanel accessoryPane = new JPanel();
         accessoryPane.setLayout(new BoxLayout(accessoryPane, BoxLayout.PAGE_AXIS));
         accessoryPane.add(createAdditiveLoadCheckboxPane());
-        if (allowURL) {
-            accessoryPane.add(createUrlPane());
-        }
-
+        accessoryPane.add(createUrlPane());
         accessoryPane.add(createObsTextPane());
 
         if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
@@ -377,5 +375,7 @@ public class AdditiveLoadFileOrUrlChooser {
 
         boolean urlAllowed = plugin.getInputType() == InputType.FILE_OR_URL;
         urlRequestButton.setEnabled(urlAllowed);
+
+        obsTextRequestButton.setEnabled(plugin.isTextSource());
     }
 }

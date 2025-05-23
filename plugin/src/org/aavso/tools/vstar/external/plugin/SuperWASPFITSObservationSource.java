@@ -28,12 +28,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import nom.tam.fits.BasicHDU;
-import nom.tam.fits.BinaryTableHDU;
-import nom.tam.fits.Fits;
-import nom.tam.fits.FitsException;
-import nom.tam.fits.Header;
-
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.Magnitude;
@@ -44,9 +38,15 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.NumberSelectionPane;
+import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
-import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+
+import nom.tam.fits.BasicHDU;
+import nom.tam.fits.BinaryTableHDU;
+import nom.tam.fits.Fits;
+import nom.tam.fits.FitsException;
+import nom.tam.fits.Header;
 
 //12/02/2018 C. Kotnik added name to observations so they can be
 //saved and reloaded from a file.
@@ -126,6 +126,11 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 	public String getDocName() {
 		return "SuperWASPFITSObservationSource.pdf";
 	}
+
+    @Override
+    public boolean isTextSource() {
+        return false;
+    }
 
 	class FITSObservationRetriever extends AbstractObservationRetriever {
 
