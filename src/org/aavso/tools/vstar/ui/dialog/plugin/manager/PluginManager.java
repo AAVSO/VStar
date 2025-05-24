@@ -50,7 +50,7 @@ import org.aavso.tools.vstar.util.Pair;
  */
 public class PluginManager {
 
-	public final static String DEFAULT_PLUGIN_BASE_URL_STR = "https://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-"
+	public final static String DEFAULT_PLUGIN_BASE_URL_STR = "https://archive.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-"
 			+ ResourceAccessor.getVersionString();
 
 	// public final static String DEFAULT_PLUGIN_BASE_URL_STR =
