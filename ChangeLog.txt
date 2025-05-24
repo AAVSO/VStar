@@ -30,6 +30,57 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
+Date: May 24 2025
+Version: 2.25.0
+Tag: 2.25.0
+Key Changes:
+- #503: Change URL base for plug-ins
+- #500: Text box entry option for text based obs sources
+- #499,495,490,461: DFT and Spectral window plug-in
+- #493,489: Add support for VeLa help via a help function
+- #485,484: Improvements and fixes to VeLa model dialog
+- #482: Increase the right chart margin
+- #480: Chart font tuning via Preferences
+- #475: VeLa Model dialog corrupted
+- #472: Fixed various test failures
+- #466: Photometry search export format (CSV) observation source plug-in
+- #465: Gaia DR2/DR3 observation source cannot read DR3 data again
+- #459: DCDFT calculates slightly distorted power values
+- #458: VSX and AAVSO URL changes
+- #456: Should be able to replace function with lambda in VeLa parameter type 
+- #453: What series should be selectable for Observation Transformer plugins?
+- #452: "Magnitude and Time Shifter" plug-in counterintuitive behaviour
+- #447: Anonymous function when printed should say "function" not "anonymous"
+- #442: VeLaObSource: implement undo/redo for the code editor
+- #441: Simple numeric expression containing only literals yields error
+- #440: Actual integer function parameter not being coerced in the presence
+        of a real parameter?
+- #438: Generate more VeLa error messages
+- #435: Inappropriate use of "Dyadic optimisation error"
+- #431: "Plot Control" checkboxes sometimes go out of sync
+- #429: Error while creating VeLa model
+- #425: Time shifter plugin
+- #424: TextFormatObservationSourcePlugin hides exception
+- #423: AAVSO Upload Format observation source complains about DSLR obs types
+- #418: Gaia photometry plug-in not working
+- #415: DownloadFormatObservationSinkPlugin: Problem with "Space" delimiter
+- #414: FlexibleTextFileFormatObservationSink as a complementary pair to
+        FlexibleTextFileFormatObservationSource
+- #412: VSXQuery plugin extension: star's vicinity image, SIMBAD link 
+- #409: Help button in the "DelimitedFieldFileSaveChooser"
+- #407: ObservationSink IOException is swallowed
+- #405: Custom axis titles
+- #404: Arithmetic operations over lists in VeLa
+- #402: Change authentication URL to copy-to-clipboard button
+- #394: Functions with no return value, output "No value present" in VeLa dialog
+- #357: Alternative VeLa selection syntax
+- #286: Allow times to be transformed between JD and BJD-TDB
+- #204: Piecewise linear model plug-in from current mean series
+- #145: ApacheCommonsLoessFitter generates incorrect textual representations
+        for its model
+- #105: Stress testing function application in VeLa yields errors
+- #57: Different significant digits for polynomial and DCDFT coefficients
+
 Date: Jan 31 2024
 Version: 2.24.0
 Tag: 2.24.0
