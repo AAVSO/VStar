@@ -250,6 +250,7 @@
 		<copy file="${dist}/${pkg}.QLPFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist_lib}/${pkg_lib}.TESSObservationRetrieverBase.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" overwrite="true" />
 		<copy file="${dist_lib}/${pkg_lib}.ConvertHelper.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" overwrite="true" />
+		<copy file="${dist_lib}/${pkg_lib}.PiecewiseLinearModel.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" overwrite="true" />
 		<!--
 		<copy file="${dist}/${pkg}.DifferentialPhotometry.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
