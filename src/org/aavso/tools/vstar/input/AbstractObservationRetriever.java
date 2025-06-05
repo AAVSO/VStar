@@ -439,12 +439,12 @@ public abstract class AbstractObservationRetriever {
 	 * @param steps
 	 *            The numnber of steps.
 	 */
-	public void incrementProgress(int steps) {
-		Mediator.getInstance()
-				.getProgressNotifier()
-				.notifyListeners(
-						new ProgressInfo(ProgressType.INCREMENT_PROGRESS, 2));
-	}
+//	public void incrementProgress(int steps) {
+//		Mediator.getInstance()
+//				.getProgressNotifier()
+//				.notifyListeners(
+//						new ProgressInfo(ProgressType.INCREMENT_PROGRESS, 2));
+//	}
 
 	/**
 	 * <p>

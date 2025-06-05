@@ -63,6 +63,8 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
@@ -87,6 +89,8 @@ import org.apache.commons.math.stat.regression.OLSMultipleLinearRegression;
 public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 	private static final boolean USE_MULTI_THREAD_VERSION = true;
+	
+	private static final int PROGRESS_COUNTER_STEPS = 200;	
 
 	// DCDFT via OLSMultipleLinearRegression: much slower then existing, 
 	// no big amplitude damping near 0 freq.!
@@ -155,6 +159,9 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	public void executeAlgorithm(List<ValidObservation> obs)
 			throws AlgorithmError, CancellationException {
 
+		Mediator.getInstance().getProgressNotifier().notifyListeners(
+				new ProgressInfo(ProgressType.BUSY_PROGRESS));
+		
 		if (firstInvocation) {
 			Mediator.getInstance().getNewStarNotifier()
 					.addListener(getNewStarListener());
@@ -200,10 +207,12 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		cancelled = !parametersDialog();
 		if (cancelled)
 			return;
-		
+
 		ftResult.setAnalysisType(analysisType);
 		
 		algorithm = new DFTandSpectralWindowAlgorithm(minFrequency, maxFrequency, resolution, ftResult);
+		Mediator.getInstance().getProgressNotifier().notifyListeners(
+				new ProgressInfo(ProgressType.MAX_PROGRESS, ((DFTandSpectralWindowAlgorithm)algorithm).getNumberOfSteps()));
 		algorithmCreated = true;
 		plugin_interrupted = false;
 		algStartTime = System.currentTimeMillis();
@@ -848,7 +857,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 			algorithm_interrupted = false;
 				
-			int n_steps = (int)Math.ceil((maxFrequency - minFrequency) / resolution) + 1;
+			int n_steps = getNumberOfSteps();
 
 			if (USE_MULTI_THREAD_VERSION) {
 				multiThreadDFT(minFrequency, resolution, n_steps);
@@ -857,13 +866,22 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			}
 		}
 		
+		public int getNumberOfSteps() {
+			return (int)Math.ceil((maxFrequency - minFrequency) / resolution) + 1;
+		}
+		
+		private void incrementProgress(int steps) {
+			Mediator.getInstance().getProgressNotifier().notifyListeners(
+						new ProgressInfo(ProgressType.INCREMENT_PROGRESS, steps));
+		}
+		
 		private void singleThreadDFT(double minFrequency, double resolution, int n_steps) {
-			
-			double frequency = minFrequency;
-			
+			int progress_counter = 0;
 			for (int i = 0; i < n_steps; i++) {
 				if (algorithm_interrupted)
 					break;
+				
+				double frequency = minFrequency + i * resolution;
 				
 				frequencies.add(frequency);
 				periods.add(fixInf(1 / frequency));
@@ -872,7 +890,13 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 				
 				semiAmplitudes.add(fixInf(result[0]));
 				powers.add(fixInf(result[1]));
-				frequency += resolution;
+				
+				progress_counter++;
+				if (progress_counter >= PROGRESS_COUNTER_STEPS) {
+					incrementProgress(progress_counter);
+					progress_counter = 0;								
+				}
+				incrementProgress(progress_counter);
 			}
 		}
 
@@ -968,12 +992,14 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 					try {
 						startLatch.await();				
 						//System.out.println("DftThread #" + thread_n + " started. start_n=" + start_n + "; steps_to_do=" + steps_to_do);
-						double frequency = minFrequency + start_n * resolution;
+						int progress_counter = 0;
 						for (int i = 0; i < steps_to_do; i++) {
 							if (algorithm_interrupted) {
 								//System.out.println("DftThread #" + thread_n + " interrupted");
 								break;
 							}
+							
+							double frequency = minFrequency + (start_n + i) * resolution;
 							
 							double[] result = ftResult.calculateF(frequency);
 							
@@ -982,8 +1008,13 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 							ampArray[i] = result[0];
 							pwrArray[i] = result[1];
 							
-							frequency += resolution;
+							progress_counter++;
+							if (progress_counter >= PROGRESS_COUNTER_STEPS) {
+								incrementProgress(progress_counter);
+								progress_counter = 0;								
+							}
 						}
+						incrementProgress(progress_counter);
 						//System.out.println("DftThread #" + thread_n + " finished.");					
 					} catch (InterruptedException ex) {
 						// return;
@@ -993,10 +1024,6 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 				}
 			}
 
-			//public int getStartN() {
-			//	return start_n;
-			//}
-			
 			public int getStepsToDo() {
 				return steps_to_do;
 			}
