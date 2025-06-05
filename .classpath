@@ -10,7 +10,7 @@
 	<classpathentry kind="lib" path="extlib/antlr-runtime-4.5.3.jar"/>
 	<classpathentry kind="lib" path="extlib/commons-math-2.2.jar"/>
 	<classpathentry kind="lib" path="extlib/javacsv.jar"/>
-	<classpathentry kind="lib" path="extlib/jfreechart-1.5.2.jar"/>
+	<classpathentry kind="lib" path="extlib/jfreechart-1.5.6.jar"/>
 	<classpathentry kind="lib" path="extlib/jmathplot.jar"/>
 	<classpathentry kind="lib" path="extlib/junit.jar"/>
 	<classpathentry kind="lib" path="extlib/nico-camargo-toolbar-icons-4.0.jar"/>

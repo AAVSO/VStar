@@ -156,7 +156,7 @@
 				<include name="vstar.jar" />
 				<include name="commons-math-2.2.jar" />
 				<include name="javacsv.jar" />
-				<include name="jfreechart-1.5.2.jar" />
+				<include name="jfreechart-1.5.6.jar" />
 				<include name="jmathplot.jar" />
 				<include name="antlr-runtime-4.5.3.jar" />
 				<include name="nico-camargo-toolbar-icons-4.0.jar" />
@@ -189,7 +189,7 @@
 				<include name="vstar.jar" />
 				<include name="commons-math-2.2.jar" />
 				<include name="javacsv.jar" />
-				<include name="jfreechart-1.5.2.jar" />
+				<include name="jfreechart-1.5.6.jar" />
 				<include name="jmathplot.jar" />
 				<include name="antlr-runtime-4.5.3.jar" />
 				<include name="nico-camargo-toolbar-icons-4.0.jar" />
