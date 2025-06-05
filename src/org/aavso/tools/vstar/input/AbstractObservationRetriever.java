@@ -433,20 +433,6 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
-	 * Increment observation retrieval progress by the specified number of
-	 * steps.
-	 * 
-	 * @param steps
-	 *            The numnber of steps.
-	 */
-//	public void incrementProgress(int steps) {
-//		Mediator.getInstance()
-//				.getProgressNotifier()
-//				.notifyListeners(
-//						new ProgressInfo(ProgressType.INCREMENT_PROGRESS, 2));
-//	}
-
-	/**
 	 * <p>
 	 * Add an observation to the list of valid observations.
 	 * </p>
