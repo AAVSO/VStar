@@ -2200,17 +2200,17 @@ public class DFTandSpectralWindowTest {
 		public void testDcDft() throws Exception {
 			DFTandSpectralWindow.FtResult ftResult = new DFTandSpectralWindow.FtResult(obs);
 			
-			ftResult.setAnalysisType(DFTandSpectralWindow.FAnalysisType.DFT);
+			ftResult.setAnalysisType(DFTandSpectralWindow.FAnalysisType.DFT, 1);
 			DFTandSpectralWindow.DFTandSpectralWindowAlgorithm dft_algorithm = 
 					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(0.0, 50.0, 0.009638750819301, ftResult);  
 			dftTest(dft_algorithm, expectedDftResult, expectedDftTopHits);
 			
-			ftResult.setAnalysisType(DFTandSpectralWindow.FAnalysisType.SPW);
+			ftResult.setAnalysisType(DFTandSpectralWindow.FAnalysisType.SPW, 1);
 			DFTandSpectralWindow.DFTandSpectralWindowAlgorithm spw_algorithm = 
 					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(0.0, 50.0, 0.009638750819301, ftResult);  
 			spwTest(spw_algorithm, null, expectedSpwTopHits);
 			
-			ftResult.setAnalysisType(DFTandSpectralWindow.FAnalysisType.DCDFT);
+			ftResult.setAnalysisType(DFTandSpectralWindow.FAnalysisType.DCDFT, 1);
 			DFTandSpectralWindow.DFTandSpectralWindowAlgorithm dcdft_algorithm =
 					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(0.0, 50.0, 0.00963875082, ftResult);
 			dftFerrazMelloTest(dcdft_algorithm, null, expectedDftFerrazMelloTopHits);
