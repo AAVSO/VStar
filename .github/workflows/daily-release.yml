@@ -41,9 +41,9 @@ jobs:
     - name: Build win archive
       run:
         ant -noinput -buildfile build.xml win
-    - name: Build mac archive
-      run:
-        ant -noinput -buildfile build.xml mac
+#    - name: Build mac archive
+#      run:
+#        ant -noinput -buildfile build.xml mac
     - name: Build plugins archive
       run: |
         cd plugin
