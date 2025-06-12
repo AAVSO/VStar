@@ -301,6 +301,25 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			// prepareDialog()?
 		}
 
+		private class PeriodAnalysis2DPlotModelNamed extends PeriodAnalysis2DPlotModel {
+			
+			private String name;
+			
+			PeriodAnalysis2DPlotModelNamed(
+					Map<PeriodAnalysisCoordinateType, List<Double>> analysisValues,
+					PeriodAnalysisCoordinateType domainType,
+					PeriodAnalysisCoordinateType rangeType, 
+					boolean isLogarithmic, 
+					String name) {
+						super(analysisValues, domainType, rangeType, isLogarithmic);
+						this.name = name;
+					}
+			
+			public String getName() {
+				return name;
+			}
+		}		
+		
 		@Override
 		protected Component createContent() {
 			String title = get1stWord(analysisType.label);
@@ -309,39 +328,39 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 			plotPanes = new ArrayList<PeriodAnalysis2DChartPane>();
 			List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
-			Map<PeriodAnalysis2DPlotModel, String>plotModels = new LinkedHashMap<PeriodAnalysis2DPlotModel, String>();
+			ArrayList<PeriodAnalysis2DPlotModelNamed>plotModels = new ArrayList<PeriodAnalysis2DPlotModelNamed>();
 			
-			plotModels.put(new PeriodAnalysis2DPlotModel(
+			plotModels.add(new PeriodAnalysis2DPlotModelNamed(
 					algorithm.getResultSeries(),
 					PeriodAnalysisCoordinateType.FREQUENCY, 
 					PeriodAnalysisCoordinateType.POWER, 
-					false), "PowerPaneFrequency");
+					false, "PowerPaneFrequency"));
 
 			if (analysisType != FAnalysisType.MHDFT || harmonicCount == 1) {
-				plotModels.put(new PeriodAnalysis2DPlotModel(
+				plotModels.add(new PeriodAnalysis2DPlotModelNamed(
 						algorithm.getResultSeries(),
 						PeriodAnalysisCoordinateType.FREQUENCY, 
 						PeriodAnalysisCoordinateType.SEMI_AMPLITUDE, 
-						false), "SemiAmplitudePaneFrequency");
+						false, "SemiAmplitudePaneFrequency"));
 			}
 
 			if (analysisType != FAnalysisType.SPW) {
-				plotModels.put(new PeriodAnalysis2DPlotModel(
+				plotModels.add(new PeriodAnalysis2DPlotModelNamed(
 						algorithm.getResultSeries(),
 						PeriodAnalysisCoordinateType.PERIOD, 
 						PeriodAnalysisCoordinateType.POWER, 
-						false), "PowerPanePeriod");
+						false, "PowerPanePeriod"));
 	
 				if (analysisType != FAnalysisType.MHDFT || harmonicCount == 1) {
-					plotModels.put(new PeriodAnalysis2DPlotModel(
+					plotModels.add(new PeriodAnalysis2DPlotModelNamed(
 							algorithm.getResultSeries(),
 							PeriodAnalysisCoordinateType.PERIOD, 
 							PeriodAnalysisCoordinateType.SEMI_AMPLITUDE, 
-							false), "SemiAmplitudePanePeriod");
+							false, "SemiAmplitudePanePeriod"));
 				}
 			}
 			
-			for (PeriodAnalysis2DPlotModel dataPlotModel : plotModels.keySet()) { 
+			for (PeriodAnalysis2DPlotModelNamed dataPlotModel : plotModels) { 
 				PeriodAnalysis2DChartPane plotPane = PeriodAnalysisComponentFactory.createLinePlot(
 						title,
 						sourceSeriesType.getDescription(), 
@@ -370,7 +389,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 				chart.getXYPlot().setDatasetRenderingOrder(DatasetRenderingOrder.REVERSE);
 				
 				plotPane = topHitsPlotPane;
-				plotPane.setChartPaneID(plotModels.get(dataPlotModel));
+				plotPane.setChartPaneID(dataPlotModel.getName());
 				plotPanes.add(plotPane);
 				String tabName = dataPlotModel.getRangeType() + " vs " + dataPlotModel.getDomainType();
 				namedComponents.add(new NamedComponent(tabName, plotPane));
