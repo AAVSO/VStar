@@ -35,6 +35,7 @@
 			<fileset dir="../">
 				<include name="dist/vstar.jar" />
 				<include name="plugin/lib/tamfits.jar" />
+				<include name="plugin/lib/json.jar" />
 			</fileset>
 		</path>
 		<mkdir dir="${build}" />
@@ -114,6 +115,7 @@
 		<fileset dir="../extlib" includes="*.jar" />
 		<pathelement location="../dist/vstar.jar" />
 		<pathelement location="lib/tamfits.jar" />
+		<pathelement location="lib/json.jar" />
 		<pathelement location="${build.classes}" />
 		<pathelement location="${test_build}" />
 	</path>
@@ -193,6 +195,7 @@
 			<fileset dir="${dist}" includes="**/*.jar" />
 		</copy>
 		<copy todir="${user.home}/${plugin_lib_dir}" file="lib/tamfits.jar" />
+		<copy todir="${user.home}/${plugin_lib_dir}" file="lib/json.jar" />
 		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.ConvertHelper.jar" />
 		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.GaiaObSourceBase.jar" />
 		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.PiecewiseLinearModel.jar" />
@@ -258,6 +261,7 @@
 		<copy file="${dist}/${pkg}.VSPChartInfoRetriever.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		-->
 		<copy file="lib/tamfits.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
+		<copy file="lib/json.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
 
 		<delete file="${plugins_list_file}" />
 		<echo file="${plugins_list_file}" message="${pkg}.AAVSOnetEpochPhotometryObservationSource.jar${line.separator}" append="true" />
@@ -280,10 +284,10 @@
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaObSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.FourierModelCreator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.HJDConverter.jar => ${pkg_lib}.ConvertHelper.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.BJDConverter.jar => ${pkg_lib}.ConvertHelper.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.BJDConverter.jar => ${pkg_lib}.ConvertHelper.jar,json.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.HipparcosObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.JDToDateTool.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.JDtoBJDTool.jar => ${pkg_lib}.ConvertHelper.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.JDtoBJDTool.jar => ${pkg_lib}.ConvertHelper.jar,json.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MagnitudeAndTimeShifter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MeanTimeBetweenSelectionTool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.NSVSObservationSource.jar${line.separator}" append="true" />
@@ -299,9 +303,9 @@
 		<echo file="${plugins_list_file}" message="${pkg}.ZTFFileObSource.jar => ${pkg_lib}.ZTFObSourceBase.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.GAIADR2XformObSource.jar => ${pkg_lib}.GaiaObSourceBase.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.GAIADR2XformFileObSource.jar => ${pkg_lib}.GaiaObSourceBase.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.KeplerFITSObservationSource.jar => tamfits.jar,org.aavso.tools.vstar.external.lib.TESSObservationRetrieverBase.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.LightKurveFITSObservationSource.jar => tamfits.jar,org.aavso.tools.vstar.external.lib.TESSObservationRetrieverBase.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.QLPFITSObservationSource.jar => tamfits.jar,org.aavso.tools.vstar.external.lib.TESSObservationRetrieverBase.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.KeplerFITSObservationSource.jar => tamfits.jar,${pkg_lib}.TESSObservationRetrieverBase.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.LightKurveFITSObservationSource.jar => tamfits.jar,${pkg_lib}.TESSObservationRetrieverBase.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.QLPFITSObservationSource.jar => tamfits.jar,${pkg_lib}.TESSObservationRetrieverBase.jar${line.separator}" append="true" />
 		<!--
 		<echo file="${plugins_list_file}" message="${pkg}.DifferentialPhotometry.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.IRISAutomaticPhotometryObservationSource.jar${line.separator}" append="true" />

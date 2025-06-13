@@ -1,5 +1,4 @@
 /**
- * VStar: a statistical analysis tool for variable star data.
  * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,9 +22,12 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -35,6 +37,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -43,6 +46,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.BevelBorder;
 
 import org.aavso.tools.vstar.input.database.VSXWebServiceStarInfoSource;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
@@ -58,12 +62,15 @@ import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
 import org.aavso.tools.vstar.util.help.Help;
+import org.json.JSONObject;
+import org.json.JSONArray;
 
 public class ConvertHelper {
 
 	public static final String ASTROUTILS_URL = "https://astroutils.astronomy.osu.edu";
 	public static final String URL_TEMPLATE = ASTROUTILS_URL + "/time/convert.php?JDS=%s&RA=%s&DEC=%s&FUNCTION=%s";
 	
+	public static String localServiceURLstring = getLocalConvertServiceURLstring(); 
 	
 	/**
 	 * A pane for entering RA/Dec with a button that gets coordinates from the VSX server by the VSX star name 
@@ -435,6 +442,9 @@ public class ConvertHelper {
 			topPane.add(buttonPane);
 			this.helpTopic = helpTopic;
 
+			if (localServiceURLstring != null)
+				topPane.add(createInfoPane("Local service: " + localServiceURLstring));
+			
 			contentPane.add(topPane);
 			
 			this.pack();
@@ -451,6 +461,14 @@ public class ConvertHelper {
 			return panel;
 		}
 
+		private JPanel createInfoPane(String msg) {
+			JPanel panel = new JPanel();
+			panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+			JLabel labelMsg = new JLabel(msg);
+			panel.add(labelMsg);
+			return panel;
+		}
+		
 		/**
 		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
 		 */
@@ -478,6 +496,10 @@ public class ConvertHelper {
 		}
 	}
 	
+	public static String getLocalServiceURLstring() {
+		return localServiceURLstring;
+	}
+	
 	/**
 	 * Uses the https://astroutils.astronomy.osu.edu service for conversion
 	 * 
@@ -497,6 +519,12 @@ public class ConvertHelper {
 	public static List<Double> getConvertedListOfTimes(List<Double> times, double ra, double dec, String func)
 			throws Exception {
 
+		if (localServiceURLstring != null) {
+			//System.out.println(localServiceURLstring);
+			List<Double>out_times = convertWithLocalService(localServiceURLstring, times, ra, dec, func);
+			return out_times;
+		}
+		
 		Pair<String, String> result = getTextFromURLstring(getURLstring(times, ra, dec, func));
 		if (result.second != null) {
 			throw new Exception(result.second);
@@ -521,7 +549,81 @@ public class ConvertHelper {
 		
 		return out_times;
 	}
+
+	private static List<Double> convertWithLocalService(String localServiceURLstring, List<Double> times, double ra, double dec, String func) 
+			throws Exception {
+
+        JSONObject json = new JSONObject();
+        json.put("f", func);      // Conversion type  
+        json.put("ra", ra);       // RA in degrees
+        json.put("dec", dec);     // DEC in degrees
+        json.put("lat", 0);       // Observer latitude
+        json.put("lon", 0);       // Observer longitude
+        json.put("elev", 0);      // Elevation in meters
 		
+        URL url = new URL(localServiceURLstring);
+	    List<Double>out_times = new ArrayList<Double>();
+	    json.put("jd", times);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        try {
+	        conn.setRequestMethod("POST");
+		    conn.setRequestProperty("Content-Type", "application/json");
+		    conn.setDoOutput(true);
+	        try (OutputStream os = conn.getOutputStream()) {
+	        	byte[] input = json.toString().getBytes("utf-8");
+	        	os.write(input, 0, input.length);
+	        }
+	        InputStream responseStream = conn.getInputStream();
+	        String response = new BufferedReader(new InputStreamReader(responseStream)).lines().reduce("", (acc, line) -> acc + line);
+	        JSONObject result = new JSONObject(response);
+	        JSONArray jArray = result.getJSONArray("bjd_tdb");
+	        if (jArray.length() != times.size()) {
+	        	throw new Exception("convertWithLocalService error: invalid length of the resulting array");
+	        }
+	        for (int i = 0; i < jArray.length(); i++) {
+	        	out_times.add(jArray.getDouble(i));
+	        }	        
+        } finally {
+        	conn.disconnect();
+        }
+        return out_times;	        
+	}
+	
+	
+	private static String getCfgName() {
+        try {
+        	String home = System.getProperty("user.home");
+        	File configFile = new File(home, ".vstar/vstar.properties");
+    		return configFile.getPath();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+	
+	private static String getLocalConvertServiceURLstring() {
+		//return "http://localhost:5000/convert";
+		Properties props = new Properties();
+		try {
+			try (FileInputStream in = new FileInputStream(getCfgName())) {
+				props.load(in);
+				String a = props.getProperty("localJDconverter.active");
+				if (a != null) {
+					if ("Y".equals(a.trim().toUpperCase())) {
+						a = props.getProperty("localJDconverter.url");
+						if (a != null) {
+							a = a.trim();
+							if (!"".equals(a))
+								return a;
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			return null;
+		}
+		return null;
+	}
+	
 	private static String getURLstring(List<Double> times, double ra, double dec, String func) {
 
 		String s = null;

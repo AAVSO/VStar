@@ -61,6 +61,9 @@ Source: "vstar\plugin-dev\*"    ; DestDir: "{app}\plugin-dev" ; Flags: ignorever
 ;;
 Source: "vstar_plugins\*"       ; DestDir: "{%USERPROFILE}\vstar_plugins"    ; Flags: ignoreversion; Components: plugins
 Source: "vstar_plugin_libs\*"   ; DestDir: "{%USERPROFILE}\vstar_plugin_libs"; Flags: ignoreversion; Components: plugins
+;;
+Source: "vstar\vstar.properties"; DestDir: "{%USERPROFILE}\.vstar"           ; Flags: ignoreversion; Components: plugins
+Source: "vstar\PyMicroService\*"; DestDir: "{app}\PyMicroService"            ; Flags: ignoreversion; Components: plugins
 
 [Icons]
 Name: "{group}\{#TheAppName}"; Filename: "{app}\{#TheAppExeName}"
