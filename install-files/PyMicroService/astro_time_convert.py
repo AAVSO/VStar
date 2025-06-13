@@ -54,5 +54,14 @@ def convert_jd_to_bjd_tdb():
         print(str(e))
         return jsonify({'error': str(e)}), 400
 
+@app.route('/', methods=['GET'])
+@app.route(PATH, methods=['GET'])
+def help():
+   return "See VStar documentation for help"
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return "See VStar documentation for help", 404
+
 if __name__ == '__main__':
     app.run(port=PORT, debug=True)
