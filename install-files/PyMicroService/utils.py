@@ -35,9 +35,9 @@ if __name__ == '__main__':
     hjd = [2451544.99859125]
     ra = 277.80575
     dec = 52.78542
-    lat = 50.0;
-    lon = 30.0;
-    elev = 95;
+    lat = 50.0
+    lon = 30.0
+    elev = 95
     
-    print(UTC2BJD(jd, ra, dec, lat, lon, elev));
-    print(HJD2BJD(hjd, ra, dec));
+    print(UTC2BJD(jd, ra, dec, lat, lon, elev))
+    print(HJD2BJD(hjd, ra, dec))
