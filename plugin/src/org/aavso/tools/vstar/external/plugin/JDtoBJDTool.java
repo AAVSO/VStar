@@ -36,11 +36,13 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
+import javax.swing.border.BevelBorder;
 
 import org.aavso.tools.vstar.external.lib.ConvertHelper;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
@@ -118,6 +120,10 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 			topPane.add(coordPane);
 			topPane.add(createMainPane());
 			topPane.add(createButtonPane2(cancelListener));
+			if (ConvertHelper.getLocalServiceURLstring() != null) {
+				topPane.add(createInfoPane("Local service: " + ConvertHelper.getLocalServiceURLstring()));
+			}
+			
 			
 			contentPane.add(topPane);
 			
@@ -180,6 +186,14 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 			cancelButton.addActionListener(cancelListener);
 			panel.add(cancelButton);
 			
+			return panel;
+		}
+		
+		private JPanel createInfoPane(String msg) {
+			JPanel panel = new JPanel();
+			panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+			JLabel labelMsg = new JLabel(msg);
+			panel.add(labelMsg);
 			return panel;
 		}
 
