@@ -17,13 +17,19 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.awt.Color;
 import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +39,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
@@ -52,6 +59,7 @@ import org.aavso.tools.vstar.util.help.Help;
 public class GAIADR2XformObSource extends GaiaObSourceBase {
 
 	private final String BASE_URL = "https://gea.esac.esa.int/data-server/data?RETRIEVAL_TYPE=EPOCH_PHOTOMETRY&FORMAT=CSV&ID=";
+	private final String GAIA_ARCHIVE_URL = "https://gea.esac.esa.int/archive/";
 
 	// Create static VeLa filter field here since cannot create it in
 	// inner dialog class.
@@ -172,6 +180,8 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 			topPane.add(velaFilterFieldPanelPair.second);
 
 			topPane.add(createAdditiveLoadCheckboxPane(additiveChecked));
+			
+			topPane.add(createGaiaArchiveLinkPane());
 
 			// Help, Cancel, OK
 			topPane.add(createButtonPane2());
@@ -202,6 +212,15 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 			return panel;
 		}
 
+		private JPanel createGaiaArchiveLinkPane() {
+			JPanel panel = new JPanel();
+			panel.setBorder(BorderFactory.createTitledBorder("Gaia Archive"));
+
+			panel.add(new LinkLabel(GAIA_ARCHIVE_URL, GAIA_ARCHIVE_URL));
+
+			return panel;
+		}
+		
 		private JPanel createIgnoreRejectFlagsCheckboxPane(boolean checked) {
 			JPanel panel = new JPanel();
 			panel.setBorder(BorderFactory.createTitledBorder("Flags"));
@@ -236,7 +255,7 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 			panel.setBorder(BorderFactory.createTitledBorder("Passband Transformation"));
 
 			transformCheckbox = new JCheckBox(
-					"Transform Gaia passbands to V,R,I?", checked);
+					"Transform Gaia passbands?", checked);
 			panel.add(transformCheckbox);
 
 			return panel;
@@ -369,5 +388,26 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 		}
 		
 	}
+	
+    @SuppressWarnings("serial")
+	private class LinkLabel extends JLabel {
+    	
+    	public LinkLabel(String text, String urlString) {
+    		super(text);
+    		this.setForeground(Color.BLUE);
+    		this.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    		this.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    try {
+                        Desktop.getDesktop().browse(new URI(urlString));
+                    } catch (Exception ex) {
+                    	MessageBox.showErrorDialog("Error", "Cannot open the link");
+                    }
+                }
+            });
+    	}
+    }
+
 
 }

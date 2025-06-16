@@ -69,7 +69,9 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 	protected boolean paramIgnoreFlags = false;
 	protected GaiaRelease paramGaiaRelease = GaiaRelease.DR3;	
 	
-	public static final String GAIA_OB_SOURCE_VERSION = "FEB 2025"; 
+	public static final String GAIA_OB_SOURCE_VERSION = "JUN 2025";
+	
+	private static final double INVALID_MAG = 99.99;
 	
 	/**
 	 * Constructor
@@ -115,11 +117,12 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 			public String line;
 		}
 		
-		private class OvriGroup {
+		private class OvribGroup {
 			public ValidObservation vObs;
 			public ValidObservation rObs;
 			public ValidObservation iObs;
-			public OvriGroup(
+			public ValidObservation bObs;
+			public OvribGroup(
 					double jd, 
 					String name, 
 					String obsCode,
@@ -130,9 +133,11 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 				rObs = new ValidObservation();
 				rObs.setBand(SeriesType.Cousins_R);				
 				iObs = new ValidObservation();
-				iObs.setBand(SeriesType.Cousins_I);				
+				iObs.setBand(SeriesType.Cousins_I);
+				bObs = new ValidObservation();
+				bObs.setBand(SeriesType.Johnson_B);
 
-				ValidObservation[] vri = {vObs, rObs, iObs};
+				ValidObservation[] vri = {vObs, rObs, iObs, bObs};
 				for (ValidObservation ob : vri) {
 					ob.setJD(jd);
 					ob.setName(name);
@@ -189,8 +194,13 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 				startLineN++;
 			}
 			if (headerLineDR3 == null) {
-				// assume DR2
+				// assume DR2: formats before DEC 2024 were identical.
+				// gaiaRelease remains "UNKNOWN"
 				return lines;
+			} else {
+				// If it is a file source, set the release version to DR3.
+				// It is required for the correct transformation
+				gaiaRelease = GaiaRelease.DR3;
 			}
 			startLineN++;
 			
@@ -443,10 +453,16 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 					ValidObservation rObs = closestObs(gObsEx.ob, redList);
 					ValidObservation bObs = closestObs(gObsEx.ob, blueList);
 					if ((rObs != null) && (bObs != null)) {
-						OvriGroup vri = transformVRI(bObs, gObsEx.ob, rObs, i + 1, greenList.size());
-						collectObservation(vri.vObs);
-						collectObservation(vri.rObs);
-						collectObservation(vri.iObs);
+						OvribGroup vrib;
+						if (gaiaRelease == GaiaRelease.DR3)
+							vrib = transformVRIB_DR3(bObs, gObsEx.ob, rObs, i + 1, greenList.size());
+						else
+							vrib = transformVRIB(bObs, gObsEx.ob, rObs, i + 1, greenList.size());
+						collectObservation(vrib.vObs);
+						collectObservation(vrib.rObs);
+						collectObservation(vrib.iObs);
+						if (gaiaRelease == GaiaRelease.DR3)
+							collectObservation(vrib.bObs);
 					} else {
 						throw new ObservationReadError("No matching blue/red observation to transform");
 					}
@@ -484,7 +500,7 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 			}
 		}
 
-		private OvriGroup transformVRI(ValidObservation bObs, ValidObservation gObs,
+		private OvribGroup transformVRIB(ValidObservation bObs, ValidObservation gObs,
 				ValidObservation rObs, int obsNum, int nGroups) {
 			// Create brand-new observations instead of mutating existing ones.
 			// All three new bands originate from Gaia G with different transformations. 
@@ -505,18 +521,15 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 			 * https://arxiv.org/abs/1804.09368 to transform the passbands from
 			 * Gaia to VRI
 			 */
-			double v = magCalc(g, bp_rp, 0.01760, 0.006860, 0.1732);
-			double r = magCalc(g, bp_rp, 0.003226, -0.3833, 0.1345);
-			double i = magCalc(g, bp_rp, -0.02085, -0.7419, 0.09631);
+			double v = magCalc(g, bp_rp, 0.01760, 0.006860, 0.1732, 0.0, 0.0);
+			double r = magCalc(g, bp_rp, 0.003226, -0.3833, 0.1345, 0.0, 0.0);
+			double i = magCalc(g, bp_rp, -0.02085, -0.7419, 0.09631, 0.0, 0.0);
 
 			double bp_rp_err = Math.sqrt(bperr * bperr + rperr * rperr);
 
-			double verr = uncCalc(g, gerr, bp_rp, bp_rp_err, 0.01760, 0.006860,
-					0.1732);
-			double rerr = uncCalc(g, gerr, bp_rp, bp_rp_err, 0.003226, -0.3833,
-					0.1345);
-			double ierr = uncCalc(g, gerr, bp_rp, bp_rp_err, -0.02085, -0.7419,
-					0.09631);
+			double verr = uncCalc(g, gerr, bp_rp, bp_rp_err, 0.01760, 0.006860,	0.1732, 0.0, 0.0);
+			double rerr = uncCalc(g, gerr, bp_rp, bp_rp_err, 0.003226, -0.3833,	0.1345, 0.0, 0.0);
+			double ierr = uncCalc(g, gerr, bp_rp, bp_rp_err, -0.02085, -0.7419,	0.09631, 0.0, 0.0);
 
 			String comment = String.format(Locale.ENGLISH, 
 					"Transformed from Gaia G= %.5f, BP= %.5f, RP= %.5f", 
@@ -526,38 +539,102 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 			// Consider all three observations as discrepant if any of the G,
 			// BP, RP observations
 			// was flagged as rejected
-			OvriGroup vri = new OvriGroup(gObs.getJD(), gObs.getName(), gObs.getObsCode(),
+			OvribGroup vrib = new OvribGroup(gObs.getJD(), gObs.getName(), gObs.getObsCode(),
 					bObs.isDiscrepant() || gObs.isDiscrepant() || rObs.isDiscrepant(),
 					comment);
 
-			vri.vObs.setMagnitude(new Magnitude(v, verr));
-			vri.vObs.setRecordNumber(obsNum);
+			vrib.vObs.setMagnitude(new Magnitude(v, verr));
+			vrib.vObs.setRecordNumber(obsNum);
 			
-			vri.rObs.setMagnitude(new Magnitude(r, rerr));
-			vri.rObs.setRecordNumber(nGroups + obsNum);
+			vrib.rObs.setMagnitude(new Magnitude(r, rerr));
+			vrib.rObs.setRecordNumber(nGroups + obsNum);
 
-			vri.iObs.setMagnitude(new Magnitude(i, ierr));
-			vri.iObs.setRecordNumber(2 * nGroups + obsNum);
+			vrib.iObs.setMagnitude(new Magnitude(i, ierr));
+			vrib.iObs.setRecordNumber(2 * nGroups + obsNum);
+
+			vrib.bObs.setMagnitude(new Magnitude(INVALID_MAG, 0));
 			
-			return vri;
+			return vrib;
 		}
 
-		private double magCalc(double g, double bp_rp, double c0, double c1,
-				double c2) {
-			return g + c0 + c1 * bp_rp + c2 * bp_rp * bp_rp;
+		private OvribGroup transformVRIB_DR3(ValidObservation bObs, ValidObservation gObs,
+				ValidObservation rObs, int obsNum, int nGroups) {
+			// Create brand-new observations instead of mutating existing ones.
+			// All three new bands originate from Gaia G with different transformations. 
+			
+			double g = gObs.getMagnitude().getMagValue();
+			double bp = bObs.getMagnitude().getMagValue();
+			double rp = rObs.getMagnitude().getMagValue();
+			
+			double bp_rp = bp - rp;
+			
+			double gerr = gObs.getMagnitude().getUncertainty();
+			double bperr = bObs.getMagnitude().getUncertainty();
+			double rperr = rObs.getMagnitude().getUncertainty();
+
+			/*
+			 * Use the transformation coefficients from here:
+			 * https://gea.esac.esa.int/archive/documentation/GDR3/Data_processing/chap_cu5pho/cu5pho_sec_photSystem/cu5pho_ssec_photRelations.html
+			 */
+			double v = magCalc(g, bp_rp, 0.02704, -0.01424, 0.2156, -0.01426, 0.0);
+			double r = magCalc(g, bp_rp, 0.02275, -0.3961, 0.1243, 0.01396, -0.003775);
+			double i = magCalc(g, bp_rp, -0.01753, -0.76, 0.0991, 0.0, 0.0);
+			double b = magCalc(g, bp_rp, -0.01448, 0.6874, 0.3604, -0.06718, 0.006061);
+
+			double bp_rp_err = Math.sqrt(bperr * bperr + rperr * rperr);
+
+			double verr = uncCalc(g, gerr, bp_rp, bp_rp_err, 0.02704, -0.01424, 0.2156, -0.01426, 0.0);
+			double rerr = uncCalc(g, gerr, bp_rp, bp_rp_err, 0.02275, -0.3961, 0.1243, 0.01396, -0.003775);
+			double ierr = uncCalc(g, gerr, bp_rp, bp_rp_err, -0.01753, -0.76, 0.0991, 0.0, 0.0);
+			double berr = uncCalc(g, gerr, bp_rp, bp_rp_err, -0.01448, 0.6874, 0.3604, -0.06718, 0.006061);
+
+			String comment = String.format(Locale.ENGLISH, 
+					"Transformed from Gaia DR3 G= %.5f, BP= %.5f, RP= %.5f", 
+					g, bp, rp);					
+		
+			// V, R, I, B
+			// Consider all three observations as discrepant if any of the G,
+			// BP, RP observations
+			// was flagged as rejected
+			OvribGroup vrib = new OvribGroup(gObs.getJD(), gObs.getName(), gObs.getObsCode(),
+					bObs.isDiscrepant() || gObs.isDiscrepant() || rObs.isDiscrepant(),
+					comment);
+
+			vrib.vObs.setMagnitude(new Magnitude(v, verr));
+			vrib.vObs.setRecordNumber(obsNum);
+			
+			vrib.rObs.setMagnitude(new Magnitude(r, rerr));
+			vrib.rObs.setRecordNumber(nGroups + obsNum);
+
+			vrib.iObs.setMagnitude(new Magnitude(i, ierr));
+			vrib.iObs.setRecordNumber(2 * nGroups + obsNum);
+
+			vrib.bObs.setMagnitude(new Magnitude(b, berr));
+			vrib.bObs.setRecordNumber(3 * nGroups + obsNum);
+			
+			return vrib;
+		}
+		
+		private double magCalc(double g, double bp_rp, 
+				double c0, double c1, double c2, double c3, double c4) {
+			return g + 
+					c0 + 
+					c1 * bp_rp + 
+					c2 * Math.pow(bp_rp, 2) + 
+					c3 * Math.pow(bp_rp, 3) + 
+					c4 * Math.pow(bp_rp, 4);
 		}
 
 		// Error propagation per John Taylor's
 		// "An Introduction to Error Analysis"
 		// 2nd edition, chapter 3
 		private double uncCalc(double g, double gerr, double bp_rp,
-				double bp_rp_err, double c0, double c1, double c2) {
-			double der = c1 + 2 * c2 * bp_rp; // derivative of c0 + c1 * bp_rp +
-												// c2 * bp_rp * bp_rp
-			double t1 = der * bp_rp_err; // eq. 3.23 error of function of one
-											// var
-			return Math.sqrt(gerr * gerr + t1 * t1); // eq. 3.16 error of
-														// independent vars
+				double bp_rp_err, double c0, double c1, double c2, double c3, double c4) {
+            // derivative of c0 + c1 * bp_rp + c2 * bp_rp^2 + c3 * bp_rp^3 + c4 * bp_rp^4 = 
+			//           c1 + 2 * c2 * bp_rp + 3 * c3 * bp_rp^2            + 4 * c4 * bp_rp^3  
+			double der = c1 + 2 * c2 * bp_rp + 3 * c3 * Math.pow(bp_rp, 2) + 4 * c4 * Math.pow(bp_rp, 3); 
+			double t1 = der * bp_rp_err; // eq. 3.23 error of function of one var
+			return Math.sqrt(gerr * gerr + t1 * t1); // eq. 3.16 error of independent vars
 		}
 
 		@Override
