@@ -144,7 +144,7 @@ public class GAIADR2XformFileObSource extends GaiaObSourceBase {
 			panel.setBorder(BorderFactory.createTitledBorder("Passband Transformation"));
 
 			transformCheckbox = new JCheckBox(
-					"Transform Gaia passbands to V,R,I?", checked);
+					"Transform Gaia passbands?", checked);
 			panel.add(transformCheckbox);
 
 			return panel;
