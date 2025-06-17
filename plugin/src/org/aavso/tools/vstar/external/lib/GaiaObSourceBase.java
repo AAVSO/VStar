@@ -620,9 +620,9 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 			return g + 
 					c0 + 
 					c1 * bp_rp + 
-					c2 * Math.pow(bp_rp, 2) + 
-					c3 * Math.pow(bp_rp, 3) + 
-					c4 * Math.pow(bp_rp, 4);
+					c2 * bp_rp * bp_rp + 
+					c3 * bp_rp * bp_rp * bp_rp + 
+					c4 * bp_rp * bp_rp * bp_rp * bp_rp;
 		}
 
 		// Error propagation per John Taylor's
@@ -632,9 +632,13 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 				double bp_rp_err, double c0, double c1, double c2, double c3, double c4) {
             // derivative of c0 + c1 * bp_rp + c2 * bp_rp^2 + c3 * bp_rp^3 + c4 * bp_rp^4 = 
 			//           c1 + 2 * c2 * bp_rp + 3 * c3 * bp_rp^2            + 4 * c4 * bp_rp^3  
-			double der = c1 + 2 * c2 * bp_rp + 3 * c3 * Math.pow(bp_rp, 2) + 4 * c4 * Math.pow(bp_rp, 3); 
-			double t1 = der * bp_rp_err; // eq. 3.23 error of function of one var
-			return Math.sqrt(gerr * gerr + t1 * t1); // eq. 3.16 error of independent vars
+			double der = 
+					c1 + 
+					2 * c2 * bp_rp + 
+					3 * c3 * bp_rp * bp_rp + 
+					4 * c4 * bp_rp * bp_rp * bp_rp; 
+			double t1 = der * bp_rp_err; // df/dx * Δx = error of function of one var
+			return Math.sqrt(gerr * gerr + t1 * t1); // error of sum of 2 independent vars
 		}
 
 		@Override
