@@ -163,7 +163,9 @@
 				<include name="vstaricon.png" />
 			</zipfileset>
 			<zipfileset file="VStar.sh" prefix="vstar" filemode="755" />
+			<zipfileset file="${install_files}/vstar.properties" prefix="vstar" />
 			<zipfileset dir="data" prefix="vstar/data" />
+			<zipfileset dir="${install_files}/PyMicroService" prefix="vstar/PyMicroService" />
 			<zipfileset dir="${doc}" prefix="vstar/doc">
 				<include name="license/*" />
 			</zipfileset>
@@ -201,7 +203,9 @@
 			<zipfileset file="${install_files}/VStar.bat" prefix="vstar" />
 			<zipfileset file="${install_files}/VeLa.bat" prefix="vstar" />
 			<zipfileset file="${install_files}/CreateVStarShortcuts.vbs" prefix="vstar" />
+			<zipfileset file="${install_files}/vstar.properties" prefix="vstar" />
 			<zipfileset dir="data" prefix="vstar/data" />
+			<zipfileset dir="${install_files}/PyMicroService" prefix="vstar/PyMicroService" />
 			<zipfileset dir="${doc}" prefix="vstar/doc">
 				<include name="license/*" />
 			</zipfileset>
