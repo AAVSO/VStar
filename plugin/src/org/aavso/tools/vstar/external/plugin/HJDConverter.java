@@ -17,19 +17,12 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
-import java.awt.Container;
 import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
 import org.aavso.tools.vstar.external.lib.ConvertHelper;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
-import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -38,7 +31,6 @@ import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.RAInfo;
-import org.aavso.tools.vstar.util.help.Help;
 
 /**
  * Converts currently loaded observations to HJD if they are not already

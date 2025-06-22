@@ -423,10 +423,18 @@ public class ConvertHelper {
 	public static class ConfirmDialogWithHelp extends AbstractOkCancelDialog {
 		
 		String helpTopic;
-		
+
 		public ConfirmDialogWithHelp(String title, String msg, String helpTopic) {
 			super(title);
-			
+			initDialog(title, msg, helpTopic, false);
+		}
+		
+		public ConfirmDialogWithHelp(String title, String msg, String helpTopic, boolean displayLocalServiceInfo) {
+			super(title);
+			initDialog(title, msg, helpTopic, displayLocalServiceInfo);
+		}
+
+		private void initDialog(String title, String msg, String helpTopic, boolean displayLocalServiceInfo) {	
 			this.helpTopic = helpTopic;
 			
 			Container contentPane = this.getContentPane();
@@ -442,7 +450,7 @@ public class ConvertHelper {
 			topPane.add(buttonPane);
 			this.helpTopic = helpTopic;
 
-			if (localServiceURLstring != null)
+			if (displayLocalServiceInfo && localServiceURLstring != null)
 				topPane.add(createInfoPane("Local service: " + localServiceURLstring));
 			
 			contentPane.add(topPane);
@@ -451,7 +459,6 @@ public class ConvertHelper {
 			setLocationRelativeTo(Mediator.getUI().getContentPane());
 			okButton.requestFocusInWindow();
 			this.setVisible(true);
-			
 		}
 		
 		private JPanel createMessagePane(String msg) {
