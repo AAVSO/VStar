@@ -1449,9 +1449,10 @@ public class VeLaInterpreter {
         addListForFunction();
 
         for (Type type : Type.values()) {
-            // Note that this includes function; useful?
-            addListAppendFunction(type);
-            addListReduceFunction(type);
+            if (!type.equals(Type.OBJECT) && !type.equals(Type.NONE)) {
+                addListAppendFunction(type);
+                addListReduceFunction(type);
+            }
         }
 
         // Collect functions from reflection over Java classes
