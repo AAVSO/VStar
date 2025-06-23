@@ -1497,6 +1497,13 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertEquals(40320, result.get().intVal());
     }
 
+    public void testAnonParamlessFunction() {
+        String prog = "λ():boolean{true}()";
+        Optional<Operand> result = vela.program(prog);
+        assertTrue(result.isPresent());
+        assertTrue(result.get().booleanVal());
+    }
+
     public void testBoundFun() {
         String prog = "";
         prog += "fact(n:integer) : integer {";

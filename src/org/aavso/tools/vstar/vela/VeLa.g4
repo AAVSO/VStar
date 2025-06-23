@@ -35,7 +35,7 @@ sequence
     )*
 ;
 
-// F# (+ OCaml, ML?) uses <- for modifying mutable values
+// F# (+ OCaml/ML?) uses <- for modifying mutable values
 // (like VeLa) while R uses it for regular assignment.
 
 binding
@@ -49,8 +49,8 @@ binding
 
 // A named function definition, when invoked, introduces an additional 
 // environment and allows all VeLa program elements operating over that 
-// environment and its predecessors. name:type pays homage to Pascal, 
-// OCaml/F#, Swift, and other languages.
+// environment and its predecessors. name:type pays homage to Pascal and
+// other languages.
 
 namedFundef
 :

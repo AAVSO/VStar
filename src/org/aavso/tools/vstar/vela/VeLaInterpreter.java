@@ -639,8 +639,10 @@ public class VeLaInterpreter {
                     break;
 
                 case PAIR:
-                    parameterNames.add(child.left().getToken());
-                    parameterTypes.add(Type.name2Vela(child.right().getToken()));
+                    if (child.hasChildren()) {
+                        parameterNames.add(child.left().getToken());
+                        parameterTypes.add(Type.name2Vela(child.right().getToken()));
+                    }
                     break;
 
                 case SYMBOL:
