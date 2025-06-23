@@ -21,6 +21,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParsePosition;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.aavso.tools.vstar.vela.VeLaParser.AdditiveExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.AnonFundefContext;
@@ -115,7 +116,12 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
     @Override
     public AST visitAnonFundef(AnonFundefContext ctx) {
         AST ast = new AST(Operation.FUNDEF);
-        ctx.formalParameter().forEach(param -> ast.addChild(param.accept(this)));
+        if (!ctx.formalParameter().isEmpty()) {
+            ctx.formalParameter().forEach(param -> ast.addChild(param.accept(this)));
+        } else {
+            // denotes a function with no parameters
+            ast.addChild(new AST(Operation.PAIR));
+        }
         if (ctx.type() != null) {
             // Optional return type
             ast.addChild(ctx.type().accept(this));
