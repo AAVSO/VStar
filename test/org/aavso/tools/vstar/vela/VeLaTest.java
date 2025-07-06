@@ -1767,6 +1767,66 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertTrue(Tolerance.areClose(3.8834545, result.get().doubleVal(), 1e-7, true));
     }
 
+    public void testIntegerTypeNameZ() {
+        String prog = "";
+        prog += "f(n : ℤ) : ℤ {n*n}";
+        prog += "f(4)";
+
+        Optional<Operand> result = vela.program(prog);
+        assertTrue(result.isPresent());
+        assertEquals(16, result.get().intVal());
+    }
+
+    public void testIntegerTypeNameInt() {
+        String prog = "";
+        prog += "f(n : int) : int {n*n}";
+        prog += "f(4)";
+
+        Optional<Operand> result = vela.program(prog);
+        assertTrue(result.isPresent());
+        assertEquals(16, result.get().intVal());
+    }
+
+    public void testtRealTypeNameℝ() {
+        String prog = "";
+        prog += "f(n : ℝ) : ℝ {n*n}";
+        prog += "f(4.0)";
+
+        Optional<Operand> result = vela.program(prog);
+        assertTrue(result.isPresent());
+        assertEquals(16.0, result.get().doubleVal());
+    }
+
+    public void testBooleanTypeName𝔹() {
+        String prog = "";
+        prog += "f(b : 𝔹) : 𝔹 {not b}";
+        prog += "f(false)";
+
+        Optional<Operand> result = vela.program(prog);
+        assertTrue(result.isPresent());
+        assertTrue(result.get().booleanVal());
+    }
+
+    public void testBooleanTypeNameBool() {
+        String prog = "";
+        prog += "f(b : bool) : bool {not b}";
+        prog += "f(false)";
+
+        Optional<Operand> result = vela.program(prog);
+        assertTrue(result.isPresent());
+        assertTrue(result.get().booleanVal());
+    }
+
+    public void testtStringTypeNameStr() {
+        String prog = "";
+        prog += "f(s : str) : str {s+s}";
+        prog += "f(\"z\")";
+
+        Optional<Operand> result = vela.program(prog);
+        assertTrue(result.isPresent());
+        assertEquals("zz", result.get().stringVal());
+    }
+
     // Bindings
 
     public void testBindingNonConstant() {
@@ -1909,18 +1969,19 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertTrue(result.isPresent());
         assertEquals(13, result.get().intVal());
     }
+
     // Sequence
 
     public void testSequence() {
         String prog = "";
-        prog += "str <- \"\"";
+        prog += "s <- \"\"";
         prog += "ch is \"1\"";
-        prog += "str <- when";
-        prog += "           ch = \"1\" -> str + \" ONE\"";
-        prog += "           ch = \"2\" -> str + \" TWO\"";
-        prog += "           true -> { println(\"OTHER\") str }\n";
-        // prog += "println(format(\"%s: '%s'\" [ch str]))";
-        prog += "str";
+        prog += "s <- when";
+        prog += "           ch = \"1\" -> s + \" ONE\"";
+        prog += "           ch = \"2\" -> s + \" TWO\"";
+        prog += "           true -> { println(\"OTHER\") s }\n";
+        // prog += "println(format(\"%s: '%s'\" [ch s]))";
+        prog += "s";
 
         Optional<Operand> result = vela.program(prog);
 

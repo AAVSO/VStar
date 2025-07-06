@@ -346,30 +346,38 @@ WHILE
 FUN
 :
     [Ff] [Uu] [Nn] [Cc] [Tt] [Ii] [Oo] [Nn]
+    | [Ff] [Uu] [Nn]
 ;
 
+// lower (λ) and upper (Λ) case lambdas, respectively
 LAMBDA
-:   '\u039B' | '\u03BB'
+:   '\u03BB' | '\u039B'
 ;
 
 INT_T
 :
     [Ii] [Nn] [Tt] [Ee] [Gg] [Ee] [Rr]
+    | [Ii] [Nn] [Tt]
+    | 'ℤ'
 ;
 
 REAL_T
 :
     [Rr] [Ee] [Aa] [Ll]
+    | 'ℝ'
 ;
 
 BOOL_T
 :
     [Bb] [Oo] [Oo] [Ll] [Ee] [Aa] [Nn]
+    | [Bb] [Oo] [Oo] [Ll]
+    | '𝔹'
 ;
 
 STR_T
 :
     [Ss] [Tt] [Rr] [Ii] [Nn] [Gg]
+    | [Ss] [Tt] [Rr]
 ;
 
 LIST_T
