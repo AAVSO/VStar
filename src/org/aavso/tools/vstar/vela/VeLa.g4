@@ -371,7 +371,6 @@ BOOL_T
 :
     [Bb] [Oo] [Oo] [Ll] [Ee] [Aa] [Nn]
     | [Bb] [Oo] [Oo] [Ll]
-    | '𝔹'
 ;
 
 STR_T

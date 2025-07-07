@@ -18,6 +18,8 @@
 package org.aavso.tools.vstar.ui.vela;
 
 import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -30,6 +32,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
@@ -58,6 +61,8 @@ public class VeLaDialog extends TextDialog {
 
     static {
         codeTextArea = new TextArea("VeLa Code", "", 12, 42, false, true);
+        addKeyListener();
+
         // resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error",
         // "AST", "DOT"), Arrays.asList("", "", "", ""), 15, 70,
         // true, true);
@@ -164,6 +169,48 @@ public class VeLaDialog extends TextDialog {
     }
 
     // Helpers
+
+    private static void addKeyListener() {
+        JTextArea area = (JTextArea) (codeTextArea.getUIComponent());
+        area.addKeyListener(new KeyAdapter() {
+            boolean escapeMode = false;
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char ch = e.getKeyChar();
+                if (ch == '\\') {
+                    escapeMode = true;
+                    e.consume();
+                } else if (escapeMode) {
+
+                    String unicode = null;
+                    switch (ch) {
+                    case 'l':
+                        // lambda
+                        unicode = "\u03BB";
+                        break;
+                    case 'p':
+                        // pi
+                        unicode = "\u03C0";
+                        break;
+                    case 'r':
+                        // real number set
+                        unicode = "\u211D";
+                        break;
+                    case 'z':
+                        // integer number set
+                        unicode = "\u2124";
+                        break;
+                    }
+
+                    e.consume();
+                    int pos = area.getCaretPosition();
+                    area.insert(unicode, pos);
+                    escapeMode = false;
+                }
+            }
+        });
+    }
 
     private void execute() {
         boolean verbose = verbosityCheckBox.isSelected();
