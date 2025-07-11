@@ -180,11 +180,7 @@ public class VeLaDialog extends TextDialog {
                 char ch = e.getKeyChar();
                 String newCh = null;
 
-                if (ch == '\\') {
-                    escapeMode = true;
-                    e.consume();
-                } else if (escapeMode) {
-
+                if (escapeMode) {
                     switch (ch) {
                     case 'l':
                         // lambda
@@ -208,12 +204,15 @@ public class VeLaDialog extends TextDialog {
                         break;
                     }
 
-                    if (newCh != "\\")
-                        e.consume();
+                    e.consume();
 
                     int pos = area.getCaretPosition();
                     area.insert(newCh, pos);
                     escapeMode = false;
+
+                } else if (ch == '\\') {
+                    escapeMode = true;
+                    e.consume();
                 }
             }
         });
