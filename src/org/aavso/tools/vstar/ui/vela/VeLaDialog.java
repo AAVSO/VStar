@@ -178,34 +178,41 @@ public class VeLaDialog extends TextDialog {
             @Override
             public void keyTyped(KeyEvent e) {
                 char ch = e.getKeyChar();
+                String newCh = null;
+
                 if (ch == '\\') {
                     escapeMode = true;
                     e.consume();
                 } else if (escapeMode) {
 
-                    String unicode = null;
                     switch (ch) {
                     case 'l':
                         // lambda
-                        unicode = "\u03BB";
+                        newCh = "\u03BB";
                         break;
                     case 'p':
                         // pi
-                        unicode = "\u03C0";
+                        newCh = "\u03C0";
                         break;
                     case 'r':
                         // real number set
-                        unicode = "\u211D";
+                        newCh = "\u211D";
                         break;
                     case 'z':
                         // integer number set
-                        unicode = "\u2124";
+                        newCh = "\u2124";
+                        break;
+                    case '\\':
+                        // backslash
+                        newCh = "\\";
                         break;
                     }
 
-                    e.consume();
+                    if (newCh != "\\")
+                        e.consume();
+
                     int pos = area.getCaretPosition();
-                    area.insert(unicode, pos);
+                    area.insert(newCh, pos);
                     escapeMode = false;
                 }
             }
