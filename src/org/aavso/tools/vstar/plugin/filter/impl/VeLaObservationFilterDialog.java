@@ -149,7 +149,8 @@ public class VeLaObservationFilterDialog extends AbstractOkCancelDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String propText = (String) obsPropsList.getSelectedItem();
-				velaFilterField.append(propText);
+				int pos = velaFilterField.getCaretPosition();
+				velaFilterField.insert(propText, pos);
 			}
 		});
 
