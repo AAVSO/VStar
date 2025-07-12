@@ -28,147 +28,164 @@ import org.aavso.tools.vstar.data.Property;
  */
 public enum Type {
 
-	INTEGER, REAL, BOOLEAN, STRING, LIST, FUNCTION, OBJECT, NONE;
+    INTEGER, REAL, BOOLEAN, STRING, LIST, FUNCTION, OBJECT, NONE;
 
-	public final static int[] INT_ARR = new int[0];
-	public final static double[] DBL_ARR = new double[0];
-	public final static Double[] DBL_CLASS_ARR = new Double[0];
-	public final static boolean[] BOOL_ARR = new boolean[0];
-	public final static String[] STR_ARR = new String[0];
+    public final static int[] INT_ARR = new int[0];
+    public final static double[] DBL_ARR = new double[0];
+    public final static Double[] DBL_CLASS_ARR = new Double[0];
+    public final static boolean[] BOOL_ARR = new boolean[0];
+    public final static String[] STR_ARR = new String[0];
 
-	public static Type java2Vela(Class<?> jtype) {
-		Type vtype = null;
-		
-		if (jtype == int.class) {
-			vtype = INTEGER;
-		} else if (jtype == double.class) {
-			vtype = REAL;
-		} else if (jtype == String.class) {
-			vtype = STRING;
-		} else if (jtype == CharSequence.class) {
-			vtype = STRING;
-		} else if (jtype == boolean.class) {
-			vtype = BOOLEAN;
-		} else if (jtype == List.class) {
-			vtype = LIST;
-		} else if (jtype == INT_ARR.getClass()) {
-			vtype = LIST;
-		} else if (jtype == DBL_ARR.getClass()) {
-			vtype = LIST;
-		} else if (jtype == DBL_CLASS_ARR.getClass()) {
-			vtype = LIST;
-		} else if (jtype == BOOL_ARR.getClass()) {
-			vtype = LIST;
-		} else if (jtype == STR_ARR.getClass()) {
-			vtype = LIST;
-		} else if (jtype == void.class) {
-			vtype = NONE;
-		} else {
-			// It's a class representing instances of *some* kind of object!
-			vtype = OBJECT;
+    public static Type java2Vela(Class<?> jtype) {
+        Type vtype = null;
+
+        if (jtype == int.class) {
+            vtype = INTEGER;
+        } else if (jtype == double.class) {
+            vtype = REAL;
+        } else if (jtype == String.class) {
+            vtype = STRING;
+        } else if (jtype == CharSequence.class) {
+            vtype = STRING;
+        } else if (jtype == boolean.class) {
+            vtype = BOOLEAN;
+        } else if (jtype == List.class) {
+            vtype = LIST;
+        } else if (jtype == INT_ARR.getClass()) {
+            vtype = LIST;
+        } else if (jtype == DBL_ARR.getClass()) {
+            vtype = LIST;
+        } else if (jtype == DBL_CLASS_ARR.getClass()) {
+            vtype = LIST;
+        } else if (jtype == BOOL_ARR.getClass()) {
+            vtype = LIST;
+        } else if (jtype == STR_ARR.getClass()) {
+            vtype = LIST;
+        } else if (jtype == void.class) {
+            vtype = NONE;
+        } else {
+            // It's a class representing instances of *some* kind of object!
+            vtype = OBJECT;
 //		} else {
 //			throw new IllegalArgumentException("Invalid type: " + jtype);
-		}
+        }
 
-		return vtype;
-	}
+        return vtype;
+    }
 
-	public static Class<?> vela2Java(Type vtype) {
-		Class<?> jtype = null;
+    public static Class<?> vela2Java(Type vtype) {
+        Class<?> jtype = null;
 
-		switch (vtype) {
-		case INTEGER:
-			jtype = int.class;
-			break;
-		case REAL:
-			jtype = double.class;
-			break;
-		case STRING:
-			jtype = String.class;
-			break;
-		case BOOLEAN:
-			jtype = boolean.class;
-			break;
-		case LIST:
-			// TODO
-			break;
-		case FUNCTION:
-			// TODO
-			break;
-		case NONE:
-			jtype = void.class;
-			break;
-		case OBJECT:
-			jtype = Object.class;
-			break;
-		}
+        switch (vtype) {
+        case INTEGER:
+            jtype = int.class;
+            break;
+        case REAL:
+            jtype = double.class;
+            break;
+        case STRING:
+            jtype = String.class;
+            break;
+        case BOOLEAN:
+            jtype = boolean.class;
+            break;
+        case LIST:
+            // TODO
+            break;
+        case FUNCTION:
+            // TODO
+            break;
+        case NONE:
+            jtype = void.class;
+            break;
+        case OBJECT:
+            jtype = Object.class;
+            break;
+        }
 
-		return jtype;
-	}
+        return jtype;
+    }
 
-	public static Type name2Vela(String type) {
-		Type vtype = null;
+    public static Type name2Vela(String type) {
+        Type vtype = null;
 
-		if ("integer".equalsIgnoreCase(type)) {
-			vtype = INTEGER;
-		} else if ("real".equalsIgnoreCase(type)) {
-			vtype = REAL;
-		} else if ("string".equalsIgnoreCase(type)) {
-			vtype = STRING;
-		} else if ("boolean".equalsIgnoreCase(type)) {
-			vtype = BOOLEAN;
-		} else if ("list".equalsIgnoreCase(type)) {
-			vtype = LIST;
-		} else if ("function".equalsIgnoreCase(type)) {
-			vtype = FUNCTION;
-		} else if ("λ".equalsIgnoreCase(type)) {
+        switch(type.toLowerCase()) {
+        case "int":
+        case "integer":
+        case "ℤ":
+            vtype = INTEGER;
+            break;
+
+        case "real":
+        case "ℝ":
+            vtype = REAL;
+            break;
+
+        case "bool":
+        case "boolean":
+        case "𝔹":
+            vtype = BOOLEAN;
+            break;
+
+        case "str":
+        case "string":
+            vtype = STRING;
+            break;
+
+        case "list":
+            vtype = LIST;
+            break;
+
+        case "fun":
+        case "function":
+        case "λ":
+        case "Λ":
             vtype = FUNCTION;
-        } else {
-			throw new IllegalArgumentException("Invalid type: " + type);
-		}
+            break;
+        }
 
-		return vtype;
-	}
+        return vtype;
+    }
 
-	public static Type propertyToVela(Property prop) {
-		Type vtype = null;
+    public static Type propertyToVela(Property prop) {
+        Type vtype = null;
 
-		switch(prop.getType()) {
-		case INTEGER:
-			vtype = Type.INTEGER;
-			break;
-		case REAL:
-			vtype = Type.REAL;
-			break;
-		case BOOLEAN:
-			vtype = Type.BOOLEAN;
-			break;
-		case STRING:
-			vtype = Type.STRING;
-			break;
-		case NONE:
-		default:
-			vtype = Type.NONE;
-			break;
-		}
+        switch (prop.getType()) {
+        case INTEGER:
+            vtype = Type.INTEGER;
+            break;
+        case REAL:
+            vtype = Type.REAL;
+            break;
+        case BOOLEAN:
+            vtype = Type.BOOLEAN;
+            break;
+        case STRING:
+            vtype = Type.STRING;
+            break;
+        case NONE:
+        default:
+            vtype = Type.NONE;
+            break;
+        }
 
-		return vtype;
-	}
+        return vtype;
+    }
 
-	public boolean isComposite() {
-		return this == LIST || this == FUNCTION || this == OBJECT;
-	}
+    public boolean isComposite() {
+        return this == LIST || this == FUNCTION || this == OBJECT;
+    }
 
-	public boolean oneOf(Type... types) {
-		boolean result = false;
+    public boolean oneOf(Type... types) {
+        boolean result = false;
 
-		for (Type type : types) {
-			if (this == type) {
-				result = true;
-				break;
-			}
-		}
+        for (Type type : types) {
+            if (this == type) {
+                result = true;
+                break;
+            }
+        }
 
-		return result;
-	}
+        return result;
+    }
 }
