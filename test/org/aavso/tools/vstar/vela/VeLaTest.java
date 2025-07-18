@@ -1797,6 +1797,16 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertEquals(16.0, result.get().doubleVal());
     }
 
+    public void testBooleanTypeName𝔹() {
+        String prog = "";
+        prog += "f(b : 𝔹) : 𝔹 {not b}";
+        prog += "f(false)";
+
+        Optional<Operand> result = vela.program(prog);
+        assertTrue(result.isPresent());
+        assertTrue(result.get().booleanVal());
+    }
+
     public void testBooleanTypeNameBool() {
         String prog = "";
         prog += "f(b : bool) : bool {not b}";

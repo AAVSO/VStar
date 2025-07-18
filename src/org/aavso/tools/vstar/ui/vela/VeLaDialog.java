@@ -182,6 +182,10 @@ public class VeLaDialog extends TextDialog {
 
                 if (escapeMode) {
                     switch (ch) {
+                    case 'b':
+                        // Boolean set
+                        newCh = "\uD835\uDD39";
+                        break;
                     case 'l':
                         // lambda
                         newCh = "\u03BB";
