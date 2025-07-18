@@ -189,6 +189,9 @@ public class SeriesType implements Comparable<SeriesType> {
 			LocaleProps.get("ORANGE_SERIES") + " (Liller)",
 			LocaleProps.get("ORANGE_SERIES"), new Color(255, 128, 0));
 
+	public static final SeriesType GAIA_G = new SeriesType(58, "GAIA G",
+	        "GG", new Color(255, 165, 0));
+
 	public static final SeriesType Clear_Blue_Blocking = new SeriesType(60,
 			"Clear Blue Blocking", "CBB", new Color(255, 220, 32));
 
