@@ -42,204 +42,170 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 @SuppressWarnings("serial")
 public class AIDSeriesSelectionPane extends JPanel {
 
-	private List<JCheckBox> checkBoxes;
+    private List<JCheckBox> checkBoxes;
 
-	/**
-	 * Constructor
-	 */
-	public AIDSeriesSelectionPane() {
-		super();
+    /**
+     * Constructor
+     */
+    public AIDSeriesSelectionPane() {
+        super();
 
-		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		this.setBorder(BorderFactory.createTitledBorder(LocaleProps
-				.get("BANDS_TO_LOAD")));
-		this.setToolTipText("Select or deselect desired series.");
+        this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        this.setBorder(BorderFactory.createTitledBorder(LocaleProps.get("BANDS_TO_LOAD")));
+        this.setToolTipText("Select or deselect desired series.");
 
-		this.checkBoxes = new ArrayList<JCheckBox>();
+        this.checkBoxes = new ArrayList<JCheckBox>();
 
-		addSeriesCheckBoxes();
+        addSeriesCheckBoxes();
 
-		addButtons();
-	}
+        addButtons();
+    }
 
-	/**
-	 * Return a list of the selected series.
-	 */
-	public List<SeriesType> getSelectedSeries() {
-		List<SeriesType> list = new ArrayList<SeriesType>();
+    /**
+     * Return a list of the selected series.
+     */
+    public List<SeriesType> getSelectedSeries() {
+        List<SeriesType> list = new ArrayList<SeriesType>();
 
-		checkBoxes.stream().forEach(
-				checkBox -> {
-					if (checkBox.isSelected()) {
-						list.add(SeriesType.getSeriesFromDescription(checkBox
-								.getText()));
-					}
-				});
+        checkBoxes.stream().forEach(checkBox -> {
+            if (checkBox.isSelected()) {
+                list.add(SeriesType.getSeriesFromDescription(checkBox.getText()));
+            }
+        });
 
-		return list;
-	}
+        return list;
+    }
 
-	/**
-	 * Set all checkboxes to the target state.
-	 * 
-	 * @param targetState
-	 *            The target check-button state.
-	 */
-	public void setAllCheckboxesToState(boolean targetState) {
-		checkBoxes.stream().forEach(checkBox -> {
-			if (checkBox.isEnabled()) {
-				checkBox.setSelected(targetState);
-			}
-		});
-	}
+    /**
+     * Set all checkboxes to the target state.
+     * 
+     * @param targetState The target check-button state.
+     */
+    public void setAllCheckboxesToState(boolean targetState) {
+        checkBoxes.stream().forEach(checkBox -> {
+            if (checkBox.isEnabled()) {
+                checkBox.setSelected(targetState);
+            }
+        });
+    }
 
-	/**
-	 * Set checkboxes for specified series to the requested states.
-	 * 
-	 * @param seriesStates
-	 *            A series-description to state map.
-	 */
-	public void setCheckboxesToStates(Map<String,Boolean> seriesStates) {
-		checkBoxes.stream().forEach(checkBox -> {
-			if (seriesStates.containsKey(checkBox.getText())) {
-				checkBox.setSelected(seriesStates.get(checkBox.getText()));
-			}
-		});
-	}
+    /**
+     * Set checkboxes for specified series to the requested states.
+     * 
+     * @param seriesStates A series-description to state map.
+     */
+    public void setCheckboxesToStates(Map<String, Boolean> seriesStates) {
+        checkBoxes.stream().forEach(checkBox -> {
+            if (seriesStates.containsKey(checkBox.getText())) {
+                checkBox.setSelected(seriesStates.get(checkBox.getText()));
+            }
+        });
+    }
 
-	// Create a checkbox for each series, grouped by type.
-	private void addSeriesCheckBoxes() {
-		JTabbedPane tabs = new JTabbedPane();
+    // Create a checkbox for each series, grouped by type.
+    private void addSeriesCheckBoxes() {
+        JTabbedPane tabs = new JTabbedPane();
 
-		// tabs.addTab(
-		// "Common",
-		// createSeriesCheckboxes(SeriesType.Visual, SeriesType.Johnson_V,
-		// SeriesType.Johnson_B, SeriesType.Johnson_R,
-		// SeriesType.Johnson_I,
-		// SeriesType.Unfiltered_with_V_Zeropoint,
-		// SeriesType.Unfiltered_with_R_Zeropoint,
-		// SeriesType.Tri_Color_Green, SeriesType.Tri_Color_Blue,
-		// SeriesType.Tri_Color_Red, SeriesType.Cousins_I,
-		// SeriesType.Cousins_R));
-		
-		tabs.addTab(
-				"Standard",
-				createSeriesCheckboxes(SeriesType.Visual, SeriesType.Johnson_V,
-						SeriesType.Johnson_B, SeriesType.Johnson_R,
-						SeriesType.Johnson_I, SeriesType.Cousins_I, SeriesType.Cousins_R));
+        tabs.addTab("Standard",
+                createSeriesCheckboxes(SeriesType.Visual, SeriesType.Johnson_V, SeriesType.Johnson_B,
+                        SeriesType.Johnson_R, SeriesType.Johnson_I, SeriesType.Johnson_U, SeriesType.Cousins_I,
+                        SeriesType.Cousins_R));
 
-		tabs.addTab("Unfiltered",
-				createFilteredSeriesCheckboxPanel("Unfiltered"));
+        tabs.addTab("Unfiltered", createFilteredSeriesCheckboxPanel("Unfiltered"));
 
-		tabs.addTab("Tri-Color", createFilteredSeriesCheckboxPanel("Tri-Color"));
+        tabs.addTab("Tri-Color", createFilteredSeriesCheckboxPanel("Tri-Color"));
 
-//		tabs.addTab("Cousins", createFilteredSeriesCheckboxPanel("Cousins"));
+        tabs.addTab("NIR", createSeriesCheckboxes(SeriesType.K_NIR_2pt2micron, SeriesType.H_NIR_1pt6micron,
+                SeriesType.J_NIR_1pt2micron));
 
-		tabs.addTab(
-				"NIR",
-				createSeriesCheckboxes(SeriesType.K_NIR_2pt2micron,
-						SeriesType.H_NIR_1pt6micron,
-						SeriesType.J_NIR_1pt2micron));
+        tabs.addTab("Sloan", createFilteredSeriesCheckboxPanel("Sloan"));
 
-		tabs.addTab("Sloan", createFilteredSeriesCheckboxPanel("Sloan"));
+        tabs.addTab("Stromgren", createFilteredSeriesCheckboxPanel("Stromgren"));
 
-		tabs.addTab("Stromgren", createFilteredSeriesCheckboxPanel("Stromgren"));
+        tabs.addTab("Optec Wing", createFilteredSeriesCheckboxPanel("Optec Wing"));
 
-		tabs.addTab("Optec Wing",
-				createFilteredSeriesCheckboxPanel("Optec Wing"));
+        tabs.addTab("PanSTARRS", createFilteredSeriesCheckboxPanel("PanSTARRS"));
 
-		tabs.addTab("PanSTARRS", createFilteredSeriesCheckboxPanel("PanSTARRS"));
+        tabs.addTab("Halpha", createFilteredSeriesCheckboxPanel("Halpha"));
 
-		tabs.addTab("Halpha", createFilteredSeriesCheckboxPanel("Halpha"));
+        tabs.addTab("Color", createSeriesCheckboxes(SeriesType.Orange_Liller, SeriesType.Red, SeriesType.Blue,
+                SeriesType.Green, SeriesType.Yellow, SeriesType.Clear_Blue_Blocking));
 
-		tabs.addTab(
-				"Color",
-				createSeriesCheckboxes(SeriesType.Orange_Liller,
-						SeriesType.Red, SeriesType.Blue, SeriesType.Green,
-						SeriesType.Yellow, SeriesType.Clear_Blue_Blocking));
+        tabs.addTab("Spacecraft", createSeriesCheckboxes(SeriesType.GAIA_G));
 
-		this.add(tabs);
-	}
+        this.add(tabs);
+    }
 
-	// Return a panel of checkboxes for a subset of series whose names have the
-	// specified prefix. Could make this a predicate rather than a prefix for
-	// generality.
-	private JPanel createFilteredSeriesCheckboxPanel(String prefix) {
-		return createSeriesCheckboxes(SeriesType.values().stream()
-				.filter(series -> series.getDescription().startsWith(prefix))
-				.toArray(SeriesType[]::new));
-	}
+    // Return a panel of checkboxes for a subset of series whose names have the
+    // specified prefix. Could make this a predicate rather than a prefix for
+    // generality.
+    private JPanel createFilteredSeriesCheckboxPanel(String prefix) {
+        return createSeriesCheckboxes(SeriesType.values().stream()
+                .filter(series -> series.getDescription().startsWith(prefix)).toArray(SeriesType[]::new));
+    }
 
-	// Create series checkboxes in a panel and return it.
-	private JPanel createSeriesCheckboxes(SeriesType... seriesTypes) {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		// panel.setBorder(BorderFactory.createTitledBorder(""));
+    // Create series checkboxes in a panel and return it.
+    private JPanel createSeriesCheckboxes(SeriesType... seriesTypes) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+        // panel.setBorder(BorderFactory.createTitledBorder(""));
 
-		// Ensure the panel is always wide enough.
-		this.add(Box.createRigidArea(new Dimension(75, 1)));
+        // Ensure the panel is always wide enough.
+        this.add(Box.createRigidArea(new Dimension(75, 1)));
 
-		for (int i = 0; i < seriesTypes.length; i++) {
-			SeriesType series = seriesTypes[i];
-			JCheckBox checkBox = new JCheckBox(series.getDescription());
-			selectDefaultSeriesCheckbox(checkBox);
-			panel.add(checkBox);
-			panel.add(Box.createRigidArea(new Dimension(3, 3)));
+        for (int i = 0; i < seriesTypes.length; i++) {
+            SeriesType series = seriesTypes[i];
+            JCheckBox checkBox = new JCheckBox(series.getDescription());
+            selectDefaultSeriesCheckbox(checkBox);
+            panel.add(checkBox);
+            panel.add(Box.createRigidArea(new Dimension(3, 3)));
 
-			checkBoxes.add(checkBox);
-		}
+            checkBoxes.add(checkBox);
+        }
 
-		return panel;
-	}
+        return panel;
+    }
 
-	/**
-	 * Does the checkbox correspond to a default-to-load series? If so, set the
-	 * checkbox's state to selected.
-	 * 
-	 * @param checkBox
-	 *            The checkbox in question.
-	 */
-	private void selectDefaultSeriesCheckbox(JCheckBox checkBox) {
-		String seriesName = checkBox.getText();
-		if (seriesName.equals(LocaleProps.get("VISUAL_SERIES"))
-				|| seriesName.equals("Johnson V")) {
-			checkBox.setSelected(true);
-		}
-	}
+    /**
+     * Does the checkbox correspond to a default-to-load series? If so, set the
+     * checkbox's state to selected.
+     * 
+     * @param checkBox The checkbox in question.
+     */
+    private void selectDefaultSeriesCheckbox(JCheckBox checkBox) {
+        String seriesName = checkBox.getText();
+        if (seriesName.equals(LocaleProps.get("VISUAL_SERIES")) || seriesName.equals("Johnson V")) {
+            checkBox.setSelected(true);
+        }
+    }
 
-	// Create buttons for en-masse selection/deselection
-	// of visibility checkboxes and an apply button.
-	private void addButtons() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		panel.setBorder(BorderFactory.createEtchedBorder());
+    // Create buttons for en-masse selection/deselection
+    // of visibility checkboxes and an apply button.
+    private void addButtons() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+        panel.setBorder(BorderFactory.createEtchedBorder());
 
-		JButton selectAllButton = new JButton(
-				LocaleProps.get("SELECT_ALL_BUTTON"));
-		selectAllButton
-				.addActionListener(createEnMasseSelectionButtonListener(true));
-		panel.add(selectAllButton, BorderLayout.LINE_START);
+        JButton selectAllButton = new JButton(LocaleProps.get("SELECT_ALL_BUTTON"));
+        selectAllButton.addActionListener(createEnMasseSelectionButtonListener(true));
+        panel.add(selectAllButton, BorderLayout.LINE_START);
 
-		JButton deSelectAllButton = new JButton(
-				LocaleProps.get("DESELECT_ALL_BUTTON"));
-		deSelectAllButton
-				.addActionListener(createEnMasseSelectionButtonListener(false));
-		panel.add(deSelectAllButton, BorderLayout.LINE_END);
+        JButton deSelectAllButton = new JButton(LocaleProps.get("DESELECT_ALL_BUTTON"));
+        deSelectAllButton.addActionListener(createEnMasseSelectionButtonListener(false));
+        panel.add(deSelectAllButton, BorderLayout.LINE_END);
 
-		this.add(panel, BorderLayout.CENTER);
-	}
+        this.add(panel, BorderLayout.CENTER);
+    }
 
-	/**
-	 * Return a listener for the "select/deselect all" checkbox.
-	 * 
-	 * @param targetState
-	 *            The target check-button state.
-	 * @return The button listener.
-	 */
-	private ActionListener createEnMasseSelectionButtonListener(
-			final boolean targetState) {
-		return (e -> {
-			setAllCheckboxesToState(targetState);
-		});
-	}
+    /**
+     * Return a listener for the "select/deselect all" checkbox.
+     * 
+     * @param targetState The target check-button state.
+     * @return The button listener.
+     */
+    private ActionListener createEnMasseSelectionButtonListener(final boolean targetState) {
+        return (e -> {
+            setAllCheckboxesToState(targetState);
+        });
+    }
 }
