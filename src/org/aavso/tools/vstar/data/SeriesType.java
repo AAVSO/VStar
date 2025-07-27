@@ -171,7 +171,7 @@ public class SeriesType implements Comparable<SeriesType> {
     public static final SeriesType Unfiltered_with_R_Zeropoint = new SeriesType(9, "Unfiltered with R Zeropoint", "CR",
             new Color(192, 0, 0));
 
-    public static final SeriesType GAIA_G = new SeriesType(58, "GAIA G", "GG",
+    public static final SeriesType GAIA_G = new SeriesType(58, "Gaia G", "GG",
             new Color(255, 165, 0));
 
     // ** Auto-generated bands from aid.bands end here **

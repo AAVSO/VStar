@@ -129,9 +129,7 @@ public class AIDSeriesSelectionPane extends JPanel {
         tabs.addTab("Halpha", createFilteredSeriesCheckboxPanel("Halpha"));
 
         tabs.addTab("Color", createSeriesCheckboxes(SeriesType.Orange_Liller, SeriesType.Red, SeriesType.Blue,
-                SeriesType.Green, SeriesType.Yellow, SeriesType.Clear_Blue_Blocking));
-
-        tabs.addTab("Spacecraft", createSeriesCheckboxes(SeriesType.GAIA_G));
+                SeriesType.Green, SeriesType.Yellow, SeriesType.Clear_Blue_Blocking, SeriesType.GAIA_G));
 
         this.add(tabs);
     }
