@@ -120,7 +120,6 @@ public class VeLaDialog extends TextDialog {
 
         JButton clearButton = new JButton(LocaleProps.get("CLEAR_BUTTON"));
         clearButton.addActionListener(e -> {
-            codeTextArea.setValue("");
             resultTextArea.setValue("");
         });
         panel.add(clearButton);
