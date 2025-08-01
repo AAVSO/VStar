@@ -26,19 +26,24 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.vela.AST;
@@ -54,8 +59,9 @@ public class VeLaDialog extends TextDialog {
     private static ITextComponent<String> codeTextArea;
     private static TextArea resultTextArea;
     private static JCheckBox verbosityCheckBox;
-
+    private static JButton stopButton;
     private static VeLaInterpreter vela;
+    private static VeLaExecutionTask velaTask;
 
     private String path;
 
@@ -120,14 +126,14 @@ public class VeLaDialog extends TextDialog {
 
         JButton clearButton = new JButton(LocaleProps.get("CLEAR_BUTTON"));
         clearButton.addActionListener(e -> {
-            codeTextArea.setValue("");
             resultTextArea.setValue("");
         });
         panel.add(clearButton);
 
         JButton runButton = new JButton(LocaleProps.get("RUN_BUTTON"));
         runButton.addActionListener(e -> {
-            execute();
+            velaTask = new VeLaExecutionTask();
+            velaTask.execute();
         });
         panel.add(runButton);
 
@@ -164,6 +170,18 @@ public class VeLaDialog extends TextDialog {
         panel.add(dismissButton);
 
         panel.add(verbosityCheckBox);
+
+        Icon stopIcon = ResourceAccessor.getIconResource("/nico/toolbarIcons/_24_/Stop2.png");
+        stopButton = new JButton(stopIcon);
+        stopButton.setToolTipText("Stop the current operation");
+        stopButton.setBorder(BorderFactory.createEmptyBorder());
+        stopButton.setEnabled(false);
+        stopButton.addActionListener(e -> {
+            if (velaTask != null) {
+                velaTask.interrupt();
+            }
+        });
+        panel.add(stopButton);
 
         return panel;
     }
@@ -222,7 +240,7 @@ public class VeLaDialog extends TextDialog {
         });
     }
 
-    private void execute() {
+    private void runVeLaCode() {
         boolean verbose = verbosityCheckBox.isSelected();
 
         String text = codeTextArea.getValue();
@@ -309,5 +327,24 @@ public class VeLaDialog extends TextDialog {
         }
 
         return str;
+    }
+
+    class VeLaExecutionTask extends SwingWorker<Void, Void> {
+        public synchronized void interrupt() {
+            vela.interrupt();
+//            cancel(true); // isCancelled() will return true
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            stopButton.setEnabled(true);
+            runVeLaCode();
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            stopButton.setEnabled(false);
+        }
     }
 }

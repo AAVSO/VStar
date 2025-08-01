@@ -73,6 +73,8 @@ public class VeLaInterpreter {
 
     private VeLaErrorListener errorListener;
 
+    private boolean interrupted = false;
+
     /**
      * Construct a VeLa interpreter with an initial scope and intrinsic functions.
      * 
@@ -221,6 +223,14 @@ public class VeLaInterpreter {
         } else {
             throw new VeLaEvalError(msgOnError);
         }
+    }
+
+    /**
+     * Set the interrupted flag to signal to the interpreter that execution must
+     * stop.
+     */
+    public void interrupt() {
+        interrupted = true;
     }
 
     /**
@@ -387,6 +397,8 @@ public class VeLaInterpreter {
      */
     public Pair<Optional<Operand>, AST> commonInterpreter(String prog, ParserRuleContext tree) throws VeLaEvalError {
 
+        interrupted = false;
+
         Optional<Operand> result = Optional.empty();
 
         AST ast = commonParseTreeWalker(prog, tree);
@@ -464,6 +476,10 @@ public class VeLaInterpreter {
      * @throws VeLaEvalError If an evaluation error occurs.
      */
     public void eval(AST ast) throws VeLaEvalError {
+        if (interrupted) {
+            throw new VeLaEvalError("Interrupted!");
+        }
+
         if (ast.isLiteral()) {
             stack.push(ast.getOperand());
         } else {
