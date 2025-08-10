@@ -36,155 +36,154 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 @SuppressWarnings("serial")
 abstract public class AbstractOkCancelDialog extends JDialog {
 
-	// Was this dialog cancelled?
-	protected boolean cancelled;
+    // Was this dialog cancelled?
+    protected boolean cancelled;
 
-	// Intended for Singleton subclasses.
-	protected boolean firstUse;
+    // Intended for Singleton subclasses.
+    protected boolean firstUse;
 
-	protected JButton okButton;
+    protected JButton okButton;
 
-	public AbstractOkCancelDialog(String title, boolean isModal) {
-		super(DocumentManager.findActiveWindow());
-		this.setTitle(title);
-		this.setModal(isModal);
-		this.cancelled = true;
-		this.firstUse = true;
-		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-	}
+    public AbstractOkCancelDialog(String title, boolean isModal) {
+        super(DocumentManager.findActiveWindow());
+        this.setTitle(title);
+        this.setModal(isModal);
+        this.cancelled = true;
+        this.firstUse = true;
+        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+    }
 
-	public AbstractOkCancelDialog(String title) {
-		this(title, true);
-	}
+    public AbstractOkCancelDialog(String title) {
+        this(title, true);
+    }
 
-	protected JPanel createButtonPane() {
-		JPanel panel = new JPanel(new BorderLayout());
+    protected JPanel createButtonPane() {
+        JPanel panel = new JPanel(new BorderLayout());
 
-		JButton cancelButton = new JButton(LocaleProps.get("CANCEL_BUTTON"));
-		cancelButton.addActionListener(createCancelButtonListener());
-		panel.add(cancelButton, BorderLayout.LINE_START);
+        JButton cancelButton = new JButton(LocaleProps.get("CANCEL_BUTTON"));
+        cancelButton.addActionListener(createCancelButtonListener());
+        panel.add(cancelButton, BorderLayout.LINE_START);
 
-		okButton = new JButton(LocaleProps.get("OK_BUTTON"));
-		okButton.addActionListener(createOKButtonListener());
-		panel.add(okButton, BorderLayout.LINE_END);
+        okButton = new JButton(LocaleProps.get("OK_BUTTON"));
+        okButton.addActionListener(createOKButtonListener());
+        panel.add(okButton, BorderLayout.LINE_END);
 
-		this.getRootPane().setDefaultButton(okButton);
+        this.getRootPane().setDefaultButton(okButton);
 
-		return panel;
-	}
-	
-	// Help, Cancel, OK
-	protected JPanel createButtonPane2() {
-		JPanel panel = new JPanel();
+        return panel;
+    }
 
-		JButton helpButton = new JButton(LocaleProps.get("HELP_MENU"));
-		helpButton.addActionListener(createHelpButtonListener());
-		panel.add(helpButton);
-		
-		JButton cancelButton = new JButton(LocaleProps.get("CANCEL_BUTTON"));
-		cancelButton.addActionListener(createCancelButtonListener());
-		panel.add(cancelButton);
+    // Help, Cancel, OK
+    protected JPanel createButtonPane2() {
+        JPanel panel = new JPanel();
 
-		okButton = new JButton(LocaleProps.get("OK_BUTTON"));
-		okButton.addActionListener(createOKButtonListener());
-		panel.add(okButton);
+        JButton helpButton = new JButton(LocaleProps.get("HELP_MENU"));
+        helpButton.addActionListener(createHelpButtonListener());
+        panel.add(helpButton);
 
-		this.getRootPane().setDefaultButton(okButton);
+        JButton cancelButton = new JButton(LocaleProps.get("CANCEL_BUTTON"));
+        cancelButton.addActionListener(createCancelButtonListener());
+        panel.add(cancelButton);
 
-		return panel;
-	}
+        okButton = new JButton(LocaleProps.get("OK_BUTTON"));
+        okButton.addActionListener(createOKButtonListener());
+        panel.add(okButton);
 
-	// Return a listener for the "OK" button.
-	protected ActionListener createOKButtonListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				okAction();
-			}
-		};
-	}
+        this.getRootPane().setDefaultButton(okButton);
 
-	// Return a listener for the "cancel" button.
-	protected ActionListener createCancelButtonListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				cancelAction();
-				setVisible(false);
-				dispose();
-			}
-		};
-	}
-	
-	// Return a listener for the "Help" button.
-	protected ActionListener createHelpButtonListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				helpAction();
-			}
-		};
-	}
+        return panel;
+    }
 
-	/**
-	 * Show the dialog. Intended for Singleton subclasses.
-	 */
-	public void showDialog() {
-		if (firstUse) {
-			setLocationRelativeTo(Mediator.getUI().getContentPane());
-			firstUse = false;
-		}
+    // Return a listener for the "OK" button.
+    protected ActionListener createOKButtonListener() {
+        return new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                okAction();
+            }
+        };
+    }
 
-		localReset();
-		this.getRootPane().setDefaultButton(okButton);
-		this.setVisible(true);
-	}
+    // Return a listener for the "cancel" button.
+    protected ActionListener createCancelButtonListener() {
+        return new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                cancelAction();
+                setVisible(false);
+                dispose();
+            }
+        };
+    }
 
-	/**
-	 * Reset this dialog's state so that we don't process old state. Intended
-	 * for Singleton subclasses.
-	 */
-	private void localReset() {
-		this.setCancelled(true);
-		reset();
-	}
+    // Return a listener for the "Help" button.
+    protected ActionListener createHelpButtonListener() {
+        return new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                helpAction();
+            }
+        };
+    }
 
-	/**
-	 * Subclasses should override this. Intended for Singleton subclasses, hence
-	 * a default do-nothing implementation is provided.
-	 */
-	protected void reset() {
-	}
+    /**
+     * Show the dialog. Intended for Singleton subclasses.
+     */
+    public void showDialog() {
+        if (firstUse) {
+            setLocationRelativeTo(Mediator.getUI().getContentPane());
+            firstUse = false;
+        }
 
-	/**
-	 * Set the cancelled status of this dialog.
-	 * 
-	 * @param status
-	 *            The status.
-	 */
-	protected void setCancelled(boolean status) {
-		cancelled = status;
-	}
+        localReset();
+        this.getRootPane().setDefaultButton(okButton);
+        this.setVisible(true);
+    }
 
-	/**
-	 * @return whether this dialog box cancelled
-	 */
-	public boolean isCancelled() {
-		return cancelled;
-	}
+    /**
+     * Reset this dialog's state so that we don't process old state. Intended for
+     * Singleton subclasses.
+     */
+    private void localReset() {
+        this.setCancelled(true);
+        reset();
+    }
 
-	/**
-	 * Implemented this method to execute an OK button action.
-	 */
-	abstract protected void okAction();
+    /**
+     * Subclasses should override this. Intended for Singleton subclasses, hence a
+     * default do-nothing implementation is provided.
+     */
+    protected void reset() {
+    }
 
-	/**
-	 * Implemented this method to execute cancel button action.
-	 */
-	abstract protected void cancelAction();
+    /**
+     * Set the cancelled status of this dialog.
+     * 
+     * @param status The status.
+     */
+    protected void setCancelled(boolean status) {
+        cancelled = status;
+    }
 
-	/**
-	 * Override this method to execute an Help button action.
-	 */
-	protected void helpAction() {
-		// do nothing
-	}
+    /**
+     * @return whether this dialog box cancelled
+     */
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    /**
+     * Implemented this method to execute an OK button action.
+     */
+    abstract protected void okAction();
+
+    /**
+     * Implemented this method to execute cancel button action.
+     */
+    abstract protected void cancelAction();
+
+    /**
+     * Override this method to execute an Help button action.
+     */
+    protected void helpAction() {
+        // do nothing
+    }
 
 }

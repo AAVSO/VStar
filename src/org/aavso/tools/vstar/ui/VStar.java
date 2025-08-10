@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.ui.vela.VeLaDialog;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.property.ApplicationProperties;
 
@@ -40,171 +41,190 @@ import org.aavso.tools.vstar.util.property.ApplicationProperties;
  */
 public class VStar {
 
-	public static final String LOG_DIR = System.getProperty("user.home")
-			+ File.separator + "vstar_log";
+    public static final String LOG_DIR = System.getProperty("user.home") + File.separator + "vstar_log";
 
-	public static final String LOG_PATH = LOG_DIR + File.separator + "vstar.log";
-	
-	public static Logger LOGGER;
+    public static final String LOG_PATH = LOG_DIR + File.separator + "vstar.log";
 
-	static {
-		try {
-			File logDir = new File(LOG_DIR);
-			if (!logDir.isDirectory()) {
-				logDir.mkdir();
-			}
-			Handler fh = new FileHandler(LOG_PATH);
-			fh.setFormatter(new SimpleFormatter());
-			LOGGER = Logger.getLogger("VStar Logger");
-			LOGGER.setUseParentHandlers(false);
-			LOGGER.addHandler(fh);
+    public static Logger LOGGER;
 
-		} catch (Exception e) {
-			// Default to console?
-		}
-	}
+    static {
+        try {
+            File logDir = new File(LOG_DIR);
+            if (!logDir.isDirectory()) {
+                logDir.mkdir();
+            }
+            Handler fh = new FileHandler(LOG_PATH);
+            fh.setFormatter(new SimpleFormatter());
+            LOGGER = Logger.getLogger("VStar Logger");
+            LOGGER.setUseParentHandlers(false);
+            LOGGER.addHandler(fh);
 
-	private static boolean setNativeLookAndFeel = true; 
-	
-	private static boolean loadPlugins = true;
-	
-	private static boolean runScript = false;
-	private static String scriptPath = null;
+        } catch (Exception e) {
+            // Default to console?
+        }
+    }
 
-	public static void main(String[] args) {
+    private static boolean setNativeLookAndFeel = true;
 
-		String os_name = "";
-		// For Mac OS X, make it look more native by using the screen
-		// menu bar. Suggested by Adam Weber.
-		try {
-			os_name = System.getProperty("os.name");
-			if (os_name.startsWith("Mac OS X")) {
-				System.setProperty("apple.laf.useScreenMenuBar", "true");
-				System.setProperty(
-						"com.apple.mrj.application.apple.menu.about.name",
-						"VStar");
-			}
-		} catch (Exception e) {
-			System.err.println("Unable to detect operating system. Exiting.");
-			System.exit(1);
-		}
+    private static boolean loadPlugins = true;
 
-		processCmdLineArgs(args);		
-		
-		if (setNativeLookAndFeel) {
-			// Set the Look & Feel of the application to be native.
-			try {
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				// Under Windows, the default TextArea font is too small.
-				// Making TextArea the same as TextField fixes this.
-				// We should make this fix AFTER setting native Look & Feel!
-				if (os_name.startsWith("Windows")) {
-					// [https://stackoverflow.com/questions/6461506/jtextarea-default-font-very-small-in-windows]
-					UIManager.getDefaults().put("TextArea.font", UIManager.getFont("TextField.font"));
-				}
-			} catch (Exception e) {
-				System.err.println("Unable to set native look & feel. Exiting.");
-				System.exit(1);
-			}
-		}
+    private static boolean runScript = false;
 
-		// Classes SeriesType and LocaleProps have static prefs members of Preferences type;
-		// those members cannot be created from within plug-ins in WebStart mode due to security restrictions.
-		// As far as 'prefs' in both classes are created with a 'static' block of code, any reference to the class
-		// initializes 'prefs'. This is ensured by a call of the empty initClass() method.
-		// After initialization, 'prefs' can be accessed from within plug-ins.
-		SeriesType.initClass();		
-		LocaleProps.initClass();
+    private static String scriptPath = null;
 
-		// If there's no command-line option that says we shouldn't load
-		// plug-ins and the plug-in manager says it's okay to load them, then go
-		// ahead.
-		if (loadPlugins && PluginManager.shouldLoadPlugins()) {
-			// Load plug-ins, if any exist and plug-in loading is enabled.
-			PluginLoader.loadPlugins();
-		}
+    private static boolean openVeLaDialog = false;
 
-		// Create an uncaught exception handler.
-		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-			public void uncaughtException(Thread th, Throwable ex) {
-				// LOGGER.log(Level.SEVERE, "Uncaught Exception", ex);
-				MessageBox.showErrorDialog("Error", ex);
-			}
-		});
+    public static void main(String[] args) {
 
-		// Schedule a job for the event-dispatching thread:
-		// creating and showing this application's GUI.
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				createAndShowGUI();				
-			}
-		});
-	}
+        String os_name = "";
+        // For Mac OS X, make it look more native by using the screen
+        // menu bar. Suggested by Adam Weber.
+        try {
+            os_name = System.getProperty("os.name");
+            if (os_name.startsWith("Mac OS X")) {
+                System.setProperty("apple.laf.useScreenMenuBar", "true");
+                System.setProperty("com.apple.mrj.application.apple.menu.about.name", "VStar");
+            }
+        } catch (Exception e) {
+            System.err.println("Unable to detect operating system. Exiting.");
+            System.exit(1);
+        }
 
-	/**
-	 * Create and display the main window.
-	 */
-	private static void createAndShowGUI() {
-		try {
-			MainFrame frame = new MainFrame();
-			final ApplicationProperties appProps = new ApplicationProperties(
-					frame);
+        processCmdLineArgs(args);
 
-			frame.setSize(appProps.getMainWdwWidth(),
-					appProps.getMainWdwHeight());
-			frame.setLocation(appProps.getMainWdwUpperLeftX(),
-					appProps.getMainWdwUpperLeftY());
+        if (setNativeLookAndFeel) {
+            // Set the Look & Feel of the application to be native.
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                // Under Windows, the default TextArea font is too small.
+                // Making TextArea the same as TextField fixes this.
+                // We should make this fix AFTER setting native Look & Feel!
+                if (os_name.startsWith("Windows")) {
+                    // [https://stackoverflow.com/questions/6461506/jtextarea-default-font-very-small-in-windows]
+                    UIManager.getDefaults().put("TextArea.font", UIManager.getFont("TextField.font"));
+                }
+            } catch (Exception e) {
+                System.err.println("Unable to set native look & feel. Exiting.");
+                System.exit(1);
+            }
+        }
 
-			frame.setVisible(true);
+        // Classes SeriesType and LocaleProps have static prefs members of Preferences
+        // type; those members cannot be created from within plug-ins in WebStart mode due to
+        // security restrictions.
+        //
+        // As far as 'prefs' in both classes are created with a 'static' block of code,
+        // any reference to the class
+        // initializes 'prefs'. This is ensured by a call of the empty initClass()
+        // method.
+        //
+        // After initialization, 'prefs' can be accessed from within plug-ins.
+        SeriesType.initClass();
+        LocaleProps.initClass();
 
-			// We create a shutdown task rather than a window listener
-			// to store application properties, otherwise on the Mac, we
-			// would also have to trap the VStar (vs File) menu Quit item.
-			// This shutdown task should work uniformly across operating
-			// systems. The frame stored within appProps cannot be GC'd
-			// until appProps is, so its state will still be valid at the
-			// time run() is invoked.
-			Runnable shutdownTask = new Runnable() {
-				public void run() {
-					appProps.update();
-				}
-			};
+        // If there's no command-line option that says we shouldn't load
+        // plug-ins and the plug-in manager says it's okay to load them, then go
+        // ahead.
+        if (loadPlugins && PluginManager.shouldLoadPlugins()) {
+            // Load plug-ins, if any exist and plug-in loading is enabled.
+            PluginLoader.loadPlugins();
+        }
 
-			Runtime.getRuntime().addShutdownHook(
-					new Thread(shutdownTask, "Application shutdown task"));
-			
-			if (scriptPath != null) {
-				new ScriptRunner(false).runScript(new File(scriptPath));
-			}
+        // Create an uncaught exception handler.
+        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+            public void uncaughtException(Thread th, Throwable ex) {
+                // LOGGER.log(Level.SEVERE, "Uncaught Exception", ex);
+                MessageBox.showErrorDialog("Error", ex);
+            }
+        });
 
-		} catch (Throwable t) {
-			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					"Error", t.getLocalizedMessage());
-		}
-	}
-	
-	/**
-	 * Process the command-line arguments. Note: If we do anything more complex
-	 * than this, consideration should be given to using a library such as:
-	 * http://commons.apache.org/cli/
-	 * 
-	 * @param args
-	 *            The command-line arguments; may be empty.
-	 */
-	private static void processCmdLineArgs(String[] args) {
-		for (String arg : args) {
-			if ("--help".equals(arg)) {
-				System.out.println("usage: vstar [--default-look-and-feel] [--noplugins] [--script path]");
-				System.exit(0);
-			} else if ("--default-look-and-feel".equals(arg)) {
-				setNativeLookAndFeel = false;
-			} else if ("--noplugins".equals(arg)) {
-				loadPlugins = false;
-			} else if ("--script".equals(arg)) {
-				runScript = true;
-			} else if (runScript) {
-				scriptPath = arg;
-			}
-		}
-	}
+        // Schedule a job for the event-dispatching thread:
+        // creating and showing this application's GUI.
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                createAndShowGUI();
+            }
+        });
+
+        if (openVeLaDialog) {
+            showVeLaDialog();
+        }
+    }
+
+    /**
+     * Create and display the main window.
+     */
+    private static void createAndShowGUI() {
+        try {
+            MainFrame frame = new MainFrame();
+            final ApplicationProperties appProps = new ApplicationProperties(frame);
+
+            frame.setSize(appProps.getMainWdwWidth(), appProps.getMainWdwHeight());
+            frame.setLocation(appProps.getMainWdwUpperLeftX(), appProps.getMainWdwUpperLeftY());
+
+            // We need all the underlying main frame apparatus, but we may just want the
+            // VeLa dialog.
+            frame.setVisible(!openVeLaDialog);
+
+            // We create a shutdown task rather than a window listener
+            // to store application properties, otherwise on the Mac, we
+            // would also have to trap the VStar (vs File) menu Quit item.
+            // This shutdown task should work uniformly across operating
+            // systems. The frame stored within appProps cannot be GC'd
+            // until appProps is, so its state will still be valid at the
+            // time run() is invoked.
+            Runnable shutdownTask = new Runnable() {
+                public void run() {
+                    appProps.update();
+                }
+            };
+
+            Runtime.getRuntime().addShutdownHook(new Thread(shutdownTask, "Application shutdown task"));
+
+            if (scriptPath != null) {
+                new ScriptRunner(false).runScript(new File(scriptPath));
+            }
+        } catch (Throwable t) {
+            MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "Error", t.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Open the VeLa dialog.
+     */
+    private static void showVeLaDialog() {
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new VeLaDialog();
+                System.exit(0);
+            }
+        });
+    }
+
+    /**
+     * Process the command-line arguments. Note: If we do anything more complex than
+     * this, consideration should be given to using a library such as:
+     * http://commons.apache.org/cli/
+     * 
+     * @param args The command-line arguments; may be empty.
+     */
+    private static void processCmdLineArgs(String[] args) {
+        for (String arg : args) {
+            if ("--help".equals(arg)) {
+                System.out.println(
+                        "usage: vstar [--default-look-and-feel] [--noplugins] [--script path] [--VeLa-dialog]");
+                System.exit(0);
+            } else if ("--default-look-and-feel".equals(arg)) {
+                setNativeLookAndFeel = false;
+            } else if ("--noplugins".equals(arg)) {
+                loadPlugins = false;
+            } else if ("--script".equals(arg)) {
+                runScript = true;
+            } else if (runScript) {
+                scriptPath = arg;
+            } else if ("--VeLa-dialog".equalsIgnoreCase(arg)) {
+                openVeLaDialog = true;
+            }
+        }
+    }
 }
