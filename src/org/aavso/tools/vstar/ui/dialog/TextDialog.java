@@ -120,10 +120,10 @@ public class TextDialog extends AbstractOkCancelDialog {
     /**
      * Constructor.
      * 
-     * @param title  The title to be used for the dialog.
+     * @param title      The title to be used for the dialog.
      * @param show       Show the dialog immediately?
      * @param scrollable Are text fields scrollable?
-     * @param fields A variable number of text fields.
+     * @param fields     A variable number of text fields.
      */
     public TextDialog(String title, boolean show, boolean scrollable, ITextComponent<String>... fields) {
         this(title, Arrays.asList(fields), show, scrollable);
