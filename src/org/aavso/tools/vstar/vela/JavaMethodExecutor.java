@@ -66,7 +66,7 @@ public class JavaMethodExecutor extends FunctionExecutor {
     }
 
     private Optional<Operand> invokeJavaMethod(Method method, List<Operand> operands, Optional<Type> retType) {
-        Operand result = null;
+        Optional<Operand> retVal = null;
 
         try {
             // obj is null for static methods
@@ -93,9 +93,9 @@ public class JavaMethodExecutor extends FunctionExecutor {
                 paramIndex++;
             }
 
-            result = Operand.object2Operand(retType.get(), method.invoke(obj, objParams));
+            Operand result = Operand.object2Operand(retType.get(), method.invoke(obj, objParams));
 
-            Optional<Operand> retVal = null;
+            retVal = null;
 
             if (result != null) {
                 retVal = Optional.of(result);
@@ -103,13 +103,11 @@ public class JavaMethodExecutor extends FunctionExecutor {
                 retVal = Optional.of(Operand.NO_VALUE);
             }
 
-            return retVal;
-
-        } catch (InvocationTargetException e) {
-            throw new VeLaEvalError(e.getLocalizedMessage());
-        } catch (IllegalAccessException e) {
-            throw new VeLaEvalError(e.getLocalizedMessage());
+        } catch (Exception e) {
+            throwVeLaEvalError(e);
         }
+
+        return retVal;
     }
 
     @Override
@@ -122,7 +120,7 @@ public class JavaMethodExecutor extends FunctionExecutor {
             StringBuffer paramsBuf = new StringBuffer();
 
             for (int i = 0; i < parameterTypes.size(); i++) {
-                // Note: when we can get real names from Javadoc, re-enable
+                // Note: when we can get real names from Javadoc, re-enable this
 //                paramsBuf.append(parameterNames.get(i - 1));
 //                paramsBuf.append(":");
                 paramsBuf.append(parameterTypes.get(i));
@@ -133,5 +131,18 @@ public class JavaMethodExecutor extends FunctionExecutor {
         }
 
         return paramsStr;
+    }
+
+    // Helpers
+
+    private void throwVeLaEvalError(Exception e) throws VeLaEvalError {
+        String msg = e.getLocalizedMessage();
+        if (msg == null) {
+            msg = "Intrinsic function invocation error";
+            if (funcName.isPresent()) {
+                msg += ": " + funcName.get();
+            }
+        }
+        throw new VeLaEvalError(msg);
     }
 }

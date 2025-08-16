@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.vela;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
@@ -156,8 +157,10 @@ public class Operand {
             obj = booleanVal;
             break;
         case LIST:
+            boolean allMatch = false;
             for (Type type : Type.values()) {
                 if (listVal.stream().allMatch(op -> op.type == type)) {
+                    allMatch = true;
                     int i = 0;
                     try {
                         switch (type) {
@@ -196,6 +199,10 @@ public class Operand {
                         throw new VeLaEvalError("Cannot construct array from VeLa list");
                     }
                 }
+            }
+
+            if (!allMatch) {
+                throw new VeLaEvalError("Cannot construct array with elements of required type from VeLa list");
             }
             break;
         case FUNCTION:
@@ -504,10 +511,10 @@ public class Operand {
 
         if (javaType.equals(int.class)) {
             // could be int or long
-            obj = ((Long)obj).intValue();
+            obj = ((Long) obj).intValue(); // TODO: intValue or longValue?
         } else if (javaType.equals(float.class)) {
             // could be float or double
-            obj = ((Float)obj).floatValue();
+            obj = ((Float) obj).floatValue();
         }
 
         return obj;

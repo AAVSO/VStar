@@ -270,6 +270,8 @@ public class VeLaDialog extends TextDialog {
             String msg = e.getLocalizedMessage();
             if (msg != null) {
                 error = msg;
+            } else {
+                error = "Error";
             }
 
             if (msg != null && !msg.equals(errStream.toString())) {
