@@ -79,8 +79,6 @@ public class Operand {
     private Operand() {
     }
 
-    // TODO: add a Property to Operand method
-
     /**
      * Given a VeLa type and a Java object, return an Operand instance.
      * 
@@ -110,15 +108,14 @@ public class Operand {
                 for (double n : (double[]) obj) {
                     arr.add(new Operand(Type.REAL, n));
                 }
-                obj = arr;
+                operand = new Operand(Type.LIST, arr);
             } else if (obj.getClass() == Type.DBL_CLASS_ARR.getClass()) {
                 List<Operand> arr = new ArrayList<Operand>();
                 for (Double n : (Double[]) obj) {
                     arr.add(new Operand(Type.REAL, n));
                 }
-                obj = arr;
+                operand = new Operand(Type.LIST, arr);
             }
-            operand = new Operand(Type.LIST, (List<Operand>) obj);
             break;
         case FUNCTION:
             operand = new Operand(Type.FUNCTION, (FunctionExecutor) obj);
@@ -128,7 +125,7 @@ public class Operand {
             break;
         case OBJECT:
             // TODO
-//			operand = new Operand(Type.OBJECT, obj);
+            break;
         }
 
         return operand;
@@ -157,52 +154,55 @@ public class Operand {
             obj = booleanVal;
             break;
         case LIST:
-            boolean allMatch = false;
-            for (Type type : Type.values()) {
-                if (listVal.stream().allMatch(op -> op.type == type)) {
-                    allMatch = true;
-                    int i = 0;
-                    try {
-                        switch (type) {
-                        case INTEGER:
-                            int[] ints = new int[listVal.size()];
-                            for (Operand op : listVal) {
-                                ints[i++] = (int) op.intVal;
-                            }
-                            obj = ints;
-                            break;
-                        case REAL:
-                            double[] reals = new double[listVal.size()];
-                            for (Operand op : listVal) {
-                                reals[i++] = (double) op.doubleVal;
-                            }
-                            obj = reals;
-                            break;
-                        case STRING:
-                            String[] strings = new String[listVal.size()];
-                            for (Operand op : listVal) {
-                                strings[i++] = (String) op.stringVal;
-                            }
-                            obj = strings;
-                            break;
-                        case BOOLEAN:
-                            boolean[] booleans = new boolean[listVal.size()];
-                            for (Operand op : listVal) {
-                                booleans[i++] = (boolean) op.booleanVal;
-                            }
-                            obj = booleans;
-                            break;
-                        default:
-                            throw new VeLaEvalError("");
-                        }
-                    } catch (Throwable t) {
-                        throw new VeLaEvalError("Cannot construct array from VeLa list");
+            Type requiredType = Type.NONE;
+            if (javaType == Type.DBL_ARR.getClass() || javaType == Type.DBL_CLASS_ARR.getClass()) {
+                requiredType = Type.REAL;
+                double[] reals = new double[listVal.size()];
+                int i = 0;
+                for (Operand op : listVal) {
+                    op = op.convert(requiredType);
+                    // TODO: add this to each below! then genericise!
+                    if (op.type == requiredType) {
+                        reals[i++] = (double) op.doubleVal;
+                    } else {
+                        throw new VeLaEvalError("Cannot convert from " + op.type + " to " + requiredType);
                     }
                 }
-            }
-
-            if (!allMatch) {
-                throw new VeLaEvalError("Cannot construct array with elements of required type from VeLa list");
+                obj = reals;
+            } else if (javaType == Type.INT_ARR.getClass()) {
+                requiredType = Type.INTEGER;
+                int[] ints = new int[listVal.size()];
+                int i = 0;
+                for (Operand op : listVal) {
+                    op = op.convert(requiredType);
+                    if (op.type == requiredType) {
+                        ints[i++] = (int) op.intVal;
+                    } else {
+                        throw new VeLaEvalError("Cannot convert from " + op.type + " to " + requiredType);
+                    }
+                }
+                obj = ints;
+            } else if (javaType == Type.BOOL_ARR.getClass()) {
+                requiredType = Type.BOOLEAN;
+                boolean[] booleans = new boolean[listVal.size()];
+                int i = 0;
+                for (Operand op : listVal) {
+                    op = op.convert(requiredType);
+                    if (op.type == requiredType) {
+                        booleans[i++] = (boolean) op.booleanVal;
+                    } else {
+                        throw new VeLaEvalError("Cannot convert from " + op.type + " to " + requiredType);
+                    }
+                }
+                obj = booleans;
+            } else if (javaType == Type.STR_ARR.getClass()) {
+                requiredType = Type.STRING;
+                String[] strings = new String[listVal.size()];
+                int i = 0;
+                for (Operand op : listVal) {
+                    strings[i++] = (String) op.stringVal;
+                }
+                obj = strings;
             }
             break;
         case FUNCTION:
@@ -388,6 +388,8 @@ public class Operand {
         case FUNCTION:
             str = functionVal.toString();
             break;
+        default:
+            break;
         }
 
         return str;
@@ -415,6 +417,8 @@ public class Operand {
             break;
         case FUNCTION:
             str = functionVal.toString();
+            break;
+        default:
             break;
         }
 
@@ -500,6 +504,8 @@ public class Operand {
         case FUNCTION:
             operand.functionVal = functionVal;
             break;
+        default:
+            break;
         }
 
         return operand;
@@ -507,16 +513,22 @@ public class Operand {
 
     // Helpers
 
-    private Object numericVeLaToJava(Class<?> javaType, Object obj) {
+    private Number numericVeLaToJava(Class<?> javaType, Object obj) {
+
+        Number num = null;
 
         if (javaType.equals(int.class)) {
-            // could be int or long
-            obj = ((Long) obj).intValue(); // TODO: intValue or longValue?
+            num = ((Number) obj).intValue();
+        } else if (javaType.equals(long.class)) {
+            num = ((Number) obj).longValue();
         } else if (javaType.equals(float.class)) {
-            // could be float or double
-            obj = ((Float) obj).floatValue();
+            num = ((Number) obj).floatValue();
+        } else if (javaType.equals(double.class)) {
+            num = ((Number) obj).doubleValue();
+        } else {
+            throw new VeLaEvalError("Cannot convert object to numeric value");
         }
 
-        return obj;
+        return num;
     }
 }

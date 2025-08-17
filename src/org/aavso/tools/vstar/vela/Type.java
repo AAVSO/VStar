@@ -30,6 +30,7 @@ public enum Type {
 
     INTEGER, REAL, BOOLEAN, STRING, LIST, FUNCTION, OBJECT, NONE;
 
+    // TODO: should add long array; see also Operand.toObject()
     public final static int[] INT_ARR = new int[0];
     public final static double[] DBL_ARR = new double[0];
     public final static Double[] DBL_CLASS_ARR = new Double[0];
@@ -65,6 +66,7 @@ public enum Type {
             vtype = NONE;
         } else {
             // It's a class representing instances of *some* kind of object!
+            // TODO: Needs thought, especially for 1st class objects in VeLa
             vtype = OBJECT;
 //		} else {
 //			throw new IllegalArgumentException("Invalid type: " + jtype);
