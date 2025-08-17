@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -154,16 +155,15 @@ public class Operand {
             obj = booleanVal;
             break;
         case LIST:
+            int i = 0;
             Type requiredType = Type.NONE;
             if (javaType == Type.DBL_ARR.getClass() || javaType == Type.DBL_CLASS_ARR.getClass()) {
                 requiredType = Type.REAL;
                 double[] reals = new double[listVal.size()];
-                int i = 0;
                 for (Operand op : listVal) {
                     op = op.convert(requiredType);
-                    // TODO: add this to each below! then genericise!
                     if (op.type == requiredType) {
-                        reals[i++] = (double) op.doubleVal;
+                        reals[i++] = op.doubleVal;
                     } else {
                         throw new VeLaEvalError("Cannot convert from " + op.type + " to " + requiredType);
                     }
@@ -171,12 +171,11 @@ public class Operand {
                 obj = reals;
             } else if (javaType == Type.INT_ARR.getClass()) {
                 requiredType = Type.INTEGER;
-                int[] ints = new int[listVal.size()];
-                int i = 0;
+                long[] ints = new long[listVal.size()];
                 for (Operand op : listVal) {
                     op = op.convert(requiredType);
                     if (op.type == requiredType) {
-                        ints[i++] = (int) op.intVal;
+                        ints[i++] = op.intVal;
                     } else {
                         throw new VeLaEvalError("Cannot convert from " + op.type + " to " + requiredType);
                     }
@@ -185,11 +184,10 @@ public class Operand {
             } else if (javaType == Type.BOOL_ARR.getClass()) {
                 requiredType = Type.BOOLEAN;
                 boolean[] booleans = new boolean[listVal.size()];
-                int i = 0;
                 for (Operand op : listVal) {
                     op = op.convert(requiredType);
                     if (op.type == requiredType) {
-                        booleans[i++] = (boolean) op.booleanVal;
+                        booleans[i++] = op.booleanVal;
                     } else {
                         throw new VeLaEvalError("Cannot convert from " + op.type + " to " + requiredType);
                     }
@@ -198,9 +196,8 @@ public class Operand {
             } else if (javaType == Type.STR_ARR.getClass()) {
                 requiredType = Type.STRING;
                 String[] strings = new String[listVal.size()];
-                int i = 0;
                 for (Operand op : listVal) {
-                    strings[i++] = (String) op.stringVal;
+                    strings[i++] = op.stringVal;
                 }
                 obj = strings;
             }
