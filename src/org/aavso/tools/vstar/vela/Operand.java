@@ -17,11 +17,10 @@
  */
 package org.aavso.tools.vstar.vela;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.BiConsumer;
 
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
@@ -155,50 +154,29 @@ public class Operand {
             obj = booleanVal;
             break;
         case LIST:
-            int i = 0;
-            Type requiredType = Type.NONE;
             if (javaType == Type.DBL_ARR.getClass() || javaType == Type.DBL_CLASS_ARR.getClass()) {
-                requiredType = Type.REAL;
                 double[] reals = new double[listVal.size()];
-                for (Operand op : listVal) {
-                    op = op.convert(requiredType);
-                    if (op.type == requiredType) {
-                        reals[i++] = op.doubleVal;
-                    } else {
-                        throw new VeLaEvalError("Cannot convert from " + op.type + " to " + requiredType);
-                    }
-                }
+                list2Array(Type.REAL, (op, i) -> {
+                    reals[i++] = op.doubleVal;
+                });
                 obj = reals;
             } else if (javaType == Type.INT_ARR.getClass()) {
-                requiredType = Type.INTEGER;
                 long[] ints = new long[listVal.size()];
-                for (Operand op : listVal) {
-                    op = op.convert(requiredType);
-                    if (op.type == requiredType) {
-                        ints[i++] = op.intVal;
-                    } else {
-                        throw new VeLaEvalError("Cannot convert from " + op.type + " to " + requiredType);
-                    }
-                }
+                list2Array(Type.INTEGER, (op, i) -> {
+                    ints[i++] = op.intVal;
+                });
                 obj = ints;
             } else if (javaType == Type.BOOL_ARR.getClass()) {
-                requiredType = Type.BOOLEAN;
                 boolean[] booleans = new boolean[listVal.size()];
-                for (Operand op : listVal) {
-                    op = op.convert(requiredType);
-                    if (op.type == requiredType) {
-                        booleans[i++] = op.booleanVal;
-                    } else {
-                        throw new VeLaEvalError("Cannot convert from " + op.type + " to " + requiredType);
-                    }
-                }
+                list2Array(Type.BOOLEAN, (op, i) -> {
+                    booleans[i++] = op.booleanVal;
+                });
                 obj = booleans;
             } else if (javaType == Type.STR_ARR.getClass()) {
-                requiredType = Type.STRING;
                 String[] strings = new String[listVal.size()];
-                for (Operand op : listVal) {
+                list2Array(Type.STRING, (op, i) -> {
                     strings[i++] = op.stringVal;
-                }
+                });
                 obj = strings;
             }
             break;
@@ -527,5 +505,28 @@ public class Operand {
         }
 
         return num;
+    }
+
+    /**
+     * Build an array from a VeLa list via an assigner object carrying out type
+     * conversions where necessary/possible. Concrete assigner objects exploit the
+     * existence of an array in their environment (see toObject()).
+     *
+     * The purpose of this function is to avoid code duplication in toObject().
+     *
+     * @param requiredType The array element type required.
+     * @param assigner     An object that assigns the appropriately typed value from
+     *                     an operand to the ith element of an array.
+     */
+    private void list2Array(Type requiredType, BiConsumer<Operand, Integer> assigner) {
+        for (int i = 0; i < listVal.size(); i++) {
+            Operand op = listVal.get(i);
+            op = op.convert(requiredType);
+            if (op.type == requiredType) {
+                assigner.accept(op, i);
+            } else {
+                throw new VeLaEvalError("Cannot convert from " + op.type + " to " + requiredType);
+            }
+        }
     }
 }

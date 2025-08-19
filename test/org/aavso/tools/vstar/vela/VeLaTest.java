@@ -2306,7 +2306,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
                     if (m == 0) {
                         result = 1;
                     } else {
-                        // multiply operand1 by itself n-1 times
+                        // multiply operand1 by itself m-1 times
                         for (int i = 1; i <= m - 1; i++) {
                             result *= n;
                         }
