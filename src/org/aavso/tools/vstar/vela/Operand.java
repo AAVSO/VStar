@@ -320,41 +320,40 @@ public class Operand {
             case LIST:
                 List<Operand> arr = new ArrayList<Operand>();
 
-                if (obj.getClass() == Type.FLOAT_ARR.getClass()) {
-                    for (float n : (float[]) obj) {
-                        arr.add(new Operand(Type.REAL, n));
+                try {
+                    if (obj.getClass() == Type.FLOAT_ARR.getClass()) {
+                        for (float n : (float[]) obj) {
+                            arr.add(new Operand(Type.REAL, n));
+                        }
+                    } else if (obj.getClass() == Type.DBL_ARR.getClass()) {
+                        for (double n : (double[]) obj) {
+                            arr.add(new Operand(Type.REAL, n));
+                        }
+                    } else if (obj.getClass() == Type.DBL_CLASS_ARR.getClass()) {
+                        for (Double n : (Double[]) obj) {
+                            arr.add(new Operand(Type.REAL, n));
+                        }
+                    } else if (obj.getClass() == Type.INT_ARR.getClass()) {
+                        for (int n : (int[]) obj) {
+                            arr.add(new Operand(Type.INTEGER, n));
+                        }
+                    } else if (obj.getClass() == Type.LONG_ARR.getClass()) {
+                        for (long n : (long[]) obj) {
+                            arr.add(new Operand(Type.INTEGER, n));
+                        }
+                    } else if (obj.getClass() == Type.BOOL_ARR.getClass()) {
+                        for (boolean b : (boolean[]) obj) {
+                            arr.add(new Operand(Type.BOOLEAN, b));
+                        }
+                    } else if (obj.getClass() == Type.STR_ARR.getClass()) {
+                        for (String s : (String[]) obj) {
+                            arr.add(new Operand(Type.STRING, s));
+                        }
                     }
-                    operand = new Operand(Type.LIST, arr);
-                } else if (obj.getClass() == Type.DBL_ARR.getClass()) {
-                    for (double n : (double[]) obj) {
-                        arr.add(new Operand(Type.REAL, n));
+                } finally {
+                    if (!arr.isEmpty()) {
+                        operand = new Operand(Type.LIST, arr);
                     }
-                    operand = new Operand(Type.LIST, arr);
-                } else if (obj.getClass() == Type.DBL_CLASS_ARR.getClass()) {
-                    for (Double n : (Double[]) obj) {
-                        arr.add(new Operand(Type.REAL, n));
-                    }
-                    operand = new Operand(Type.LIST, arr);
-                } else if (obj.getClass() == Type.INT_ARR.getClass()) {
-                    for (int n : (int[]) obj) {
-                        arr.add(new Operand(Type.INTEGER, n));
-                    }
-                    operand = new Operand(Type.LIST, arr);
-                } else if (obj.getClass() == Type.LONG_ARR.getClass()) {
-                    for (long n : (long[]) obj) {
-                        arr.add(new Operand(Type.INTEGER, n));
-                    }
-                    operand = new Operand(Type.LIST, arr);
-                } else if (obj.getClass() == Type.BOOL_ARR.getClass()) {
-                    for (boolean b : (boolean[]) obj) {
-                        arr.add(new Operand(Type.BOOLEAN, b));
-                    }
-                    operand = new Operand(Type.LIST, arr);
-                } else if (obj.getClass() == Type.STR_ARR.getClass()) {
-                    for (String s : (String[]) obj) {
-                        arr.add(new Operand(Type.STRING, s));
-                    }
-                    operand = new Operand(Type.LIST, arr);
                 }
                 break;
             case FUNCTION:
@@ -432,7 +431,7 @@ public class Operand {
                     obj = strings;
                 }
             } catch (Exception e) {
-                java2VeLaTypeError(obj.getClass(), type);
+                vela2JavaTypeError(this, javaType);
             }
             break;
         case FUNCTION:
