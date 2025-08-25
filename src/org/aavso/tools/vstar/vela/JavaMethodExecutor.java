@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.vela;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -76,7 +75,8 @@ public class JavaMethodExecutor extends FunctionExecutor {
                 // For non-static methods, if instance is null, assume the first
                 // operand is an object instance.
                 if (instance == null) {
-                    obj = operands.get(0).toObject(method.getClass());
+                    Operand op = operands.get(0);
+                    obj = operands.get(0).toObject(Type.vela2Java(op.getType()));
                     operands.remove(0);
                 } else {
                     // ...otherwise, use what's been passed in.

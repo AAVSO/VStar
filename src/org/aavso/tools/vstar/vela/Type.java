@@ -30,8 +30,9 @@ public enum Type {
 
     INTEGER, REAL, BOOLEAN, STRING, LIST, FUNCTION, OBJECT, NONE;
 
-    // TODO: should add long array; see also Operand.toObject()
     public final static int[] INT_ARR = new int[0];
+    public final static long[] LONG_ARR = new long[0];
+    public final static float[] FLOAT_ARR = new float[0];
     public final static double[] DBL_ARR = new double[0];
     public final static Double[] DBL_CLASS_ARR = new Double[0];
     public final static boolean[] BOOL_ARR = new boolean[0];
