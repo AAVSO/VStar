@@ -182,22 +182,27 @@ public class VeLaDialog extends TextDialog {
                 if (escapeMode) {
                     switch (ch) {
                     case 'b':
+                    case 'B':
                         // Boolean set
                         newCh = "\uD835\uDD39";
                         break;
                     case 'l':
+                    case 'L':
                         // lambda
                         newCh = "\u03BB";
                         break;
                     case 'p':
+                    case 'P':
                         // pi
                         newCh = "\u03C0";
                         break;
                     case 'r':
+                    case 'R':
                         // real number set
                         newCh = "\u211D";
                         break;
                     case 'z':
+                    case 'Z':
                         // integer number set
                         newCh = "\u2124";
                         break;
@@ -266,10 +271,14 @@ public class VeLaDialog extends TextDialog {
                 output += result.get().toHumanReadableString();
             }
         } catch (Exception e) {
+            // e.printStackTrace();
+
             // Show error in text area.
             String msg = e.getLocalizedMessage();
             if (msg != null) {
                 error = msg;
+            } else {
+                error = "Error";
             }
 
             if (msg != null && !msg.equals(errStream.toString())) {

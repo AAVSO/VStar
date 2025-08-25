@@ -47,7 +47,13 @@ import org.quicktheories.generators.Generate;
 import junit.framework.TestCase;
 
 /**
- * This class contains unit tests for VeLa: VStar expression language.
+ * This class contains unit tests for VeLa: VStar expression language.<br/>
+ *
+ * The tests are at the level of VeLa language constructs, and in some cases,
+ * their intersection with VStar functionality (e.g. filters, models) so in
+ * reality, they are integration or system tests.<br/>
+ *
+ * Some test cases employ Property Based Testing.
  */
 public class VeLaTest extends TestCase implements WithQuickTheories {
 
@@ -2306,7 +2312,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
                     if (m == 0) {
                         result = 1;
                     } else {
-                        // multiply operand1 by itself n-1 times
+                        // multiply operand1 by itself m-1 times
                         for (int i = 1; i <= m - 1; i++) {
                             result *= n;
                         }
