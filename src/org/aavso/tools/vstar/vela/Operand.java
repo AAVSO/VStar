@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.vela;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
@@ -76,189 +77,6 @@ public class Operand {
 
     // For object copy
     private Operand() {
-    }
-
-    // TODO: add a Property to Operand method
-
-    /**
-     * Given a VeLa type and a Java object, return an Operand instance.
-     * 
-     * @param type The VeLa type.
-     * @param obj  The Java object.
-     * @return A corresponding Operand instance.
-     */
-    public static Operand object2Operand(Type type, Object obj) {
-        Operand operand = null;
-
-        switch (type) {
-        case INTEGER:
-            operand = new Operand(Type.INTEGER, (int) obj);
-            break;
-        case REAL:
-            operand = new Operand(Type.REAL, (double) obj);
-            break;
-        case STRING:
-            operand = new Operand(Type.STRING, (String) obj);
-            break;
-        case BOOLEAN:
-            operand = new Operand(Type.BOOLEAN, (boolean) obj);
-            break;
-        case LIST:
-            if (obj.getClass() == Type.DBL_ARR.getClass()) {
-                List<Operand> arr = new ArrayList<Operand>();
-                for (double n : (double[]) obj) {
-                    arr.add(new Operand(Type.REAL, n));
-                }
-                obj = arr;
-            } else if (obj.getClass() == Type.DBL_CLASS_ARR.getClass()) {
-                List<Operand> arr = new ArrayList<Operand>();
-                for (Double n : (Double[]) obj) {
-                    arr.add(new Operand(Type.REAL, n));
-                }
-                obj = arr;
-            }
-            operand = new Operand(Type.LIST, (List<Operand>) obj);
-            break;
-        case FUNCTION:
-            operand = new Operand(Type.FUNCTION, (FunctionExecutor) obj);
-            break;
-        case NONE:
-            operand = NO_VALUE;
-            break;
-        case OBJECT:
-            // TODO
-//			operand = new Operand(Type.OBJECT, obj);
-        }
-
-        return operand;
-    }
-
-    /**
-     * Return a Java object corresponding to this Operand instance.
-     * 
-     * @param javaType The target Java type.
-     * @return A corresponding Java object.
-     */
-    public Object toObject(Class<?> javaType) {
-        Object obj = null;
-
-        switch (type) {
-        case INTEGER:
-            obj = numericVeLaToJava(javaType, intVal);
-            break;
-        case REAL:
-            obj = numericVeLaToJava(javaType, doubleVal);
-            break;
-        case STRING:
-            obj = stringVal;
-            break;
-        case BOOLEAN:
-            obj = booleanVal;
-            break;
-        case LIST:
-            for (Type type : Type.values()) {
-                if (listVal.stream().allMatch(op -> op.type == type)) {
-                    int i = 0;
-                    try {
-                        switch (type) {
-                        case INTEGER:
-                            int[] ints = new int[listVal.size()];
-                            for (Operand op : listVal) {
-                                ints[i++] = (int) op.intVal;
-                            }
-                            obj = ints;
-                            break;
-                        case REAL:
-                            double[] reals = new double[listVal.size()];
-                            for (Operand op : listVal) {
-                                reals[i++] = (double) op.doubleVal;
-                            }
-                            obj = reals;
-                            break;
-                        case STRING:
-                            String[] strings = new String[listVal.size()];
-                            for (Operand op : listVal) {
-                                strings[i++] = (String) op.stringVal;
-                            }
-                            obj = strings;
-                            break;
-                        case BOOLEAN:
-                            boolean[] booleans = new boolean[listVal.size()];
-                            for (Operand op : listVal) {
-                                booleans[i++] = (boolean) op.booleanVal;
-                            }
-                            obj = booleans;
-                            break;
-                        default:
-                            throw new VeLaEvalError("");
-                        }
-                    } catch (Throwable t) {
-                        throw new VeLaEvalError("Cannot construct array from VeLa list");
-                    }
-                }
-            }
-            break;
-        case FUNCTION:
-            // TODO
-            break;
-        case NONE:
-            // TODO
-            break;
-        case OBJECT:
-            // TODO
-            break;
-        }
-
-        return obj;
-    }
-
-    /**
-     * Convert this operand to the required type, if possible, first making a copy
-     * if the required type is different from the current type.
-     * 
-     * @param requiredType The required type.
-     * @return The unchanged operand or a new operand that conforms to the required
-     *         type.
-     */
-    public Operand convert(Type requiredType) {
-        Operand operand = this;
-
-        if (!type.isComposite()) {
-            if (type != requiredType) {
-                if (type == Type.INTEGER && requiredType == Type.REAL) {
-                    operand = new Operand(Type.REAL, (double) intVal);
-                } else if (type != Type.STRING && requiredType == Type.STRING) {
-                    operand = operand.convertToString();
-                }
-            }
-        }
-
-        return operand;
-    }
-
-    /**
-     * Convert this operand's type to string.
-     */
-    public Operand convertToString() {
-        assert type == Type.INTEGER || type == Type.REAL || type == Type.BOOLEAN;
-
-        Operand operand = this;
-
-        switch (type) {
-        case INTEGER:
-            operand = new Operand(Type.STRING, Long.toString(intVal));
-            break;
-        case REAL:
-            operand = new Operand(Type.STRING, NumericPrecisionPrefs.formatOther(doubleVal));
-            break;
-        case BOOLEAN:
-            operand = new Operand(Type.STRING, Boolean.toString(booleanVal));
-            break;
-        default:
-            break;
-        }
-
-        return operand;
     }
 
     /**
@@ -359,6 +177,55 @@ public class Operand {
         this.functionVal = functionVal;
     }
 
+    /**
+     * Convert this operand to the required type, if possible, first making a copy
+     * if the required type is different from the current type.
+     * 
+     * @param requiredType The required type.
+     * @return The unchanged operand or a new operand that conforms to the required
+     *         type.
+     */
+    public Operand convert(Type requiredType) {
+        Operand operand = this;
+
+        if (!type.isComposite()) {
+            if (type != requiredType) {
+                if (type == Type.INTEGER && requiredType == Type.REAL) {
+                    operand = new Operand(Type.REAL, (double) intVal);
+                } else if (type != Type.STRING && requiredType == Type.STRING) {
+                    operand = operand.convertToString();
+                }
+            }
+        }
+
+        return operand;
+    }
+
+    /**
+     * Convert this operand's type to string.
+     */
+    public Operand convertToString() {
+        assert type == Type.INTEGER || type == Type.REAL || type == Type.BOOLEAN;
+
+        Operand operand = this;
+
+        switch (type) {
+        case INTEGER:
+            operand = new Operand(Type.STRING, Long.toString(intVal));
+            break;
+        case REAL:
+            operand = new Operand(Type.STRING, NumericPrecisionPrefs.formatOther(doubleVal));
+            break;
+        case BOOLEAN:
+            operand = new Operand(Type.STRING, Boolean.toString(booleanVal));
+            break;
+        default:
+            break;
+        }
+
+        return operand;
+    }
+
     public String toHumanReadableString() {
         String str = "";
 
@@ -380,6 +247,8 @@ public class Operand {
             break;
         case FUNCTION:
             str = functionVal.toString();
+            break;
+        default:
             break;
         }
 
@@ -409,9 +278,174 @@ public class Operand {
         case FUNCTION:
             str = functionVal.toString();
             break;
+        default:
+            break;
         }
 
         return str;
+    }
+
+    /**
+     * Given a VeLa type and a Java object, return an Operand instance.
+     * 
+     * @param type The VeLa type.
+     * @param obj  The Java object.
+     * @return A corresponding Operand instance.
+     */
+    public static Operand object2Operand(Type type, Object obj) {
+        Operand operand = null;
+
+        try {
+            switch (type) {
+            case INTEGER:
+                if (obj instanceof Integer) {
+                    operand = new Operand(Type.INTEGER, (int) obj);
+                } else {
+                    operand = new Operand(Type.INTEGER, (long) obj);
+                }
+                break;
+            case REAL:
+                if (obj instanceof Float) {
+                    operand = new Operand(Type.REAL, (float) obj);
+                } else {
+                    operand = new Operand(Type.REAL, (double) obj);
+                }
+                break;
+            case BOOLEAN:
+                operand = new Operand(Type.BOOLEAN, (boolean) obj);
+                break;
+            case STRING:
+                operand = new Operand(Type.STRING, (String) obj);
+                break;
+            case LIST:
+                List<Operand> arr = new ArrayList<Operand>();
+
+                try {
+                    if (obj.getClass() == Type.FLOAT_ARR.getClass()) {
+                        for (float n : (float[]) obj) {
+                            arr.add(new Operand(Type.REAL, n));
+                        }
+                    } else if (obj.getClass() == Type.DBL_ARR.getClass()) {
+                        for (double n : (double[]) obj) {
+                            arr.add(new Operand(Type.REAL, n));
+                        }
+                    } else if (obj.getClass() == Type.DBL_CLASS_ARR.getClass()) {
+                        for (Double n : (Double[]) obj) {
+                            arr.add(new Operand(Type.REAL, n));
+                        }
+                    } else if (obj.getClass() == Type.INT_ARR.getClass()) {
+                        for (int n : (int[]) obj) {
+                            arr.add(new Operand(Type.INTEGER, n));
+                        }
+                    } else if (obj.getClass() == Type.LONG_ARR.getClass()) {
+                        for (long n : (long[]) obj) {
+                            arr.add(new Operand(Type.INTEGER, n));
+                        }
+                    } else if (obj.getClass() == Type.BOOL_ARR.getClass()) {
+                        for (boolean b : (boolean[]) obj) {
+                            arr.add(new Operand(Type.BOOLEAN, b));
+                        }
+                    } else if (obj.getClass() == Type.STR_ARR.getClass()) {
+                        for (String s : (String[]) obj) {
+                            arr.add(new Operand(Type.STRING, s));
+                        }
+                    }
+                } finally {
+                    if (!arr.isEmpty()) {
+                        operand = new Operand(Type.LIST, arr);
+                    }
+                }
+                break;
+            case FUNCTION:
+                operand = new Operand(Type.FUNCTION, (FunctionExecutor) obj);
+                break;
+            case OBJECT:
+                // TODO
+                break;
+            case NONE:
+                operand = NO_VALUE;
+                break;
+            }
+        } catch (Exception e) {
+            java2VeLaTypeError(obj.getClass(), type);
+        }
+
+        return operand;
+    }
+
+    /**
+     * Return a Java object corresponding to this Operand instance.
+     * 
+     * @param javaType The target Java type, that may be necessary to know.
+     * @return A corresponding Java object.
+     */
+    public Object toObject(Class<?> javaType) {
+        Object obj = null;
+
+        switch (type) {
+        case INTEGER:
+            obj = numericVeLaToJava(javaType, intVal);
+            break;
+        case REAL:
+            obj = numericVeLaToJava(javaType, doubleVal);
+            break;
+        case BOOLEAN:
+            if (javaType == boolean.class) {
+                obj = booleanVal;
+            } else {
+                vela2JavaTypeError(this, javaType);
+            }
+            break;
+        case STRING:
+            if (javaType == String.class || javaType == CharSequence.class) {
+                obj = stringVal;
+            } else {
+                vela2JavaTypeError(this, javaType);
+            }
+            break;
+        case LIST:
+            try {
+                if (javaType == Type.DBL_ARR.getClass() || javaType == Type.DBL_CLASS_ARR.getClass()) {
+                    double[] reals = new double[listVal.size()];
+                    list2Array(Type.REAL, (op, i) -> {
+                        reals[i++] = op.doubleVal;
+                    });
+                    obj = reals;
+                } else if (javaType == Type.INT_ARR.getClass()) {
+                    long[] ints = new long[listVal.size()];
+                    list2Array(Type.INTEGER, (op, i) -> {
+                        ints[i++] = op.intVal;
+                    });
+                    obj = ints;
+                } else if (javaType == Type.BOOL_ARR.getClass()) {
+                    boolean[] booleans = new boolean[listVal.size()];
+                    list2Array(Type.BOOLEAN, (op, i) -> {
+                        booleans[i++] = op.booleanVal;
+                    });
+                    obj = booleans;
+                } else if (javaType == Type.STR_ARR.getClass()) {
+                    String[] strings = new String[listVal.size()];
+                    list2Array(Type.STRING, (op, i) -> {
+                        strings[i++] = op.stringVal;
+                    });
+                    obj = strings;
+                }
+            } catch (Exception e) {
+                vela2JavaTypeError(this, javaType);
+            }
+            break;
+        case FUNCTION:
+            // TODO
+            break;
+        case OBJECT:
+            // TODO
+            break;
+        case NONE:
+            // TODO
+            break;
+        }
+
+        return obj;
     }
 
     @Override
@@ -493,6 +527,8 @@ public class Operand {
         case FUNCTION:
             operand.functionVal = functionVal;
             break;
+        default:
+            break;
         }
 
         return operand;
@@ -500,16 +536,55 @@ public class Operand {
 
     // Helpers
 
-    private Object numericVeLaToJava(Class<?> javaType, Object obj) {
+    private Number numericVeLaToJava(Class<?> javaType, Object obj) {
+
+        Number num = null;
 
         if (javaType.equals(int.class)) {
-            // could be int or long
-            obj = ((Long)obj).intValue();
+            num = ((Number) obj).intValue();
+        } else if (javaType.equals(long.class)) {
+            num = ((Number) obj).longValue();
         } else if (javaType.equals(float.class)) {
-            // could be float or double
-            obj = ((Float)obj).floatValue();
+            num = ((Number) obj).floatValue();
+        } else if (javaType.equals(double.class)) {
+            num = ((Number) obj).doubleValue();
+        } else {
+            throw new VeLaEvalError("Cannot convert object to numeric value");
         }
 
-        return obj;
+        return num;
+    }
+
+    /**
+     * Build an array from a VeLa list via an assigner object carrying out type
+     * conversions where necessary/possible. Concrete assigner objects exploit the
+     * existence of an array in their environment (see toObject()).
+     *
+     * The purpose of this function is to avoid code duplication in toObject().
+     *
+     * @param requiredType The array element type required.
+     * @param assigner     An object that assigns the appropriately typed value from
+     *                     an operand to the ith element of an array.
+     */
+    private void list2Array(Type requiredType, BiConsumer<Operand, Integer> assigner) {
+        for (int i = 0; i < listVal.size(); i++) {
+            Operand op = listVal.get(i);
+            op = op.convert(requiredType);
+            if (op.type == requiredType) {
+                assigner.accept(op, i);
+            } else {
+                throw new VeLaEvalError("Cannot convert from " + op.type + " to " + requiredType);
+            }
+        }
+    }
+
+    private static void vela2JavaTypeError(Operand op, Class<?> requiredType) {
+        throw new VeLaEvalError("Cannot convert from " + op.type + " to " + requiredType);
+
+    }
+
+    private static void java2VeLaTypeError(Class<?> jtype, Type vtype) {
+        throw new VeLaEvalError("Cannot convert from " + jtype + " to " + vtype);
+
     }
 }
