@@ -37,6 +37,7 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.TextArea;
+import org.aavso.tools.vstar.ui.dialog.TextAreaTabs;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.Pair;
@@ -51,8 +52,10 @@ import org.aavso.tools.vstar.vela.VeLaInterpreter;
 @SuppressWarnings("serial")
 public class VeLaDialog extends TextDialog {
 
+    private static final String tabTextSeparator = "===---===";
+    
     private static ITextComponent<String> codeTextArea;
-    private static TextArea resultTextArea;
+    private static TextAreaTabs resultTextArea;
     private static JCheckBox verbosityCheckBox;
 
     private static VeLaInterpreter vela;
@@ -63,12 +66,8 @@ public class VeLaDialog extends TextDialog {
         codeTextArea = new TextArea("VeLa Code", "", 12, 42, false, true);
         addKeyListener();
 
-        // resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error",
-        // "AST", "DOT"), Arrays.asList("", "", "", ""), 15, 70,
-        // true, true);
-        // resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error"),
-        // Arrays.asList("", ""), 10, 40, true, true);
-        resultTextArea = new TextArea("Output", "", 12, 42, true, true);
+        resultTextArea = new TextAreaTabs(Arrays.asList("Output", "AST", "DOT"), Arrays.asList("", "", ""),
+                15, 70, true, true, tabTextSeparator);
 
         Font font = codeTextArea.getUIComponent().getFont();
         codeTextArea.getUIComponent().setFont(new Font(Font.MONOSPACED, Font.PLAIN, font.getSize()));
@@ -76,7 +75,7 @@ public class VeLaDialog extends TextDialog {
 
         verbosityCheckBox = new JCheckBox("Verbose?");
         verbosityCheckBox.setSelected(false);
-        verbosityCheckBox.setVisible(false);
+        verbosityCheckBox.setVisible(true);
     }
 
     public VeLaDialog(String title) {
@@ -295,15 +294,26 @@ public class VeLaDialog extends TextDialog {
             Mediator.getUI().setScriptingStatus(false);
         }
 
-        resultTextArea.setValue(areaTabsPayload(output, error));
+        String result = output;
+        if (!error.isEmpty()) {
+            result += "\n";
+            result += error;
+        }
+        
+        resultTextArea.setValue(areaTabsPayload(verbosityCheckBox.isSelected(),
+                result, lispAST, dotAST));
     }
 
-    private String areaTabsPayload(String... strings) {
+    private String areaTabsPayload(boolean verbose, String... strings) {
         StringBuffer buf = new StringBuffer();
 
         for (String str : strings) {
             buf.append(str);
-            buf.append("\n");
+            if (verbose) {
+                buf.append(tabTextSeparator);
+            } else {
+                buf.append("\n");
+            }
         }
 
         return buf.toString().trim();
