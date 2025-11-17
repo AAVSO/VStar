@@ -18,7 +18,6 @@
 package org.aavso.tools.vstar.ui.dialog.prefs;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -75,14 +74,19 @@ public class VeLaSettingsPane extends JPanel implements IPreferenceComponent {
 
         veLaSettingsPanel.add(veLaCodeDirPanel);
 
-        // VeLa dialog diagnostic mode
         veLaSettingsPanel.add(Box.createRigidArea(new Dimension(10, 10)));
+
+        // VeLa dialog diagnostic mode
+        JPanel veLaCheckboxPanel = new JPanel();
+        veLaCheckboxPanel.setLayout(new BoxLayout(veLaCheckboxPanel, BoxLayout.LINE_AXIS));
+        veLaCheckboxPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         veLaDiagnosticCheckbox = new JCheckBox("VeLa dialog diagnostic mode?");
         veLaDiagnosticCheckbox.setSelected(VeLaPrefs.getDiagnosticMode());
         veLaDiagnosticCheckbox.setToolTipText("Diagnostic mode yields ASTs as DOT and LISP");
-        //veLaDiagnosticCheckbox.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        veLaSettingsPanel.add(veLaDiagnosticCheckbox);
+
+        veLaCheckboxPanel.add(veLaDiagnosticCheckbox);
+        veLaSettingsPanel.add(veLaCheckboxPanel);
 
         veLaSettingsPanel.add(Box.createRigidArea(new Dimension(10, 10)));
 
