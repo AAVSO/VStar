@@ -70,7 +70,7 @@ public class VeLaDialog extends TextDialog {
         boolean diagnosticMode = VeLaPrefs.getDiagnosticMode();
 
         if (diagnosticMode) {
-            resultTextArea = new TextAreaTabs(Arrays.asList("Output", "AST", "DOT"), Arrays.asList("", "", ""), 15, 70,
+            resultTextArea = new TextAreaTabs(Arrays.asList("Output", "LISP AST", "DOT AST"), Arrays.asList("", "", ""), 15, 70,
                     true, true, tabTextSeparator);
         } else {
             resultTextArea = new TextArea("Output", "", 12, 42, true, true);

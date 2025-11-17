@@ -81,9 +81,9 @@ public class VeLaSettingsPane extends JPanel implements IPreferenceComponent {
         veLaCheckboxPanel.setLayout(new BoxLayout(veLaCheckboxPanel, BoxLayout.LINE_AXIS));
         veLaCheckboxPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        veLaDiagnosticCheckbox = new JCheckBox("VeLa dialog diagnostic mode?");
+        veLaDiagnosticCheckbox = new JCheckBox("Additional diagnostic tabs in VeLa dialog?");
         veLaDiagnosticCheckbox.setSelected(VeLaPrefs.getDiagnosticMode());
-        veLaDiagnosticCheckbox.setToolTipText("Diagnostic mode yields ASTs as DOT and LISP");
+        veLaDiagnosticCheckbox.setToolTipText("Tabs for Abstract Syntax Trees in DOT and LISP form");
 
         veLaCheckboxPanel.add(veLaDiagnosticCheckbox);
         veLaSettingsPanel.add(veLaCheckboxPanel);
