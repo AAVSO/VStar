@@ -40,6 +40,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	private StarGroupManagementPane starGroupManagementPane;
 	private PluginSettingsPane pluginSettingsPane;
 	private LocaleSelectionPane localeSelectionPane;
+	private VeLaSettingsPane veLaSettingsPane;
 	
 	/**
 	 * Constructor.
@@ -86,6 +87,9 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		localeSelectionPane = new LocaleSelectionPane();
 		tabs.addTab("Locale", localeSelectionPane);
 		
+		veLaSettingsPane = new VeLaSettingsPane();
+		tabs.addTab("VeLa", veLaSettingsPane);
+		
 		return tabs;
 	}
 
@@ -107,6 +111,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		starGroupManagementPane.update();
 		pluginSettingsPane.update();
 		localeSelectionPane.update();
+		veLaSettingsPane.update();
 		
 		this.setVisible(false);
 	}
@@ -122,6 +127,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		starGroupManagementPane.reset();
 		pluginSettingsPane.reset();
 		localeSelectionPane.reset();
+		veLaSettingsPane.reset();
 	}
 
 	/**

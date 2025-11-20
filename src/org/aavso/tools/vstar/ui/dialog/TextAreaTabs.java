@@ -33,130 +33,125 @@ import org.aavso.tools.vstar.ui.NamedComponent;
  */
 public class TextAreaTabs implements ITextComponent<String> {
 
-	private boolean canBeEmpty;
-	private boolean readOnly;
+    private boolean canBeEmpty;
+    private boolean readOnly;
+    private String tabTextseparator;
 
-	private List<JTextArea> textAreas;
+    private List<JTextArea> textAreas;
 
-	private JTabbedPane tabs;
+    private JTabbedPane tabs;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param names
-	 *            The list of tab names.
-	 * @param initialValues
-	 *            The list of initial text area values.
-	 * @param rows
-	 *            The number of rows in these text areas; 0 means don't set;
-	 *            applied to all text areas.
-	 * @param cols
-	 *            The number of rows in these text areas; 0 means don't set;
-	 *            applied to all text areas.
-	 * @param readOnly
-	 *            Are all these areas read-only?
-	 * @param canBeEmpty
-	 *            Can any of these areas be empty? (all or none)
-	 */
-	public TextAreaTabs(List<String> names, List<String> initialValues,
-			int rows, int cols, boolean readOnly, boolean canBeEmpty) {
-		assert names.size() == initialValues.size();
+    /**
+     * Constructor.
+     * 
+     * @param names            The list of tab names.
+     * @param initialValues    The list of initial text area values.
+     * @param rows             The number of rows in these text areas; 0 means don't
+     *                         set; applied to all text areas.
+     * @param cols             The number of rows in these text areas; 0 means don't
+     *                         set; applied to all text areas.
+     * @param readOnly         Are all these areas read-only?
+     * @param canBeEmpty       Can any of these areas be empty? (all or none)
+     * @param tabTextseparator The text value separator for each tabbed text pane.
+     */
+    public TextAreaTabs(List<String> names, List<String> initialValues, int rows, int cols, boolean readOnly,
+            boolean canBeEmpty, String tabTextseparator) {
+        assert names.size() == initialValues.size();
 
-		this.readOnly = readOnly;
-		this.canBeEmpty = canBeEmpty;
-		this.textAreas = new ArrayList<JTextArea>();
+        this.readOnly = readOnly;
+        this.canBeEmpty = canBeEmpty;
+        this.tabTextseparator = tabTextseparator;
+        this.textAreas = new ArrayList<JTextArea>();
 
-		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
+        List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
 
-		for (int i = 0; i < names.size(); i++) {
-			JTextArea textArea = new JTextArea(
-					initialValues.get(i) == null ? "" : initialValues.get(i));
+        for (int i = 0; i < names.size(); i++) {
+            JTextArea textArea = new JTextArea(initialValues.get(i) == null ? "" : initialValues.get(i));
 
-			textAreas.add(textArea);
+            textAreas.add(textArea);
 
-			// textArea.setBorder(BorderFactory.createTitledBorder(names.get(i)));
-			if (!isReadOnly()) {
-				textArea.setToolTipText("Enter " + names.get(i));
-			}
+            // textArea.setBorder(BorderFactory.createTitledBorder(names.get(i)));
+            if (!isReadOnly()) {
+                textArea.setToolTipText("Enter " + names.get(i));
+            }
 
-			namedComponents.add(new NamedComponent(names.get(i),
-					new JScrollPane(textArea)));
-		}
+            namedComponents.add(new NamedComponent(names.get(i), new JScrollPane(textArea)));
+        }
 
-		for (JTextArea textArea : textAreas) {
-			if (rows != 0) {
-				textArea.setRows(rows);
-			}
+        for (JTextArea textArea : textAreas) {
+            if (rows != 0) {
+                textArea.setRows(rows);
+            }
 
-			if (cols != 0) {
-				textArea.setColumns(cols);
-			}
-		}
+            if (cols != 0) {
+                textArea.setColumns(cols);
+            }
+        }
 
-		tabs = PluginComponentFactory.createTabs(namedComponents);
-	}
+        tabs = PluginComponentFactory.createTabs(namedComponents);
+    }
 
-	@Override
-	public String getName() {
-		return null;
-	}
+    @Override
+    public String getName() {
+        return null;
+    }
 
-	@Override
-	public boolean canBeEmpty() {
-		return canBeEmpty;
-	}
+    @Override
+    public boolean canBeEmpty() {
+        return canBeEmpty;
+    }
 
-	@Override
-	public boolean isReadOnly() {
-		return readOnly;
-	}
+    @Override
+    public boolean isReadOnly() {
+        return readOnly;
+    }
 
-	@Override
-	public String getValue() {
-		StringBuffer value = new StringBuffer();
+    @Override
+    public String getValue() {
+        StringBuffer value = new StringBuffer();
 
-		for (JTextArea textArea : textAreas) {
-			value.append(textArea.getText());
-			value.append("\n");
-		}
+        for (JTextArea textArea : textAreas) {
+            value.append(textArea.getText());
+            value.append("\n");
+        }
 
-		return value.toString();
-	}
+        return value.toString();
+    }
 
-	@Override
-	public String getStringValue() {
-		StringBuffer buf = new StringBuffer();
+    @Override
+    public String getStringValue() {
+        StringBuffer buf = new StringBuffer();
 
-		for (JTextArea textArea : textAreas) {
-			buf.append(textArea.getText());
-			buf.append("\n");
-		}
+        for (JTextArea textArea : textAreas) {
+            buf.append(textArea.getText());
+            buf.append("\n");
+        }
 
-		return buf.toString();
-	}
+        return buf.toString();
+    }
 
-	@Override
-	public void setEditable(boolean state) {
-		readOnly = !state;
+    @Override
+    public void setEditable(boolean state) {
+        readOnly = !state;
 
-	}
+    }
 
-	@Override
-	public void setValue(String value) {
-		if ("".equals(value)) {
-			for (JTextArea textArea : textAreas) {
-				textArea.setText("");
-			}
-		} else {
-			String[] values = value.split("\\<sentinel\\>");
-			for (int i = 0; i < values.length; i++) {
-				textAreas.get(i).setText(values[i]);
-			}
-		}
-	}
+    @Override
+    public void setValue(String value) {
+        if ("".equals(value)) {
+            for (JTextArea textArea : textAreas) {
+                textArea.setText("");
+            }
+        } else {
+            String[] values = value.split(tabTextseparator);
+            for (int i = 0; i < values.length; i++) {
+                textAreas.get(i).setText(values[i]);
+            }
+        }
+    }
 
-	@Override
-	public JComponent getUIComponent() {
-		return tabs;
-	}
+    @Override
+    public JComponent getUIComponent() {
+        return tabs;
+    }
 }
