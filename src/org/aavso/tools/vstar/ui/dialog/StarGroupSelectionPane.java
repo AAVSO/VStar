@@ -37,271 +37,248 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 @SuppressWarnings("serial")
 public class StarGroupSelectionPane extends JPanel {
 
-	private final static String NO_STARS = "No stars";
+    private final static String NO_STARS = "No stars";
 
-	private JComboBox<String> starGroupSelector;
-	private JComboBox<String> starSelector;
-	private ActionListener starSelectorListener;
+    private JComboBox<String> starGroupSelector;
+    private JComboBox<String> starSelector;
+    private ActionListener starSelectorListener;
 
-	private StarGroups starGroups;
+    private StarGroups starGroups;
 
-	// Selected star group, name and AUID.
-	private String selectedStarGroup;
-	private String selectedStarName;
-	private String selectedAUID;
+    // Selected star group, name and AUID.
+    private String selectedStarGroup;
+    private String selectedStarName;
+    private String selectedAUID;
 
-	private boolean clearStarField;
+    private boolean clearStarField;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param starField
-	 *            An optional star field to be cleared when a group star is
-	 *            selected.
-	 */
-	public StarGroupSelectionPane(JTextField starField) {
-		this(starField, true);
-	}
+    /**
+     * Constructor
+     * 
+     * @param starField An optional star field to be cleared when a group star is
+     *                  selected.
+     */
+    public StarGroupSelectionPane(JTextField starField) {
+        this(starField, true);
+    }
 
-	/**
-	 * Constructor
-	 * 
-	 * @param starField
-	 *            An optional star field to be cleared or set when a group star
-	 *            is selected.
-	 * @param clearStarField
-	 *            Whether to clear (true) or set (false) the star field.
-	 */
-	public StarGroupSelectionPane(JTextField starField, boolean clearStarField) {
-		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		this.setBorder(BorderFactory.createEtchedBorder());
+    /**
+     * Constructor
+     * 
+     * @param starField      An optional star field to be cleared or set when a
+     *                       group star is selected.
+     * @param clearStarField Whether to clear (true) or set (false) the star field.
+     */
+    public StarGroupSelectionPane(JTextField starField, boolean clearStarField) {
+        this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        this.setBorder(BorderFactory.createEtchedBorder());
 
-		selectedStarGroup = null;
-		selectedStarName = null;
+        selectedStarGroup = null;
+        selectedStarName = null;
 
-		selectedAUID = null;
+        selectedAUID = null;
 
-		this.clearStarField = clearStarField;
+        this.clearStarField = clearStarField;
 
-		starGroups = StarGroups.getInstance();
-		Set<String> starGroupMapKeys = starGroups.getGroupNames();
+        starGroups = StarGroups.getInstance();
+        Set<String> starGroupMapKeys = starGroups.getGroupNames();
 
-		starGroupSelector = new JComboBox<String>(
-				starGroupMapKeys.toArray(new String[0]));
-		selectedStarGroup = (String) starGroupSelector.getItemAt(0);
-		starGroupSelector.setBorder(BorderFactory
-				.createTitledBorder(LocaleProps
-						.get("NEW_STAR_FROM_AID_DLG_GROUP")));
-		starGroupSelector.addActionListener(createStarGroupSelectorListener());
+        starGroupSelector = new JComboBox<String>(starGroupMapKeys.toArray(new String[0]));
+        selectedStarGroup = (String) starGroupSelector.getItemAt(0);
+        starGroupSelector.setBorder(BorderFactory.createTitledBorder(LocaleProps.get("NEW_STAR_FROM_AID_DLG_GROUP")));
+        starGroupSelector.addActionListener(createStarGroupSelectorListener());
 
-		starSelector = new JComboBox<String>();
-		populateStarListForSelectedGroup();
-		starSelector.setBorder(BorderFactory.createTitledBorder(LocaleProps
-				.get("NEW_STAR_FROM_AID_DLG_STAR")));
-		starSelectorListener = createStarSelectorListener();
-		starSelector.addActionListener(starSelectorListener);
+        starSelector = new JComboBox<String>();
+        populateStarListForSelectedGroup();
+        starSelector.setBorder(BorderFactory.createTitledBorder(LocaleProps.get("NEW_STAR_FROM_AID_DLG_STAR")));
+        starSelectorListener = createStarSelectorListener();
+        starSelector.addActionListener(starSelectorListener);
 
-		this.add(starGroupSelector);
-		this.add(starSelector);
-	}
+        this.add(starGroupSelector);
+        this.add(starSelector);
+    }
 
-	// Star group selector listener.
-	private ActionListener createStarGroupSelectorListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// Populate the star selector list according
-				// to the selected group.
-				selectedStarGroup = (String) starGroupSelector
-						.getSelectedItem();
-				starSelector.removeActionListener(starSelectorListener);
-				populateStarListForSelectedGroup();
-				starSelector.addActionListener(starSelectorListener);
-			}
-		};
-	}
+    // Star group selector listener.
+    private ActionListener createStarGroupSelectorListener() {
+        return new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Populate the star selector list according
+                // to the selected group.
+                selectedStarGroup = (String) starGroupSelector.getSelectedItem();
+                starSelector.removeActionListener(starSelectorListener);
+                populateStarListForSelectedGroup();
+                starSelector.addActionListener(starSelectorListener);
+            }
+        };
+    }
 
-	// Star selector listener.
-	private ActionListener createStarSelectorListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String starName = (String) starSelector.getSelectedItem();
-				if (starName != null && !NO_STARS.equals(starName)) {
-					// Select a new star & AUID.
-					selectedStarName = starName;
-					selectedAUID = starGroups.getAUID(selectedStarGroup,
-							selectedStarName);
-				}
-			}
-		};
-	}
+    // Star selector listener.
+    private ActionListener createStarSelectorListener() {
+        return new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String starName = (String) starSelector.getSelectedItem();
+                if (starName != null && !NO_STARS.equals(starName)) {
+                    // Select a new star & AUID.
+                    selectedStarName = starName;
+                    selectedAUID = starGroups.getAUID(selectedStarGroup, selectedStarName);
+                }
+            }
+        };
+    }
 
-	/**
-	 * Populate the star list combo-box given the currently selected star group.
-	 */
-	public void populateStarListForSelectedGroup() {
-		starSelector.removeAllItems();
+    /**
+     * Populate the star list combo-box given the currently selected star group.
+     */
+    public void populateStarListForSelectedGroup() {
+        starSelector.removeAllItems();
 
-		if (selectedStarGroup != null
-				&& !starGroups.getStarNamesInGroup(selectedStarGroup).isEmpty()) {
+        if (selectedStarGroup != null && !starGroups.getStarNamesInGroup(selectedStarGroup).isEmpty()) {
 
-			for (String starName : starGroups
-					.getStarNamesInGroup(selectedStarGroup)) {
-				starSelector.addItem(starName);
-			}
+            for (String starName : starGroups.getStarNamesInGroup(selectedStarGroup)) {
+                starSelector.addItem(starName);
+            }
 
-			selectedStarName = (String) starSelector.getItemAt(0);
-			selectedAUID = starGroups.getAUID(selectedStarGroup,
-					selectedStarName);
-		} else {
-			starSelector.addItem(NO_STARS);
-		}
-	}
+            selectedStarName = (String) starSelector.getItemAt(0);
+            selectedAUID = starGroups.getAUID(selectedStarGroup, selectedStarName);
+        } else {
+            starSelector.addItem(NO_STARS);
+        }
+    }
 
-	/**
-	 * Add the specified group (to the map and visually) if it does not exist.
-	 * 
-	 * @param groupName
-	 *            The group to add.
-	 */
-	public void addGroup(String groupName) {
-		if (!starGroups.doesGroupExist(groupName)) {
-			starGroups.addStarGroup(groupName);
-			starGroupSelector.addItem(groupName);
-			selectAndRefreshStarsInGroup(groupName);
-		}
-	}
+    /**
+     * Add the specified group (to the map and visually) if it does not exist.
+     * 
+     * @param groupName The group to add.
+     */
+    public void addGroup(String groupName) {
+        if (!starGroups.doesGroupExist(groupName)) {
+            starGroups.addStarGroup(groupName);
+            starGroupSelector.addItem(groupName);
+            selectAndRefreshStarsInGroup(groupName);
+        }
+    }
 
-	/**
-	 * Remove the specified group (from the map and visually) if it exists.
-	 * 
-	 * @param groupName
-	 *            The group to remove.
-	 */
-	public void removeGroup(String groupName) {
-		if (starGroups.doesGroupExist(groupName)) {
-			if (MessageBox.showConfirmDialog("Remove Group",
-					LocaleProps.get("REALLY_DELETE"))) {
-				starGroups.removeStarGroup(groupName);
-				starGroupSelector.removeItem(groupName);
-				selectAndRefreshStarsInGroup((String) starGroupSelector
-						.getItemAt(0));
-			}
-		}
-	}
+    /**
+     * Remove the specified group (from the map and visually) if it exists.
+     * 
+     * @param groupName The group to remove.
+     */
+    public void removeGroup(String groupName) {
+        if (starGroups.doesGroupExist(groupName)) {
+            if (MessageBox.showConfirmDialog("Remove Group", LocaleProps.get("REALLY_DELETE"))) {
+                starGroups.removeStarGroup(groupName);
+                starGroupSelector.removeItem(groupName);
+                selectAndRefreshStarsInGroup((String) starGroupSelector.getItemAt(0));
+            }
+        }
+    }
 
-	/**
-	 * Add the specified group-star-AUID triple.
-	 * 
-	 * @param groupName
-	 *            The group to add.
-	 * @param starName
-	 *            The star to add to the specified group.
-	 * @param auid
-	 *            The AUID of the star to be added.
-	 */
-	public void addStar(String groupName, String starName, String auid) {
-		if (starGroups.doesGroupExist(groupName)) {
-			starGroups.addStar(groupName, starName, auid);
-			selectAndRefreshStarsInGroup(groupName);
-		}
-	}
+    /**
+     * Add the specified group-star-AUID triple.
+     * 
+     * @param groupName The group to add.
+     * @param starName  The star to add to the specified group.
+     * @param auid      The AUID of the star to be added.
+     */
+    public void addStar(String groupName, String starName, String auid) {
+        if (starGroups.doesGroupExist(groupName)) {
+            starGroups.addStar(groupName, starName, auid);
+            selectAndRefreshStarsInGroup(groupName);
+        }
+    }
 
-	/**
-	 * Remove the specified star in the specified group.
-	 * 
-	 * @param groupName
-	 *            The group to add.
-	 * @param starName
-	 */
-	public void removeStar(String groupName, String starName) {
-		if (starGroups.doesGroupExist(groupName)) {
-			if (MessageBox.showConfirmDialog("Remove Star",
-					LocaleProps.get("REALLY_DELETE"))) {
-				starGroups.removeStar(groupName, starName);
-				selectAndRefreshStarsInGroup(groupName);
-			}
-		}
-	}
+    /**
+     * Remove the specified star in the specified group.
+     * 
+     * @param groupName The group to add.
+     * @param starName
+     */
+    public void removeStar(String groupName, String starName) {
+        if (starGroups.doesGroupExist(groupName)) {
+            if (MessageBox.showConfirmDialog("Remove Star", LocaleProps.get("REALLY_DELETE"))) {
+                starGroups.removeStar(groupName, starName);
+                selectAndRefreshStarsInGroup(groupName);
+            }
+        }
+    }
 
-	/**
-	 * Clear the groups in the star group selector list.
-	 */
-	public void resetGroups() {
-		starGroups.resetGroupsToDefault();
+    /**
+     * Clear the groups in the star group selector list.
+     */
+    public void resetGroups() {
+        starGroups.resetGroupsToDefault();
 
-		starGroupSelector.removeAllItems();
+        starGroupSelector.removeAllItems();
 
-		for (String groupName : starGroups.getGroupNames()) {
-			starGroupSelector.addItem(groupName);
-		}
+        for (String groupName : starGroups.getGroupNames()) {
+            starGroupSelector.addItem(groupName);
+        }
 
-		selectAndRefreshStarsInGroup(starGroups.getDefaultStarListTitle());
-	}
+        selectAndRefreshStarsInGroup(starGroups.getDefaultStarListTitle());
+    }
 
-	/**
-	 * Refresh the groups in the star group selector list. Only groups with
-	 * stars will be "refreshed".
-	 */
-	public void refreshGroups() {
-		boolean prevClearStarField = clearStarField;
+    /**
+     * Refresh the groups in the star group selector list. Only groups with stars
+     * will be "refreshed".
+     */
+    public void refreshGroups() {
+        boolean prevClearStarField = clearStarField;
 
-		starGroupSelector.removeAllItems();
+        starGroupSelector.removeAllItems();
 
-		for (String groupName : starGroups.getGroupNames()) {
-			if (!starGroups.getStarNamesInGroup(groupName).isEmpty()) {
-				starGroupSelector.addItem(groupName);
-			}
-		}
+        for (String groupName : starGroups.getGroupNames()) {
+            if (!starGroups.getStarNamesInGroup(groupName).isEmpty()) {
+                starGroupSelector.addItem(groupName);
+            }
+        }
 
-		if (selectedStarGroup != null
-				&& starGroups.doesGroupExist(selectedStarGroup)) {
-			selectAndRefreshStarsInGroup(selectedStarGroup);
-		} else {
-			selectAndRefreshStarsInGroup(starGroups.getDefaultStarListTitle());
-		}
+        if (selectedStarGroup != null && starGroups.doesGroupExist(selectedStarGroup)) {
+            selectAndRefreshStarsInGroup(selectedStarGroup);
+        } else {
+            selectAndRefreshStarsInGroup(starGroups.getDefaultStarListTitle());
+        }
 
-		clearStarField = prevClearStarField;
-	}
+        clearStarField = prevClearStarField;
+    }
 
-	/**
-	 * Select the specified group and refresh its stars.
-	 * 
-	 * @param groupName
-	 *            The group to select.
-	 */
-	public void selectAndRefreshStarsInGroup(String groupName) {
-		if (starGroups.doesGroupExist(groupName)) {
-			starGroupSelector.setSelectedItem(groupName);
-			selectedStarGroup = groupName;
-			populateStarListForSelectedGroup();
-		}
-	}
+    /**
+     * Select the specified group and refresh its stars.
+     * 
+     * @param groupName The group to select.
+     */
+    public void selectAndRefreshStarsInGroup(String groupName) {
+        if (starGroups.doesGroupExist(groupName)) {
+            starGroupSelector.setSelectedItem(groupName);
+            selectedStarGroup = groupName;
+            populateStarListForSelectedGroup();
+        }
+    }
 
-	/**
-	 * @return the starGroups
-	 */
-	public StarGroups getStarGroups() {
-		return starGroups;
-	}
+    /**
+     * @return the starGroups
+     */
+    public StarGroups getStarGroups() {
+        return starGroups;
+    }
 
-	/**
-	 * @return the selectedStarGroup
-	 */
-	public String getSelectedStarGroupName() {
-		return selectedStarGroup;
-	}
+    /**
+     * @return the selectedStarGroup
+     */
+    public String getSelectedStarGroupName() {
+        return selectedStarGroup;
+    }
 
-	/**
-	 * @return the selectedStarName
-	 */
-	public String getSelectedStarName() {
-		return selectedStarName;
-	}
+    /**
+     * @return the selectedStarName
+     */
+    public String getSelectedStarName() {
+        return selectedStarName;
+    }
 
-	/**
-	 * @return the selectedAUID
-	 */
-	public String getSelectedAUID() {
-		return selectedAUID;
-	}
+    /**
+     * @return the selectedAUID
+     */
+    public String getSelectedAUID() {
+        return selectedAUID;
+    }
 }

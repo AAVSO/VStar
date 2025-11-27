@@ -88,7 +88,7 @@ public abstract class VSXWebServiceAIDObservationReaderTestBase extends TestCase
 			reader.retrieveObservations();
 			List<ValidObservation> obs = reader.getValidObservations();
 
-			assertEquals(2443, obs.size());
+			assertEquals(2804, obs.size());
 
 			boolean found = false;
 			for (ValidObservation ob : obs) {
