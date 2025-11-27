@@ -35,7 +35,9 @@ import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -710,7 +712,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			maxJD.setValue(2457505.0);
 			points.setValue(501);
 			jDflavour.setSelectedIndex(dateTypeToSelectedIndex("HJD"));
-			codeArea.setText(
+			String test_model = 
 					"# test model\n\n" +
 					"zeroPoint is 2457504.93 # time zero point\n" +
 					"magZeroPoint is 13.69\n" +
@@ -723,7 +725,12 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 					"   + 0.006091217702922 * cos(2*PI*(4/period)*(t-zeroPoint)) + 0.001654399074451 * sin(2*PI*(4/period)*(t-zeroPoint))\n" +
 					"   - 0.004698206584795 * cos(2*PI*(5/period)*(t-zeroPoint)) - 0.000039671630067 * sin(2*PI*(4/period)*(t-zeroPoint))\n" +
 					"   + 0.003549883073703 * cos(2*PI*(6/period)*(t-zeroPoint)) + 0.000022578051393 * sin(2*PI*(6/period)*(t-zeroPoint))\n" +
-					"}\n");
+					"}\n";
+			DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.getDefault());
+	        char decimalSeparator = symbols.getDecimalSeparator();
+	        if (decimalSeparator != '.')
+	        	test_model = test_model.replace('.', decimalSeparator);
+			codeArea.setText(test_model);
 			titleXfield.setValue("");
 			titleYfield.setValue("");
 			objectNameField.setValue("");
