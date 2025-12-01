@@ -75,8 +75,6 @@ public class StarGroups {
         } catch (Throwable t) {
             // We need VStar to function in the absence of prefs.
         }
-
-        notifier = new Notifier<StarGroupChangedMessage>();
     }
 
     public Notifier<StarGroupChangedMessage> getNotifier() {

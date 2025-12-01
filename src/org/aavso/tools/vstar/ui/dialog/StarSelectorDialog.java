@@ -42,7 +42,6 @@ import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.ui.dialog.series.AIDSeriesSelectionPane;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.StarGroupChangedMessage;
-import org.aavso.tools.vstar.ui.resources.StarGroups;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.aavso.tools.vstar.util.help.Help;
@@ -155,8 +154,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
         this.pack();
         starGroupSelectionPane.requestFocusInWindow();
-
-        StarGroups.getInstance().getNotifier().addListener(new UpdateListener());
     }
 
     // Getters
@@ -667,6 +664,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
     @Override
     public void showDialog() {
+        starGroupSelectionPane.refreshGroups();
         super.showDialog();
     }
 
