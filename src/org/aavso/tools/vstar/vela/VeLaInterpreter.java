@@ -1537,7 +1537,7 @@ public class VeLaInterpreter {
                         for (String name : functionMap.keySet()) {
                             for (FunctionExecutor function : functionMap.get(name)) {
                                 if (!(function instanceof UserDefinedFunctionExecutor)) {
-                                    Operand funcInfo = new Operand(Type.STRING, function.toString());
+                                    Operand funcInfo = new Operand(Type.FUNCTION, function);
                                     funcInfoList.add(funcInfo);
                                 }
                             }
