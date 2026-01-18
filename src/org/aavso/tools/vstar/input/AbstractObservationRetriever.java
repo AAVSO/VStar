@@ -250,12 +250,11 @@ public abstract class AbstractObservationRetriever {
 
 	/**
 	 * @param isHeliocentric
-	 * 
-	 * @deprecated
+	 
 	 * This method is deprecated.
-	 * <p> Use {@link AbstractObservationRetriever#setJDflavour(JDflavour)} instead.
-	 * 
+	 * <p> Use {@link AbstractObservationRetriever#setJDflavour(JDflavour)} instead. 
 	 */
+	@Deprecated
 	public void setHeliocentric(boolean isHeliocentric) {
 		jdFlavour = isHeliocentric ? JDflavour.HJD : JDflavour.JD; 
 	}
@@ -270,10 +269,10 @@ public abstract class AbstractObservationRetriever {
 	/**
 	 * @param isBarycentric
 	 * 
-	 * @deprecated
 	 * This method is deprecated.
 	 * <p> Use {@link AbstractObservationRetriever#setJDflavour(JDflavour)} instead.
 	 */
+	@Deprecated
 	public void setBarycentric(boolean isBarycentric) {
 		jdFlavour = isBarycentric ? JDflavour.BJD : JDflavour.JD; 
 	}

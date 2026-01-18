@@ -76,8 +76,9 @@ public class VeLaEnvironment<T> {
      * 
      * @param name The name of the binding to lookup.
      * @return Whether the name is bound in this environment.
-     * @deprecated less useful now, given the use of Optional values
+     * Less useful now, given the use of Optional values
      */
+    @Deprecated 
     public boolean hasBinding(String name) {
         return cache.containsKey(name);
     }

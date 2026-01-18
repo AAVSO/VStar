@@ -36,8 +36,9 @@ import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 /**
  * A concurrent task in which a new star from file request task is handled.
  * 
- * @deprecated See NewStarFromObSourcePluginTask
+ * See NewStarFromObSourcePluginTask
  */
+@Deprecated
 public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 
 	private Mediator mediator = Mediator.getInstance();

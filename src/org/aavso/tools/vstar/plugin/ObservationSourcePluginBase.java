@@ -100,10 +100,11 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * Get the name of the star associated with the current observation dataset.
 	 * 
 	 * @return The current star name.
-	 * @deprecated Use getInputName() or getObservationRetriever() for more specific
-	 *             information about source name, type, and observations possibly
-	 *             containing object name.
+	 * Use getInputName() or getObservationRetriever() for more specific
+	 * information about source name, type, and observations possibly
+	 * containing object name.
 	 */
+	@Deprecated
 	public String getCurrentStarName() {
 		return null;
 	}
@@ -207,8 +208,8 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * 
 	 * @return a list of URLs or null.
 	 * @throws Exception if a problem occurs during URL creation.
-	 * @deprecated
 	 */
+	@Deprecated
 	public List<File> getFiles() throws Exception {
 		return null;
 	}

@@ -35,8 +35,9 @@ import org.xml.sax.SAXException;
  * This class adds AAVSO observer code and membership status to a LoginInfo
  * object.
  * 
- * @deprecated see Auth0JSONAutheticationSource
+ * See Auth0JSONAutheticationSource
  */
+@Deprecated
 public class VSXWebServiceMemberInfo {
 
     /**

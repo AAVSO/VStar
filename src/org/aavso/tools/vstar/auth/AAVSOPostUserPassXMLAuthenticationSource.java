@@ -41,8 +41,9 @@ import org.xml.sax.SAXException;
  * This class authenticates an AAVSO user via an http POST method that makes use
  * of a VSX web service to obtain user information.
  * 
- * @deprecated see Auth0JSONAutheticationSource
+ * see Auth0JSONAutheticationSource
  */
+@Deprecated
 public class AAVSOPostUserPassXMLAuthenticationSource implements IAuthenticationSource {
 
 	private static final String AUTH_URL = "https://www.aavso.org/apps/api-auth/";
