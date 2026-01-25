@@ -274,9 +274,9 @@ begin
   end;
   if not JavaFound then begin
     Message := Message + 
-      '\par\par Test for "javaw.exe" failed!\par It seems there is no Java Runtime Environment (JRE) installed on your machine.\par ' + 
-      'You can download JRE installer from the Java download site \par' + 
-      '{\field{\*\fldinst{HYPERLINK "https://www.java.com/download/"}}{\fldrslt{\ul\cf1 https://www.java.com/download/}}}';
+      '\par\par Test for "javaw.exe" failed!\par It seems that Java is not installed on your machine.\par ' + 
+      'You can download and install Java from: \par' + 
+      '{\field{\*\fldinst{HYPERLINK "https://openjdk.org/"}}{\fldrslt{\ul\cf1 https://openjdk.org/}}}';
   end;
   Message := Message + '}';
   RichViewer.RTFText := Message;
