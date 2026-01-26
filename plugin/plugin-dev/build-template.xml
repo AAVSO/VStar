@@ -61,7 +61,7 @@
 
 		<!-- Compile the java code from ${src} into ${build} -->
 		<mkdir dir="${build}" />
-		<javac compiler="modern" source="1.8" target="1.8" srcdir="${plugin_src_dir}" destdir="${build}" classpathref="libs" />
+		<javac compiler="modern" source="17" target="17" srcdir="${plugin_src_dir}" destdir="${build}" classpathref="libs" />
 	</target>
 
 	<target name="jar" depends="compile" description="Generate the distribution jar">

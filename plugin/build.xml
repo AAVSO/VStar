@@ -40,8 +40,8 @@
 		</path>
 		<mkdir dir="${build}" />
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac compiler="modern" source="1.8" target="1.8" encoding="UTF-8" srcdir="${src_lib}" destdir="${build}" classpathref="libs" />
-		<javac compiler="modern" source="1.8" target="1.8" encoding="UTF-8" srcdir="${src}" destdir="${build}" classpathref="libs" />
+		<javac compiler="modern" source="17" target="17" encoding="UTF-8" srcdir="${src_lib}" destdir="${build}" classpathref="libs" />
+		<javac compiler="modern" source="17" target="17" encoding="UTF-8" srcdir="${src}" destdir="${build}" classpathref="libs" />
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution">
@@ -121,7 +121,7 @@
 	</path>
 
 	<target name="compile_ut" depends="dist" description="Compile the test code">
-		<javac compiler="modern" source="1.8" target="1.8" srcdir="${test}" destdir="${test_build}">
+		<javac compiler="modern" source="17" target="17" srcdir="${test}" destdir="${test_build}">
 			<classpath refid="test.classpath" />
 		</javac>
 	</target>

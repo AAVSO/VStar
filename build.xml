@@ -105,14 +105,14 @@
 		<replace file="${ui_resources}/RevisionAccessor.java" token="@revision@" value="${git_revision}" />
 		<replace file="${ui_resources}/RevisionAccessor.java" token="@build_time@" value="${BUILD_TIME}" />
 		<!-- Compile source -->
-		<javac compiler="modern" source="1.8" target="1.8" encoding="UTF-8" srcdir="${src}" destdir="${src_build}" includeantruntime="false" debug="on" debuglevel="lines,vars,source">
+		<javac compiler="modern" source="17" target="17" encoding="UTF-8" srcdir="${src}" destdir="${src_build}" includeantruntime="false" debug="on" debuglevel="lines,vars,source">
 			<classpath refid="build.classpath" />
 		</javac>
 	</target>
 
 	<target name="debug" depends="init,antlr4,manifest" description="Compile the source for debug">
 		<!-- Compile source. -->
-		<javac compiler="modern" source="1.8" target="1.8" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
+		<javac compiler="modern" source="17" target="17" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
 			<classpath refid="build.classpath" />
 		</javac>
 
@@ -327,7 +327,7 @@
 	<!-- Unit test targets -->
 
 	<target name="compile_ut" depends="dist" description="Compile the test code">
-		<javac compiler="modern" source="1.8" target="1.8" srcdir="${test}" destdir="${test_build}" debug="on" debuglevel="lines,vars,source">
+		<javac compiler="modern" source="17" target="17" srcdir="${test}" destdir="${test_build}" debug="on" debuglevel="lines,vars,source">
 			<classpath refid="test.classpath" />
 		</javac>
 	</target>

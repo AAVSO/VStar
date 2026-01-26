@@ -1,4 +1,5 @@
 /**
+
  * VStar: a statistical analysis tool for variable star data.
  * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
  *
@@ -300,8 +301,9 @@ public class DescStats {
 	 *                          increments) or portions thereof.
 	 * @return An observation sequence consisting of magnitude means per bin and the
 	 *         observation at the center point of each bin.
-	 * @deprecated Use createSymmetricBinnedObservations() in preference.
+	 * Use createSymmetricBinnedObservations() in preference.
 	 */
+	@Deprecated
 	public static List<ValidObservation> createLeftToRightBinnedObservations(List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
 
