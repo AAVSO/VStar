@@ -343,8 +343,9 @@ public class VeLaInterpreter {
      * @return A Boolean value result.
      * @throws VeLaParseError If a parse error occurs.
      * @throws VeLaEvalError  If an evaluation error occurs.
-     * @deprecated Only used in test code: remove!
+     * Only used in test code: remove?
      */
+    @Deprecated
     public boolean booleanExpression(String expr) throws VeLaParseError, VeLaEvalError {
 
         VeLaParser.BooleanExpressionContext tree = getParser(expr).booleanExpression();

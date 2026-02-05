@@ -173,9 +173,10 @@ public class AST {
 	 * </p>
 	 * 
 	 * @return True if so, otherwise False.
-	 * @deprecated See Expression visitor optimisedDyadicOpAST() and
+	 * See Expression visitor optimisedDyadicOpAST() and
 	 *             optimisedMonadicOpAST()
 	 */
+	@Deprecated
 	public boolean isDeterministic() {
 		boolean deterministic = op != Operation.FUNCALL
 				&& op != Operation.SYMBOL && op != Operation.WHEN;

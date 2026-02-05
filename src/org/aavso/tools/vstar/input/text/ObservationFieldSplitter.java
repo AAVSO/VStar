@@ -29,8 +29,8 @@ import com.csvreader.CsvReader;
  * This class splits an observation line given a delimiter. If the result of the
  * split is less than a specified number, then the appropriate number of null
  * fields is added to the result.
- * @deprecated
  */
+@Deprecated
 public class ObservationFieldSplitter {
 
 	private final static Pattern quoted = Pattern.compile("^\"(.+)\"$");
