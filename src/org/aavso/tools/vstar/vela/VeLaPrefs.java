@@ -18,9 +18,12 @@
 package org.aavso.tools.vstar.vela;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
+
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
  * VeLa preferences class.

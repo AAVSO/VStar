@@ -1274,10 +1274,17 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertEquals(4, operand.intVal());
     }
 
-    public void testIntrinsics() {
+    public void testIntrinsicsNotZeroLength() {
         Operand operand = vela.expressionToOperand("length(intrinsics()) <> 0");
         assertEquals(Type.BOOLEAN, operand.getType());
         assertEquals(true, operand.booleanVal());
+    }
+
+    public void testIntrinsicsContainFunctionList() {
+        Operand operand = vela.expressionToOperand("intrinsics()");
+        assertEquals(Type.LIST, operand.getType());
+        assertFalse(operand.listVal().isEmpty());
+        assertNotNull(operand.listVal().get(0).functionVal().funcName);
     }
 
     public void testHelpVar() {

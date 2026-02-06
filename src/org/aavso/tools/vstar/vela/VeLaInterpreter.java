@@ -42,6 +42,7 @@ import java.util.stream.Stream;
 
 import org.aavso.tools.vstar.scripting.VStarScriptingAPI;
 import org.aavso.tools.vstar.ui.VStar;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -120,9 +121,14 @@ public class VeLaInterpreter {
             }
         }
 
+        // intrinsic bindings and functions
         initBindings();
         initFunctionExecutors();
-        // allows user to override intrinsic code
+
+        // standard library code
+        loadStdLib();
+
+        // allows user to override intrinsic/standard library code
         loadUserCode();
     }
 
@@ -1238,6 +1244,18 @@ public class VeLaInterpreter {
     }
 
     /**
+     * Read and interpret the VeLa standard library code.<br/>
+     * A VeLa error should not bring VStar down.<br/>
+     */
+    private void loadStdLib() {
+        try {
+            program(ResourceAccessor.getVeLaStdLibStr());
+        } catch (Throwable t) {
+            VStar.LOGGER.warning("Error when sourcing VeLa standard library code: " + t.getLocalizedMessage());
+        }
+    }
+
+    /**
      * Read and interpret user-defined code.<br/>
      * A VeLa error should not bring VStar down.<br/>
      * Ignore all but VeLa files (e.g. could be README files) and directories.
@@ -1252,6 +1270,7 @@ public class VeLaInterpreter {
                         }
                     }
                 } else {
+
                 }
             } catch (Throwable t) {
                 VStar.LOGGER.warning("Error when sourcing VeLa code: " + t.getLocalizedMessage());
@@ -1519,7 +1538,7 @@ public class VeLaInterpreter {
                         for (String name : functionMap.keySet()) {
                             for (FunctionExecutor function : functionMap.get(name)) {
                                 if (!(function instanceof UserDefinedFunctionExecutor)) {
-                                    Operand funcInfo = new Operand(Type.STRING, function.toString());
+                                    Operand funcInfo = new Operand(Type.FUNCTION, function);
                                     funcInfoList.add(funcInfo);
                                 }
                             }

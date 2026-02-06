@@ -17,30 +17,19 @@
  */
 package org.aavso.tools.vstar.ui.resources;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import junit.framework.TestCase;
 
 /**
- * The purpose of this class is to provide access to subversion revision number.
+ * ResourceAccessor unit tests
  */
+public class ResourceAccessorTest extends TestCase {
 
-public class RevisionAccessor {
+    public ResourceAccessorTest(String name) {
+        super(name);
+    }
 
-	private static String REVISION = "d9830b22";
-	private static String BUILD_TIME = "2025-12-23 23:45";
-
-	/**
-	 * Get the latest git revision
-	 */
-	public static String getRevNum() {
-		return REVISION;
-	}
-
-	/**
-	 * Get the buld date
-	 */
-	public static String getBuildTimeStamp() {
-		return BUILD_TIME;
-	}
-
+    public void testGetVeLaStdLibStr() {
+        String stdLibStr = ResourceAccessor.getVeLaStdLibStr();
+        assertFalse(stdLibStr.isEmpty());
+    }
 }

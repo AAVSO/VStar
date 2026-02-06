@@ -19,7 +19,11 @@ package org.aavso.tools.vstar.ui.resources;
 
 import java.awt.Image;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
@@ -27,6 +31,7 @@ import javax.swing.ImageIcon;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.vela.VeLaStandardLibrary;
 
 /**
  * The purpose of this class is to provide access to non-class resources such as
@@ -34,119 +39,127 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
  */
 public class ResourceAccessor {
 
-	// ** User name, observer code, login type. **
+    // ** User name, observer code, login type. **
 
-	private static LoginInfo loginInfo = new LoginInfo();
+    private static LoginInfo loginInfo = new LoginInfo();
 
-	// ** Image resource accessor. **
+    // ** Image resource accessor. **
 
-	/**
-	 * @return the loginInfo
-	 */
-	public static LoginInfo getLoginInfo() {
-		return loginInfo;
-	}
+    /**
+     * @return the loginInfo
+     */
+    public static LoginInfo getLoginInfo() {
+        return loginInfo;
+    }
 
-	/**
-	 * Returns an image icon given a resource URL string.
-	 * 
-	 * @param urlStr The URL string.
-	 * @return The icon, or null if the resource was not found.
-	 */
-	public static Icon getIconResource(String urlStr) {
-		Icon icon = null;
+    /**
+     * Returns an image icon given a resource URL string.
+     * 
+     * @param urlStr The URL string.
+     * @return The icon, or null if the resource was not found.
+     */
+    public static Icon getIconResource(String urlStr) {
+        Icon icon = null;
 
-		if (urlStr != null) {
-			URL url = ResourceAccessor.class.getResource(urlStr);
+        if (urlStr != null) {
+            URL url = ResourceAccessor.class.getResource(urlStr);
 
-			if (url == null) {
-				// Otherwise, look in resources dir under ui (e.g. if running
-				// from Eclipse, not from a distribution of vstar.jar).
-				url = ResourceAccessor.class.getResource(urlStr.substring(1));
-			}
+            if (url == null) {
+                // Otherwise, look in resources dir under ui (e.g. if running
+                // from Eclipse, not from a distribution of vstar.jar).
+                url = ResourceAccessor.class.getResource(urlStr.substring(1));
+            }
 
-			if (url != null) {
-				icon = new ImageIcon(url);
-			} else {
-				MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "VStar", "Can't locate icon: " + urlStr);
-			}
-		}
+            if (url != null) {
+                icon = new ImageIcon(url);
+            } else {
+                MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "VStar", "Can't locate icon: " + urlStr);
+            }
+        }
 
-		return icon;
-	}
+        return icon;
+    }
 
-	/**
-	 * Returns an image given a resource URL string.
-	 * 
-	 * @param urlStr The URL string.
-	 * @return The image, or null if the resource was not found.
-	 */
-	public static Image getImageResource(String urlStr) {
-		Image image = null;
+    /**
+     * Returns the VeLa standard library code as string.
+     */
+    public static String getVeLaStdLibStr() {
+        return VeLaStandardLibrary.getInstance().getStdLibStr();
+    }
 
-		if (urlStr != null) {
-			URL url = ResourceAccessor.class.getResource(urlStr);
+    /**
+     * Returns an image given a resource URL string.
+     * 
+     * @param urlStr The URL string.
+     * @return The image, or null if the resource was not found.
+     */
+    public static Image getImageResource(String urlStr) {
+        Image image = null;
 
-			if (url == null) {
-				// Otherwise, look in resources dir under ui (e.g. if running
-				// from Eclipse, not from a distribution of vstar.jar).
-				url = ResourceAccessor.class.getResource(urlStr.substring(1));
-			}
+        if (urlStr != null) {
+            URL url = ResourceAccessor.class.getResource(urlStr);
 
-			if (url != null) {
-				try {
-					image = ImageIO.read(url);
-				} catch (IOException e) {
-					MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "VStar",
-							"Can't locate image: " + urlStr);
-				}
-			} else {
-				MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "VStar", "Can't locate image: " + urlStr);
-			}
-		}
+            if (url == null) {
+                // Otherwise, look in resources dir under ui (e.g. if running
+                // from Eclipse, not from a distribution of vstar.jar).
+                url = ResourceAccessor.class.getResource(urlStr.substring(1));
+            }
 
-		return image;
-	}
+            if (url != null) {
+                try {
+                    image = ImageIO.read(url);
+                } catch (IOException e) {
+                    MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "VStar",
+                            "Can't locate image: " + urlStr);
+                }
+            } else {
+                MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "VStar", "Can't locate image: " + urlStr);
+            }
+        }
 
-	// ** HTML help URL resource accessor. ***
+        return image;
+    }
 
-	/**
-	 * Returns the HTML help resource URL.
-	 * 
-	 * @return The URL of the HTML help file.
-	 */
-	public static URL getHelpHTMLResource() {
-		// This is where it will be in vstar.jar (see build.xml).
-		URL url = ResourceAccessor.class.getResource("/help/html/HelpContents.html");
+    // ** HTML help URL resource accessor. ***
 
-		if (url == null) {
-			// Otherwise, look in resources dir under ui (e.g. if running
-			// from Eclipse, not from a distribution of vstar.jar).
-			url = ResourceAccessor.class.getResource("help/html/HelpContents.html");
-		}
+    /**
+     * Returns the HTML help resource URL.
+     * 
+     * @return The URL of the HTML help file.
+     */
+    public static URL getHelpHTMLResource() {
+        // This is where it will be in vstar.jar (see build.xml).
+        URL url = ResourceAccessor.class.getResource("/help/html/HelpContents.html");
 
-		return url;
-	}
+        if (url == null) {
+            // Otherwise, look in resources dir under ui (e.g. if running
+            // from Eclipse, not from a distribution of vstar.jar).
+            url = ResourceAccessor.class.getResource("help/html/HelpContents.html");
+        }
 
-	/**
-	 * Returns the base URL of the VSX API.
-	 */
-	public static String getVsxApiUrlBase() {
-	    return "https://vsx.aavso.org/index.php?view=";
-	}
-	
-	// ** Version info. **
+        return url;
+    }
 
-	public static String getVersionString() {
-		return "2.25.0"; 
-		//+ "-dev-" + RevisionAccessor.getRevNum() + "-" + RevisionAccessor.getBuildTimeStamp();
-	}
+    /**
+     * Returns the base URL of the VSX API.
+     */
+    public static String getVsxApiUrlBase() {
+        return "https://vsx.aavso.org/index.php?view=";
+    }
 
-	public static String getRevNum() {
-		return RevisionAccessor.getRevNum();
-	}
+    // ** Version info. **
 
-	public static String getBuildTimeStamp() {
-		return RevisionAccessor.getBuildTimeStamp();
-	}
+    public static String getVersionString() {
+        return "2.25.0";
+        // + "-dev-" + RevisionAccessor.getRevNum() + "-" +
+        // RevisionAccessor.getBuildTimeStamp();
+    }
+
+    public static String getRevNum() {
+        return RevisionAccessor.getRevNum();
+    }
+
+    public static String getBuildTimeStamp() {
+        return RevisionAccessor.getBuildTimeStamp();
+    }
 }

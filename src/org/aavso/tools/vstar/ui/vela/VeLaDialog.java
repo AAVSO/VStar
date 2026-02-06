@@ -21,9 +21,12 @@ import java.awt.Font;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +42,7 @@ import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextAreaTabs;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.vela.AST;
@@ -70,8 +74,8 @@ public class VeLaDialog extends TextDialog {
         boolean diagnosticMode = VeLaPrefs.getDiagnosticMode();
 
         if (diagnosticMode) {
-            resultTextArea = new TextAreaTabs(Arrays.asList("Output", "LISP AST", "DOT AST"), Arrays.asList("", "", ""), 15, 70,
-                    true, true, tabTextSeparator);
+            resultTextArea = new TextAreaTabs(Arrays.asList("Output", "LISP AST", "DOT AST"), Arrays.asList("", "", ""),
+                    15, 70, true, true, tabTextSeparator);
         } else {
             resultTextArea = new TextArea("Output", "", 12, 42, true, true);
         }
