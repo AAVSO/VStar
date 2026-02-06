@@ -42,6 +42,7 @@ import java.util.stream.Stream;
 
 import org.aavso.tools.vstar.scripting.VStarScriptingAPI;
 import org.aavso.tools.vstar.ui.VStar;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -122,6 +123,7 @@ public class VeLaInterpreter {
 
         initBindings();
         initFunctionExecutors();
+        loadStdLib();
         // allows user to override intrinsic code
         loadUserCode();
     }
@@ -336,8 +338,8 @@ public class VeLaInterpreter {
      * @param expr The VeLa expression string to be interpreted.
      * @return A Boolean value result.
      * @throws VeLaParseError If a parse error occurs.
-     * @throws VeLaEvalError  If an evaluation error occurs.
-     * Only used in test code: remove?
+     * @throws VeLaEvalError  If an evaluation error occurs. Only used in test code:
+     *                        remove?
      */
     @Deprecated
     public boolean booleanExpression(String expr) throws VeLaParseError, VeLaEvalError {
@@ -1235,6 +1237,18 @@ public class VeLaInterpreter {
         }
 
         return result;
+    }
+
+    /**
+     * Read and interpret standard library code.<br/>
+     * A VeLa error should not bring VStar down.
+     */
+    private void loadStdLib() {
+        try {
+            program(ResourceAccessor.getVeLaStdLibStr());
+        } catch (Throwable t) {
+            VStar.LOGGER.warning("Error when sourcing VeLa standard library code: " + t.getLocalizedMessage());
+        }
     }
 
     /**
