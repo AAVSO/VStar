@@ -154,8 +154,9 @@ public class J2000EpochHJDConverterTest extends TestCase {
 
 	public void testEccentricityEx24a() {
 		double T = julianCenturiesEx24a();
-		double eDegs = Math.toDegrees(converter.eccentricity(T));
-		assertEquals("0.016711651", getNumToPrecision(eDegs, 9));
+		// Eccentricity is dimensionless (Meeus 24.4).
+		double e = converter.eccentricity(T);
+		assertEquals("0.016711651", getNumToPrecision(e, 9));
 	}
 
 	public void testSolarCoordsEx24a() {
@@ -204,9 +205,8 @@ public class J2000EpochHJDConverterTest extends TestCase {
 
 		double R = converter.radiusVector(T, coords.getTrueAnomaly(),
 				coords.getEquationOfCenter());
-		// Meeus Ex 24.a gives R = 0.99766, whereas we have R = 0.99996.
-		// Is this an error in Meeus or in our computation?
-		assertEquals("0.99996", getNumToPrecision(R, 5));
+		// Meeus Ex 24.a, p 153: R = 0.99766 AU (requires eccentricity as dimensionless).
+		assertEquals("0.99766", getNumToPrecision(R, 5));
 	}
 
 	private double julianCenturiesEx24a() {
@@ -251,7 +251,8 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// to 2457501.86943, whereas the convert() method gives
 		// 2457501.8694125116, the same to 4 decimal places (~1/10th of a
 		// second).
-		assertEquals("2457501.86941", getNumToPrecision(hjd, 5));
+		// Corrected radius vector (eccentricity dimensionless) matches BAA to ~0.01 day.
+		assertEquals("2457501.86942", getNumToPrecision(hjd, 5));
 	}
 
 	// X Sgr with Meeus's Ex24.a JD
@@ -268,7 +269,8 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// entry for R Car. That gave the result 2448908.4977766555, shortened
 		// to 2448908.49778, whereas the convert() method gives
 		// 2448908.497780874.
-		assertEquals("2448908.49778", getNumToPrecision(hjd, 5));
+		// Corrected radius vector; result within ~1 s of BAA.
+		assertEquals("2448908.49779", getNumToPrecision(hjd, 5));
 	}
 
 	// X Sgr with JD2
@@ -285,7 +287,8 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// entry for R Car. That gave the result 2457501.8707473096, shortened
 		// to 2457501.87075, whereas the convert() method gives
 		// 2457501.870747149.
-		assertEquals("2457501.87075", getNumToPrecision(hjd, 5));
+		// Corrected radius vector; result within ~1 s of BAA.
+		assertEquals("2457501.87077", getNumToPrecision(hjd, 5));
 	}
 
 	// Sig Oct with Meeus's Ex24.a JD
@@ -319,7 +322,8 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// entry for R Car. That gave the result 2457501.8685732614, shortened
 		// to 2457501.86857, whereas the convert() method gives
 		// 2457501.868574388.
-		assertEquals("2457501.86857", getNumToPrecision(hjd, 5));
+		// Corrected radius vector; result within ~1 s of BAA.
+		assertEquals("2457501.86858", getNumToPrecision(hjd, 5));
 	}
 	
 	// Helpers

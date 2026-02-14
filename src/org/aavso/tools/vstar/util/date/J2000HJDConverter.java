@@ -260,17 +260,19 @@ public class J2000HJDConverter extends AbstractHJDConverter {
 
 	/**
 	 * Given the time in Julian centuries, return eccentricity of Earth's orbit.
-	 * 
+	 * Eccentricity is dimensionless (unitless); it must not be converted to
+	 * radians, as it is used in the radius-vector formula (24.5) as a pure
+	 * number.
+	 *
 	 * @param T
 	 *            The time in Julian centuries.
-	 * @return The eccentricity in radians.
+	 * @return The eccentricity (dimensionless).
 	 */
 	protected double eccentricity(double T) {
 
 		// Meeus 24.4
 		// Eccentricity of Earth's orbit.
-		double eDegs = 0.016708617 - 0.000042037 * T - 0.0000001236 * (T * T);
-		return Math.toRadians(eDegs);
+		return 0.016708617 - 0.000042037 * T - 0.0000001236 * (T * T);
 	}
 
 	/**
