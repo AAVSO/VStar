@@ -236,7 +236,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// to 2448908.49782, whereas the convert() method gives
 		// 2448908.497815484, the same to 5 decimal places (~1/100th of a
 		// second).
-		Tolerance.areClose(2448908.4978207937, hjd, 1e-6, true);
+		assertTrue(Tolerance.areClose(2448908.4978207937, hjd, 1e-5, true));
 	}
 
 	// R Car with JD2
@@ -255,7 +255,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// 2457501.8694125116, the same to 4 decimal places (~1/10th of a
 		// second).
 		// Corrected radius vector (eccentricity dimensionless) matches BAA to ~0.01 day.
-		Tolerance.areClose(2457501.869426729, hjd, 1e-6, true);
+		assertTrue(Tolerance.areClose(2457501.869426729, hjd, 1e-5, true));
 	}
 
 	// X Sgr with Meeus's Ex24.a JD
@@ -273,7 +273,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// to 2448908.49778, whereas the convert() method gives
 		// 2448908.497780874.
 		// Corrected radius vector; result within ~1 s of BAA.
-		Tolerance.areClose(2448908.4977766555, hjd, 1e-6, true);
+		assertTrue(Tolerance.areClose(2448908.4977766555, hjd, 1e-5, true));
 	}
 
 	// X Sgr with JD2
@@ -291,7 +291,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// to 2457501.87075, whereas the convert() method gives
 		// 2457501.870747149.
 		// Corrected radius vector; result within ~1 s of BAA.
-		Tolerance.areClose(2457501.8707473096, hjd, 1e-6, true);
+		Tolerance.areClose(2457501.8707473096, hjd, 1e-5, true);
 	}
 
 	// Sig Oct with Meeus's Ex24.a JD
@@ -308,7 +308,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// entry for R Car. That gave the result 2448908.4992657346, shortened
 		// to 2448908.49927, whereas the convert() method gives
 		// 2448908.499268005.
-		Tolerance.areClose(2448908.4992657346, hjd, 1e-6, true);
+		assertTrue(Tolerance.areClose(2448908.4992657346, hjd, 1e-5, true));
 	}
 
 	// Sig Oct with JD2
@@ -326,7 +326,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// to 2457501.86857, whereas the convert() method gives
 		// 2457501.868574388.
 		// Corrected radius vector; result within ~1 s of BAA.
-		Tolerance.areClose(2457501.8685732614, hjd, 1e-6, true);
+		assertTrue(Tolerance.areClose(2457501.8685732614, hjd, 1e-5, true));
 	}
 	
 	// Helpers
