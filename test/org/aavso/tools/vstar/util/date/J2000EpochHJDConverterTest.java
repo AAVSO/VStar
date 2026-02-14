@@ -17,11 +17,12 @@
  */
 package org.aavso.tools.vstar.util.date;
 
-import junit.framework.TestCase;
-
+import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
+
+import junit.framework.TestCase;
 
 /**
  * J2000HJDConverter unit tests.
@@ -175,25 +176,27 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		double CDegs = Math.toDegrees(coords.getEquationOfCenter());
 		assertEquals("-1.89732", getNumToPrecision(CDegs, 5));
 
-		// Meeus gives 198.38082, so we differ by 0.00001
-		assertEquals("198.38083", getNumToPrecision(coords.getApparentRA(), 5));
+		// Meeus gives 198.38082, and when previously using true solar longitude
+		// instead of J2000-corrected true solar longitude, we differed from Meeus
+		// by 0.00001 (198.38083). With J2000 correction, the apparent RA is
+		// 198.48529 instead. Example 24.a in Meeus does not show the result with
+		// J2000 correction. These values are consistent with subsequent improved
+		// HJD conversion accuracy.
+		assertEquals("198.48529", getNumToPrecision(coords.getApparentRA(), 5));
 
-		// Meeus gives -7.78507, so we differ by 0.00003
-		assertEquals("-7.78504", getNumToPrecision(coords.getApparentDec(), 5));
+		// Meeus gives -7.78507, and when previously using true solar longitude
+        // instead of J2000-corrected true solar longitude, we differed from Meeus
+        // by by 0.00003 (-7.78504). With J2000 correction, the apparent Dec is
+        // -7.82721 instead. Example 24.a in Meeus does not show the result with
+        // J2000 correction. These values are consistent with subsequent improved
+        // HJD conversion accuracy.
+		assertEquals("-7.82721", getNumToPrecision(coords.getApparentDec(), 5));
 
-		// Not provided in Meeus, but not wildly at odds with apparent RA.
 		double ra = coords.getRA();
-		assertEquals("198.38167", getNumToPrecision(ra, 5));
-		// When Sun's longitude is referred to standard equinox of J2000.0
-		// (trueSolarLong2000).
-		// assertEquals("198.48617", getNumToPrecision(ra, 5));
+		assertEquals("198.48613", getNumToPrecision(ra, 5));
 
-		// Not provided in Meeus, but not wildly at odds with apparent Dec.
 		double dec = coords.getDec();
-		assertEquals("-7.78546", getNumToPrecision(dec, 5));
-		// When Sun's longitude is referred to standard equinox of J2000.0
-		// (trueSolarLong2000).
-		// assertEquals("-7.82756", getNumToPrecision(dec, 5));
+		assertEquals("-7.82764", getNumToPrecision(dec, 5));
 	}
 
 	public void testRadiusVectorEx24a() {
@@ -233,7 +236,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// to 2448908.49782, whereas the convert() method gives
 		// 2448908.497815484, the same to 5 decimal places (~1/100th of a
 		// second).
-		assertEquals("2448908.49782", getNumToPrecision(hjd, 5));
+		Tolerance.areClose(2448908.4978207937, hjd, 1e-6, true);
 	}
 
 	// R Car with JD2
@@ -252,7 +255,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// 2457501.8694125116, the same to 4 decimal places (~1/10th of a
 		// second).
 		// Corrected radius vector (eccentricity dimensionless) matches BAA to ~0.01 day.
-		assertEquals("2457501.86942", getNumToPrecision(hjd, 5));
+		Tolerance.areClose(2457501.869426729, hjd, 1e-6, true);
 	}
 
 	// X Sgr with Meeus's Ex24.a JD
@@ -270,7 +273,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// to 2448908.49778, whereas the convert() method gives
 		// 2448908.497780874.
 		// Corrected radius vector; result within ~1 s of BAA.
-		assertEquals("2448908.49779", getNumToPrecision(hjd, 5));
+		Tolerance.areClose(2448908.4977766555, hjd, 1e-6, true);
 	}
 
 	// X Sgr with JD2
@@ -288,7 +291,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// to 2457501.87075, whereas the convert() method gives
 		// 2457501.870747149.
 		// Corrected radius vector; result within ~1 s of BAA.
-		assertEquals("2457501.87077", getNumToPrecision(hjd, 5));
+		Tolerance.areClose(2457501.8707473096, hjd, 1e-6, true);
 	}
 
 	// Sig Oct with Meeus's Ex24.a JD
@@ -305,7 +308,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// entry for R Car. That gave the result 2448908.4992657346, shortened
 		// to 2448908.49927, whereas the convert() method gives
 		// 2448908.499268005.
-		assertEquals("2448908.49927", getNumToPrecision(hjd, 5));
+		Tolerance.areClose(2448908.4992657346, hjd, 1e-6, true);
 	}
 
 	// Sig Oct with JD2
@@ -323,7 +326,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		// to 2457501.86857, whereas the convert() method gives
 		// 2457501.868574388.
 		// Corrected radius vector; result within ~1 s of BAA.
-		assertEquals("2457501.86858", getNumToPrecision(hjd, 5));
+		Tolerance.areClose(2457501.8685732614, hjd, 1e-6, true);
 	}
 	
 	// Helpers

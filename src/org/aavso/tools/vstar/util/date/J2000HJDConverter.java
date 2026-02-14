@@ -162,7 +162,11 @@ public class J2000HJDConverter extends AbstractHJDConverter {
 		// Meeus (p 152)
 		// True solar longitude.
 		double trueSolarLong = Lo + C;
-		double trueSolarLongDegs = Math.toDegrees(trueSolarLong);
+
+	    // Meeus (p 152)
+        // Sun's longitude with respect to J2000.0 epoch.
+        double trueSolarLong2000 = trueSolarLong - Math.toRadians(0.01397)
+                * (year - 2000.0);
 
 		// double omegaDegs = 125.04 - 1934.136 * T;
 		double omega = longitudeOfAscendingNode(T);
@@ -170,37 +174,25 @@ public class J2000HJDConverter extends AbstractHJDConverter {
 		// Meeus (p152)
 		// Apparent longitude of Sun.
 		// Note: not strictly needed.
-		double lambda = trueSolarLong - Math.toRadians(0.00569)
+		double lambda = trueSolarLong2000 - Math.toRadians(0.00569)
 				- Math.toRadians(0.00478) * Math.sin(omega);
-
-		// Meeus (p 152)
-		// Sun's longitude with respect to J2000.0 epoch.
-		double trueSolarLong2000 = trueSolarLong - Math.toRadians(0.01397)
-				* (year - 2000.0);
-		double trueSolarLong2000Degs = Math.toDegrees(trueSolarLong2000);
 
 		// Obliquity of the ecliptic.
 		double obliq = obliquity(T);
 		double apparentObliq = obliq + Math.toRadians(0.00256)
 				* Math.cos(omega);
 
-		// Note: we can use trueSolarLong or trueSolarLong2000 for
-		// RA and Dec calculations below; which is most appropriate? The delta
-		// for HJD correction purposes appears to be is sub-second.
-		// trueSolarLong2000 is, according to Meeus, used for meteor work, but
-		// it's not clear that it should be used for variable star work.
-
 		// Meeus 24.6
 		// Right ascension of the Sun.
-		double solarRA = Math.atan2(Math.cos(obliq) * Math.sin(trueSolarLong),
-				Math.cos(trueSolarLong));
+		double solarRA = Math.atan2(Math.cos(obliq) * Math.sin(trueSolarLong2000),
+				Math.cos(trueSolarLong2000));
 
 		double apparentSolarRA = Math.atan2(
 				Math.cos(apparentObliq) * Math.sin(lambda), Math.cos(lambda));
 
 		// Meeus (24.7)
 		// Declination of the Sun.
-		double solarDec = Math.asin(Math.sin(obliq) * Math.sin(trueSolarLong));
+		double solarDec = Math.asin(Math.sin(obliq) * Math.sin(trueSolarLong2000));
 
 		double apparentSolarDec = Math.asin(Math.sin(apparentObliq)
 				* Math.sin(lambda));
