@@ -35,7 +35,7 @@ public class Tolerance {
 	 */
 	public static boolean areClose(double a, double b, double epsilon, boolean absolute) {
 		double diff = Math.abs(a - b);
-		if(absolute){
+		if (absolute) {
 			return diff < epsilon;
 		}
 		
