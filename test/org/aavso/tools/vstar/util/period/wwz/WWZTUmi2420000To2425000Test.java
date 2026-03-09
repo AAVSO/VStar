@@ -29,75 +29,67 @@ import org.aavso.tools.vstar.util.period.dcdft.DataTestBase;
  */
 public class WWZTUmi2420000To2425000Test extends DataTestBase {
 
-	private static List<WWZStatistic> expectedStats;
-	private static List<WWZStatistic> expectedMaximalStats;
+    private static List<WWZStatistic> expectedStats;
+    private static List<WWZStatistic> expectedMaximalStats;
 
-	public WWZTUmi2420000To2425000Test() {
-		super("WWZ TUMi 2420000 to 2425000 unit test",
-				TUmi2420000To2425000Data.data);
+    public WWZTUmi2420000To2425000Test() {
+        super("WWZ TUMi 2420000 to 2425000 unit test", TUmi2420000To2425000Data.data);
 
-		expectedStats = TUmi2420000To2425000ExpectedWWZ.getWWZStats();
+        expectedStats = TUmi2420000To2425000ExpectedWWZ.getWWZStats();
 
-		expectedMaximalStats = TUmi242000To2425000ExpectedMaximalWWZ
-				.getWWZStats();
-	}
+        expectedMaximalStats = TUmi242000To2425000ExpectedMaximalWWZ.getWWZStats();
+    }
 
-	/**
-	 * Apply WWZ algorithm to T UMi observations over a frequency range of
-	 * 0.01..0.02 in 0.001 steps, with a decay constant of 0.01.
-	 */
-	public void testWWZTUmi() {
-		double minFreq = 0.01;
-		double maxFreq = 0.02;
-		double deltaFreq = 0.001;
-		double decay = 0.01;
-		double timeDivisions = 50.0;
-		
-		try {
-			WeightedWaveletZTransform wwt = new WeightedWaveletZTransform(obs,
-					 decay, timeDivisions);
-			wwt.make_freqs_from_freq_range(minFreq, maxFreq, deltaFreq);
-			wwt.execute();
+    /**
+     * Apply WWZ algorithm to T UMi observations over a frequency range of
+     * 0.01..0.02 in 0.001 steps, with a decay constant of 0.01.
+     */
+    public void testWWZTUmi() {
+        double minFreq = 0.01;
+        double maxFreq = 0.02;
+        double deltaFreq = 0.001;
+        double decay = 0.01;
+        double timeDivisions = 50.0;
 
-			List<WWZStatistic> stats = wwt.getStats();
-			List<WWZStatistic> maximalStats = wwt.getMaximalStats();
+        try {
+            WeightedWaveletZTransform wwt = new WeightedWaveletZTransform(obs, decay, timeDivisions);
+            wwt.make_freqs_from_freq_range(minFreq, maxFreq, deltaFreq);
+            wwt.execute();
 
-			assertEquals(expectedStats.size(), stats.size());
-			checkWWZStats(expectedStats, stats);
+            List<WWZStatistic> stats = wwt.getStats();
+            List<WWZStatistic> maximalStats = wwt.getMaximalStats();
 
-			assertEquals(expectedMaximalStats.size(), maximalStats.size());
-			checkWWZStats(expectedMaximalStats, maximalStats);
-		} catch (Exception e) {
-			fail();
-		}
-	}
+            assertEquals(expectedStats.size(), stats.size());
+            checkWWZStats(expectedStats, stats);
 
-	// Helpers
+            assertEquals(expectedMaximalStats.size(), maximalStats.size());
+            checkWWZStats(expectedMaximalStats, maximalStats);
+        } catch (Exception e) {
+            fail();
+        }
+    }
 
-	private void checkWWZStats(List<WWZStatistic> expectedStats,
-			List<WWZStatistic> actualStats) {
-		for (int i = 0; i < expectedStats.size(); i++) {
-			WWZStatistic expected = expectedStats.get(i);
-			WWZStatistic actual = actualStats.get(i);
+    // Helpers
 
-			assertEquals(String.format("%1.4f", expected.getTau()), String
-					.format("%1.4f", actual.getTau()));
+    private void checkWWZStats(List<WWZStatistic> expectedStats, List<WWZStatistic> actualStats) {
+        for (int i = 0; i < expectedStats.size(); i++) {
+            WWZStatistic expected = expectedStats.get(i);
+            WWZStatistic actual = actualStats.get(i);
 
-			assertEquals(String.format("%1.4f", expected.getFrequency()), String
-					.format("%1.4f", actual.getFrequency()));
+            assertEquals(String.format("i=%d", i), expected.getTau(), actual.getTau(), 1e-6);
 
-			assertEquals(String.format("%1.4f", expected.getWwz()), String
-					.format("%1.4f", actual.getWwz()));
+            assertEquals(String.format("i=%d", i), expected.getFrequency(), actual.getFrequency(), 1e-6);
 
-			assertEquals(String.format("%1.4f", expected.getSemiAmplitude()), String
-					.format("%1.4f", actual.getSemiAmplitude()));
+            assertEquals(String.format("i=%d", i), expected.getWwz(), actual.getWwz(), 1e-6);
 
-			assertEquals(String.format("%1.4f", expected.getMave()), String
-					.format("%1.4f", actual.getMave()));
+            assertEquals(String.format("i=%d", i), expected.getSemiAmplitude(), actual.getSemiAmplitude(), 1e-6);
 
-			assertEquals(String.format("%1.4f", expected.getNeff()), String
-					.format("%1.4f", actual.getNeff()));
-		}
+            assertEquals(String.format("i=%d", i), expected.getMave(), actual.getMave(), 1e-6);
 
-	}
+            assertEquals(String.format("i=%d", i), expected.getNeff(), actual.getNeff(), 1e-6);
+
+            System.out.println(actual.toStructString() + ",");
+        }
+
+    }
 }
