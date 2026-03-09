@@ -484,9 +484,9 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 
 		double dmz, dmfre, dmamp, dmcon, dmneff;
 
-		dvarw = 0.0; // TODO: added
-		dweight2 = 0.0; // TODO: added
-		dfre = 0.0; // TODO: added
+		//dvarw = 0.0; // TODO: added
+		//dweight2 = 0.0; // TODO: added
+		//dfre = 0.0; // TODO: added
 
 		double twopi = 2.0 * Math.PI;
 
@@ -522,7 +522,9 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 						throw new InterruptedException();
 					}
 				}
+
 				dweight2 = 0.0;
+				dvarw = 0.0; // Reset variance accumulator for each frequency (fixes WWZ after gaps; ticket #328)
 
 				for (idat = nstart; idat <= numdat; idat++) {
 					dz = domega * (dt[idat] - dtau);
