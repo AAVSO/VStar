@@ -21,19 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Expected *maximal* WWZ statistics for TUmi from 2420000...2425000
- * 
- * Each sub-array of the data in the data array corresponds directly to the
- * maximal WWZ statistics file (wwzper.dat) values tau, period, Amp, m(ave),
- * freq, WWZ, Neff from the following run of the AAVSO wwz11 program:
+ * Expected <em>maximal</em> WWZ statistics for TUmi from 2420000...2425000.
  * <p>
- * input data filename TUmi_2420000_2425000.dat<br/>
- * output wwz filename (e.g. name.wwz) TUmi_2420000_2425000.wwz<br/>
- * low frequency (cyc/d) 0.01<br/>
- * high frequency 0.02<br/>
- * delta f 0.001<br/>
- * input decay constant c 0.01<br/>
- * Program complete!<br/>
+ * Baseline: output of the <em>fixed</em> Java implementation
+ * (WeightedWaveletZTransform with variance accumulator {@code dvarw} reset per
+ * frequency; see ticket #558). Same parameters as the full-grid expected data.
+ * Each row is (tau, freq, wwz, amp, mave, neff) for the frequency that maximises
+ * WWZ at that tau.
  * </p>
  */
 public class TUmi242000To2425000ExpectedMaximalWWZ {

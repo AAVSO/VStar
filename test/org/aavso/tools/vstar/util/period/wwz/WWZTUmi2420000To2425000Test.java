@@ -24,8 +24,14 @@ import org.aavso.tools.vstar.util.period.dcdft.DataTestBase;
 /**
  * Weighted Wavelet Z-Transform unit test using TUMi AID data from JD 2420000 to
  * 2425000.
- * 
- * See data classes in this package for more detail.
+ * <p>
+ * Expected statistics are from the <em>fixed</em> Java implementation (variance
+ * accumulator {@code dvarw} reset per frequency; see WeightedWaveletZTransform
+ * and ticket #558). Comparisons use a tolerance of 1e-6 for numerical consistency.
+ * </p>
+ *
+ * @see TUmi2420000To2425000ExpectedWWZ
+ * @see TUmi242000To2425000ExpectedMaximalWWZ
  */
 public class WWZTUmi2420000To2425000Test extends DataTestBase {
 
@@ -87,9 +93,6 @@ public class WWZTUmi2420000To2425000Test extends DataTestBase {
             assertEquals(String.format("i=%d", i), expected.getMave(), actual.getMave(), 1e-6);
 
             assertEquals(String.format("i=%d", i), expected.getNeff(), actual.getNeff(), 1e-6);
-
-            System.out.println(actual.toStructString() + ",");
         }
-
     }
 }

@@ -21,25 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Expected WWZ statistics for TUmi from 2420000...2425000
- * 
- * The data in the expectedData array corresponds directly to the WWZ statistics
- * tau, freq, WWZ, Amp, m(ave), Neff from the following run of the AAVSO wwz11
- * program:
+ * Expected WWZ statistics for TUmi from 2420000...2425000.
  * <p>
- * input data filename TUmi_2420000_2425000.dat<br/>
- * output wwz filename (e.g. name.wwz) TUmi_2420000_2425000.wwz<br/>
- * low frequency (cyc/d) 0.01<br/>
- * high frequency 0.02<br/>
- * delta f 0.001<br/>
- * input decay constant c 0.01<br/>
- * Program complete!<br/>
- * </p>
- * The header of the file TUmi_2420000_2425000.wwz
- * <p>
- * File=TUmi_2420000_ NUM= 371 AVE= 11.3480 SDV= 1.6000 VAR= 2.5532 From JD
- * 2420050.0000 to JD 2424950.0000 step 50.0000 From fre 0.0100000 to fre
- * 0.0200000 step 0.0010000
+ * Baseline: output of the <em>fixed</em> Java implementation
+ * (WeightedWaveletZTransform with variance accumulator {@code dvarw} reset per
+ * frequency; see ticket #558). Parameters match the original wwz11 setup: data
+ * TUmi 2420000–2425000, frequency 0.01–0.02 cyc/day, step 0.001, decay 0.01,
+ * 50 time divisions. Each row is (tau, freq, wwz, amp, mave, neff).
  * </p>
  */
 public class TUmi2420000To2425000ExpectedWWZ {

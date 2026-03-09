@@ -524,7 +524,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 				}
 
 				dweight2 = 0.0;
-				dvarw = 0.0; // Reset variance accumulator for each frequency
+				dvarw = 0.0; // Reset variance accumulator for each frequency (fixes WWZ after gaps; ticket #328)
 
 				for (idat = nstart; idat <= numdat; idat++) {
 					dz = domega * (dt[idat] - dtau);
