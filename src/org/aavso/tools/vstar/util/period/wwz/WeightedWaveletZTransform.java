@@ -55,6 +55,9 @@ import org.aavso.tools.vstar.util.IAlgorithm;
  */
 public class WeightedWaveletZTransform implements IAlgorithm {
 
+	/** For benchmark only: use legacy Gauss-Jordan matinv instead of closed-form. Package visibility for tests. */
+	static boolean useLegacyMatinv = false;
+
 	// Observations to be analysed.
 	private List<ValidObservation> obs;
 
@@ -399,25 +402,63 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	}
 
 	/**
-	 * Invert the matrix of the wwz equations...
+	 * Invert the 3×3 symmetric matrix in dmat (in-place).
+	 * Uses a closed-form cofactor formula. Faster than Gauss-Jordan for fixed 3×3,
+	 * no pivoting logic, and avoids the per-(tau,freq) loop overhead.
 	 */
 	private void matinv() throws InterruptedException {
-		double dsol[][] = new double[3][3];// (0:2,0:2);
+		if (useLegacyMatinv) {
+			matinvGaussJordan();
+			return;
+		}
+		// Symmetric 3×3: a=dmat[0][0], b=dmat[0][1], c=dmat[0][2], d=dmat[1][1], e=dmat[1][2], f=dmat[2][2]
+		double a = dmat[0][0], b = dmat[0][1], c = dmat[0][2];
+		double d = dmat[1][1], e = dmat[1][2], f = dmat[2][2];
+
+		// det = a(df - e²) - b(bf - ce) + c(be - cd)
+		double det = a * (d * f - e * e) - b * (b * f - c * e) + c * (b * e - c * d);
+		if (Math.abs(det) <= 1.0e-14) {
+			return; // singular, leave dmat unchanged (matches previous behaviour)
+		}
+		double invDet = 1.0 / det;
+
+		if (interrupted) {
+			throw new InterruptedException();
+		}
+
+		// Adjugate (symmetric for symmetric input), then inv = adj/det
+		double a00 = (d * f - e * e) * invDet;
+		double a01 = (c * e - b * f) * invDet;
+		double a02 = (b * e - c * d) * invDet;
+		double a11 = (a * f - c * c) * invDet;
+		double a12 = (c * b - a * e) * invDet;
+		double a22 = (a * d - b * b) * invDet;
+
+		dmat[0][0] = a00;
+		dmat[0][1] = a01;
+		dmat[0][2] = a02;
+		dmat[1][0] = a01;
+		dmat[1][1] = a11;
+		dmat[1][2] = a12;
+		dmat[2][0] = a02;
+		dmat[2][1] = a12;
+		dmat[2][2] = a22;
+	}
+
+	/** Legacy Gauss-Jordan 3×3 in-place inverse; used only when useLegacyMatinv is true (benchmark). */
+	private void matinvGaussJordan() throws InterruptedException {
+		double dsol[][] = new double[3][3];
 		double dfac;
-
 		int ndim = 2;
-
 		for (int i = 0; i <= 2; i++) {
 			for (int j = 0; j <= 2; j++) {
 				dsol[i][j] = 0.0;
 			}
 			dsol[i][i] = 1.0;
-			
 			if (interrupted) {
 				throw new InterruptedException();
 			}
 		}
-
 		for (int i = 0; i <= ndim; i++) {
 			if (dmat[i][i] == 0.0) {
 				if (i == ndim)
@@ -426,16 +467,14 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 					if (dmat[j][i] != 0.0) {
 						for (int k = 0; k <= ndim; k++) {
 							dmat[i][k] = dmat[i][k] + dmat[j][k];
-							dsol[i][j] = dsol[i][j] + dsol[j][k];
+							dsol[i][k] = dsol[i][k] + dsol[j][k];
 						}
 					}
 				}
-				
 				if (interrupted) {
 					throw new InterruptedException();
 				}
 			}
-			
 			dfac = dmat[i][i];
 			for (int j = 0; j <= ndim; j++) {
 				dmat[i][j] = dmat[i][j] / dfac;
@@ -448,7 +487,6 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 						dmat[j][k] = dmat[j][k] - (dmat[i][k] * dfac);
 						dsol[j][k] = dsol[j][k] - (dsol[i][k] * dfac);
 					}
-					
 					if (interrupted) {
 						throw new InterruptedException();
 					}
@@ -459,7 +497,6 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 			for (int j = 0; j <= ndim; j++) {
 				dmat[i][j] = dsol[i][j];
 			}
-			
 			if (interrupted) {
 				throw new InterruptedException();
 			}
