@@ -57,6 +57,8 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 
 	/** For benchmark only: use legacy Gauss-Jordan matinv instead of closed-form. Package visibility for tests. */
 	static boolean useLegacyMatinv = false;
+	private static final double WEIGHT_CUTOFF = 1.0e-9;
+	private static final double NEG_LOG_WEIGHT_CUTOFF = -Math.log(WEIGHT_CUTOFF);
 
 	// Observations to be analysed.
 	private List<ValidObservation> obs;
@@ -526,16 +528,15 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 		//dfre = 0.0; // TODO: added
 
 		double twopi = 2.0 * Math.PI;
+		double dz2Cutoff = (dcon > 0.0) ? (NEG_LOG_WEIGHT_CUTOFF / dcon) : Double.POSITIVE_INFINITY;
 
 		int ndim = 2;
 		int itau1 = 1;
 		int itau2 = ntau;
 		int ifreq1 = 1;
 		int ifreq2 = nfreq;
-		int nstart = 1;
 
 		for (itau = itau1; itau <= itau2; itau++) {
-			nstart = 1;
 			dtau = tau[itau];
 
 			// TODO: added
@@ -549,6 +550,14 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 			for (ifreq = ifreq1; ifreq <= ifreq2; ifreq++) {
 				dfre = freq[ifreq];
 				domega = dfre * twopi;
+				double domega2 = domega * domega;
+				int idatStart = 1;
+				int idatEnd = numdat;
+				if (dcon > 0.0 && domega2 > 0.0) {
+					double dtWindow = Math.sqrt(NEG_LOG_WEIGHT_CUTOFF / (dcon * domega2));
+					idatStart = lowerBoundDt(dtau - dtWindow);
+					idatEnd = upperBoundDt(dtau + dtWindow);
+				}
 				for (int i = 0; i <= ndim; i++) {
 					dvec[i] = 0.0;
 					for (int j = 0; j <= ndim; j++) {
@@ -563,10 +572,11 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 				dweight2 = 0.0;
 				dvarw = 0.0; // Reset variance accumulator for each frequency (fixes WWZ after gaps; ticket #328)
 
-				for (idat = nstart; idat <= numdat; idat++) {
+				for (idat = idatStart; idat <= idatEnd; idat++) {
 					dz = domega * (dt[idat] - dtau);
-					dweight = Math.exp(-1.0 * dcon * dz * dz);
-					if (dweight > 1.0e-9) {
+					double dz2 = dz * dz;
+					if (dz2 < dz2Cutoff) {
+						dweight = Math.exp(-1.0 * dcon * dz2);
 						dcc = Math.cos(dz);
 						dcw = dweight * dcc;
 						dss = Math.sin(dz);
@@ -583,10 +593,6 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 						dvarw = dvarw + (dxw * dx[idat]);
 						dvec[1] = dvec[1] + (dcw * dx[idat]);
 						dvec[2] = dvec[2] + (dsw * dx[idat]);
-					} else if (dz > 0.0) {
-						break;
-					} else {
-						nstart = idat + 1;
 					}
 				}
 
@@ -697,5 +703,46 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 
 			maximalStats.add(maximalStat);
 		}
+	}
+
+	/**
+	 * 1-based lower-bound search on dt[] (inclusive) for the first index with dt[i] >= value.
+	 */
+	private int lowerBoundDt(double value) {
+		int lo = 1;
+		int hi = numdat;
+		int ans = numdat + 1;
+		while (lo <= hi) {
+			int mid = (lo + hi) >>> 1;
+			if (dt[mid] >= value) {
+				ans = mid;
+				hi = mid - 1;
+			} else {
+				lo = mid + 1;
+			}
+		}
+		if (ans > numdat) {
+			return numdat + 1;
+		}
+		return ans;
+	}
+
+	/**
+	 * 1-based upper-bound search on dt[] (inclusive) for the last index with dt[i] <= value.
+	 */
+	private int upperBoundDt(double value) {
+		int lo = 1;
+		int hi = numdat;
+		int ans = 0;
+		while (lo <= hi) {
+			int mid = (lo + hi) >>> 1;
+			if (dt[mid] <= value) {
+				ans = mid;
+				lo = mid + 1;
+			} else {
+				hi = mid - 1;
+			}
+		}
+		return ans;
 	}
 }
