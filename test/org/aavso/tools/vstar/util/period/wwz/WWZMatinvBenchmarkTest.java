@@ -68,6 +68,7 @@ public class WWZMatinvBenchmarkTest extends DataTestBase {
             double decay, double timeDivisions, double minFreq, double maxFreq, double deltaFreq) throws Exception {
         for (int i = 0; i < WARMUP; i++) {
             WeightedWaveletZTransform wwt = new WeightedWaveletZTransform(obs, decay, timeDivisions);
+            wwt.setThreadCount(1);
             wwt.make_freqs_from_freq_range(minFreq, maxFreq, deltaFreq);
             wwt.execute();
         }
@@ -78,6 +79,7 @@ public class WWZMatinvBenchmarkTest extends DataTestBase {
         long start = System.nanoTime();
         for (int i = 0; i < n; i++) {
             WeightedWaveletZTransform wwt = new WeightedWaveletZTransform(obs, decay, timeDivisions);
+            wwt.setThreadCount(1);
             wwt.make_freqs_from_freq_range(minFreq, maxFreq, deltaFreq);
             wwt.execute();
         }

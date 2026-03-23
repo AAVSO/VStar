@@ -92,7 +92,7 @@ abstract public class WeightedWaveletZTransformPluginBase extends
 	public void reset() {
 		currDecay = 0.001;
 		currTimeDivisions = 50.0;
-		currThreadCount = Math.max(1, Runtime.getRuntime().availableProcessors());
+		currThreadCount = WeightedWaveletZTransform.getRecommendedThreadCount();
 	}
 
 	/**
