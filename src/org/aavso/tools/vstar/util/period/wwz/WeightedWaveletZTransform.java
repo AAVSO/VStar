@@ -59,6 +59,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	static boolean useLegacyMatinv = false;
 	private static final double WEIGHT_CUTOFF = 1.0e-9;
 	private static final double NEG_LOG_WEIGHT_CUTOFF = -Math.log(WEIGHT_CUTOFF);
+	private static final int MAX_AVAILABLE_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors());
 
 	// Observations to be analysed.
 	private List<ValidObservation> obs;
@@ -88,6 +89,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	private double tau[];
 
 	private boolean interrupted;
+	private int threadCount;
 
 	/**
 	 * Constructor
@@ -119,6 +121,9 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 		maximalStats = new ArrayList<WWZStatistic>();
 
 		maketau(timeDivisions);
+
+		// Default to the maximum available cores; UI can override via setThreadCount().
+		threadCount = MAX_AVAILABLE_THREADS;
 
 		interrupted = false;
 	}
@@ -160,6 +165,39 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 
 	public void interrupt() {
 		interrupted = true;
+	}
+
+	/**
+	 * Number of threads (cores) to use for WWZ execution.
+	 * <p>
+	 * Currently this is a configuration hook for future/optional parallel execution
+	 * and UI integration. Values are clamped to [1, maxAvailableThreads].
+	 * </p>
+	 *
+	 * @param threadCount desired number of threads/cores
+	 */
+	public void setThreadCount(int threadCount) {
+		if (threadCount < 1) {
+			this.threadCount = 1;
+		} else if (threadCount > MAX_AVAILABLE_THREADS) {
+			this.threadCount = MAX_AVAILABLE_THREADS;
+		} else {
+			this.threadCount = threadCount;
+		}
+	}
+
+	/**
+	 * @return configured number of threads (cores) for WWZ execution.
+	 */
+	public int getThreadCount() {
+		return threadCount;
+	}
+
+	/**
+	 * @return maximum available threads (cores) detected at runtime.
+	 */
+	public int getMaxAvailableThreads() {
+		return MAX_AVAILABLE_THREADS;
 	}
 
 	/**

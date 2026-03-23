@@ -23,6 +23,7 @@ import java.util.List;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.DoubleField;
+import org.aavso.tools.vstar.ui.dialog.IntegerField;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
@@ -37,9 +38,11 @@ abstract public class WeightedWaveletZTransformPluginBase extends
 
 	protected Double currDecay;
 	protected Double currTimeDivisions;
+	protected Integer currThreadCount;
 
 	protected DoubleField decayField;
 	protected DoubleField timeDivisionsField;
+	protected IntegerField threadCountField;
 
 	/**
 	 * Constructor
@@ -67,6 +70,10 @@ abstract public class WeightedWaveletZTransformPluginBase extends
 				currTimeDivisions);
 		fields.add(timeDivisionsField);
 
+		threadCountField = new IntegerField(LocaleProps.get("WWZ_PARAMETERS_THREADS"),
+				1, Math.max(1, Runtime.getRuntime().availableProcessors()), currThreadCount);
+		fields.add(threadCountField);
+
 		return fields;
 	}
 
@@ -85,6 +92,7 @@ abstract public class WeightedWaveletZTransformPluginBase extends
 	public void reset() {
 		currDecay = 0.001;
 		currTimeDivisions = 50.0;
+		currThreadCount = Math.max(1, Runtime.getRuntime().availableProcessors());
 	}
 
 	/**
