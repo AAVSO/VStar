@@ -70,8 +70,12 @@ abstract public class WeightedWaveletZTransformPluginBase extends
 				currTimeDivisions);
 		fields.add(timeDivisionsField);
 
+		int recommendedThreads = WeightedWaveletZTransform.getRecommendedThreadCount();
+		if (currThreadCount == null || currThreadCount > recommendedThreads) {
+			currThreadCount = recommendedThreads;
+		}
 		threadCountField = new IntegerField(LocaleProps.get("WWZ_PARAMETERS_THREADS"),
-				1, Math.max(1, Runtime.getRuntime().availableProcessors()), currThreadCount);
+				1, recommendedThreads, currThreadCount);
 		fields.add(threadCountField);
 
 		return fields;
@@ -100,6 +104,8 @@ abstract public class WeightedWaveletZTransformPluginBase extends
 	 */
 	@Override
 	public void interrupt() {
-		wwt.interrupt();
+		if (wwt != null) {
+			wwt.interrupt();
+		}
 	}
 }

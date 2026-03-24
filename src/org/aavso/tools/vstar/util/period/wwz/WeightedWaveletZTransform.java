@@ -95,6 +95,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	private double tau[];
 
 	private volatile boolean interrupted;
+	private volatile boolean cancelled;
 	private int threadCount;
 
 	/**
@@ -132,6 +133,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 		threadCount = MAX_AVAILABLE_THREADS;
 
 		interrupted = false;
+		cancelled = false;
 	}
 
 	/**
@@ -161,11 +163,18 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	@Override
 	public void execute() throws AlgorithmError {
 		interrupted = false;
+		cancelled = false;
 		try {
 			wwt();
 			computeMinAndMaxValues();
 		} catch (InterruptedException e) {
-			// Do nothing; just return.
+			cancelled = true;
+			stats = new ArrayList<WWZStatistic>();
+			maximalStats = new ArrayList<WWZStatistic>();
+		} catch (RuntimeException e) {
+			stats = new ArrayList<WWZStatistic>();
+			maximalStats = new ArrayList<WWZStatistic>();
+			throw new AlgorithmError(e.getMessage() != null ? e.getMessage() : "WWZ runtime failure");
 		}
 	}
 
@@ -176,8 +185,9 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	/**
 	 * Number of threads (cores) to use for WWZ execution.
 	 * <p>
-	 * Currently this is a configuration hook for future/optional parallel execution
-	 * and UI integration. Values are clamped to [1, maxAvailableThreads].
+	 * This controls threaded WWZ execution. Values are clamped to
+	 * [1, maxAvailableThreads]. A workload heuristic may still run effectively
+	 * single-threaded for small jobs.
 	 * </p>
 	 *
 	 * @param threadCount desired number of threads/cores
@@ -197,6 +207,13 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	 */
 	public int getThreadCount() {
 		return threadCount;
+	}
+
+	/**
+	 * @return true if the last execute() call was cancelled/interrupted.
+	 */
+	public boolean isCancelled() {
+		return cancelled;
 	}
 
 	/**
