@@ -650,11 +650,9 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 		double dtau;
 		double dpower, dpowz, damp, dneff, davew;
 		double dfre;
-		// dnefff should probably be dneff, but we'll keep it for strict
-		// consistency...
-		// TODO: Is the use of this variable a bug? It is set to zero once below
-		// but never used otherwise. It may be that it should be dneff indeed!
-		double dnefff;
+		// NOTE: Older translations of Foster's code carried a variable named
+		// 'dnefff' (likely a typo for 'dneff'). It is unused in this Java
+		// implementation; WWZ uses 'dneff' throughout.
 		int n1, n2;
 
 		double dmz, dmfre, dmamp, dmcon, dmneff;
@@ -796,8 +794,6 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 					dpower = 0.0;
 					damp = 0.0;
 					if (dneff < 1.0e-9)
-						// TODO: this looks like a bug! should be dneff
-						// dnefff = 0.0;
 						dneff = 0.0;
 				}
 
