@@ -81,19 +81,30 @@ public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
 
 		if (!paramDialog.isCancelled()) {
 			double minFreq, maxFreq, deltaFreq, decay, timeDivisions;
+			int threadCount;
 
 			currMinFreq = minFreq = minFreqField.getValue();
 			currMaxFreq = maxFreq = maxFreqField.getValue();
 			currDeltaFreq = deltaFreq = deltaFreqField.getValue();
 			currDecay = decay = decayField.getValue();
 			currTimeDivisions = timeDivisions = timeDivisionsField.getValue();
+			Integer threadCountValue = threadCountField.getValue();
+			if (threadCountValue == null) {
+				threadCountValue = WeightedWaveletZTransform.getRecommendedThreadCount();
+			}
+			currThreadCount = threadCount = threadCountValue;
 
 			// TODO: ask about number of frequencies > 1000 via dialog?
 
 			wwt = new WeightedWaveletZTransform(obs, decay, timeDivisions);
+			wwt.setThreadCount(threadCount);
 			wwt.make_freqs_from_freq_range(Math.min(minFreq, maxFreq), Math
 					.max(minFreq, maxFreq), deltaFreq);
 			wwt.execute();
+			if (wwt.isCancelled()) {
+				throw new CancellationException("WWZ "
+						+ LocaleProps.get("CANCELLED"));
+			}
 		} else {
 			throw new CancellationException("WWZ "
 					+ LocaleProps.get("CANCELLED"));

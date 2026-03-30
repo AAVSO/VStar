@@ -19,6 +19,11 @@ package org.aavso.tools.vstar.util.period.wwz;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
@@ -55,6 +60,14 @@ import org.aavso.tools.vstar.util.IAlgorithm;
  */
 public class WeightedWaveletZTransform implements IAlgorithm {
 
+	/** For benchmark only: use legacy Gauss-Jordan matinv instead of closed-form. Package visibility for tests. */
+	static boolean useLegacyMatinv = false;
+	private static final double WEIGHT_CUTOFF = 1.0e-9;
+	private static final double NEG_LOG_WEIGHT_CUTOFF = -Math.log(WEIGHT_CUTOFF);
+	private static final int MAX_AVAILABLE_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors());
+	private static final long MIN_PARALLEL_GRID_POINTS = 5000L;
+	private static final int MIN_PARALLEL_OBSERVATIONS = 1000;
+
 	// Observations to be analysed.
 	private List<ValidObservation> obs;
 
@@ -71,7 +84,6 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	private double maxWWZ;
 
 	private double dcon;
-	private double dmat[][] = new double[3][3];
 	private double dt[];
 	private double dx[];
 	private double fhi;
@@ -82,7 +94,9 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	private int numdat;
 	private double tau[];
 
-	private boolean interrupted;
+	private volatile boolean interrupted;
+	private volatile boolean cancelled;
+	private int threadCount;
 
 	/**
 	 * Constructor
@@ -115,7 +129,11 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 
 		maketau(timeDivisions);
 
+		// Default to the maximum available cores; UI can override via setThreadCount().
+		threadCount = MAX_AVAILABLE_THREADS;
+
 		interrupted = false;
+		cancelled = false;
 	}
 
 	/**
@@ -145,16 +163,72 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	@Override
 	public void execute() throws AlgorithmError {
 		interrupted = false;
+		cancelled = false;
 		try {
 			wwt();
 			computeMinAndMaxValues();
 		} catch (InterruptedException e) {
-			// Do nothing; just return.
+			cancelled = true;
+			stats = new ArrayList<WWZStatistic>();
+			maximalStats = new ArrayList<WWZStatistic>();
+		} catch (RuntimeException e) {
+			stats = new ArrayList<WWZStatistic>();
+			maximalStats = new ArrayList<WWZStatistic>();
+			throw new AlgorithmError(e.getMessage() != null ? e.getMessage() : "WWZ runtime failure");
 		}
 	}
 
 	public void interrupt() {
 		interrupted = true;
+	}
+
+	/**
+	 * Number of threads (cores) to use for WWZ execution.
+	 * <p>
+	 * This controls threaded WWZ execution. Values are clamped to
+	 * [1, maxAvailableThreads]. A workload heuristic may still run effectively
+	 * single-threaded for small jobs.
+	 * </p>
+	 *
+	 * @param threadCount desired number of threads/cores
+	 */
+	public void setThreadCount(int threadCount) {
+		if (threadCount < 1) {
+			this.threadCount = 1;
+		} else if (threadCount > MAX_AVAILABLE_THREADS) {
+			this.threadCount = MAX_AVAILABLE_THREADS;
+		} else {
+			this.threadCount = threadCount;
+		}
+	}
+
+	/**
+	 * @return configured number of threads (cores) for WWZ execution.
+	 */
+	public int getThreadCount() {
+		return threadCount;
+	}
+
+	/**
+	 * @return true if the last execute() call was cancelled/interrupted.
+	 */
+	public boolean isCancelled() {
+		return cancelled;
+	}
+
+	/**
+	 * @return maximum available threads (cores) detected at runtime.
+	 */
+	public int getMaxAvailableThreads() {
+		return MAX_AVAILABLE_THREADS;
+	}
+
+	/**
+	 * Recommended thread count for UI defaults. This reflects machine capacity;
+	 * execute() applies a workload heuristic and may still choose fewer threads.
+	 */
+	public static int getRecommendedThreadCount() {
+		return MAX_AVAILABLE_THREADS;
 	}
 
 	/**
@@ -399,56 +473,86 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	}
 
 	/**
-	 * Invert the matrix of the wwz equations...
+	 * Invert a 3x3 symmetric matrix in place.
 	 */
-	private void matinv() throws InterruptedException {
-		double dsol[][] = new double[3][3];// (0:2,0:2);
+	private void matinv(double[][] mat) throws InterruptedException {
+		if (useLegacyMatinv) {
+			matinvGaussJordan(mat);
+			return;
+		}
+		double a = mat[0][0], b = mat[0][1], c = mat[0][2];
+		double d = mat[1][1], e = mat[1][2], f = mat[2][2];
+
+		double det = a * (d * f - e * e) - b * (b * f - c * e) + c * (b * e - c * d);
+		if (Math.abs(det) <= 1.0e-14) {
+			return;
+		}
+		double invDet = 1.0 / det;
+
+		if (interrupted) {
+			throw new InterruptedException();
+		}
+
+		double a00 = (d * f - e * e) * invDet;
+		double a01 = (c * e - b * f) * invDet;
+		double a02 = (b * e - c * d) * invDet;
+		double a11 = (a * f - c * c) * invDet;
+		double a12 = (c * b - a * e) * invDet;
+		double a22 = (a * d - b * b) * invDet;
+
+		mat[0][0] = a00;
+		mat[0][1] = a01;
+		mat[0][2] = a02;
+		mat[1][0] = a01;
+		mat[1][1] = a11;
+		mat[1][2] = a12;
+		mat[2][0] = a02;
+		mat[2][1] = a12;
+		mat[2][2] = a22;
+	}
+
+	/** Legacy Gauss-Jordan 3x3 in-place inverse; used only when useLegacyMatinv is true (benchmark). */
+	private void matinvGaussJordan(double[][] mat) throws InterruptedException {
+		double dsol[][] = new double[3][3];
 		double dfac;
-
 		int ndim = 2;
-
 		for (int i = 0; i <= 2; i++) {
 			for (int j = 0; j <= 2; j++) {
 				dsol[i][j] = 0.0;
 			}
 			dsol[i][i] = 1.0;
-			
 			if (interrupted) {
 				throw new InterruptedException();
 			}
 		}
-
 		for (int i = 0; i <= ndim; i++) {
-			if (dmat[i][i] == 0.0) {
+			if (mat[i][i] == 0.0) {
 				if (i == ndim)
 					return;
 				for (int j = i + 1; j <= ndim; j++) {
-					if (dmat[j][i] != 0.0) {
+					if (mat[j][i] != 0.0) {
 						for (int k = 0; k <= ndim; k++) {
-							dmat[i][k] = dmat[i][k] + dmat[j][k];
-							dsol[i][j] = dsol[i][j] + dsol[j][k];
+							mat[i][k] = mat[i][k] + mat[j][k];
+							dsol[i][k] = dsol[i][k] + dsol[j][k];
 						}
 					}
 				}
-				
 				if (interrupted) {
 					throw new InterruptedException();
 				}
 			}
-			
-			dfac = dmat[i][i];
+			dfac = mat[i][i];
 			for (int j = 0; j <= ndim; j++) {
-				dmat[i][j] = dmat[i][j] / dfac;
+				mat[i][j] = mat[i][j] / dfac;
 				dsol[i][j] = dsol[i][j] / dfac;
 			}
 			for (int j = 0; j <= ndim; j++) {
 				if (j != i) {
-					dfac = dmat[j][i];
+					dfac = mat[j][i];
 					for (int k = 0; k <= ndim; k++) {
-						dmat[j][k] = dmat[j][k] - (dmat[i][k] * dfac);
+						mat[j][k] = mat[j][k] - (mat[i][k] * dfac);
 						dsol[j][k] = dsol[j][k] - (dsol[i][k] * dfac);
 					}
-					
 					if (interrupted) {
 						throw new InterruptedException();
 					}
@@ -457,9 +561,8 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 		}
 		for (int i = 0; i <= ndim; i++) {
 			for (int j = 0; j <= ndim; j++) {
-				dmat[i][j] = dsol[i][j];
+				mat[i][j] = dsol[i][j];
 			}
-			
 			if (interrupted) {
 				throw new InterruptedException();
 			}
@@ -467,38 +570,105 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	}
 
 	private void wwt() throws InterruptedException {
+		final WWZStatistic[] statsOut = new WWZStatistic[ntau * nfreq];
+		final WWZStatistic[] maxOut = new WWZStatistic[ntau];
+		final int effectiveThreadCount = getEffectiveThreadCount();
+
+		if (effectiveThreadCount <= 1 || ntau <= 1) {
+			processTauRange(1, ntau, statsOut, maxOut);
+		} else {
+			int threads = Math.min(effectiveThreadCount, ntau);
+			ExecutorService executor = Executors.newFixedThreadPool(threads);
+			List<Future<Void>> futures = new ArrayList<Future<Void>>();
+			int chunk = (ntau + threads - 1) / threads;
+			for (int t = 0; t < threads; t++) {
+				final int tauStart = 1 + t * chunk;
+				final int tauEnd = Math.min(ntau, tauStart + chunk - 1);
+				if (tauStart > tauEnd) {
+					continue;
+				}
+				futures.add(executor.submit(new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						processTauRange(tauStart, tauEnd, statsOut, maxOut);
+						return null;
+					}
+				}));
+			}
+			try {
+				for (Future<Void> f : futures) {
+					f.get();
+				}
+			} catch (ExecutionException e) {
+				Throwable cause = e.getCause();
+				interrupted = true;
+				if (cause instanceof InterruptedException) {
+					throw (InterruptedException) cause;
+				}
+				throw new RuntimeException(cause);
+			} catch (InterruptedException e) {
+				interrupted = true;
+				throw e;
+			} finally {
+				executor.shutdownNow();
+			}
+		}
+
+		stats = new ArrayList<WWZStatistic>(statsOut.length);
+		maximalStats = new ArrayList<WWZStatistic>(maxOut.length);
+		for (WWZStatistic stat : statsOut) {
+			if (stat != null) {
+				stats.add(stat);
+			}
+		}
+		for (WWZStatistic maxStat : maxOut) {
+			if (maxStat != null) {
+				maximalStats.add(maxStat);
+			}
+		}
+	}
+
+	private int getEffectiveThreadCount() {
+		if (threadCount <= 1) {
+			return 1;
+		}
+		long gridPoints = (long) ntau * (long) Math.max(1, nfreq);
+		if (gridPoints < MIN_PARALLEL_GRID_POINTS || numdat < MIN_PARALLEL_OBSERVATIONS) {
+			return 1;
+		}
+		return threadCount;
+	}
+
+	private void processTauRange(int itau1, int itau2, WWZStatistic[] statsOut, WWZStatistic[] maxOut)
+			throws InterruptedException {
 		double dvec[] = new double[3];
 		double dcoef[] = new double[3];
+		double[][] dmat = new double[3][3];
 		int itau, ifreq, idat;
 		double domega, dweight2, dz, dweight;
 		double dcc, dcw, dss, dsw, dxw, dvarw;
 		double dtau;
 		double dpower, dpowz, damp, dneff, davew;
 		double dfre;
-		// dnefff should probably be dneff, but we'll keep it for strict
-		// consistency...
-		// TODO: Is the use of this variable a bug? It is set to zero once below
-		// but never used otherwise. It may be that it should be dneff indeed!
-		double dnefff;
+		// NOTE: Older translations of Foster's code carried a variable named
+		// 'dnefff' (likely a typo for 'dneff'). It is unused in this Java
+		// implementation; WWZ uses 'dneff' throughout.
 		int n1, n2;
 
 		double dmz, dmfre, dmamp, dmcon, dmneff;
 
-		dvarw = 0.0; // TODO: added
-		dweight2 = 0.0; // TODO: added
-		dfre = 0.0; // TODO: added
+		//dvarw = 0.0; // TODO: added
+		//dweight2 = 0.0; // TODO: added
+		//dfre = 0.0; // TODO: added
 
 		double twopi = 2.0 * Math.PI;
+		double dz2Cutoff = (dcon > 0.0) ? (NEG_LOG_WEIGHT_CUTOFF / dcon) : Double.POSITIVE_INFINITY;
 
 		int ndim = 2;
-		int itau1 = 1;
-		int itau2 = ntau;
 		int ifreq1 = 1;
 		int ifreq2 = nfreq;
-		int nstart = 1;
 
 		for (itau = itau1; itau <= itau2; itau++) {
-			nstart = 1;
 			dtau = tau[itau];
 
 			// TODO: added
@@ -512,6 +682,14 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 			for (ifreq = ifreq1; ifreq <= ifreq2; ifreq++) {
 				dfre = freq[ifreq];
 				domega = dfre * twopi;
+				double domega2 = domega * domega;
+				int idatStart = 1;
+				int idatEnd = numdat;
+				if (dcon > 0.0 && domega2 > 0.0) {
+					double dtWindow = Math.sqrt(NEG_LOG_WEIGHT_CUTOFF / (dcon * domega2));
+					idatStart = lowerBoundDt(dtau - dtWindow);
+					idatEnd = upperBoundDt(dtau + dtWindow);
+				}
 				for (int i = 0; i <= ndim; i++) {
 					dvec[i] = 0.0;
 					for (int j = 0; j <= ndim; j++) {
@@ -522,12 +700,15 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 						throw new InterruptedException();
 					}
 				}
-				dweight2 = 0.0;
 
-				for (idat = nstart; idat <= numdat; idat++) {
+				dweight2 = 0.0;
+				dvarw = 0.0; // Reset variance accumulator for each frequency (fixes WWZ after gaps; ticket #328)
+
+				for (idat = idatStart; idat <= idatEnd; idat++) {
 					dz = domega * (dt[idat] - dtau);
-					dweight = Math.exp(-1.0 * dcon * dz * dz);
-					if (dweight > 1.0e-9) {
+					double dz2 = dz * dz;
+					if (dz2 < dz2Cutoff) {
+						dweight = Math.exp(-1.0 * dcon * dz2);
 						dcc = Math.cos(dz);
 						dcw = dweight * dcc;
 						dss = Math.sin(dz);
@@ -544,10 +725,6 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 						dvarw = dvarw + (dxw * dx[idat]);
 						dvec[1] = dvec[1] + (dcw * dx[idat]);
 						dvec[2] = dvec[2] + (dsw * dx[idat]);
-					} else if (dz > 0.0) {
-						break;
-					} else {
-						nstart = idat + 1;
 					}
 				}
 
@@ -596,7 +773,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 						}
 					}
 
-					matinv();
+					matinv(dmat);
 
 					for (n1 = 0; n1 <= ndim; n1++) {
 						for (n2 = 0; n2 <= ndim; n2++) {
@@ -617,8 +794,6 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 					dpower = 0.0;
 					damp = 0.0;
 					if (dneff < 1.0e-9)
-						// TODO: this looks like a bug! should be dneff
-						// dnefff = 0.0;
 						dneff = 0.0;
 				}
 
@@ -641,7 +816,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 				WWZStatistic stat = new WWZStatistic(dtau, dfre, dpowz, damp,
 						dcoef[0], dneff);
 
-				stats.add(stat);
+				statsOut[(itau - 1) * nfreq + (ifreq - 1)] = stat;
 
 				if (dpowz > dmz) {
 					dmz = dpowz;
@@ -656,7 +831,48 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 			WWZStatistic maximalStat = new WWZStatistic(dtau, dmfre, dmz,
 					dmamp, dmcon, dmneff);
 
-			maximalStats.add(maximalStat);
+			maxOut[itau - 1] = maximalStat;
 		}
+	}
+
+	/**
+	 * 1-based lower-bound search on dt[] (inclusive) for the first index with dt[i] >= value.
+	 */
+	private int lowerBoundDt(double value) {
+		int lo = 1;
+		int hi = numdat;
+		int ans = numdat + 1;
+		while (lo <= hi) {
+			int mid = (lo + hi) >>> 1;
+			if (dt[mid] >= value) {
+				ans = mid;
+				hi = mid - 1;
+			} else {
+				lo = mid + 1;
+			}
+		}
+		if (ans > numdat) {
+			return numdat + 1;
+		}
+		return ans;
+	}
+
+	/**
+	 * 1-based upper-bound search on dt[] (inclusive) for the last index with dt[i] <= value.
+	 */
+	private int upperBoundDt(double value) {
+		int lo = 1;
+		int hi = numdat;
+		int ans = 0;
+		while (lo <= hi) {
+			int mid = (lo + hi) >>> 1;
+			if (dt[mid] <= value) {
+				ans = mid;
+				lo = mid + 1;
+			} else {
+				hi = mid - 1;
+			}
+		}
+		return ans;
 	}
 }

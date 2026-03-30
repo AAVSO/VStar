@@ -78,19 +78,30 @@ public class WeightedWaveletZTransformWithPeriodRangePlugin extends
 
 		if (!paramDialog.isCancelled()) {
 			double minPeriod, maxPeriod, deltaPeriod, decay, timeDivisions;
+			int threadCount;
 
 			currMinPeriod = minPeriod = minPeriodField.getValue();
 			currMaxPeriod = maxPeriod = maxPeriodField.getValue();
 			currDeltaPeriod = deltaPeriod = deltaPeriodField.getValue();
 			currDecay = decay = decayField.getValue();
 			currTimeDivisions = timeDivisions = timeDivisionsField.getValue();
+			Integer threadCountValue = threadCountField.getValue();
+			if (threadCountValue == null) {
+				threadCountValue = WeightedWaveletZTransform.getRecommendedThreadCount();
+			}
+			currThreadCount = threadCount = threadCountValue;
 
 			// TODO: ask about number of periods > 1000 via dialog?
 
 			wwt = new WeightedWaveletZTransform(obs, decay, timeDivisions);
+			wwt.setThreadCount(threadCount);
 			wwt.make_freqs_from_period_range(Math.min(minPeriod, maxPeriod),
 					Math.max(minPeriod, maxPeriod), deltaPeriod);
 			wwt.execute();
+			if (wwt.isCancelled()) {
+				throw new CancellationException("WWZ "
+						+ LocaleProps.get("CANCELLED"));
+			}
 		} else {
 			throw new CancellationException("WWZ "
 					+ LocaleProps.get("CANCELLED"));
