@@ -65,7 +65,7 @@ public class BJDConverter extends ObservationToolPluginBase {
 	 */
 	@Override
 	public String getDocName() {
-		return "BJD Converter.pdf";
+		return "BJD_TDB Converter.pdf";
 	}
 
 	@Override
