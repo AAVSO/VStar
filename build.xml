@@ -1,4 +1,5 @@
-<project name="VStar" default="dist" basedir=".">
+<project name="VStar" default="dist" basedir="."
+	xmlns:jacoco="antlib:org.jacoco.ant">
 	<description>
         Ant build file for VStar.
     </description>
@@ -27,6 +28,7 @@
 	<property name="extlib" location="extlib" />
 	<property name="ui_resources" location="src/org/aavso/tools/vstar/ui/resources" />
 	<property name="test_report" location="test_report" />
+	<property name="coverage_report" location="test_report/coverage" />
 	<property name="doc" location="doc" />
 	<property name="javadoc" location="doc/vstar_docs" />
 	<property name="mac_identity" value="P433N2A49C" />
@@ -34,11 +36,11 @@
 	<!-- Classpaths -->
 
 	<path id="build.classpath">
-		<fileset dir="${extlib}" includes="*.jar" excludes="junit*.jar,hamcrest*.jar,testng*.jar,quicktheories*.jar,pitest*.jar" />
+		<fileset dir="${extlib}" includes="*.jar" excludes="junit*.jar,hamcrest*.jar,testng*.jar,quicktheories*.jar,pitest*.jar,jacocoant.jar" />
 	</path>
 
 	<path id="test.classpath">
-		<fileset dir="${extlib}" includes="*.jar" />
+		<fileset dir="${extlib}" includes="*.jar" excludes="jacocoant.jar" />
 		<pathelement location="${dist}/vstar.jar" />
 		<pathelement path="${test_build}" />
 	</path>
@@ -53,6 +55,10 @@
 	<!-- Task definitions -->
 
 	<taskdef name="pitest" classname="org.pitest.ant.PitestTask" classpathref="pitest.classpath" />
+
+	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+		<classpath path="${extlib}/jacocoant.jar" />
+	</taskdef>
 
 	<target name="init">
 		<!-- Create the time stamp -->
@@ -398,6 +404,94 @@
 		</fail>
 	</target>
 
+	<target name="test-coverage" depends="compile_ut" description="Run unit tests with JaCoCo coverage">
+		<jacoco:coverage destfile="${test_report}/jacoco.exec">
+			<junit fork="yes" printsummary="withOutAndErr" showoutput="true" timeout="1800000">
+				<formatter type="plain" />
+
+				<jvmarg value="-ea" />
+
+				<formatter type="plain" />
+
+				<batchtest todir="${test_report}" unless="testcase">
+					<fileset dir="${test}">
+						<include name="org/**/*Test.java" />
+					</fileset>
+				</batchtest>
+
+				<classpath refid="test.classpath" />
+			</junit>
+		</jacoco:coverage>
+	</target>
+
+	<target name="coverage-report" depends="test-coverage" description="Generate JaCoCo coverage report (HTML + XML)">
+		<mkdir dir="${coverage_report}" />
+		<jacoco:report>
+			<executiondata>
+				<file file="${test_report}/jacoco.exec" />
+			</executiondata>
+			<structure name="VStar">
+				<classfiles>
+					<fileset dir="${src_build}" />
+				</classfiles>
+				<sourcefiles encoding="UTF-8">
+					<fileset dir="${src}" />
+				</sourcefiles>
+			</structure>
+			<html destdir="${coverage_report}" />
+			<xml destfile="${coverage_report}/coverage.xml" />
+			<csv destfile="${coverage_report}/coverage.csv" />
+		</jacoco:report>
+		<echo message="Coverage report: ${coverage_report}/index.html" />
+
+		<!-- JaCoCo XML references report.dtd; Ant's XSLT parser needs it beside coverage.xml -->
+		<property name="jacoco.report.dtd.tmp" location="${coverage_report}/jacoco-dtd-extract" />
+		<delete dir="${jacoco.report.dtd.tmp}" />
+		<mkdir dir="${jacoco.report.dtd.tmp}" />
+		<unzip src="${extlib}/jacocoant.jar" dest="${jacoco.report.dtd.tmp}">
+			<patternset>
+				<include name="org/jacoco/report/xml/report.dtd" />
+			</patternset>
+		</unzip>
+		<copy file="${jacoco.report.dtd.tmp}/org/jacoco/report/xml/report.dtd" tofile="${coverage_report}/report.dtd" />
+		<delete dir="${jacoco.report.dtd.tmp}" />
+
+		<!-- Text coverage summary -->
+		<xslt in="${coverage_report}/coverage.xml"
+			  out="${coverage_report}/summary.txt"
+			  style="script/coverage_summary.xsl" />
+		<concat>
+			<fileset file="${coverage_report}/summary.txt" />
+		</concat>
+
+		<!-- Generate summary and fail on test errors/failures -->
+		<concat destfile="${test_report}/summary.txt">
+			<header filtering="no" trimleading="yes">
+    		          Test Summary
+    		          ============
+    		    </header>
+			<path>
+				<fileset dir="${test_report}" includes="TEST-org*" />
+			</path>
+			<filterchain>
+				<linecontains>
+					<contains value="Tests run:" />
+				</linecontains>
+			</filterchain>
+		</concat>
+
+		<exec command="cat ${test_report}/summary.txt" />
+
+		<fileset id="coverage.build.failures" file="${test_report}/summary.txt">
+			<containsregexp expression="(Errors|Failures): [123456789]+" />
+		</fileset>
+		<fail status="1" message="One or more failures detected">
+			<condition>
+				<resourcecount when="greater" count="0" refid="coverage.build.failures" />
+			</condition>
+		</fail>
+	</target>
+
 	<target name="pit" depends="test">
 		<path id="mutation.path">
 			<path refid="pitest.classpath" />
@@ -436,6 +530,8 @@
 			<fileset file="*.exe" />
 			<fileset file="*.bat" />
 			<fileset dir="${mutation_coverage_dir}" />
+			<fileset dir="${coverage_report}" />
+			<fileset file="${test_report}/jacoco.exec" />
 		</delete>
 	</target>
 </project>
