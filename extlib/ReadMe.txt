@@ -73,6 +73,13 @@ as part of a VStar release.
     - quicktheories-0.26.jar
     - https://github.com/quicktheories/QuickTheories
 
+For line and branch coverage reporting, JaCoCo is used.
+
+  o JaCoCo code coverage library
+    - https://www.jacoco.org/jacoco/
+    - jacocoant.jar (0.8.14)
+    - Eclipse Public License 2.0
+
 For mutation testing, additional libraries are required.
 
   o pitest mutation testing framework
