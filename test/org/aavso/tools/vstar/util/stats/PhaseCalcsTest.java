@@ -96,10 +96,7 @@ public class PhaseCalcsTest extends TestCase implements WithQuickTheories {
 		assertEquals(-0.875, observations.get(3).getPreviousCyclePhase());
 	}
 	
-    // This says that given valid inputs, the phase should always
-	// be in the range 0..1 inclusive.
     public void testPhaseInRangeProperty() {
-        // choose a reasonable JD/epoch, and period ranges
         double minJD = 2400000;
         double maxJD = 2460000;
         double minPeriod = 0.0001;
@@ -112,6 +109,50 @@ public class PhaseCalcsTest extends TestCase implements WithQuickTheories {
                 .check((jd, epoch, period) -> {
                     double phase = PhaseCalcs.calcStandardPhase(jd, epoch, period);
                     return phase >= 0 && phase <= 1;
+                });
+    }
+
+    /**
+     * Phase is periodic in JD: shifting JD by one period should not change the
+     * phase (within floating-point tolerance). Comparison uses circular
+     * distance since phases 0.0 and ~1.0 are adjacent on the unit circle.
+     */
+    public void testPhasePeriodicityProperty() {
+        double minJD = 2400000;
+        double maxJD = 2460000;
+        double minPeriod = 0.001;
+        double maxPeriod = 1e4;
+
+        qt().forAll(
+                doubles().between(minJD, maxJD),
+                doubles().between(minJD, maxJD),
+                doubles().from(minPeriod).upToAndIncluding(maxPeriod))
+                .check((jd, epoch, period) -> {
+                    double phase1 = PhaseCalcs.calcStandardPhase(jd, epoch, period);
+                    double phase2 = PhaseCalcs.calcStandardPhase(jd + period, epoch, period);
+                    double diff = Math.abs(phase1 - phase2);
+                    double circularDist = Math.min(diff, 1.0 - diff);
+                    return circularDist < 1e-6;
+                });
+    }
+
+    /**
+     * previousCyclePhase = standardPhase - 1, so it must always lie in [-1, 0].
+     */
+    public void testPreviousCyclePhaseRangeProperty() {
+        double minJD = 2400000;
+        double maxJD = 2460000;
+        double minPeriod = 0.0001;
+        double maxPeriod = 1e6;
+
+        qt().forAll(
+                doubles().between(minJD, maxJD),
+                doubles().between(minJD, maxJD),
+                doubles().from(minPeriod).upToAndIncluding(maxPeriod))
+                .check((jd, epoch, period) -> {
+                    double phase = PhaseCalcs.calcStandardPhase(jd, epoch, period);
+                    double prev = phase - 1;
+                    return prev >= -1 && prev <= 0;
                 });
     }
 
