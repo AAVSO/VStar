@@ -60,4 +60,4 @@ jobs:
       uses: lcollins/spotbugs-github-action@v3.2.0
       with:
         path: '**/spotbugsXml.xml'
-        failOnBug: false
+        fail-on-violation: false
