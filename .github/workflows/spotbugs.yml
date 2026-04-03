@@ -13,9 +13,6 @@ jobs:
 
     name: SpotBugs Static Analysis
 
-    env:
-      SPOTBUGS_VERSION: "4.9.3"
-
     steps:
     - uses: actions/checkout@v4
 
@@ -30,23 +27,8 @@ jobs:
         mkdir -p ~/vstar_plugins
         mkdir -p ~/vstar_plugin_libs
 
-    - name: Cache SpotBugs installation
-      id: cache-spotbugs
-      uses: actions/cache@v4
-      with:
-        path: spotbugs-${{ env.SPOTBUGS_VERSION }}
-        key: spotbugs-${{ env.SPOTBUGS_VERSION }}
-
-    - name: Download SpotBugs
-      if: steps.cache-spotbugs.outputs.cache-hit != 'true'
-      run: |
-        wget -q "https://github.com/spotbugs/spotbugs/releases/download/${SPOTBUGS_VERSION}/spotbugs-${SPOTBUGS_VERSION}.tgz"
-        tar xzf "spotbugs-${SPOTBUGS_VERSION}.tgz"
-
     - name: Run SpotBugs
-      run: >
-        ant -noinput -buildfile build.xml spotbugs
-        -Dspotbugs.home=${{ github.workspace }}/spotbugs-${{ env.SPOTBUGS_VERSION }}
+      run: ant -noinput -buildfile build.xml spotbugs
 
     - name: Upload SpotBugs report
       if: always()

@@ -503,12 +503,12 @@
 
 	<!-- Static analysis targets -->
 
+	<property name="spotbugs.home" location="tools/spotbugs" />
+
 	<taskdef resource="edu/umd/cs/findbugs/anttask/tasks.properties"
-		classpath="${extlib}/spotbugs-ant-4.9.3.jar" />
+		classpath="${spotbugs.home}/lib/spotbugs-ant.jar" />
 
 	<target name="spotbugs" depends="dist" description="Run SpotBugs static analysis">
-		<fail unless="spotbugs.home"
-			message="spotbugs.home must be set, e.g. ant spotbugs -Dspotbugs.home=/path/to/spotbugs-4.9.3" />
 		<property name="spotbugs.report" location="${test_report}/spotbugs" />
 		<mkdir dir="${spotbugs.report}" />
 

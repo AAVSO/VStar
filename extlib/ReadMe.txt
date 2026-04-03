@@ -80,14 +80,13 @@ For line and branch coverage reporting, JaCoCo is used.
     - jacocoant.jar (0.8.14)
     - Eclipse Public License 2.0
 
-For static analysis with SpotBugs, the Ant task jar is included here.
-A full SpotBugs installation (4.9.3+) is required and its path must
-be provided via -Dspotbugs.home=... when running the Ant target.
-See https://spotbugs.github.io for installation.
+For static analysis with SpotBugs, the full distribution is bundled
+under tools/spotbugs/ and used by the spotbugs Ant target. Run with:
+  ant spotbugs
 
-  o SpotBugs static analysis
+  o SpotBugs static analysis (4.9.3)
     - https://spotbugs.github.io
-    - spotbugs-ant-4.9.3.jar
+    - tools/spotbugs/lib/
     - GNU Lesser General Public License, version 2.1
 
 For mutation testing, additional libraries are required.
