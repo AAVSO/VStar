@@ -501,6 +501,48 @@
 		<pitest features="+EXPORT" threads="2" pitClasspath="pitest.classpath" classPath="mutation.path" targetClasses="org.aavso.tools.vstar.*" targetTests="org.aavso.tools.vstar.*" excludedtestclasses="org.aavso.tools.vstar.util.period.dcdft.*,org.aavso.tools.vstar.util.stats.DescStatsTest,org.aavso.tools.vstar.util.stats.anova.*" reportDir="${mutation_coverage_dir}" sourceDir="${src}" />
 	</target>
 
+	<!-- Static analysis targets -->
+
+	<taskdef resource="edu/umd/cs/findbugs/anttask/tasks.properties"
+		classpath="${extlib}/spotbugs-ant-4.9.3.jar" />
+
+	<target name="spotbugs" depends="dist" description="Run SpotBugs static analysis">
+		<fail unless="spotbugs.home"
+			message="spotbugs.home must be set, e.g. ant spotbugs -Dspotbugs.home=/path/to/spotbugs-4.9.3" />
+		<property name="spotbugs.report" location="${test_report}/spotbugs" />
+		<mkdir dir="${spotbugs.report}" />
+
+		<spotbugs home="${spotbugs.home}"
+			output="xml:withMessages"
+			outputFile="${spotbugs.report}/spotbugsXml.xml"
+			effort="max"
+			reportLevel="medium"
+			jvmargs="-Xmx1024m">
+			<class location="${dist}/vstar.jar" />
+			<auxClasspath>
+				<fileset dir="${extlib}" includes="*.jar"
+					excludes="junit*.jar,hamcrest*.jar,testng*.jar,quicktheories*.jar,pitest*.jar,jacocoant.jar,spotbugs*.jar" />
+			</auxClasspath>
+			<sourcePath path="${src}" />
+		</spotbugs>
+
+		<spotbugs home="${spotbugs.home}"
+			output="html"
+			outputFile="${spotbugs.report}/spotbugs.html"
+			effort="max"
+			reportLevel="medium"
+			jvmargs="-Xmx1024m">
+			<class location="${dist}/vstar.jar" />
+			<auxClasspath>
+				<fileset dir="${extlib}" includes="*.jar"
+					excludes="junit*.jar,hamcrest*.jar,testng*.jar,quicktheories*.jar,pitest*.jar,jacocoant.jar,spotbugs*.jar" />
+			</auxClasspath>
+			<sourcePath path="${src}" />
+		</spotbugs>
+
+		<echo message="SpotBugs report: ${spotbugs.report}/spotbugs.html" />
+	</target>
+
 	<!-- Documentation targets -->
 
 	<target name="javadoc" description="Javadoc generation">
