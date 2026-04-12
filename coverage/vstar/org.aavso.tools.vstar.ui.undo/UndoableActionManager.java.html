@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UndoableActionManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.undo</a> &gt; <span class="el_source">UndoableActionManager.java</span></div><h1>UndoableActionManager.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.undo;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.MultipleObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.UndoableActionType;
+import org.aavso.tools.vstar.ui.task.UndoableActionTask;
+import org.aavso.tools.vstar.util.notification.Listener;
+
+/**
+ * This class manages actions on behalf of other components.
+ */
+public class UndoableActionManager {
+
+	private Set&lt;ValidObservation&gt; selectedObs;
+
+	private Stack&lt;IUndoableAction&gt; undoStack;
+	private Stack&lt;IUndoableAction&gt; redoStack;
+
+	/**
+	 * Constructor.
+	 */
+<span class="nc" id="L50">	public UndoableActionManager() {</span>
+<span class="nc" id="L51">		selectedObs = new HashSet&lt;ValidObservation&gt;();</span>
+<span class="nc" id="L52">		undoStack = new Stack&lt;IUndoableAction&gt;();</span>
+<span class="nc" id="L53">		redoStack = new Stack&lt;IUndoableAction&gt;();</span>
+<span class="nc" id="L54">	}</span>
+
+	/**
+	 * Add an action to the undo or redo stack and notify listeners of this.
+	 * 
+	 * @param action
+	 *            The undoable action.
+	 * @param type
+	 *            The type of action (undo/redo).
+	 */
+	public void addAction(IUndoableAction action, UndoableActionType type) {
+
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		if (type == UndoableActionType.UNDO) {</span>
+<span class="nc" id="L67">			undoStack.add(action);</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">		} else if (type == UndoableActionType.REDO) {</span>
+<span class="nc" id="L69">			redoStack.add(action);</span>
+		}
+
+<span class="nc" id="L72">		UndoActionMessage msg = new UndoActionMessage(this, action, type);</span>
+<span class="nc" id="L73">		Mediator.getInstance().getUndoActionNotifier().notifyListeners(msg);</span>
+<span class="nc" id="L74">	}</span>
+
+	/**
+	 * Clear pending undo/redo actions for actions with the specified display
+	 * string.
+	 * 
+	 * @param displayString
+	 *            The action's display string.
+	 */
+	public void clearPendingAction(String displayString) {
+<span class="nc bnc" id="L84" title="All 2 branches missed.">		if (!isUndoStackEmpty()) {</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">			if (undoStack.peek().getDisplayString().equals(displayString)) {</span>
+<span class="nc" id="L86">				undoStack.pop();</span>
+			}
+		}
+
+<span class="nc bnc" id="L90" title="All 2 branches missed.">		if (!isRedoStackEmpty()) {</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">			if (redoStack.peek().getDisplayString().equals(displayString)) {</span>
+<span class="nc" id="L92">				redoStack.pop();</span>
+			}
+		}
+<span class="nc" id="L95">	}</span>
+
+	/**
+	 * Is the undo stack empty?
+	 * 
+	 * @return Whether or not the undo stack is empty.
+	 */
+	public boolean isUndoStackEmpty() {
+<span class="nc" id="L103">		return undoStack.isEmpty();</span>
+	}
+
+	/**
+	 * Is the redo stack empty?
+	 * 
+	 * @return Whether or not the redo stack is empty.
+	 */
+	public boolean isRedoStackEmpty() {
+<span class="nc" id="L112">		return redoStack.isEmpty();</span>
+	}
+
+	/**
+	 * Execute an undo action if one exists.
+	 */
+	public void executeUndoAction() {
+<span class="nc bnc" id="L119" title="All 2 branches missed.">		if (!undoStack.isEmpty()) {</span>
+<span class="nc" id="L120">			performUndoableAction(undoStack.pop(), UndoableActionType.UNDO);</span>
+		}
+<span class="nc" id="L122">	}</span>
+
+	/**
+	 * Execute a redo action if one exists.
+	 */
+	public void executeRedoAction() {
+<span class="nc bnc" id="L128" title="All 2 branches missed.">		if (!redoStack.isEmpty()) {</span>
+<span class="nc" id="L129">			performUndoableAction(redoStack.pop(), UndoableActionType.REDO);</span>
+		}
+<span class="nc" id="L131">	}</span>
+
+	/**
+	 * Start an asynchronous task to execute an undoable action.
+	 * 
+	 * @param action
+	 *            The undoable action.
+	 * @param type
+	 *            The undoable action type (undo/redo).
+	 */
+	public UndoableActionTask performUndoableAction(IUndoableAction action,
+			UndoableActionType type) {
+
+<span class="nc" id="L144">		UndoableActionTask task = new UndoableActionTask(action, type);</span>
+
+<span class="nc" id="L146">		Mediator.getInstance().getProgressNotifier()</span>
+<span class="nc" id="L147">				.notifyListeners(ProgressInfo.START_PROGRESS);</span>
+<span class="nc" id="L148">		Mediator.getInstance().getProgressNotifier()</span>
+<span class="nc" id="L149">				.notifyListeners(ProgressInfo.BUSY_PROGRESS);</span>
+
+<span class="nc" id="L151">		task.execute();</span>
+
+<span class="nc" id="L153">		return task;</span>
+	}
+
+	// ** Specific actions and related methods. **
+
+	/**
+	 * Exclude the currently selected observation(s).
+	 */
+	public void excludeCurrentSelection() {
+
+<span class="nc bnc" id="L163" title="All 2 branches missed.">		if (!selectedObs.isEmpty()) {</span>
+			// Create an undoable exclusion action.
+<span class="nc" id="L165">			List&lt;ValidObservation&gt; undoObs = new ArrayList&lt;ValidObservation&gt;();</span>
+<span class="nc" id="L166">			undoObs.addAll(selectedObs);</span>
+
+<span class="nc" id="L168">			ObservationExclusionAction action = new ObservationExclusionAction(</span>
+					undoObs, true);
+
+			// Perform the exclusion action, then add its opposite to the undo
+			// stack.
+<span class="nc" id="L173">			action.execute(UndoableActionType.DO);</span>
+<span class="nc" id="L174">			addAction(action, UndoableActionType.UNDO);</span>
+
+			// Now that we have excluded the selected observations,
+			// clear the collection.
+<span class="nc" id="L178">			selectedObs.clear();</span>
+		}
+<span class="nc" id="L180">	}</span>
+
+	// Returns a new star listener.
+	public Listener&lt;NewStarMessage&gt; createNewStarListener() {
+<span class="nc" id="L184">		return new Listener&lt;NewStarMessage&gt;() {</span>
+			@Override
+			public void update(NewStarMessage info) {
+<span class="nc" id="L187">				selectedObs.clear();</span>
+<span class="nc" id="L188">				undoStack.clear();</span>
+<span class="nc" id="L189">				redoStack.clear();</span>
+<span class="nc" id="L190">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L194">				return false;</span>
+			}
+		};
+	}
+
+	// Returns a multiple observation selection listener that collects
+	// observations that have been selected.
+	public Listener&lt;MultipleObservationSelectionMessage&gt; createMultipleObservationSelectionListener() {
+<span class="nc" id="L202">		return new Listener&lt;MultipleObservationSelectionMessage&gt;() {</span>
+			@Override
+			public void update(MultipleObservationSelectionMessage info) {
+<span class="nc" id="L205">				selectedObs.clear();</span>
+<span class="nc" id="L206">				selectedObs.addAll(info.getObservations());</span>
+<span class="nc" id="L207">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L211">				return false;</span>
+			}
+		};
+	}
+
+	// Returns an observation selection listener that collects
+	// the single observation that has been selected.
+	public Listener&lt;ObservationSelectionMessage&gt; createObservationSelectionListener() {
+<span class="nc" id="L219">		return new Listener&lt;ObservationSelectionMessage&gt;() {</span>
+			@Override
+			public void update(ObservationSelectionMessage info) {
+<span class="nc" id="L222">				selectedObs.clear();</span>
+<span class="nc" id="L223">				selectedObs.add(info.getObservation());</span>
+<span class="nc" id="L224">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L228">				return false;</span>
+			}
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

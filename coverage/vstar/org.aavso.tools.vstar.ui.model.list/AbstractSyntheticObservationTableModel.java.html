@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractSyntheticObservationTableModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.model.list</a> &gt; <span class="el_source">AbstractSyntheticObservationTableModel.java</span></div><h1>AbstractSyntheticObservationTableModel.java</h1><pre class="source lang-java linenums">package org.aavso.tools.vstar.ui.model.list;
+
+import java.util.List;
+import java.util.WeakHashMap;
+
+import javax.swing.table.AbstractTableModel;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+
+/**
+ * This class is a base table model for synthetic observation data (e.g. mean,
+ * model, residual).
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public abstract class AbstractSyntheticObservationTableModel extends
+		AbstractTableModel {
+
+	protected List&lt;ValidObservation&gt; obs;
+
+	/**
+	 * A weak reference hash map from observations to row indices. We only want
+	 * this map's entries to exist if they (ValidObservation instances in
+	 * particular) are in use elsewhere.
+	 */
+	protected final WeakHashMap&lt;ValidObservation, Integer&gt; observationToRowIndexMap;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param obs
+	 *            The initial observation data. The data can be updated later
+	 *            by subclasses.
+	 */
+	public AbstractSyntheticObservationTableModel(List&lt;ValidObservation&gt; obs) {
+<span class="nc" id="L35">		super();</span>
+<span class="nc" id="L36">		this.obs = obs;</span>
+<span class="nc" id="L37">		this.observationToRowIndexMap = new WeakHashMap&lt;ValidObservation, Integer&gt;();</span>
+<span class="nc" id="L38">		populateObsToRowMap();</span>
+<span class="nc" id="L39">	}</span>
+
+	/**
+	 * Returns the row index (0..n-1) given an observation.
+	 * 
+	 * @param ob
+	 *            a valid observation whose row index we want.
+	 * @return The observation's row index.
+	 */
+	public Integer getRowIndexFromObservation(ValidObservation ob) {
+<span class="nc" id="L49">		return observationToRowIndexMap.get(ob);</span>
+	}
+
+	/**
+	 * This method returns the underlying data for this table model.
+	 * 
+	 * @return the obs
+	 */
+	public List&lt;ValidObservation&gt; getObs() {
+<span class="nc" id="L58">		return obs;</span>
+	}
+
+	/**
+	 * @see javax.swing.table.TableModel#getColumnCount()
+	 */
+	public abstract int getColumnCount();
+
+	/**
+	 * @see javax.swing.table.TableModel#getRowCount()
+	 */
+	public abstract int getRowCount();
+
+	/**
+	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
+	 */
+	public abstract String getColumnName(int column);
+
+	/**
+	 * @see javax.swing.table.TableModel#getValueAt(int, int)
+	 */
+	public abstract Object getValueAt(int rowIndex, int columnIndex);
+
+	/**
+	 * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
+	 */
+	public abstract Class&lt;?&gt; getColumnClass(int columnIndex);
+
+	protected void populateObsToRowMap() {
+<span class="nc" id="L87">		this.observationToRowIndexMap.clear();</span>
+
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		for (int i = 0; i &lt; obs.size(); i++) {</span>
+<span class="nc" id="L90">			this.observationToRowIndexMap.put(obs.get(i), i);</span>
+		}
+<span class="nc" id="L92">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

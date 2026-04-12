@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Help.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.help</a> &gt; <span class="el_source">Help.java</span></div><h1>Help.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.help;
+
+import java.awt.Desktop;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
+
+import org.aavso.tools.vstar.plugin.IPlugin;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+
+<span class="nc" id="L32">public class Help {</span>
+
+	public static String getAIDWebServiceHelpPage() {
+<span class="nc" id="L35">		return &quot;https://github.com/AAVSO/VStar/wiki/Observation-Source-Plug%E2%80%90ins#load-observations-from-the-aavso-internation-database&quot;;</span>
+	}
+
+	public static String getAAVSOtextFormatHelpPage() {
+<span class="nc" id="L39">		return &quot;https://github.com/AAVSO/VStar/wiki/Observation-Source-Plug%E2%80%90ins#aavso-download-and-simple-formats-reader&quot;;</span>
+	}
+	
+	public static String getAAVSOtextFormatSinkHelpPage() {
+<span class="nc" id="L43">		return &quot;https://github.com/AAVSO/VStar/wiki/Observation-Sink-Plug%E2%80%90ins#aavso-download-and-simple-observation-sinks&quot;;</span>
+	}
+
+	/**
+	 * Open the VStar manual page.
+	 */
+	public static void openVStarManual() {
+<span class="nc" id="L50">		openHelpURLInWebBrowser(&quot;https://github.com/AAVSO/VStar/blob/master/doc/user_manual/VStarUserManual.pdf&quot;);</span>
+<span class="nc" id="L51">	}</span>
+
+	/**
+	 * Open the VStar Web page.
+	 */
+	public static void openVStarWebPage() {
+<span class="nc" id="L57">		openHelpURLInWebBrowser(&quot;https://www.aavso.org/vstar-overview&quot;);</span>
+<span class="nc" id="L58">	}</span>
+	
+	/**
+	 * Plug-in help
+	 */
+	public static void openPluginHelp(String plugin_doc_name) {
+<span class="nc" id="L64">		String urlStr = &quot;https://github.com/AAVSO/VStar/tree/master/plugin/doc/&quot;;</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">		if (plugin_doc_name != null) {</span>
+			// plugin_doc_name can be a file name (without path) resided in the base plug-in doc directory.
+			// In this case it may contain spaces and other special characters.
+			// Or it can be a document URL, in this case, spaces and special characters must be properly encoded (i.e. %20 instead of space).
+			// First, we try to convert the string into URI.
+			// If the conversion was successful, the string is presumably a full document path.
+			// If not, consider it as a file name.
+<span class="nc" id="L72">			URI uri = getURIfromStringSafe(plugin_doc_name);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">			if (uri != null) {</span>
+<span class="nc" id="L74">				urlStr = uri.toString();</span>
+			}
+			else {
+				try {
+<span class="nc" id="L78">					plugin_doc_name = URLEncoder.encode(plugin_doc_name, &quot;UTF-8&quot;).replace(&quot;+&quot;, &quot;%20&quot;);</span>
+<span class="nc" id="L79">				} catch (UnsupportedEncodingException ex) {</span>
+<span class="nc" id="L80">					plugin_doc_name = &quot;&quot;;</span>
+<span class="nc" id="L81">				}</span>
+<span class="nc" id="L82">				urlStr = urlStr += plugin_doc_name;</span>
+			}
+		}
+<span class="nc" id="L85">		openHelpURLInWebBrowser(urlStr);</span>
+<span class="nc" id="L86">	}</span>
+
+	/**
+	 * Plug-in help
+	 */
+	public static void openPluginHelp(IPlugin plugin) {
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		openPluginHelp(plugin != null ? plugin.getDocName() : null);</span>
+<span class="nc" id="L93">	}</span>
+
+	/**
+	 * Open a help page.
+	 */
+	public static void openHelpURLInWebBrowser(final String urlStr) {
+<span class="nc" id="L99">		openURLInWebBrowser(urlStr, &quot;VStar Help&quot;);</span>
+<span class="nc" id="L100">	}</span>
+
+	/**
+	 * Open a web page.
+	 */
+	public static void openURLInWebBrowser(final String urlStr, final String errorTitle) {
+<span class="nc" id="L106">		javax.swing.SwingUtilities.invokeLater(new Runnable() {</span>
+			public void run() {
+				// Try to open a web page in the default web browser.
+<span class="nc bnc" id="L109" title="All 2 branches missed.">				if (Desktop.isDesktopSupported()) {</span>
+<span class="nc" id="L110">					Desktop desktop = Desktop.getDesktop();</span>
+<span class="nc" id="L111">					URL url = null;</span>
+					try {
+<span class="nc" id="L113">						url = new URL(urlStr);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">						if (desktop.isSupported(Desktop.Action.BROWSE)) {</span>
+							try {
+<span class="nc" id="L116">								desktop.browse(url.toURI());</span>
+<span class="nc" id="L117">							} catch (IOException e) {</span>
+<span class="nc" id="L118">								MessageBox.showErrorDialog(errorTitle,</span>
+										&quot;Error reading from '&quot; + urlStr + &quot;'&quot;);
+<span class="nc" id="L120">							} catch (URISyntaxException e) {</span>
+<span class="nc" id="L121">								MessageBox.showErrorDialog(errorTitle,</span>
+										&quot;Invalid address: '&quot; + urlStr + &quot;'&quot;);
+<span class="nc" id="L123">							}</span>
+						}
+<span class="nc" id="L125">					} catch (MalformedURLException e) {</span>
+<span class="nc" id="L126">						MessageBox.showErrorDialog(errorTitle, &quot;Invalid address.&quot;);</span>
+<span class="nc" id="L127">					}</span>
+				}
+<span class="nc" id="L129">			}</span>
+		});
+<span class="nc" id="L131">	}</span>
+
+	private static URI getURIfromStringSafe(String s) {
+		try {
+<span class="nc" id="L135">			return (new URL(s)).toURI();</span>
+<span class="nc" id="L136">		} catch (MalformedURLException ex) {</span>
+<span class="nc" id="L137">			return null;</span>
+<span class="nc" id="L138">		} catch (URISyntaxException ex) {</span>
+<span class="nc" id="L139">			return null;</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

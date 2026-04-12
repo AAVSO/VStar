@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmailUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util</a> &gt; <span class="el_source">EmailUtils.java</span></div><h1>EmailUtils.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util;
+
+import java.awt.Desktop;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+
+/**
+ * Email utility functions.
+ */
+<span class="nc" id="L32">public class EmailUtils {</span>
+
+	/**
+	 * Create email in default email application, if available.
+	 * 
+	 * @param mailTo
+	 *            The recipient's email address
+	 * @param subject
+	 *            The subject of the email
+	 * @param message
+	 *            The body of the email message.
+	 */
+	public static void createEmailMessage(String mailTo, String subject,
+			String message) {
+		try {
+<span class="nc" id="L47">			String encodedSubject = encode(subject);</span>
+<span class="nc" id="L48">			String encodedMessage = encode(message);</span>
+<span class="nc" id="L49">			final String mailURIStr = String.format(</span>
+					&quot;mailto:%s?subject=%s&amp;body=%s&quot;, mailTo, encodedSubject,
+					encodedMessage);
+<span class="nc" id="L52">			final URI mailURI = new URI(mailURIStr);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">			if (Desktop.isDesktopSupported()) {</span>
+<span class="nc" id="L54">				Desktop.getDesktop().mail(mailURI);</span>
+			}
+<span class="nc" id="L56">		} catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L57">			MessageBox.showErrorDialog(&quot;Mail&quot;,</span>
+					&quot;Cannot create email message (encoding error)&quot;);
+<span class="nc" id="L59">		} catch (URISyntaxException e) {</span>
+<span class="nc" id="L60">			MessageBox.showErrorDialog(&quot;Mail&quot;,</span>
+					&quot;Cannot create email message (URI error)&quot;);
+<span class="nc" id="L62">		} catch (IOException e) {</span>
+<span class="nc" id="L63">			MessageBox.showErrorDialog(&quot;Mail&quot;,</span>
+					&quot;Cannot create email message (Mail application error)&quot;);
+<span class="nc" id="L65">		}</span>
+<span class="nc" id="L66">	}</span>
+
+	// Helpers
+
+	private static String encode(String text)
+			throws UnsupportedEncodingException {
+<span class="nc" id="L72">		return URLEncoder.encode(text, &quot;UTF-8&quot;).replace(&quot;+&quot;, &quot;%20&quot;);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NotifyingList.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.notification</a> &gt; <span class="el_source">NotifyingList.java</span></div><h1>NotifyingList.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.notification;
+
+import java.util.List;
+
+/**
+ * This is the abstract base class for all lists with elements of type E 
+ * that will notify listeners with a message of type ListChangeMessage. What 
+ * we are saying here is that we want to be able to have a drop-in replacement 
+ * for any old List&lt;E&gt; that will also provide us with a generic optional 
+ * message notification capability. This class gets the generic message 
+ * notification capability for free but requires realization as a concrete list 
+ * type. This is acceptable so long as the cost of the interface mechanism isn't
+ * too high. Then again, we have that problem with any List&lt;E&gt;. Since subclasses 
+ * are unlikely to invent their own lists, instead realising the interface
+ * by aggregating an ArrayList&lt;E&gt; or LinkedList&lt;E&gt; member, there will be a
+ * double indirection for all list operations. The question that hasn't 
+ * been answered yet is: what is the notification policy? In other words,
+ * we know what will be notified (ListChangeMessage) but not when or why.
+ * The expected behavior of any subclass is that listeners will be notified 
+ * whenever its underlying list changes.
+ */
+<span class="nc" id="L39">public abstract class NotifyingList&lt;E&gt; implements List&lt;E&gt; {</span>
+	
+	protected Notifier&lt;ListChangeMessage&lt;E&gt;&gt; notifier;
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AAVSOFormatRawDataColumnInfoSource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.model.list</a> &gt; <span class="el_source">AAVSOFormatRawDataColumnInfoSource.java</span></div><h1>AAVSOFormatRawDataColumnInfoSource.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.model.list;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
+/**
+ * AAVSO format (file, database) raw data table column information source.
+ */
+public class AAVSOFormatRawDataColumnInfoSource implements ITableColumnInfoSource {
+
+	// Table columns.
+	private static final int TIME_COLUMN = 0;
+	private static final int CALENDAR_DATE_COLUMN = 1;
+	private static final int MAGNITUDE_COLUMN = 2;
+	private static final int UNCERTAINTY_COLUMN = 3;
+	private static final int BAND_COLUMN = 4;
+	private static final int OBSERVER_CODE_COLUMN = 5;
+	private static final int VALFLAG_COLUMN = 6;
+	private static final int COMP_STAR_1_COLUMN = 7;
+	private static final int COMP_STAR_2_COLUMN = 8;
+	private static final int CHARTS_COLUMN = 9;
+	private static final int COMMENT_CODE_COLUMN = 10;
+	private static final int COMMENTS_COLUMN = 11;
+	private static final int TRANSFORMED_COLUMN = 12;
+	private static final int AIRMASS_COLUMN = 13;
+	private static final int CMAG_COLUMN = 14;
+	private static final int KMAG_COLUMN = 15;
+	private static final int HJD_COLUMN = 16;
+	private static final int HQ_UNCERTAINTY_COLUMN = 17;
+	private static final int MTYPE_COLUMN = 18;
+	private static final int OBSTYPE_COLUMN = 19;
+	private static final int GROUP_COLUMN = 20;
+	private static final int AFFILIATION_COLUMN = 21;
+	private static final int ADS_REFERENCE_COLUMN = 22;
+	private static final int DIGITIZER_COLUMN = 23;
+	private static final int CREDIT_COLUMN = 24;
+	private static final int DISCREPANT_COLUMN = 25;
+	private static final int NAME_COLUMN = 26;
+	private static final int LINE_NUM_COLUMN = 27;
+
+<span class="nc" id="L63">	private static final String TIME_COLUMN_NAME = LocaleProps.get(&quot;TIME&quot;);</span>
+	private static final String CALENDAR_DATE_COLUMN_NAME = &quot;Calendar Date&quot;;
+	private static final String MAGNITUDE_COLUMN_NAME = &quot;Magnitude&quot;;
+	private static final String UNCERTAINTY_COLUMN_NAME = &quot;Uncertainty&quot;;
+	private static final String BAND_COLUMN_NAME = &quot;Band&quot;;
+	private static final String OBSERVER_CODE_COLUMN_NAME = &quot;Observer Code&quot;;
+	private static final String VALFLAG_COLUMN_NAME = &quot;Validation&quot;;
+	private static final String COMP_STAR_1_COLUMN_NAME = &quot;Comp Star 1&quot;;
+	private static final String COMP_STAR_2_COLUMN_NAME = &quot;Comp Star 2&quot;;
+	private static final String CHARTS_COLUMN_NAME = &quot;Charts&quot;;
+	private static final String COMMENT_CODE_COLUMN_NAME = &quot;Comment Type&quot;;
+	private static final String COMMENTS_COLUMN_NAME = &quot;Comments&quot;;
+	private static final String TRANSFORMED_COLUMN_NAME = &quot;Transformed&quot;;
+	private static final String AIRMASS_COLUMN_NAME = &quot;Airmass&quot;;
+	private static final String CMAG_COLUMN_NAME = &quot;CMag&quot;;
+	private static final String KMAG_COLUMN_NAME = &quot;KMag&quot;;
+	private static final String HJD_COLUMN_NAME = &quot;HJD&quot;;
+	private static final String HQ_UNCERTAINTY_COLUMN_NAME = &quot;HQ Uncertainty&quot;;
+	private static final String MTYPE_COLUMN_NAME = &quot;MType&quot;;
+	private static final String OBSTYPE_COLUMN_NAME = &quot;Obs Type&quot;;
+	private static final String GROUP_COLUMN_NAME = &quot;Group&quot;;
+	private static final String AFFILIATION_COLUMN_NAME = &quot;Affiliation&quot;;
+	private static final String ADS_REFERENCE_COLUMN_NAME = &quot;ADS Reference&quot;;
+	private static final String DIGITIZER_COLUMN_NAME = &quot;Digitizer&quot;;
+	private static final String CREDIT_COLUMN_NAME = &quot;Credit&quot;;
+	private static final String DISCREPANT_COLUMN_NAME = &quot;Discrepant?&quot;;
+	private static final String NAME_COLUMN_NAME = &quot;Name&quot;;
+	private static final String LINE_NUM_COLUMN_NAME = &quot;Line&quot;;
+
+<span class="nc" id="L92">	protected static final Map&lt;String, Integer&gt; COLUMN_NAMES = new HashMap&lt;String, Integer&gt;();</span>
+
+	static {
+<span class="nc" id="L95">		COLUMN_NAMES.put(TIME_COLUMN_NAME, TIME_COLUMN);</span>
+<span class="nc" id="L96">		COLUMN_NAMES.put(CALENDAR_DATE_COLUMN_NAME, CALENDAR_DATE_COLUMN);</span>
+<span class="nc" id="L97">		COLUMN_NAMES.put(MAGNITUDE_COLUMN_NAME, MAGNITUDE_COLUMN);</span>
+<span class="nc" id="L98">		COLUMN_NAMES.put(UNCERTAINTY_COLUMN_NAME, UNCERTAINTY_COLUMN);</span>
+<span class="nc" id="L99">		COLUMN_NAMES.put(BAND_COLUMN_NAME, BAND_COLUMN);</span>
+<span class="nc" id="L100">		COLUMN_NAMES.put(OBSERVER_CODE_COLUMN_NAME, OBSERVER_CODE_COLUMN);</span>
+<span class="nc" id="L101">		COLUMN_NAMES.put(VALFLAG_COLUMN_NAME, VALFLAG_COLUMN);</span>
+<span class="nc" id="L102">		COLUMN_NAMES.put(COMP_STAR_1_COLUMN_NAME, COMP_STAR_1_COLUMN);</span>
+<span class="nc" id="L103">		COLUMN_NAMES.put(COMP_STAR_2_COLUMN_NAME, COMP_STAR_2_COLUMN);</span>
+<span class="nc" id="L104">		COLUMN_NAMES.put(CHARTS_COLUMN_NAME, CHARTS_COLUMN);</span>
+<span class="nc" id="L105">		COLUMN_NAMES.put(COMMENT_CODE_COLUMN_NAME, COMMENT_CODE_COLUMN);</span>
+<span class="nc" id="L106">		COLUMN_NAMES.put(COMMENTS_COLUMN_NAME, COMMENTS_COLUMN);</span>
+<span class="nc" id="L107">		COLUMN_NAMES.put(TRANSFORMED_COLUMN_NAME, TRANSFORMED_COLUMN);</span>
+<span class="nc" id="L108">		COLUMN_NAMES.put(AIRMASS_COLUMN_NAME, AIRMASS_COLUMN);</span>
+<span class="nc" id="L109">		COLUMN_NAMES.put(CMAG_COLUMN_NAME, CMAG_COLUMN);</span>
+<span class="nc" id="L110">		COLUMN_NAMES.put(KMAG_COLUMN_NAME, KMAG_COLUMN);</span>
+<span class="nc" id="L111">		COLUMN_NAMES.put(HJD_COLUMN_NAME, HJD_COLUMN);</span>
+<span class="nc" id="L112">		COLUMN_NAMES.put(HQ_UNCERTAINTY_COLUMN_NAME, HQ_UNCERTAINTY_COLUMN);</span>
+<span class="nc" id="L113">		COLUMN_NAMES.put(AFFILIATION_COLUMN_NAME, AFFILIATION_COLUMN);</span>
+<span class="nc" id="L114">		COLUMN_NAMES.put(MTYPE_COLUMN_NAME, MTYPE_COLUMN);</span>
+<span class="nc" id="L115">		COLUMN_NAMES.put(OBSTYPE_COLUMN_NAME, OBSTYPE_COLUMN);</span>
+<span class="nc" id="L116">		COLUMN_NAMES.put(DISCREPANT_COLUMN_NAME, DISCREPANT_COLUMN);</span>
+<span class="nc" id="L117">		COLUMN_NAMES.put(NAME_COLUMN_NAME, NAME_COLUMN);</span>
+<span class="nc" id="L118">		COLUMN_NAMES.put(LINE_NUM_COLUMN_NAME, LINE_NUM_COLUMN);</span>
+<span class="nc" id="L119">	}</span>
+
+	protected boolean useLineNumbers;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param useLineNumbers Should line numbers be used?
+	 */
+<span class="nc" id="L128">	public AAVSOFormatRawDataColumnInfoSource(boolean useLineNumbers) {</span>
+<span class="nc" id="L129">		this.useLineNumbers = useLineNumbers;</span>
+<span class="nc" id="L130">	}</span>
+
+	@Override
+	public int getColumnCount() {
+<span class="nc bnc" id="L134" title="All 2 branches missed.">		return useLineNumbers ? LINE_NUM_COLUMN + 1 : LINE_NUM_COLUMN;</span>
+	}
+
+	@Override
+	public Collection&lt;String&gt; getColumnNames() {
+<span class="nc" id="L139">		return COLUMN_NAMES.keySet();</span>
+	}
+
+	@Override
+	public int getDiscrepantColumnIndex() {
+<span class="nc" id="L144">		return DISCREPANT_COLUMN;</span>
+	}
+
+	@Override
+	public String getTableColumnTitle(int index) {
+<span class="nc" id="L149">		String columnName = null;</span>
+
+		// TODO: programmatically create a reverse map!
+
+<span class="nc bnc" id="L153" title="All 29 branches missed.">		switch (index) {</span>
+		case TIME_COLUMN:
+<span class="nc" id="L155">			columnName = TIME_COLUMN_NAME;</span>
+<span class="nc" id="L156">			break;</span>
+		case CALENDAR_DATE_COLUMN:
+<span class="nc" id="L158">			columnName = CALENDAR_DATE_COLUMN_NAME;</span>
+<span class="nc" id="L159">			break;</span>
+		case MAGNITUDE_COLUMN:
+<span class="nc" id="L161">			columnName = MAGNITUDE_COLUMN_NAME;</span>
+<span class="nc" id="L162">			break;</span>
+		case UNCERTAINTY_COLUMN:
+<span class="nc" id="L164">			columnName = UNCERTAINTY_COLUMN_NAME;</span>
+<span class="nc" id="L165">			break;</span>
+		case BAND_COLUMN:
+<span class="nc" id="L167">			columnName = BAND_COLUMN_NAME;</span>
+<span class="nc" id="L168">			break;</span>
+		case OBSERVER_CODE_COLUMN:
+<span class="nc" id="L170">			columnName = OBSERVER_CODE_COLUMN_NAME;</span>
+<span class="nc" id="L171">			break;</span>
+		case VALFLAG_COLUMN:
+<span class="nc" id="L173">			columnName = VALFLAG_COLUMN_NAME;</span>
+<span class="nc" id="L174">			break;</span>
+		case COMP_STAR_1_COLUMN:
+<span class="nc" id="L176">			columnName = COMP_STAR_1_COLUMN_NAME;</span>
+<span class="nc" id="L177">			break;</span>
+		case COMP_STAR_2_COLUMN:
+<span class="nc" id="L179">			columnName = COMP_STAR_2_COLUMN_NAME;</span>
+<span class="nc" id="L180">			break;</span>
+		case CHARTS_COLUMN:
+<span class="nc" id="L182">			columnName = CHARTS_COLUMN_NAME;</span>
+<span class="nc" id="L183">			break;</span>
+		case COMMENT_CODE_COLUMN:
+<span class="nc" id="L185">			columnName = COMMENT_CODE_COLUMN_NAME;</span>
+<span class="nc" id="L186">			break;</span>
+		case COMMENTS_COLUMN:
+<span class="nc" id="L188">			columnName = COMMENTS_COLUMN_NAME;</span>
+<span class="nc" id="L189">			break;</span>
+		case TRANSFORMED_COLUMN:
+<span class="nc" id="L191">			columnName = TRANSFORMED_COLUMN_NAME;</span>
+<span class="nc" id="L192">			break;</span>
+		case AIRMASS_COLUMN:
+<span class="nc" id="L194">			columnName = AIRMASS_COLUMN_NAME;</span>
+<span class="nc" id="L195">			break;</span>
+		case CMAG_COLUMN:
+<span class="nc" id="L197">			columnName = CMAG_COLUMN_NAME;</span>
+<span class="nc" id="L198">			break;</span>
+		case KMAG_COLUMN:
+<span class="nc" id="L200">			columnName = KMAG_COLUMN_NAME;</span>
+<span class="nc" id="L201">			break;</span>
+		case HJD_COLUMN:
+<span class="nc" id="L203">			columnName = HJD_COLUMN_NAME;</span>
+<span class="nc" id="L204">			break;</span>
+		case HQ_UNCERTAINTY_COLUMN:
+<span class="nc" id="L206">			columnName = HQ_UNCERTAINTY_COLUMN_NAME;</span>
+<span class="nc" id="L207">			break;</span>
+		case MTYPE_COLUMN:
+<span class="nc" id="L209">			columnName = MTYPE_COLUMN_NAME;</span>
+<span class="nc" id="L210">			break;</span>
+		case OBSTYPE_COLUMN:
+<span class="nc" id="L212">			columnName = OBSTYPE_COLUMN_NAME;</span>
+<span class="nc" id="L213">			break;</span>
+		case AFFILIATION_COLUMN:
+<span class="nc" id="L215">			columnName = AFFILIATION_COLUMN_NAME;</span>
+<span class="nc" id="L216">			break;</span>
+		case GROUP_COLUMN:
+<span class="nc" id="L218">			columnName = GROUP_COLUMN_NAME;</span>
+<span class="nc" id="L219">			break;</span>
+		case ADS_REFERENCE_COLUMN:
+<span class="nc" id="L221">			columnName = ADS_REFERENCE_COLUMN_NAME;</span>
+<span class="nc" id="L222">			break;</span>
+		case DIGITIZER_COLUMN:
+<span class="nc" id="L224">			columnName = DIGITIZER_COLUMN_NAME;</span>
+<span class="nc" id="L225">			break;</span>
+		case CREDIT_COLUMN:
+<span class="nc" id="L227">			columnName = CREDIT_COLUMN_NAME;</span>
+<span class="nc" id="L228">			break;</span>
+		case DISCREPANT_COLUMN:
+<span class="nc" id="L230">			columnName = DISCREPANT_COLUMN_NAME;</span>
+<span class="nc" id="L231">			break;</span>
+		case NAME_COLUMN:
+<span class="nc" id="L233">			columnName = NAME_COLUMN_NAME;</span>
+<span class="nc" id="L234">			break;</span>
+		case LINE_NUM_COLUMN:
+<span class="nc" id="L236">			columnName = LINE_NUM_COLUMN_NAME;</span>
+			break;
+		}
+
+<span class="nc" id="L240">		return columnName;</span>
+	}
+
+	@Override
+	public Class&lt;?&gt; getTableColumnClass(int index) {
+<span class="nc" id="L245">		Class&lt;?&gt; clazz = String.class;</span>
+
+<span class="nc bnc" id="L247" title="All 29 branches missed.">		switch (index) {</span>
+		case TIME_COLUMN:
+<span class="nc" id="L249">			break;</span>
+		case CALENDAR_DATE_COLUMN:
+<span class="nc" id="L251">			break;</span>
+		case MAGNITUDE_COLUMN:
+<span class="nc" id="L253">			break;</span>
+		case UNCERTAINTY_COLUMN:
+<span class="nc" id="L255">			break;</span>
+		case BAND_COLUMN:
+<span class="nc" id="L257">			break;</span>
+		case OBSERVER_CODE_COLUMN:
+<span class="nc" id="L259">			break;</span>
+		case VALFLAG_COLUMN:
+<span class="nc" id="L261">			break;</span>
+		case COMP_STAR_1_COLUMN:
+<span class="nc" id="L263">			break;</span>
+		case COMP_STAR_2_COLUMN:
+<span class="nc" id="L265">			break;</span>
+		case CHARTS_COLUMN:
+<span class="nc" id="L267">			break;</span>
+		case COMMENT_CODE_COLUMN:
+<span class="nc" id="L269">			break;</span>
+		case COMMENTS_COLUMN:
+<span class="nc" id="L271">			break;</span>
+		case TRANSFORMED_COLUMN:
+<span class="nc" id="L273">			break;</span>
+		case AIRMASS_COLUMN:
+<span class="nc" id="L275">			break;</span>
+		case CMAG_COLUMN:
+<span class="nc" id="L277">			break;</span>
+		case KMAG_COLUMN:
+<span class="nc" id="L279">			break;</span>
+		case HJD_COLUMN:
+<span class="nc" id="L281">			break;</span>
+		case HQ_UNCERTAINTY_COLUMN:
+<span class="nc" id="L283">			break;</span>
+		case MTYPE_COLUMN:
+<span class="nc" id="L285">			break;</span>
+		case OBSTYPE_COLUMN:
+<span class="nc" id="L287">			break;</span>
+		case GROUP_COLUMN:
+<span class="nc" id="L289">			break;</span>
+		case AFFILIATION_COLUMN:
+<span class="nc" id="L291">			break;</span>
+		case ADS_REFERENCE_COLUMN:
+<span class="nc" id="L293">			break;</span>
+		case DIGITIZER_COLUMN:
+<span class="nc" id="L295">			break;</span>
+		case CREDIT_COLUMN:
+<span class="nc" id="L297">			break;</span>
+		case DISCREPANT_COLUMN:
+<span class="nc" id="L299">			clazz = Boolean.class;</span>
+<span class="nc" id="L300">			break;</span>
+		case NAME_COLUMN:
+<span class="nc" id="L302">			break;</span>
+		case LINE_NUM_COLUMN:
+<span class="nc" id="L304">			clazz = Integer.class;</span>
+			break;
+		}
+
+<span class="nc" id="L308">		return clazz;</span>
+	}
+
+	@Override
+	public Object getTableColumnValue(int index, ValidObservation ob) {
+<span class="nc" id="L313">		Object value = null;</span>
+
+<span class="nc bnc" id="L315" title="All 29 branches missed.">		switch (index) {</span>
+		case TIME_COLUMN:
+<span class="nc" id="L317">			value = NumericPrecisionPrefs.formatTime(ob.getDateInfo().getJulianDay());</span>
+			;
+<span class="nc" id="L319">			break;</span>
+		case CALENDAR_DATE_COLUMN:
+<span class="nc" id="L321">			value = ob.getDateInfo().getCalendarDate();</span>
+<span class="nc" id="L322">			break;</span>
+		case MAGNITUDE_COLUMN:
+<span class="nc" id="L324">			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude().getMagValue());</span>
+<span class="nc" id="L325">			break;</span>
+		case UNCERTAINTY_COLUMN:
+<span class="nc" id="L327">			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude().getUncertainty());</span>
+<span class="nc" id="L328">			break;</span>
+		case BAND_COLUMN:
+<span class="nc" id="L330">			value = ob.getBand().getDescription();</span>
+<span class="nc" id="L331">			break;</span>
+		case OBSERVER_CODE_COLUMN:
+<span class="nc" id="L333">			value = ob.getObsCode();</span>
+<span class="nc" id="L334">			break;</span>
+		case VALFLAG_COLUMN:
+<span class="nc bnc" id="L336" title="All 2 branches missed.">			value = ob.getValidationType() == null ? &quot;&quot; : ob.getValidationType().toString();</span>
+<span class="nc" id="L337">			break;</span>
+		case COMP_STAR_1_COLUMN:
+<span class="nc" id="L339">			value = ob.getCompStar1();</span>
+<span class="nc" id="L340">			break;</span>
+		case COMP_STAR_2_COLUMN:
+<span class="nc" id="L342">			value = ob.getCompStar2();</span>
+<span class="nc" id="L343">			break;</span>
+		case CHARTS_COLUMN:
+<span class="nc" id="L345">			value = ob.getCharts();</span>
+<span class="nc" id="L346">			break;</span>
+		case COMMENT_CODE_COLUMN:
+<span class="nc bnc" id="L348" title="All 2 branches missed.">			value = ob.getCommentCode() == null ? &quot;&quot; : ob.getCommentCode().getOrigString();</span>
+<span class="nc" id="L349">			break;</span>
+		case COMMENTS_COLUMN:
+<span class="nc" id="L351">			value = ob.getComments();</span>
+<span class="nc" id="L352">			break;</span>
+		case TRANSFORMED_COLUMN:
+<span class="nc bnc" id="L354" title="All 2 branches missed.">			value = ob.isTransformed() ? &quot;yes&quot; : &quot;no&quot;;</span>
+<span class="nc" id="L355">			break;</span>
+		case AIRMASS_COLUMN:
+<span class="nc" id="L357">			value = ob.getAirmass();</span>
+<span class="nc" id="L358">			break;</span>
+		case CMAG_COLUMN:
+<span class="nc" id="L360">			value = ob.getCMag();</span>
+<span class="nc" id="L361">			break;</span>
+		case KMAG_COLUMN:
+<span class="nc" id="L363">			value = ob.getKMag();</span>
+<span class="nc" id="L364">			break;</span>
+		case HJD_COLUMN:
+<span class="nc bnc" id="L366" title="All 2 branches missed.">			value = ob.getHJD() == null ? &quot;&quot; : NumericPrecisionPrefs.formatTime(ob.getHJD().getJulianDay());</span>
+<span class="nc" id="L367">			break;</span>
+		case HQ_UNCERTAINTY_COLUMN:
+<span class="nc" id="L369">			Double hqUncertainty = ob.getHqUncertainty();</span>
+<span class="nc bnc" id="L370" title="All 2 branches missed.">			value = null == hqUncertainty ? &quot;&quot; : NumericPrecisionPrefs.formatMag(ob.getHqUncertainty());</span>
+<span class="nc" id="L371">			break;</span>
+		case MTYPE_COLUMN:
+<span class="nc bnc" id="L373" title="All 2 branches missed.">			value = ob.getMType() == null ? &quot;&quot; : ob.getMType().toString();</span>
+<span class="nc" id="L374">			break;</span>
+		case OBSTYPE_COLUMN:
+<span class="nc bnc" id="L376" title="All 2 branches missed.">			value = ob.getObsType() == null ? &quot;&quot; : ob.getObsType();</span>
+<span class="nc" id="L377">			break;</span>
+		case GROUP_COLUMN:
+<span class="nc bnc" id="L379" title="All 2 branches missed.">			value = ob.getGroup() == null ? &quot;&quot; : ob.getGroup();</span>
+<span class="nc" id="L380">			break;</span>
+		case AFFILIATION_COLUMN:
+<span class="nc bnc" id="L382" title="All 2 branches missed.">			value = ob.getAffiliation() == null ? &quot;&quot; : ob.getAffiliation();</span>
+<span class="nc" id="L383">			break;</span>
+		case ADS_REFERENCE_COLUMN:
+<span class="nc bnc" id="L385" title="All 2 branches missed.">			value = ob.getADSRef() == null ? &quot;&quot; : ob.getADSRef();</span>
+<span class="nc" id="L386">			break;</span>
+		case DIGITIZER_COLUMN:
+<span class="nc bnc" id="L388" title="All 2 branches missed.">			value = ob.getDigitizer() == null ? &quot;&quot; : ob.getDigitizer();</span>
+<span class="nc" id="L389">			break;</span>
+		case CREDIT_COLUMN:
+<span class="nc bnc" id="L391" title="All 2 branches missed.">			value = ob.getCredit() == null ? &quot;&quot; : ob.getCredit();</span>
+<span class="nc" id="L392">			break;</span>
+		case DISCREPANT_COLUMN:
+<span class="nc" id="L394">			value = ob.isDiscrepant();</span>
+<span class="nc" id="L395">			break;</span>
+		case NAME_COLUMN:
+<span class="nc" id="L397">			value = ob.getName();</span>
+<span class="nc" id="L398">			break;</span>
+		case LINE_NUM_COLUMN:
+<span class="nc" id="L400">			value = ob.getRecordNumber();</span>
+			break;
+		}
+<span class="nc" id="L403">		return value;</span>
+	}
+
+	@Override
+	public int getColumnIndexByName(String name) throws IllegalArgumentException {
+<span class="nc bnc" id="L408" title="All 4 branches missed.">		if (name == null || !COLUMN_NAMES.containsKey(name)) {</span>
+<span class="nc" id="L409">			throw new IllegalArgumentException(&quot;No column name: &quot; + name);</span>
+		} else {
+<span class="nc" id="L411">			return COLUMN_NAMES.get(name);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

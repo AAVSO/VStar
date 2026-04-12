@@ -1,0 +1,1032 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PluginManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.plugin.manager</a> &gt; <span class="el_source">PluginManager.java</span></div><h1>PluginManager.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.plugin.manager;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.prefs.Preferences;
+
+import javax.swing.SwingUtilities;
+
+import org.aavso.tools.vstar.plugin.IPlugin;
+import org.aavso.tools.vstar.ui.VStar;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.util.Pair;
+
+/**
+ * This class manages plug-in installation, deletion, and update.
+ */
+public class PluginManager {
+
+	public final static String DEFAULT_PLUGIN_BASE_URL_STR = &quot;https://archive.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-&quot;
+<span class="fc" id="L54">			+ ResourceAccessor.getVersionString();</span>
+
+	// public final static String DEFAULT_PLUGIN_BASE_URL_STR =
+	// &quot;file:///Users/david/tmp/vstar-plugins/vstar-plugins-&quot;
+	// + ResourceAccessor.getVersionString();
+
+	public final static String PLUGINS_LIST_FILE = &quot;.plugins.lst&quot;;
+
+	public final static String PLUGINS_DIR = &quot;vstar_plugins&quot;;
+
+	public final static String PLUGIN_LIBS_DIR = &quot;vstar_plugin_libs&quot;;
+
+	private final static String PLUGIN_PREFS_PREFIX = &quot;PLUGIN_&quot;;
+
+<span class="nc" id="L68">	public enum Operation {</span>
+<span class="nc" id="L69">		INSTALL, UPDATE;</span>
+	}
+
+	private String pluginBaseUrl;
+
+	private static Preferences prefs;
+
+	static {
+		// Create preferences node for plug-in management.
+		try {
+<span class="fc" id="L79">			prefs = Preferences.userNodeForPackage(PluginManager.class);</span>
+<span class="nc" id="L80">		} catch (Throwable t) {</span>
+			// We need VStar to function in the absence of prefs.
+<span class="fc" id="L82">		}</span>
+<span class="fc" id="L83">	}</span>
+
+	/**
+	 * A mapping from plugin jar name to plugin files available to be installed
+	 * for the current version of VStar.
+	 */
+	private Map&lt;String, URL&gt; remotePlugins;
+
+	/**
+	 * A mapping from description to remote plugin jar name.
+	 */
+	private Map&lt;String, String&gt; remoteDescriptions;
+
+	/**
+	 * A mapping from description to remote plugin document names.
+	 */
+	private Map&lt;String, String&gt; remoteDocNames;
+	
+	/**
+	 * A mapping from plugin jar name to plugin files installed locally.
+	 */
+	private Map&lt;String, File&gt; localPlugins;
+
+	/**
+	 * A mapping from description to local plugin jar name.
+	 */
+	private Map&lt;String, String&gt; localDescriptions;
+	
+	/**
+	 * A mapping from description to local plugin document names.
+	 */
+	private Map&lt;String, String&gt; localDocNames;
+
+	/**
+	 * A mapping from plugin jar name to dependent library files available to be
+	 * installed for the current version of VStar.
+	 */
+	private Map&lt;String, List&lt;URL&gt;&gt; libs;
+
+	/**
+	 * A mapping from description to dependent library jar name.
+	 */
+	private Map&lt;String, Set&lt;String&gt;&gt; libDescriptions;
+
+	/**
+	 * A mapping from dependent library jar name to integers for reference
+	 * counting.
+	 */
+	private Map&lt;String, Integer&gt; libRefs;
+
+	/**
+	 * A mapping from description to equality of local and remote plugins
+	 * corresponding to the same description.
+	 */
+	private Map&lt;String, Boolean&gt; remoteAndLocalPluginEquality;
+
+	/**
+	 * Has the current operation been interrupted?
+	 */
+	private boolean interrupted;
+
+	/**
+	 * Constructor
+	 */
+<span class="fc" id="L147">	public PluginManager() {</span>
+<span class="fc" id="L148">		pluginBaseUrl = getPluginsBaseUrl();</span>
+<span class="fc" id="L149">	}</span>
+	
+	/**
+	 * @return the remote plugins map
+	 */
+	public Map&lt;String, URL&gt; getRemotePluginsByJarName() {
+<span class="fc" id="L155">		return remotePlugins;</span>
+	}
+
+	/**
+	 * Initialise manager.
+	 */
+	public void init() {
+<span class="nc" id="L162">		retrieveRemotePluginInfo();</span>
+<span class="nc" id="L163">		retrieveLocalPluginInfo();</span>
+<span class="nc" id="L164">		determinePluginEquality();</span>
+<span class="nc" id="L165">	}</span>
+
+	/**
+	 * Should plug-ins be loaded according to preferences?
+	 */
+	public static boolean shouldLoadPlugins() {
+<span class="nc" id="L171">		boolean loadPlugins = true;</span>
+
+		try {
+<span class="nc" id="L174">			loadPlugins = prefs.getBoolean(</span>
+					PLUGIN_PREFS_PREFIX + &quot;LOAD_PLUGINS&quot;, true);
+<span class="nc" id="L176">		} catch (Throwable t) {</span>
+			// We need VStar to function in the absence of prefs.
+<span class="nc" id="L178">		}</span>
+
+<span class="nc" id="L180">		return loadPlugins;</span>
+	}
+
+	/**
+	 * Set the load plug-ins preference.
+	 * 
+	 * @param state
+	 *            The true/false state to set.
+	 */
+	public static void setLoadPlugins(boolean state) {
+		try {
+<span class="nc" id="L191">			prefs.putBoolean(PLUGIN_PREFS_PREFIX + &quot;LOAD_PLUGINS&quot;, state);</span>
+<span class="nc" id="L192">		} catch (Throwable t) {</span>
+			// We need VStar to function in the absence of prefs.
+<span class="nc" id="L194">		}</span>
+<span class="nc" id="L195">	}</span>
+
+	/**
+	 * Should all observation source plug-ins be shown in the file menu
+	 * according to preferences? Defaults to false.
+	 */
+	public static boolean shouldAllObsSourcePluginsBeInFileMenu() {
+<span class="nc" id="L202">		boolean loadPlugins = true;</span>
+
+		try {
+<span class="nc" id="L205">			loadPlugins = prefs.getBoolean(PLUGIN_PREFS_PREFIX</span>
+					+ &quot;OBS_SOURCE_PLUGINS_IN_FILE_MENU&quot;, false);
+<span class="nc" id="L207">		} catch (Throwable t) {</span>
+			// We need VStar to function in the absence of prefs.
+<span class="nc" id="L209">		}</span>
+
+<span class="nc" id="L211">		return loadPlugins;</span>
+	}
+
+	/**
+	 * Set whether all observation source plug-ins be shown in the file menu
+	 * according to preferences?
+	 * 
+	 * @param state
+	 *            The true/false state to set.
+	 */
+	public static void setAllObsSourcePluginsInFileMenu(boolean state) {
+		try {
+<span class="nc" id="L223">			prefs.putBoolean(PLUGIN_PREFS_PREFIX</span>
+					+ &quot;OBS_SOURCE_PLUGINS_IN_FILE_MENU&quot;, state);
+<span class="nc" id="L225">		} catch (Throwable t) {</span>
+			// We need VStar to function in the absence of prefs.
+<span class="nc" id="L227">		}</span>
+<span class="nc" id="L228">	}</span>
+
+	/**
+	 * Return the plug-ins base URL according to preferences.
+	 */
+	public static String getPluginsBaseUrl() {
+<span class="fc" id="L234">		String baseUrl = DEFAULT_PLUGIN_BASE_URL_STR;</span>
+
+		try {
+<span class="fc" id="L237">			baseUrl = prefs.get(PLUGIN_PREFS_PREFIX + &quot;BASE_URL&quot;,</span>
+					DEFAULT_PLUGIN_BASE_URL_STR);
+<span class="nc" id="L239">		} catch (Throwable t) {</span>
+			// We need VStar to function in the absence of prefs.
+<span class="fc" id="L241">		}</span>
+
+<span class="fc" id="L243">		return baseUrl;</span>
+	}
+
+	/**
+	 * Set the plug-ins base URL preference.
+	 * 
+	 * @param url
+	 *            The URL to set.
+	 */
+	public static void setPluginsBaseUrl(String url) {
+		try {
+<span class="nc" id="L254">			prefs.put(PLUGIN_PREFS_PREFIX + &quot;BASE_URL&quot;, url);</span>
+<span class="nc" id="L255">		} catch (Throwable t) {</span>
+			// We need VStar to function in the absence of prefs.
+<span class="nc" id="L257">		}</span>
+<span class="nc" id="L258">	}</span>
+
+	/**
+	 * @return the remote plugin map
+	 */
+	public Map&lt;String, String&gt; getRemoteDescriptionsToJarName() {
+<span class="nc" id="L264">		return remoteDescriptions;</span>
+	}
+
+	/**
+	 * @return the remote plugin descriptions
+	 */
+	public Set&lt;String&gt; getRemoteDescriptions() {
+<span class="nc" id="L271">		return remoteDescriptions.keySet();</span>
+	}
+
+	/**
+	 * @return the local plugins map
+	 */
+	public Map&lt;String, File&gt; getLocalPluginsByJarName() {
+<span class="nc" id="L278">		return localPlugins;</span>
+	}
+
+	/**
+	 * @return the local descriptions map
+	 */
+	public Map&lt;String, String&gt; getLocalDescriptionsToJarName() {
+<span class="fc" id="L285">		return localDescriptions;</span>
+	}
+
+	/**
+	 * @return the local plugin descriptions
+	 */
+	public Set&lt;String&gt; getLocalDescriptions() {
+<span class="nc" id="L292">		return localDescriptions.keySet();</span>
+	}
+
+	/**
+	 * @return the libs
+	 */
+	public Map&lt;String, List&lt;URL&gt;&gt; getLibs() {
+<span class="fc" id="L299">		return libs;</span>
+	}
+
+	/**
+	 * @return the plugin document name.
+	 */
+	public String getPluginDocName(String description) {
+<span class="nc" id="L306">		String doc_name = localDocNames.get(description);</span>
+<span class="nc bnc" id="L307" title="All 4 branches missed.">		if (doc_name == null || &quot;&quot;.equals(doc_name)) {</span>
+<span class="nc" id="L308">			doc_name = remoteDocNames.get(description);</span>
+		}
+<span class="nc" id="L310">		return doc_name;</span>
+	}
+
+	/**
+	 * Does the plugin description correspond to a remote plugin?
+	 * 
+	 * @param description
+	 *            The description.
+	 * @return True if the plugin is remote, false if not.
+	 */
+	public boolean isRemote(String description) {
+<span class="nc" id="L321">		return getRemoteDescriptionsToJarName().containsKey(description);</span>
+	}
+
+	/**
+	 * Does the plugin description correspond to a local plugin?
+	 * 
+	 * @param description
+	 *            The description.
+	 * @return True if the plugin is local, false if not.
+	 */
+	public boolean isLocal(String description) {
+<span class="nc" id="L332">		return getLocalDescriptionsToJarName().containsKey(description);</span>
+	}
+
+	/**
+	 * Does the plugin description correspond to both a remote and local plugin?
+	 * 
+	 * @param description
+	 *            The description.
+	 * @return True if the plugin is both remote and local, false if not.
+	 */
+	public boolean isRemoteAndLocal(String description) {
+<span class="nc bnc" id="L343" title="All 4 branches missed.">		return isLocal(description) &amp;&amp; isRemote(description);</span>
+	}
+
+	/**
+	 * Determine whether plugins that are both local and remote refer to the
+	 * same jar and cache this information.
+	 */
+	public void determinePluginEquality() {
+		// First, create a common set consisting of the intersection of remote
+		// and local plugins...
+<span class="nc" id="L353">		Set&lt;String&gt; remoteDescSet = new HashSet&lt;String&gt;(</span>
+<span class="nc" id="L354">				remoteDescriptions.keySet());</span>
+<span class="nc" id="L355">		Set&lt;String&gt; localDescSet = new HashSet&lt;String&gt;(</span>
+<span class="nc" id="L356">				localDescriptions.keySet());</span>
+<span class="nc" id="L357">		Set&lt;String&gt; commonDescSet = new HashSet&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L359" title="All 2 branches missed.">		for (String desc : remoteDescSet) {</span>
+<span class="nc bnc" id="L360" title="All 2 branches missed.">			if (isRemoteAndLocal(desc)) {</span>
+<span class="nc" id="L361">				commonDescSet.add(desc);</span>
+			}
+<span class="nc" id="L363">		}</span>
+
+<span class="nc bnc" id="L365" title="All 2 branches missed.">		for (String desc : localDescSet) {</span>
+<span class="nc bnc" id="L366" title="All 2 branches missed.">			if (isRemoteAndLocal(desc)) {</span>
+<span class="nc" id="L367">				commonDescSet.add(desc);</span>
+			}
+<span class="nc" id="L369">		}</span>
+
+		// ...then populate the remote+local plugin equality map.
+<span class="nc" id="L372">		remoteAndLocalPluginEquality = new HashMap&lt;String, Boolean&gt;();</span>
+
+<span class="nc bnc" id="L374" title="All 2 branches missed.">		for (String desc : commonDescSet) {</span>
+<span class="nc" id="L375">			String localJarName = null;</span>
+<span class="nc" id="L376">			String remoteJarName = null;</span>
+			try {
+<span class="nc" id="L378">				localJarName = localDescriptions.get(desc);</span>
+<span class="nc" id="L379">				remoteJarName = remoteDescriptions.get(desc);</span>
+<span class="nc" id="L380">				URL localUrl = localPlugins.get(localJarName).toURI().toURL();</span>
+<span class="nc" id="L381">				URL remoteUrl = remotePlugins.get(remoteJarName);</span>
+<span class="nc" id="L382">				remoteAndLocalPluginEquality.put(desc,</span>
+<span class="nc" id="L383">						areURLReferentsEqual(localUrl, remoteUrl));</span>
+<span class="nc" id="L384">			} catch (IOException e) {</span>
+<span class="nc" id="L385">				String msg = String.format(</span>
+						&quot;Error comparing remote and local plugins: %s and %s&quot;,
+						remoteJarName, localJarName);
+<span class="nc" id="L388">				throw new PluginManagerException(msg);</span>
+<span class="nc" id="L389">			}</span>
+<span class="nc" id="L390">		}</span>
+<span class="nc" id="L391">	}</span>
+
+	/**
+	 * Does the plugin description for a remote and local plugin refer to the
+	 * same jar?
+	 * 
+	 * @param description
+	 *            The description.
+	 * @return True iff the equal, false if not.
+	 */
+	public boolean arePluginsEqual(String description) {
+<span class="nc bnc" id="L402" title="All 2 branches missed.">		return remoteAndLocalPluginEquality.containsKey(description)</span>
+<span class="nc bnc" id="L403" title="All 2 branches missed.">				&amp;&amp; remoteAndLocalPluginEquality.get(description);</span>
+	}
+
+	/**
+	 * Retrieve information about the available remotePlugins for this version
+	 * of VStar.
+	 * 
+	 * @param baseUrlStr
+	 *            The base URL string from where to obtain remotePlugins.
+	 */
+	public void retrieveRemotePluginInfo(String baseUrlStr) {
+
+<span class="fc" id="L415">		interrupted = false;</span>
+
+<span class="fc" id="L417">		remotePlugins = new TreeMap&lt;String, URL&gt;();</span>
+<span class="fc" id="L418">		remoteDescriptions = new TreeMap&lt;String, String&gt;();</span>
+<span class="fc" id="L419">		remoteDocNames = new TreeMap&lt;String, String&gt;();</span>
+<span class="fc" id="L420">		libs = new TreeMap&lt;String, List&lt;URL&gt;&gt;();</span>
+<span class="fc" id="L421">		libDescriptions = new TreeMap&lt;String, Set&lt;String&gt;&gt;();</span>
+<span class="fc" id="L422">		libRefs = new HashMap&lt;String, Integer&gt;();</span>
+
+<span class="fc" id="L424">		String[] lines = null;</span>
+
+		try {
+<span class="fc" id="L427">			URL infoUrl = new URL(baseUrlStr + &quot;/&quot; + PLUGINS_LIST_FILE);</span>
+
+<span class="fc" id="L429">			URLConnection conn = infoUrl.openConnection();</span>
+			
+<span class="fc" id="L431">			List&lt;String&gt; lineList = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L432">			try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {</span>
+				String line;
+<span class="fc bfc" id="L434" title="All 2 branches covered.">				while ((line = reader.readLine()) != null) {</span>
+<span class="fc" id="L435">					lineList.add(line);</span>
+				}
+			}
+
+<span class="fc" id="L439">			lines = lineList.toArray(new String[0]);</span>
+
+<span class="nc" id="L441">		} catch (Exception e) {</span>
+<span class="nc" id="L442">			SwingUtilities.invokeLater( new Runnable() { </span>
+				public void run() {
+<span class="nc" id="L444">					MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;,</span>
+							&quot;Error reading remote plug-in information.\nErrror:\n&quot; + 
+<span class="nc" id="L446">							e.getLocalizedMessage());</span>
+<span class="nc" id="L447">				}</span>
+			} );
+<span class="nc" id="L449">			return;</span>
+<span class="fc" id="L450">		}</span>
+
+<span class="fc" id="L452">		String pluginBaseURLStr = baseUrlStr + &quot;/&quot; + PLUGINS_DIR;</span>
+<span class="fc" id="L453">		String libBaseURLStr = baseUrlStr + &quot;/&quot; + PLUGIN_LIBS_DIR;</span>
+		
+<span class="fc" id="L455">		ArrayList&lt;String&gt; errors = new ArrayList&lt;String&gt;(); </span>
+		
+<span class="fc bfc" id="L457" title="All 2 branches covered.">		for (String line : lines) {</span>
+<span class="pc bpc" id="L458" title="1 of 2 branches missed.">			if (interrupted)</span>
+<span class="nc" id="L459">				break;</span>
+
+<span class="pc bpc" id="L461" title="1 of 2 branches missed.">			if (line == null)</span>
+<span class="nc" id="L462">				continue;</span>
+			
+<span class="fc" id="L464">			line = line.trim();</span>
+					
+<span class="pc bpc" id="L466" title="1 of 2 branches missed.">			if (line.length() == 0) {</span>
+<span class="nc" id="L467">				continue;</span>
+			}
+			
+<span class="pc bpc" id="L470" title="1 of 2 branches missed.">			if (line.charAt(0) == '#') {</span>
+<span class="nc" id="L471">				continue;</span>
+			}
+				
+
+			// Separate jar file name from dependent libraries, if any exist.
+<span class="fc" id="L476">			String[] fields = line.split(&quot;\\s*=&gt;\\s*&quot;);</span>
+
+<span class="pc bpc" id="L478" title="1 of 2 branches missed.">			if (fields.length == 0) {</span>
+<span class="nc" id="L479">				continue;</span>
+			}
+			
+			// Load plugin, store mappings from jar name to plugin
+			// URL, lib URL, and description.
+<span class="fc" id="L484">			String pluginJarFileName = fields[0].trim();</span>
+			// TODO: remove this after 2.6.10 after which no potential
+			// for colon-prefixed jar names will exist
+<span class="pc bpc" id="L487" title="1 of 2 branches missed.">			if (pluginJarFileName.startsWith(&quot;:&quot;)) {</span>
+				// if (!ResourceAccessor.getLoginInfo().isMember()) {
+				// // Member-only accessible plug-ins should be skipped
+				// // if not appropriately authenticated.
+				// continue;
+				// } else {
+				// Remove leading colon.
+<span class="nc" id="L494">				pluginJarFileName = pluginJarFileName.substring(1);</span>
+				// }
+			}
+
+<span class="fc" id="L498">			String plugin_desc = null;</span>
+<span class="fc" id="L499">			String plugin_doc = null;</span>
+<span class="fc" id="L500">			URL pluginUrl = null;</span>
+<span class="fc" id="L501">			String className = pluginJarFileName.replace(&quot;.jar&quot;, &quot;&quot;);			</span>
+			try {
+<span class="fc" id="L503">				pluginUrl = new URL(pluginBaseURLStr + &quot;/&quot; + pluginJarFileName);</span>
+				// Max: in general, we also need all dependent libs to load plugin files correctly.
+				// So we need to get list of plugin's libraries before calling getPluginDescription.
+				// This partially duplicates code below so, probably, an optimization could be done.
+				// See also the PluginLoader class.
+<span class="fc" id="L508">				List&lt;URL&gt; depLibs = new ArrayList&lt;URL&gt;();</span>
+<span class="fc bfc" id="L509" title="All 2 branches covered.">				if (fields.length &gt; 1) {</span>
+<span class="fc bfc" id="L510" title="All 2 branches covered.">					for (String libFileStr : fields[1].split(&quot;\\s*,\\s*&quot;)) {</span>
+<span class="fc" id="L511">						String libJarFileName = libFileStr.trim();</span>
+<span class="fc" id="L512">						URL libUrl = new URL(libBaseURLStr + &quot;/&quot; + libJarFileName);</span>
+<span class="fc" id="L513">						depLibs.add(libUrl);							</span>
+					}
+				}
+<span class="fc" id="L516">				Pair&lt;String, String&gt; info = getPluginDescription(pluginUrl, className, depLibs);</span>
+<span class="fc" id="L517">				plugin_desc = info.first;</span>
+<span class="fc" id="L518">				plugin_doc = info.second;</span>
+<span class="nc" id="L519">			} catch (Exception e) {</span>
+				//MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;,
+				//	&quot;Error reading remote plug-in information: &quot; + className + &quot;.\nErrror:\n&quot; + 
+				//	e.getLocalizedMessage());
+<span class="nc" id="L523">				errors.add(&quot;Plug-in: &quot; + className + &quot;, Error: &quot; + e.getLocalizedMessage());</span>
+<span class="nc" id="L524">				continue;</span>
+<span class="nc" id="L525">			} catch (Throwable t) {</span>
+				//MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;,
+				//		&quot;Error reading remote plug-in information: &quot; + className + &quot;.\nSevere Error:\n&quot; + 
+				//		t.getLocalizedMessage());
+<span class="nc" id="L529">				errors.add(&quot;Plug-in: &quot; + className + &quot;, Error: &quot; + t.getLocalizedMessage());</span>
+<span class="nc" id="L530">				continue;</span>
+<span class="fc" id="L531">			}</span>
+			
+<span class="fc" id="L533">			remoteDescriptions.put(plugin_desc, pluginJarFileName);</span>
+<span class="fc" id="L534">			remoteDocNames.put(plugin_desc, plugin_doc);</span>
+<span class="fc" id="L535">			remotePlugins.put(pluginJarFileName, pluginUrl);</span>
+
+			// Store dependent libs, if any exist, by plugin key.
+<span class="fc bfc" id="L538" title="All 2 branches covered.">			if (fields.length &gt; 1) {</span>
+<span class="pc bpc" id="L539" title="1 of 2 branches missed.">				if (interrupted) </span>
+<span class="nc" id="L540">					break;</span>
+
+<span class="fc" id="L542">				File pluginPath = new File(System.getProperty(&quot;user.home&quot;) + File.separator + PLUGINS_DIR);</span>
+				
+<span class="fc bfc" id="L544" title="All 2 branches covered.">				for (String libFileStr : fields[1].split(&quot;\\s*,\\s*&quot;)) {</span>
+<span class="fc" id="L545">					String libJarFileName = libFileStr.trim();</span>
+<span class="fc" id="L546">					URL libUrl = null;</span>
+					try {
+<span class="fc" id="L548">						libUrl = new URL(libBaseURLStr + &quot;/&quot; + libJarFileName);</span>
+<span class="nc" id="L549">					} catch (Exception e) {</span>
+						//MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;,
+						//	&quot;Error reading remote plug-in information.\nErrror:\n&quot; + 
+						//	e.getLocalizedMessage());
+<span class="nc" id="L553">						errors.add(&quot;Plug-in: &quot; + className + &quot;, Library: &quot; + libJarFileName + &quot;, Error: &quot; + e.getLocalizedMessage());</span>
+<span class="nc" id="L554">						break;</span>
+<span class="fc" id="L555">					}</span>
+<span class="fc" id="L556">					List&lt;URL&gt; libUrls = libs.get(pluginJarFileName);</span>
+<span class="fc bfc" id="L557" title="All 2 branches covered.">					if (libUrls == null) {</span>
+<span class="fc" id="L558">						libUrls = new ArrayList&lt;URL&gt;();</span>
+<span class="fc" id="L559">						libs.put(pluginJarFileName, libUrls);</span>
+					}
+<span class="fc" id="L561">					libUrls.add(libUrl);</span>
+
+					// Populate dependent library name and reference
+					// counting maps. Note that we treat the remote
+					// plugin information as the source of truth for the
+					// basis of checking against local library jar
+					// files. Our reference counting will only be as
+					// good as this remote/local correspondence.
+					
+<span class="fc" id="L570">					File locaPluginJarFilePath = new File(pluginPath, pluginJarFileName);</span>
+
+<span class="pc bpc" id="L572" title="1 of 2 branches missed.">					if (locaPluginJarFilePath.exists()) {</span>
+<span class="nc bnc" id="L573" title="All 2 branches missed.">						if (!libDescriptions.containsKey(plugin_desc)) {</span>
+<span class="nc" id="L574">							libDescriptions.put(plugin_desc, new HashSet&lt;String&gt;());</span>
+						}
+<span class="nc" id="L576">						libDescriptions.get(plugin_desc).add(libJarFileName);</span>
+<span class="nc bnc" id="L577" title="All 2 branches missed.">						if (!libRefs.containsKey(libJarFileName)) {</span>
+<span class="nc" id="L578">							libRefs.put(libJarFileName, 1);</span>
+						} else {
+<span class="nc" id="L580">							int count = libRefs.get(libJarFileName) + 1;</span>
+<span class="nc" id="L581">							libRefs.put(libJarFileName, count);</span>
+						}
+					}
+				}
+			}
+		}
+		
+<span class="pc bpc" id="L588" title="1 of 2 branches missed.">		if (errors.size() &gt; 0) {</span>
+<span class="nc" id="L589">			SwingUtilities.invokeLater( new Runnable() { </span>
+				public void run() {
+<span class="nc" id="L591">					String err = String.join(&quot;\n&quot;, errors);</span>
+<span class="nc" id="L592">					MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;,</span>
+							&quot;Error reading remote plug-in information.\nErrors:\n&quot; + err);
+<span class="nc" id="L594">				}</span>
+			} );
+		}
+<span class="fc" id="L597">	}</span>
+
+	/**
+	 * Retrieve information about the available remotePlugins for this version
+	 * of VStar.
+	 */
+	public void retrieveRemotePluginInfo() {
+<span class="nc" id="L604">		retrieveRemotePluginInfo(pluginBaseUrl);</span>
+<span class="nc" id="L605">	}</span>
+
+	/**
+	 * Retrieve information about locally installed plugins.
+	 */
+	public void retrieveLocalPluginInfo() {
+
+<span class="fc" id="L612">		interrupted = false;</span>
+
+<span class="fc" id="L614">		localPlugins = new TreeMap&lt;String, File&gt;();</span>
+<span class="fc" id="L615">		localDescriptions = new TreeMap&lt;String, String&gt;();</span>
+<span class="fc" id="L616">		localDocNames = new TreeMap&lt;String, String&gt;();</span>
+
+<span class="fc" id="L618">		FilenameFilter jarFilter = new FilenameFilter() {</span>
+			public boolean accept(File dir, String name) {
+<span class="nc" id="L620">				return name.endsWith(&quot;.jar&quot;);</span>
+			}
+		};
+
+		// Get information about local plugins.
+<span class="fc" id="L625">		File pluginPath = new File(System.getProperty(&quot;user.home&quot;)</span>
+				+ File.separator + PLUGINS_DIR);
+<span class="fc" id="L627">		File pluginLibPath = new File(System.getProperty(&quot;user.home&quot;)</span>
+				+ File.separator + PLUGIN_LIBS_DIR);
+
+<span class="fc" id="L630">		ArrayList&lt;String&gt; errors = new ArrayList&lt;String&gt;();		</span>
+		
+<span class="fc" id="L632">		List&lt;URL&gt; depLibs = new ArrayList&lt;URL&gt;();</span>
+<span class="pc bpc" id="L633" title="2 of 4 branches missed.">		if (pluginLibPath.exists() &amp;&amp; pluginLibPath.isDirectory()) {</span>
+<span class="pc bpc" id="L634" title="1 of 2 branches missed.">			for (File file : pluginLibPath.listFiles(jarFilter)) {</span>
+				try {
+<span class="nc" id="L636">					depLibs.add(file.toURI().toURL());</span>
+<span class="nc" id="L637">				} catch (Exception e) {</span>
+					//MessageBox.showErrorDialog(
+					//		&quot;Plug-in Manager&quot;,
+					//		&quot;Invalid plugin library file.\nError:\n&quot; +
+					//		e.getLocalizedMessage());
+<span class="nc" id="L642">					errors.add(&quot;File: &quot; + file.getName() + &quot;, Error: &quot; + e.getLocalizedMessage());</span>
+<span class="nc" id="L643">				}</span>
+			}
+		}
+
+<span class="pc bpc" id="L647" title="2 of 4 branches missed.">		if (pluginPath.exists() &amp;&amp; pluginPath.isDirectory()) {</span>
+
+<span class="pc bpc" id="L649" title="1 of 2 branches missed.">			for (File file : pluginPath.listFiles(jarFilter)) {</span>
+
+<span class="nc bnc" id="L651" title="All 2 branches missed.">				if (interrupted)</span>
+<span class="nc" id="L652">					break;</span>
+
+				// Load plugin, store mappings from jar name to plugin
+				// file and description.
+<span class="nc" id="L656">				String plugin_desc = null;</span>
+<span class="nc" id="L657">				String plugin_doc = null;</span>
+<span class="nc" id="L658">				String pluginJarFileName = file.getName();</span>
+<span class="nc" id="L659">				String className = pluginJarFileName.replace(&quot;.jar&quot;, &quot;&quot;);				</span>
+				try {
+<span class="nc" id="L661">					localPlugins.put(pluginJarFileName, file);</span>
+<span class="nc" id="L662">					Pair&lt;String, String&gt; info = getPluginDescription(file.toURI().toURL(), className, depLibs);</span>
+<span class="nc" id="L663">					plugin_desc = info.first;</span>
+<span class="nc" id="L664">					plugin_doc = info.second;</span>
+<span class="nc" id="L665">				} catch (Exception e) {</span>
+					//MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;,
+					//	&quot;Error reading local plugin information: &quot; + className + &quot;.\nError:\n&quot; +
+					//	e.getLocalizedMessage());
+<span class="nc" id="L669">					errors.add(&quot;Plug-in class: &quot; + className + &quot;, Error: &quot; + e.getLocalizedMessage());</span>
+<span class="nc" id="L670">					continue;</span>
+<span class="nc" id="L671">				} catch (Throwable t) {</span>
+					//MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;,
+					//	&quot;Error reading remote plug-in information: &quot; + className + &quot;.\nSevere Error:\n&quot; + 
+					//	t.getLocalizedMessage());
+<span class="nc" id="L675">					errors.add(&quot;Plug-in class: &quot; + className + &quot;, Error: &quot; + t.getLocalizedMessage());</span>
+<span class="nc" id="L676">					continue;</span>
+<span class="nc" id="L677">				}</span>
+
+<span class="nc" id="L679">				localDescriptions.put(plugin_desc, pluginJarFileName);</span>
+<span class="nc" id="L680">				localDocNames.put(plugin_desc, plugin_doc);</span>
+			}
+		}
+<span class="pc bpc" id="L683" title="1 of 2 branches missed.">		if (errors.size() &gt; 0) {</span>
+<span class="nc" id="L684">			SwingUtilities.invokeLater( new Runnable() { </span>
+				public void run() {
+<span class="nc" id="L686">					String err = String.join(&quot;\n&quot;, errors);</span>
+<span class="nc" id="L687">					MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;,</span>
+							&quot;Error reading local plug-in information.\nErrors:\n&quot; + err);
+<span class="nc" id="L689">				}</span>
+			} );
+		}
+<span class="fc" id="L692">	}</span>
+
+	/**
+	 * Install the specified plugin and dependent libraries.
+	 * 
+	 * @param description
+	 *            The plugin description corresponding to the remote plugin and
+	 *            dependent libraries to be installed.
+	 * @param op
+	 *            The operation (install or update).
+	 */
+	public void installPlugin(String description, Operation op) {
+
+<span class="nc" id="L705">		interrupted = false;</span>
+
+		try {
+			// Install plugin jars.
+<span class="nc" id="L709">			File pluginDirPath = new File(System.getProperty(&quot;user.home&quot;)</span>
+					+ File.separator + PLUGINS_DIR);
+
+<span class="nc bnc" id="L712" title="All 2 branches missed.">			if (!pluginDirPath.exists()) {</span>
+<span class="nc" id="L713">				pluginDirPath.mkdir();</span>
+			}
+
+<span class="nc" id="L716">			String jarName = remoteDescriptions.get(description);</span>
+<span class="nc" id="L717">			URL pluginURL = remotePlugins.get(jarName);</span>
+<span class="nc" id="L718">			String pluginJarName = pluginURL.getPath().substring(</span>
+<span class="nc" id="L719">					pluginURL.getPath().lastIndexOf(&quot;/&quot;) + 1);</span>
+<span class="nc" id="L720">			File pluginJarFile = new File(pluginDirPath, pluginJarName);</span>
+			
+<span class="nc" id="L722">			boolean pluginExisted = pluginJarFile.exists();			</span>
+			
+<span class="nc" id="L724">			copy(pluginURL.openStream(), pluginJarFile);</span>
+
+			// Update maps after copy.
+<span class="nc" id="L727">			localDescriptions.put(description, jarName);</span>
+<span class="nc" id="L728">			localPlugins.put(jarName, pluginJarFile);</span>
+<span class="nc" id="L729">			remoteAndLocalPluginEquality.put(description, true);</span>
+
+			// Install dependent jars.
+<span class="nc" id="L732">			File pluginLibDirPath = new File(System.getProperty(&quot;user.home&quot;)</span>
+					+ File.separator + PLUGIN_LIBS_DIR);
+
+<span class="nc bnc" id="L735" title="All 2 branches missed.">			if (!pluginLibDirPath.exists()) {</span>
+<span class="nc" id="L736">				pluginLibDirPath.mkdir();</span>
+			}
+
+<span class="nc" id="L739">			List&lt;URL&gt; libUrls = libs.get(jarName);</span>
+<span class="nc bnc" id="L740" title="All 2 branches missed.">			if (libUrls != null) {</span>
+<span class="nc bnc" id="L741" title="All 2 branches missed.">				for (URL libURL : libUrls) {</span>
+<span class="nc bnc" id="L742" title="All 2 branches missed.">					if (interrupted)</span>
+<span class="nc" id="L743">						break;</span>
+
+<span class="nc bnc" id="L745" title="All 2 branches missed.">					if (libURL != null) {</span>
+<span class="nc" id="L746">						String libJarName = libURL.getPath().substring(</span>
+<span class="nc" id="L747">								libURL.getPath().lastIndexOf(&quot;/&quot;) + 1);</span>
+<span class="nc" id="L748">						File targetPath = new File(pluginLibDirPath, libJarName);</span>
+<span class="nc" id="L749">						copy(libURL.openStream(), targetPath);</span>
+
+						// Library reference counting.
+<span class="nc bnc" id="L752" title="All 3 branches missed.">						switch (op) {</span>
+						case INSTALL:
+							// Bind libJarName with the plug-in 
+<span class="nc bnc" id="L755" title="All 2 branches missed.">							if (!libDescriptions.containsKey(description)) {</span>
+<span class="nc" id="L756">								libDescriptions.put(description, new HashSet&lt;String&gt;());</span>
+							}
+<span class="nc" id="L758">							libDescriptions.get(description).add(libJarName);</span>
+							// Implies a new dependency on any library file.
+<span class="nc bnc" id="L760" title="All 2 branches missed.">							if (!libRefs.keySet().contains(libJarName)) {</span>
+								// Actually, this should never occur, libRefs should be
+								// already populated in retrieveRemotePluginInfo
+<span class="nc" id="L763">								libRefs.put(libJarName, 1);</span>
+							} else {
+								// Increment refcount ONLY if the plugin had not existed!
+<span class="nc bnc" id="L766" title="All 2 branches missed.">								if (!pluginExisted) {</span>
+<span class="nc" id="L767">									int count = libRefs.get(libJarName) + 1;</span>
+<span class="nc" id="L768">									libRefs.put(libJarName, count);</span>
+<span class="nc" id="L769">								}</span>
+							}
+							break;
+						case UPDATE:
+							// The only dependency is upon libraries that are
+							// additional to the current update of the plugin
+							// compared to previous plugin version.
+<span class="nc bnc" id="L776" title="All 2 branches missed.">							if (!libRefs.keySet().contains(libJarName)) {</span>
+								// Actually, this should never occur, libRefs should be
+								// already populated in retrieveRemotePluginInfo
+<span class="nc" id="L779">								libRefs.put(libJarName, 1);</span>
+							}
+							break;
+						}
+					}
+<span class="nc" id="L784">				}</span>
+			}
+<span class="nc" id="L786">		} catch (IOException e) {</span>
+<span class="nc" id="L787">			SwingUtilities.invokeLater( new Runnable() { </span>
+				public void run() {
+<span class="nc" id="L789">					MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;,</span>
+						&quot;An error occurred while installing remotePlugins.&quot;);
+<span class="nc" id="L791">				}</span>
+			} );			
+<span class="nc" id="L793">		}</span>
+<span class="nc" id="L794">	}</span>
+
+	/**
+	 * Delete the specified plugin and dependent libraries.
+	 * 
+	 * @param description
+	 *            The plugin description corresponding to the local plugin and
+	 *            dependent libraries to be deleted.
+	 */
+	public void deletePlugin(String description) {
+
+<span class="nc" id="L805">		interrupted = false;</span>
+
+		// Delete plugin jar.
+<span class="nc" id="L808">		File pluginDirPath = new File(System.getProperty(&quot;user.home&quot;)</span>
+				+ File.separator + PLUGINS_DIR);
+
+<span class="nc" id="L811">		String jarName = localDescriptions.get(description);</span>
+<span class="nc" id="L812">		File pluginJarPath = new File(pluginDirPath, jarName);</span>
+<span class="nc bnc" id="L813" title="All 2 branches missed.">		if (pluginJarPath.exists()) {</span>
+<span class="nc bnc" id="L814" title="All 2 branches missed.">			if (!pluginJarPath.delete()) {</span>
+<span class="nc" id="L815">				SwingUtilities.invokeLater( new Runnable() { </span>
+					public void run() {
+<span class="nc" id="L817">						MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;,</span>
+							&quot;Unable to delete plug-in &quot; + jarName);
+<span class="nc" id="L819">					}</span>
+				} );			
+			} else {
+				// Update maps after delete.
+<span class="nc" id="L823">				localDescriptions.remove(description);</span>
+<span class="nc" id="L824">				localPlugins.remove(jarName);</span>
+<span class="nc" id="L825">				remoteAndLocalPluginEquality.remove(description);</span>
+			}
+		} else {
+<span class="nc" id="L828">			SwingUtilities.invokeLater( new Runnable() { </span>
+				public void run() {
+<span class="nc" id="L830">					MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;, </span>
+						&quot;Plug-in &quot; + jarName + 
+						&quot; does not exist so unable to delete&quot;);
+<span class="nc" id="L833">				}</span>
+			} );			
+		}
+
+		// Delete dependent jars for this plug-in.
+<span class="nc" id="L838">		File pluginLibDirPath = new File(System.getProperty(&quot;user.home&quot;)</span>
+				+ File.separator + PLUGIN_LIBS_DIR);
+
+<span class="nc" id="L841">		Set&lt;String&gt; libJarNames = libDescriptions.get(description);</span>
+<span class="nc bnc" id="L842" title="All 2 branches missed.">		if (libJarNames != null) {</span>
+<span class="nc bnc" id="L843" title="All 2 branches missed.">			for (String libJarName : libJarNames) {</span>
+<span class="nc bnc" id="L844" title="All 2 branches missed.">				if (interrupted)</span>
+<span class="nc" id="L845">					break;</span>
+
+<span class="nc bnc" id="L847" title="All 2 branches missed.">				assert libRefs.containsKey(libJarName);</span>
+
+<span class="nc" id="L849">				libRefs.put(libJarName, libRefs.get(libJarName) - 1);</span>
+				// If the reference count for a library jar has fallen to
+				// zero, delete the file.
+<span class="nc bnc" id="L852" title="All 2 branches missed.">				if (libRefs.get(libJarName) == 0) {</span>
+<span class="nc" id="L853">					File libJarPath = new File(pluginLibDirPath, libJarName);</span>
+					// This should be true but may not be, given the
+					// vagaries of file systems or the possibility of
+					// concurrent deletion.
+<span class="nc bnc" id="L857" title="All 2 branches missed.">					if (libJarPath.exists()) {</span>
+<span class="nc bnc" id="L858" title="All 2 branches missed.">						if (!libJarPath.delete()) {</span>
+<span class="nc" id="L859">							String errMsg = String.format(</span>
+								&quot;Unable to delete dependent library %s for plug-in %s&quot;,
+								libJarName, jarName);
+<span class="nc" id="L862">							SwingUtilities.invokeLater( new Runnable() { </span>
+								public void run() {
+<span class="nc" id="L864">									MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;, errMsg);</span>
+<span class="nc" id="L865">								}</span>
+							} );			
+							
+<span class="nc" id="L868">						}</span>
+					} else {
+<span class="nc" id="L870">						String errMsg = String.format(</span>
+								&quot;The dependent library %s &quot;
+										+ &quot;for the plug-in %s cannot be &quot;
+										+ &quot;found so cannot be deleted.&quot;,
+								libJarName, jarName);
+<span class="nc" id="L875">						SwingUtilities.invokeLater( new Runnable() { </span>
+							public void run() {
+<span class="nc" id="L877">								MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;, errMsg);								</span>
+<span class="nc" id="L878">							}</span>
+						} );			
+					}
+				}
+<span class="nc" id="L882">			}</span>
+		}
+
+		// Note that to avoid future lib jar clashes,
+		// we may need to consider: plugin subdirs in plugin libs dir and a
+		// separate class loader per plugin! =&gt; SF tracker
+<span class="nc" id="L888">	}</span>
+
+	/**
+	 * Delete all locally installed plug-ins.
+	 */
+	public void deleteAllPlugins() {
+		// This method called from Preferences synchronously.
+		//interrupted = false;
+<span class="nc" id="L896">		boolean deleteError = false;</span>
+		
+		//if (MessageBox.showConfirmDialog(&quot;Plug-in Manager&quot;,
+		//		&quot;Delete all plug-ins?&quot;)) {
+			try {
+<span class="nc" id="L901">				File pluginDirPath = new File(System.getProperty(&quot;user.home&quot;)</span>
+						+ File.separator + PLUGINS_DIR);
+
+<span class="nc" id="L904">				File pluginLibDirPath = new File(</span>
+<span class="nc" id="L905">						System.getProperty(&quot;user.home&quot;) + File.separator</span>
+								+ PLUGIN_LIBS_DIR);
+
+<span class="nc bnc" id="L908" title="All 2 branches missed.">				if (pluginDirPath.isDirectory()</span>
+<span class="nc bnc" id="L909" title="All 2 branches missed.">						&amp;&amp; pluginLibDirPath.isDirectory()) {</span>
+<span class="nc" id="L910">					File[] jarFiles = pluginDirPath.listFiles();</span>
+<span class="nc bnc" id="L911" title="All 2 branches missed.">					for (File jarFile : jarFiles) {</span>
+						//if (interrupted) {
+						//	deleteError = true;
+						//	break;
+						//}
+						// Check existence, to avoid an insanely unlikely race
+						// condition.
+<span class="nc bnc" id="L918" title="All 2 branches missed.">						if (jarFile.exists()) {</span>
+<span class="nc bnc" id="L919" title="All 2 branches missed.">							if (!jarFile.delete()) {</span>
+<span class="nc" id="L920">								deleteError = true;</span>
+							}
+						}
+					}
+
+<span class="nc" id="L925">					File[] libJarFiles = pluginLibDirPath.listFiles();</span>
+<span class="nc bnc" id="L926" title="All 2 branches missed.">					for (File libJarFile : libJarFiles) {</span>
+<span class="nc bnc" id="L927" title="All 2 branches missed.">						if (interrupted) {</span>
+<span class="nc" id="L928">							deleteError = true;</span>
+<span class="nc" id="L929">							break;</span>
+						}
+						// Check existence, to avoid an insanely unlikely race
+						// condition.
+<span class="nc bnc" id="L933" title="All 2 branches missed.">						if (libJarFile.exists()) {</span>
+<span class="nc bnc" id="L934" title="All 2 branches missed.">							if (!libJarFile.delete()) {</span>
+<span class="nc" id="L935">								deleteError = true;</span>
+							}
+						}
+					}
+
+					// Don't clear collections if null (e.g. as will be the
+					// case when invoking this method from prefs pane).
+<span class="nc bnc" id="L942" title="All 2 branches missed.">					if (localDescriptions != null) {</span>
+<span class="nc" id="L943">						localDescriptions.clear();</span>
+
+<span class="nc" id="L945">						localPlugins.clear();</span>
+
+<span class="nc" id="L947">						libs.clear();</span>
+<span class="nc" id="L948">						libDescriptions.clear();</span>
+<span class="nc" id="L949">						libRefs.clear();</span>
+
+<span class="nc" id="L951">						remoteAndLocalPluginEquality.clear();</span>
+					}
+
+<span class="nc bnc" id="L954" title="All 2 branches missed.">					if (!deleteError)</span>
+<span class="nc" id="L955">						MessageBox.showMessageDialog(&quot;Plug-in Manager&quot;,</span>
+								&quot;All installed plug-ins have been deleted.&quot;);
+					else
+<span class="nc" id="L958">						MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;,</span>
+								&quot;Cannot delete some plugins. Try to delete them manually.&quot;);
+				}
+
+<span class="nc" id="L962">			} catch (Throwable t) {</span>
+<span class="nc" id="L963">				MessageBox.showErrorDialog(&quot;Plug-in Manager&quot;, &quot;Deletion error&quot;);</span>
+<span class="nc" id="L964">			}</span>
+		//}
+<span class="nc" id="L966">	}</span>
+
+	/**
+	 * Interrupts the current operation.
+	 */
+	public void interrupt() {
+<span class="nc" id="L972">		interrupted = true;</span>
+<span class="nc" id="L973">	}</span>
+
+	// Helpers
+
+	private void copy(InputStream in, File file) throws IOException {
+		try {
+<span class="nc" id="L979">			OutputStream out = new FileOutputStream(file);</span>
+			try {
+<span class="nc" id="L981">				byte[] buf = new byte[4096];</span>
+				int len;
+<span class="nc bnc" id="L983" title="All 2 branches missed.">				while ((len = in.read(buf)) &gt; 0) {</span>
+<span class="nc" id="L984">					out.write(buf, 0, len);</span>
+				}
+			} finally {
+<span class="nc" id="L987">				out.close();</span>
+			}
+		} finally {
+<span class="nc" id="L990">			in.close();</span>
+		}
+<span class="nc" id="L992">	}</span>
+
+	private Pair&lt;String, String&gt; getPluginDescription(URL url, String className, List&lt;URL&gt; depLibs)
+		throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+<span class="fc" id="L996">		List&lt;URL&gt; urlList = new ArrayList&lt;URL&gt;();</span>
+<span class="fc" id="L997">		urlList.add(url);</span>
+<span class="fc" id="L998">		urlList.addAll(depLibs);</span>
+<span class="fc" id="L999">		URL[] urls = urlList.toArray(new URL[0]);</span>
+<span class="fc" id="L1000">		URLClassLoader loader = new URLClassLoader(urls, VStar.class.getClassLoader());		</span>
+		try {
+<span class="fc" id="L1002">			Class&lt;?&gt; clazz = loader.loadClass(className);</span>
+<span class="fc" id="L1003">			IPlugin plugin = (IPlugin) clazz.newInstance();</span>
+<span class="fc" id="L1004">			return new Pair&lt;String, String&gt;(plugin.getDescription(), plugin.getDocName());</span>
+		} finally {
+<span class="fc" id="L1006">			loader.close();</span>
+		}
+	}
+
+	private boolean areURLReferentsEqual(URL url1, URL url2) throws IOException {
+<span class="nc" id="L1011">		return getBytesFromURL(url1).equals(getBytesFromURL(url2));</span>
+	}
+
+	private List&lt;Byte&gt; getBytesFromURL(URL url) throws IOException {
+<span class="nc" id="L1015">		List&lt;Byte&gt; byteList = new ArrayList&lt;Byte&gt;();</span>
+<span class="nc" id="L1016">		InputStream stream = url.openStream();</span>
+		try {
+<span class="nc" id="L1018">			byte[] buf = new byte[4096];</span>
+			int len;
+<span class="nc bnc" id="L1020" title="All 2 branches missed.">			while ((len = stream.read(buf)) &gt; 0) {</span>
+<span class="nc bnc" id="L1021" title="All 2 branches missed.">				for (int i = 0; i &lt; len; i++) {</span>
+<span class="nc" id="L1022">					byteList.add(buf[i]);</span>
+				}
+			}
+		} finally {
+<span class="nc" id="L1026">			stream.close();</span>
+		}
+<span class="nc" id="L1028">		return byteList;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VeLaObservationFilterDialog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.plugin.filter.impl</a> &gt; <span class="el_source">VeLaObservationFilterDialog.java</span></div><h1>VeLaObservationFilterDialog.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.plugin.filter.impl;
+
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
+
+/**
+ * This dialog permits the user to specify a VeLa expression for the purpose of
+ * filtering observations.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class VeLaObservationFilterDialog extends AbstractOkCancelDialog {
+
+	private JTextField nameField;
+
+	private JCheckBox includeFainterThanObservationCheckbox;
+	private JCheckBox includeDiscrepantObservationCheckbox;
+	private JCheckBox includeExcludedObservationCheckbox;
+
+	private JTextArea velaFilterField;
+
+	private JComboBox&lt;String&gt; obsPropsList;
+
+	/**
+	 * Constructor
+	 */
+	public VeLaObservationFilterDialog() {
+<span class="nc" id="L65">		super(&quot;Filter Observations&quot;);</span>
+
+<span class="nc" id="L67">		Container contentPane = this.getContentPane();</span>
+
+<span class="nc" id="L69">		JPanel topPane = new JPanel();</span>
+<span class="nc" id="L70">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L71">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L73">		topPane.add(createNamePane());</span>
+<span class="nc" id="L74">		topPane.add(createFilterPane());</span>
+<span class="nc" id="L75">		topPane.add(createObsPropsListPane());</span>
+<span class="nc" id="L76">		topPane.add(createButtonPane());</span>
+
+<span class="nc" id="L78">		contentPane.add(topPane);</span>
+
+<span class="nc" id="L80">		this.pack();</span>
+<span class="nc" id="L81">	}</span>
+
+	public String getFilterName() {
+<span class="nc" id="L84">		return nameField.getText();</span>
+	}
+
+	public String getVeLaExpression() {
+<span class="nc" id="L88">		return velaFilterField.getText();</span>
+	}
+
+	public boolean includeFainterThan() {
+<span class="nc" id="L92">		return includeFainterThanObservationCheckbox.isSelected();</span>
+	}
+
+	public boolean includeDiscrepant() {
+<span class="nc" id="L96">		return includeDiscrepantObservationCheckbox.isSelected();</span>
+	}
+
+	public boolean includeExcluded() {
+<span class="nc" id="L100">		return includeExcludedObservationCheckbox.isSelected();</span>
+	}
+
+	@Override
+	public void showDialog() {
+<span class="nc" id="L105">		String defaultName = Mediator.getInstance().getDocumentManager().getNextUntitledFilterName();</span>
+<span class="nc" id="L106">		nameField.setText(defaultName);</span>
+<span class="nc" id="L107">		String[] props = VeLaValidObservationEnvironment.symbols();</span>
+<span class="nc" id="L108">		obsPropsList.setModel(new DefaultComboBoxModel&lt;String&gt;(props));</span>
+
+<span class="nc" id="L110">		super.showDialog();</span>
+<span class="nc" id="L111">	}</span>
+
+	private JPanel createNamePane() {
+<span class="nc" id="L114">		JPanel panel = new JPanel();</span>
+
+<span class="nc" id="L116">		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L118">		nameField = new JTextField();</span>
+<span class="nc" id="L119">		nameField.setBorder(BorderFactory.createTitledBorder(&quot;Filter Name&quot;));</span>
+<span class="nc" id="L120">		panel.add(nameField);</span>
+
+<span class="nc" id="L122">		return panel;</span>
+	}
+
+	private JPanel createFilterPane() {
+<span class="nc" id="L126">		JPanel panel = new JPanel();</span>
+
+<span class="nc" id="L128">		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L129">		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L131">		velaFilterField = new JTextArea();</span>
+<span class="nc" id="L132">		velaFilterField.setRows(8);</span>
+
+<span class="nc" id="L134">		panel.add(new JScrollPane(velaFilterField));</span>
+
+<span class="nc" id="L136">		return panel;</span>
+	}
+
+	private JPanel createObsPropsListPane() {
+<span class="nc" id="L140">		JPanel panel = new JPanel();</span>
+
+<span class="nc" id="L142">		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L143">		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L145">		obsPropsList = new JComboBox&lt;String&gt;();</span>
+<span class="nc" id="L146">		obsPropsList.setBorder(BorderFactory.createTitledBorder(&quot;Observation Properties&quot;));</span>
+
+<span class="nc" id="L148">		obsPropsList.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L151">				String propText = (String) obsPropsList.getSelectedItem();</span>
+<span class="nc" id="L152">				int pos = velaFilterField.getCaretPosition();</span>
+<span class="nc" id="L153">				velaFilterField.insert(propText, pos);</span>
+<span class="nc" id="L154">			}</span>
+		});
+
+<span class="nc" id="L157">		panel.add(obsPropsList);</span>
+
+<span class="nc" id="L159">		return panel;</span>
+	}
+
+	@Override
+	protected JPanel createButtonPane() {
+<span class="nc" id="L164">		JPanel extraButtonPanel = new JPanel(new FlowLayout());</span>
+
+<span class="nc" id="L166">		JPanel includePanel = new JPanel(new FlowLayout());</span>
+		// JPanel includePanel = new JPanel();
+		// includePanel.setLayout(new BoxLayout(includePanel,
+		// BoxLayout.LINE_AXIS));
+<span class="nc" id="L170">		includePanel.setBorder(BorderFactory.createTitledBorder(&quot;Include&quot;));</span>
+
+<span class="nc" id="L172">		includeFainterThanObservationCheckbox = new JCheckBox(&quot;Fainter Than?&quot;);</span>
+<span class="nc" id="L173">		includePanel.add(includeFainterThanObservationCheckbox);</span>
+<span class="nc" id="L174">		includeDiscrepantObservationCheckbox = new JCheckBox(&quot;Discrepant?&quot;);</span>
+<span class="nc" id="L175">		includePanel.add(includeDiscrepantObservationCheckbox);</span>
+<span class="nc" id="L176">		includeExcludedObservationCheckbox = new JCheckBox(&quot;Excluded?&quot;);</span>
+<span class="nc" id="L177">		includePanel.add(includeExcludedObservationCheckbox);</span>
+
+<span class="nc" id="L179">		extraButtonPanel.add(includePanel);</span>
+
+<span class="nc" id="L181">		JButton loadButton = new JButton(LocaleProps.get(&quot;LOAD_BUTTON&quot;));</span>
+<span class="nc" id="L182">		loadButton.addActionListener(e -&gt; {</span>
+			try {
+<span class="nc" id="L184">				Pair&lt;String, String&gt; content = Mediator.getInstance().getVelaFileLoadDialog().readFileAsString(this,</span>
+						null);
+<span class="nc bnc" id="L186" title="All 2 branches missed.">				if (content != null) {</span>
+<span class="nc" id="L187">					velaFilterField.setText(content.first);</span>
+				}
+<span class="nc" id="L189">			} catch (Exception ex) {</span>
+<span class="nc" id="L190">				MessageBox.showErrorDialog(this, getTitle(), ex);</span>
+<span class="nc" id="L191">			}</span>
+<span class="nc" id="L192">		});</span>
+<span class="nc" id="L193">		extraButtonPanel.add(loadButton);</span>
+
+<span class="nc" id="L195">		JButton clearButton = new JButton(LocaleProps.get(&quot;CLEAR_BUTTON&quot;));</span>
+<span class="nc" id="L196">		clearButton.addActionListener(createClearButtonListener());</span>
+<span class="nc" id="L197">		extraButtonPanel.add(clearButton, BorderLayout.LINE_END);</span>
+
+<span class="nc" id="L199">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L200">		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));</span>
+
+<span class="nc" id="L202">		panel.add(extraButtonPanel);</span>
+<span class="nc" id="L203">		panel.add(super.createButtonPane());</span>
+
+<span class="nc" id="L205">		return panel;</span>
+	}
+
+	// Return a listener for the reset button.
+	private ActionListener createClearButtonListener() {
+<span class="nc" id="L210">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L212">				velaFilterField.setText(&quot;&quot;);</span>
+<span class="nc" id="L213">				includeDiscrepantObservationCheckbox.setSelected(false);</span>
+<span class="nc" id="L214">				includeExcludedObservationCheckbox.setSelected(false);</span>
+<span class="nc" id="L215">				includeFainterThanObservationCheckbox.setSelected(false);</span>
+<span class="nc" id="L216">			}</span>
+		};
+	}
+
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
+	 */
+	@Override
+	protected void cancelAction() {
+		// Nothing to be done.
+<span class="nc" id="L227">	}</span>
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
+	 */
+	@Override
+	protected void okAction() {
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		if (velaFilterField.getText().length() != 0) {</span>
+			// TODO: call a VeLa interpreter parse method and catch
+			// VeLaParseError before calling these
+<span class="nc" id="L237">			setCancelled(false);</span>
+<span class="nc" id="L238">			setVisible(false);</span>
+		}
+<span class="nc" id="L240">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

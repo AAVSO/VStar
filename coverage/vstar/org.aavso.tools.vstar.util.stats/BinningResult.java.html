@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BinningResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.stats</a> &gt; <span class="el_source">BinningResult.java</span></div><h1>BinningResult.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.stats;
+
+import java.util.List;
+
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.apache.commons.math.stat.inference.OneWayAnova;
+import org.apache.commons.math.stat.inference.OneWayAnovaImpl;
+
+/**
+ * The result of a binning operation including mean observations (with averages
+ * and confidence intervals per bin), magnitude bins, and analysis of variance
+ * results (F-test, p-value).
+ */
+public class BinningResult {
+
+	private SeriesType series;
+	private int sourceObsCount;
+	private List&lt;ValidObservation&gt; meanObservations;
+	private List&lt;double[]&gt; magnitudeBins;
+	private double fValue;
+	private double pValue;
+	private boolean error;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param series
+	 *            The series type of the observations.
+	 * @param sourceObsCount
+	 *            The number of source observations.
+	 * @param meanObservations
+	 *            A list of mean observations.
+	 * @param magnitudeBins
+	 *            The corresponding magnitude bins that gave rise to the binned
+	 *            mean observations.
+	 */
+	public BinningResult(SeriesType series, int sourceObsCount,
+			List&lt;ValidObservation&gt; meanObservations,
+<span class="fc" id="L58">			List&lt;double[]&gt; magnitudeBins) {</span>
+<span class="fc" id="L59">		this.series = series;</span>
+<span class="fc" id="L60">		this.sourceObsCount = sourceObsCount;</span>
+<span class="fc" id="L61">		this.meanObservations = meanObservations;</span>
+<span class="fc" id="L62">		this.magnitudeBins = magnitudeBins;</span>
+<span class="fc" id="L63">		this.error = false;</span>
+
+<span class="fc" id="L65">		OneWayAnova anova = new OneWayAnovaImpl();</span>
+		try {
+<span class="fc" id="L67">			fValue = anova.anovaFValue(this.magnitudeBins);</span>
+<span class="fc" id="L68">			pValue = anova.anovaPValue(this.magnitudeBins);</span>
+<span class="nc" id="L69">		} catch (Exception e) {</span>
+<span class="nc" id="L70">			error = true;</span>
+<span class="nc" id="L71">			fValue = Double.NaN;</span>
+<span class="nc" id="L72">			pValue = Double.NaN;</span>
+<span class="fc" id="L73">		}</span>
+<span class="fc" id="L74">	}</span>
+
+	/**
+	 * @return the series
+	 */
+	public SeriesType getSeries() {
+<span class="nc" id="L80">		return series;</span>
+	}
+
+	/**
+	 * @return the meanObservations
+	 */
+	public List&lt;ValidObservation&gt; getMeanObservations() {
+<span class="fc" id="L87">		return meanObservations;</span>
+	}
+
+	/**
+	 * @return the magnitudeBins
+	 */
+	public List&lt;double[]&gt; getMagnitudeBins() {
+<span class="fc" id="L94">		return magnitudeBins;</span>
+	}
+
+	/**
+	 * @return the fValue
+	 */
+	public double getFValue() {
+<span class="fc" id="L101">		return fValue;</span>
+	}
+
+	/**
+	 * @return the pValue
+	 */
+	public double getPValue() {
+<span class="fc" id="L108">		return pValue;</span>
+	}
+
+	/**
+	 * Returns the between-group degrees of freedom for the F-test result. This
+	 * is defined as: df(b) = K-1 where K is the number of groups.
+	 * 
+	 * @return The degrees of freedom.
+	 */
+	public int getBetweenGroupDF() {
+<span class="fc" id="L118">		return magnitudeBins.size() - 1;</span>
+	}
+
+	/**
+	 * Returns the within-group degrees of freedom for the F-test result. This
+	 * is defined as: df(w) = (N1-1)+(N2-1)+...+(Nm-1) where N1..Nm are the
+	 * number of values within each group. This should be k (the number of
+	 * groups, i.e. bins) less than N, the total number of data-points
+	 * (observations) used for binning.
+	 * 
+	 * @return The degrees of freedom.
+	 */
+	public int getWithinGroupDF() {
+		// int sum = 0;
+		//
+		// for (double[] binData : magnitudeBins) {
+		// sum += (binData.length - 1);
+		// }
+
+		// N-k
+<span class="fc" id="L138">		int N_minus_k = sourceObsCount - magnitudeBins.size();</span>
+		// assert N_minus_k == sum;
+<span class="fc" id="L140">		return N_minus_k;</span>
+	}
+
+	/**
+	 * Does this binning result have a sane F-test and p-values? Insufficient
+	 * data is one reason why the values may not be valid.
+	 * 
+	 * @return Whether or not the ANOVA values are valid.
+	 */
+	public boolean hasValidAnovaValues() {
+<span class="nc bnc" id="L150" title="All 2 branches missed.">		return !error;</span>
+	}
+
+	// Returns ANOVA result text suitable for display.
+	public String createAnovaText() {
+<span class="nc" id="L155">		String msg = null;</span>
+
+		// Example: F-value: 18.22 on 12 and 346 degrees of freedom p-value: &lt;
+		// 0.000001.
+
+<span class="nc bnc" id="L160" title="All 2 branches missed.">		if (hasValidAnovaValues()) {</span>
+			String pValueStr;
+<span class="nc bnc" id="L162" title="All 2 branches missed.">			if (getPValue() &lt; 0.000001) {</span>
+<span class="nc" id="L163">				pValueStr = &quot;p-value: &lt; 0.000001&quot;;</span>
+			} else {
+<span class="nc" id="L165">				pValueStr = &quot;p-value: &quot;</span>
+<span class="nc" id="L166">						+ NumericPrecisionPrefs.formatOther(getPValue());</span>
+			}
+
+<span class="nc" id="L169">			msg = String.format(</span>
+
+<span class="nc" id="L171">			&quot;%s, F-value: %s on %d and %d degrees of freedom, %s&quot;, getSeries(),</span>
+<span class="nc" id="L172">					NumericPrecisionPrefs.formatOther(getFValue()),</span>
+<span class="nc" id="L173">					getBetweenGroupDF(), getWithinGroupDF(), pValueStr);</span>
+<span class="nc" id="L174">		} else {</span>
+<span class="nc" id="L175">			msg = &quot;anova: insufficient data&quot;;</span>
+		}
+
+<span class="nc" id="L178">		return msg;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

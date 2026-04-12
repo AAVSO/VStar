@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolarCoords.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.date</a> &gt; <span class="el_source">SolarCoords.java</span></div><h1>SolarCoords.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2016  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more detaisls.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.date;
+
+/**
+ * Solar coordinates and related values.
+ */
+public class SolarCoords {
+
+	private double ra;
+	private double dec;
+	private double apparentRA;
+	private double apparentDec;
+	private double Lo;
+	private double M;
+	private double C;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param ra
+	 *            The Sun's RA in decimal degrees.
+	 * @param dec
+	 *            The Sun's declination in decimal degrees.
+	 * @param apparentRA
+	 *            The Sun's apparent RA in decimal degrees.
+	 * @param apparentDec
+	 *            The Sun's apparent declination in decimal degrees.
+	 * @param Lo
+	 *            Geometric mean longitude of the Sun.
+	 * @param M
+	 *            The true solar anomaly.
+	 * @param C
+	 *            The Sun's equation of center.
+	 */
+	public SolarCoords(double ra, double dec, double apparentRA,
+			double apparentDec, double Lo, double M, double C) {
+<span class="fc" id="L53">		super();</span>
+<span class="fc" id="L54">		this.ra = ra;</span>
+<span class="fc" id="L55">		this.dec = dec;</span>
+<span class="fc" id="L56">		this.apparentRA = apparentRA;</span>
+<span class="fc" id="L57">		this.apparentDec = apparentDec;</span>
+<span class="fc" id="L58">		this.Lo = Lo;</span>
+<span class="fc" id="L59">		this.M = M;</span>
+<span class="fc" id="L60">		this.C = C;</span>
+<span class="fc" id="L61">	}</span>
+
+	/**
+	 * @return the Sun's right ascension in decimal degrees.
+	 */
+	public double getRA() {
+<span class="fc" id="L67">		return ra;</span>
+	}
+
+	/**
+	 * @return the Sun's declination in decimal degrees.
+	 */
+	public double getDec() {
+<span class="fc" id="L74">		return dec;</span>
+	}
+
+	/**
+	 * @return the Sun's apparent right ascension in decimal degrees.
+	 */
+	public double getApparentRA() {
+<span class="fc" id="L81">		return apparentRA;</span>
+	}
+
+	/**
+	 * @return the Sun's apparent declination in decimal degrees.
+	 */
+	public double getApparentDec() {
+<span class="fc" id="L88">		return apparentDec;</span>
+	}
+
+	/**
+	 * @return the Sun's geometric mean longitude in radians.
+	 */
+	public double getGeometricMeanLongitude() {
+<span class="fc" id="L95">		return Lo;</span>
+	}
+
+	/**
+	 * @return the Sun's true anomaly in radians.
+	 */
+	public double getTrueAnomaly() {
+<span class="fc" id="L102">		return M;</span>
+	}
+
+	/**
+	 * @return the Sun's equation of center in radians.
+	 */
+	public double getEquationOfCenter() {
+<span class="fc" id="L109">		return C;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

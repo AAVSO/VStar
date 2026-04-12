@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ObservationSinkPluginBase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.plugin</a> &gt; <span class="el_source">ObservationSinkPluginBase.java</span></div><h1>ObservationSinkPluginBase.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.plugin;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.Map;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.resources.LoginInfo;
+
+/**
+ * &lt;p&gt;
+ * This is the base class for all observation sink plug-in classes.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * An observation sink plugin will appear in a chooser in VStar's file save
+ * dialog menu when its jar file is placed into the vstar_plugins directory.
+ * &lt;/p&gt;
+ */
+<span class="fc" id="L37">public abstract class ObservationSinkPluginBase implements IPlugin {</span>
+
+<span class="fc" id="L39">	protected boolean testMode = false;</span>
+
+	/**
+	 * Save the specified observations.
+	 * 
+	 * @param writer
+	 *            A text writer.
+	 * @param obs
+	 *            A list of observations.
+	 * @param delimiter
+	 *            The field delimiter to use; may be null.
+	 */
+	abstract public void save(PrintWriter writer,
+			List&lt;ValidObservation&gt; obs, String delimiter) throws IOException;
+
+	/**
+	 * Return a mapping from field delimiter names to delimiter string values to
+	 * be displayed in the file save dialog.
+	 * 
+	 * @return The map of field delimiter name-value pairs; may be null.
+	 */
+	public Map&lt;String, String&gt; getDelimiterNameValuePairs() {
+<span class="nc" id="L61">		return null;</span>
+	}
+
+	/**
+	 * Return a mapping from field delimiter names to file suffix values to
+	 * be used if a file name with no suffix is not specified.
+	 * 
+	 * @return The map of field delimiter name-suffix pairs; may be null.
+	 */
+	public Map&lt;String, String&gt; getDelimiterSuffixValuePairs() {
+<span class="nc" id="L71">		return null;</span>
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+<span class="nc" id="L79">		return null;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
+	 */
+	@Override
+	public String getGroup() {
+<span class="nc" id="L87">		return null;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#requiresAuthentication()
+	 */
+	@Override
+	public boolean requiresAuthentication() {
+<span class="nc" id="L95">		return false;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#additionalAuthenticationSatisfied(org.aavso.tools.vstar.ui.resources.LoginInfo)
+	 */
+	@Override
+	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
+<span class="nc" id="L103">		return true;</span>
+	}
+	
+	@Override
+	public Boolean test() {
+<span class="nc" id="L108">		return null;</span>
+	}
+
+	@Override
+	public boolean inTestMode() {
+<span class="nc" id="L113">		return testMode;</span>
+	}
+
+	@Override
+	public void setTestMode(boolean mode) {
+<span class="nc" id="L118">		testMode = mode;	</span>
+<span class="nc" id="L119">	}	</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

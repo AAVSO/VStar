@@ -1,0 +1,679 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StarSelectorDialog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog</a> &gt; <span class="el_source">StarSelectorDialog.java</span></div><h1>StarSelectorDialog.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog;
+
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Calendar;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.plugin.PluginComponentFactory;
+import org.aavso.tools.vstar.ui.dialog.series.AIDSeriesSelectionPane;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.StarGroupChangedMessage;
+import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.date.AbstractDateUtil;
+import org.aavso.tools.vstar.util.help.Help;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.locale.NumberParser;
+import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
+/**
+ * This dialog allows the user to select a star.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class StarSelectorDialog extends AbstractOkCancelDialog {
+
+<span class="nc" id="L59">    private static AbstractDateUtil dateUtil = AbstractDateUtil.getInstance();</span>
+
+    private Container contentPane;
+
+    private StarGroupSelectionPane starGroupSelectionPane;
+    private JTextField starField;
+    private JTextField minJDField;
+    private JTextField maxJDField;
+    private TextArea obsCodesField;
+    private TextArea velaFilterField;
+    private JCheckBox allDataCheckBox;
+    private JCheckBox additiveLoadCheckbox;
+    private JCheckBox minFieldsCheckbox;
+
+    // TODO: add a show counts button/checkbox that displays the counts for data
+    // based upon the criteria specified in a dialog similar to Info
+
+    private AIDSeriesSelectionPane aidSeriesPane;
+
+    private String starName;
+    private String auid;
+    private DateInfo minDate;
+    private DateInfo maxDate;
+    private boolean wantAllData;
+
+    private Calendar cal;
+    private int year, month, day;
+
+<span class="nc" id="L87">    private static Pattern whitespacePattern = Pattern.compile(&quot;^\\s*$&quot;);</span>
+
+    // Regex pattern for AUID (AAVSO unique ID per star).
+<span class="nc" id="L90">    private static Pattern auidPattern = Pattern.compile(&quot;^\\d{3}\\-\\w{3}\\-\\d{3}$&quot;);</span>
+
+<span class="nc" id="L92">    private String pluginDocName = null;</span>
+
+    /**
+     * Constructor (singleton)
+     */
+    private StarSelectorDialog() {
+<span class="nc" id="L98">        super(LocaleProps.get(&quot;NEW_STAR_FROM_AID_DLG_TITLE&quot;));</span>
+
+<span class="nc" id="L100">        this.starName = null;</span>
+<span class="nc" id="L101">        this.auid = null;</span>
+<span class="nc" id="L102">        this.minDate = null;</span>
+<span class="nc" id="L103">        this.maxDate = null;</span>
+<span class="nc" id="L104">        this.wantAllData = false;</span>
+
+<span class="nc" id="L106">        cal = Calendar.getInstance();</span>
+        // Ensure the JD is well past today by adding one day, so that recently
+        // added observations in AID will fall into the JD range. See ticket
+        // #509 Make
+        // default JD range slightly into future for AID loads:
+        // https://sourceforge.net/p/vstar/bugs-and-features/509/
+<span class="nc" id="L112">        cal.add(Calendar.DAY_OF_MONTH, 1);</span>
+<span class="nc" id="L113">        year = cal.get(Calendar.YEAR);</span>
+<span class="nc" id="L114">        month = cal.get(Calendar.MONTH) + 1; // 0..11 -&gt; 1..12</span>
+<span class="nc" id="L115">        day = cal.get(Calendar.DAY_OF_MONTH);</span>
+
+<span class="nc" id="L117">        contentPane = this.getContentPane();</span>
+
+<span class="nc" id="L119">        JPanel leftPane = new JPanel();</span>
+<span class="nc" id="L120">        leftPane.setLayout(new BoxLayout(leftPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L121">        leftPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+<span class="nc" id="L122">        leftPane.setToolTipText(&quot;Select a star from drop-down or enter a name, AUID or alias.&quot;);</span>
+
+<span class="nc" id="L124">        JPanel starFieldPane = createStarFieldPane();</span>
+<span class="nc" id="L125">        starGroupSelectionPane = new StarGroupSelectionPane(starField, false);</span>
+<span class="nc" id="L126">        leftPane.add(starGroupSelectionPane);</span>
+
+<span class="nc" id="L128">        leftPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+<span class="nc" id="L129">        leftPane.add(starFieldPane);</span>
+<span class="nc" id="L130">        leftPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+<span class="nc" id="L131">        leftPane.add(createMinJDFieldPane());</span>
+<span class="nc" id="L132">        leftPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+<span class="nc" id="L133">        leftPane.add(createMaxJDFieldPane());</span>
+<span class="nc" id="L134">        leftPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+<span class="nc" id="L136">        leftPane.add(createOptionsPane());</span>
+
+<span class="nc" id="L138">        JPanel rightPane = new JPanel();</span>
+<span class="nc" id="L139">        rightPane.setLayout(new BoxLayout(rightPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L140">        rightPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L142">        rightPane.add(createSeriesSelectionPane());</span>
+<span class="nc" id="L143">        rightPane.add(createObsCodesPane());</span>
+<span class="nc" id="L144">        leftPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+<span class="nc" id="L145">        rightPane.add(createVeLaFilterPane());</span>
+
+        // Default layout manager of content pane is BorderLayout
+<span class="nc" id="L148">        contentPane.add(leftPane, BorderLayout.LINE_START);</span>
+<span class="nc" id="L149">        contentPane.add(rightPane, BorderLayout.LINE_END);</span>
+        // contentPane.add(createButtonPane(), BorderLayout.PAGE_END);
+<span class="nc" id="L151">        contentPane.add(createButtonPane2(), BorderLayout.PAGE_END);</span>
+
+        // this.addWindowListener(this.createWindowListener());
+
+<span class="nc" id="L155">        this.pack();</span>
+<span class="nc" id="L156">        starGroupSelectionPane.requestFocusInWindow();</span>
+<span class="nc" id="L157">    }</span>
+
+    // Getters
+
+    /**
+     * @return the starName; a valid value is null in the case where an auid is
+     *         entered in the &quot;Other Star&quot; field rather than being selected from the
+     *         pull-down menu.
+     */
+    public String getStarName() {
+<span class="nc" id="L167">        return starName;</span>
+    }
+
+    /**
+     * @return the auid; a valid value is null in the case where a name is entered
+     *         in the &quot;Other Star&quot; field rather than being selected from the
+     *         pull-down menu.
+     */
+    public String getAuid() {
+<span class="nc" id="L176">        return auid;</span>
+    }
+
+    /**
+     * @return the minDate
+     */
+    public DateInfo getMinDate() {
+<span class="nc" id="L183">        return minDate;</span>
+    }
+
+    /**
+     * @return the maxDate
+     */
+    public DateInfo getMaxDate() {
+<span class="nc" id="L190">        return maxDate;</span>
+    }
+
+    /**
+     * @return return whether we want all the data
+     */
+    public boolean wantAllData() {
+<span class="nc" id="L197">        return wantAllData;</span>
+    }
+
+    /**
+     * Return whether or not the load is additive.
+     * 
+     * @return Whether or not the load is additive.
+     */
+    public boolean isLoadAdditive() {
+<span class="nc" id="L206">        return additiveLoadCheckbox.isSelected();</span>
+    }
+
+    /**
+     * Return whether or not to load minimal fields.
+     * 
+     * @return Whether or not to load minimal fields.
+     */
+    public boolean loadMinimalFields() {
+<span class="nc" id="L215">        return minFieldsCheckbox.isSelected();</span>
+    }
+
+    /**
+     * Return the selected series.
+     */
+    public List&lt;SeriesType&gt; getSelectedSeries() {
+<span class="nc" id="L222">        return aidSeriesPane.getSelectedSeries();</span>
+    }
+
+    /**
+     * Return a comma-delimited string of observer codes or null if there are none.
+     */
+    public String getObsCodes() {
+<span class="nc" id="L229">        String obscodes = null;</span>
+
+<span class="nc" id="L231">        String text = obsCodesField.getValue();</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">        if (text.trim().length() &gt; 0) {</span>
+<span class="nc" id="L233">            StringBuffer obscodesBuf = new StringBuffer();</span>
+<span class="nc" id="L234">            String[] fields = text.split(&quot;\\s+&quot;);</span>
+
+<span class="nc bnc" id="L236" title="All 2 branches missed.">            for (int i = 0; i &lt; fields.length; i++) {</span>
+<span class="nc" id="L237">                obscodesBuf.append(fields[i].trim());</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">                if (i &lt; fields.length - 1) {</span>
+<span class="nc" id="L239">                    obscodesBuf.append(&quot;,&quot;);</span>
+                }
+            }
+
+<span class="nc" id="L243">            obscodes = obscodesBuf.toString();</span>
+        }
+
+<span class="nc" id="L246">        return obscodes;</span>
+    }
+
+    /**
+     * Returns the content of the VeLa filter field.
+     * 
+     * @return the string content of the VeLa filter field.
+     */
+    public String getVeLaFilter() {
+<span class="nc" id="L255">        return velaFilterField.getValue().trim();</span>
+    }
+
+    /**
+     * @return has the dialog been cancelled? TODO: isn't this in base class?
+     */
+    public boolean isCancelled() {
+<span class="nc" id="L262">        return cancelled;</span>
+    }
+
+    // Setters
+
+    /**
+     * Set the star field text.
+     * 
+     * @param text The text to be set in the star field.
+     */
+    public void setStarField(String text) {
+<span class="nc" id="L273">        starField.setText(text);</span>
+<span class="nc" id="L274">    }</span>
+
+    public void setPluginDocName(String pluginDocName) {
+<span class="nc" id="L277">        this.pluginDocName = pluginDocName;</span>
+<span class="nc" id="L278">    }</span>
+
+    // GUI components
+
+    private JPanel createStarFieldPane() {
+<span class="nc" id="L283">        JPanel panel = new JPanel();</span>
+<span class="nc" id="L284">        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L285">        panel.setBorder(BorderFactory.createTitledBorder(LocaleProps.get(&quot;NEW_STAR_FROM_AID_DLG_OTHER_STAR&quot;)));</span>
+
+<span class="nc" id="L287">        starField = new JTextField();</span>
+<span class="nc" id="L288">        starField.addActionListener(createStarFieldActionListener());</span>
+<span class="nc" id="L289">        starField.setToolTipText(&quot;Enter star name, alias or AUID&quot;);</span>
+<span class="nc" id="L290">        panel.add(starField);</span>
+
+<span class="nc" id="L292">        return panel;</span>
+    }
+
+    private JPanel createMinJDFieldPane() {
+<span class="nc" id="L296">        JPanel panel = new JPanel();</span>
+<span class="nc" id="L297">        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L298">        panel.setBorder(BorderFactory.createTitledBorder(LocaleProps.get(&quot;NEW_STAR_FROM_AID_DLG_MINIMUM_JD&quot;)));</span>
+
+<span class="nc" id="L300">        double jd = dateUtil.calendarToJD(year - 2, month, day);</span>
+<span class="nc" id="L301">        minJDField = new JTextField(NumericPrecisionPrefs.formatTime(jd));</span>
+        // minJDField.addActionListener(createMinJDFieldActionListener());
+        // minJDField.addFocusListener(createMinJDFieldFocusListener());
+<span class="nc" id="L304">        minJDField.getDocument().addDocumentListener(createJDFieldDocumentListener(minJDField));</span>
+<span class="nc" id="L305">        minJDField.setToolTipText(dateUtil.jdToCalendar(jd));</span>
+<span class="nc" id="L306">        panel.add(minJDField);</span>
+
+<span class="nc" id="L308">        JButton convButton = new JButton(&quot;...&quot;);</span>
+<span class="nc" id="L309">        convButton.setName(&quot;ButtonMinJD&quot;);</span>
+<span class="nc" id="L310">        convButton.addActionListener(createConvButtonListener());</span>
+<span class="nc" id="L311">        panel.add(convButton);</span>
+
+<span class="nc" id="L313">        return panel;</span>
+    }
+
+    private JPanel createMaxJDFieldPane() {
+<span class="nc" id="L317">        JPanel panel = new JPanel();</span>
+<span class="nc" id="L318">        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L319">        panel.setBorder(BorderFactory.createTitledBorder(LocaleProps.get(&quot;NEW_STAR_FROM_AID_DLG_MAXIMUM_JD&quot;)));</span>
+
+<span class="nc" id="L321">        double jd = dateUtil.calendarToJD(year, month, day);</span>
+<span class="nc" id="L322">        maxJDField = new JTextField(NumericPrecisionPrefs.formatTime(jd));</span>
+        // maxJDField.addActionListener(createMaxJDFieldActionListener());
+        // maxJDField.addFocusListener(createMaxJDFieldFocusListener());
+<span class="nc" id="L325">        maxJDField.getDocument().addDocumentListener(createJDFieldDocumentListener(maxJDField));</span>
+<span class="nc" id="L326">        maxJDField.setToolTipText(dateUtil.jdToCalendar(jd));</span>
+<span class="nc" id="L327">        panel.add(maxJDField);</span>
+
+<span class="nc" id="L329">        JButton convButton = new JButton(&quot;...&quot;);</span>
+<span class="nc" id="L330">        convButton.setName(&quot;ButtonMaxJD&quot;);</span>
+<span class="nc" id="L331">        convButton.addActionListener(createConvButtonListener());</span>
+<span class="nc" id="L332">        panel.add(convButton);</span>
+
+<span class="nc" id="L334">        return panel;</span>
+    }
+
+    private ActionListener createConvButtonListener() {
+<span class="nc" id="L338">        return new ActionListener() {</span>
+            @Override
+            public void actionPerformed(ActionEvent e) {
+<span class="nc bnc" id="L341" title="All 2 branches missed.">                if (e.getSource() instanceof JButton) {</span>
+<span class="nc" id="L342">                    JButton b = (JButton) e.getSource();</span>
+<span class="nc" id="L343">                    JTextField field = null;</span>
+<span class="nc" id="L344">                    String dialogTitle = null;</span>
+<span class="nc bnc" id="L345" title="All 2 branches missed.">                    if (&quot;ButtonMinJD&quot;.equals(b.getName())) {</span>
+<span class="nc" id="L346">                        field = minJDField;</span>
+<span class="nc" id="L347">                        dialogTitle = LocaleProps.get(&quot;NEW_STAR_FROM_AID_DLG_MINIMUM_JD&quot;);</span>
+<span class="nc bnc" id="L348" title="All 2 branches missed.">                    } else if (&quot;ButtonMaxJD&quot;.equals(b.getName())) {</span>
+<span class="nc" id="L349">                        field = maxJDField;</span>
+<span class="nc" id="L350">                        dialogTitle = LocaleProps.get(&quot;NEW_STAR_FROM_AID_DLG_MAXIMUM_JD&quot;);</span>
+                    }
+<span class="nc bnc" id="L352" title="All 2 branches missed.">                    if (field != null) {</span>
+<span class="nc" id="L353">                        String dateText = field.getText();</span>
+<span class="nc" id="L354">                        Double date = NumberParser.parseDouble(dateText);</span>
+<span class="nc" id="L355">                        DateToJdDialog dlg = new DateToJdDialog(dialogTitle);</span>
+<span class="nc" id="L356">                        dlg.setJD(date);</span>
+<span class="nc" id="L357">                        dlg.showDialog();</span>
+<span class="nc bnc" id="L358" title="All 2 branches missed.">                        if (!dlg.isCancelled()) {</span>
+<span class="nc" id="L359">                            field.setToolTipText(null);</span>
+<span class="nc" id="L360">                            double jd = dlg.getJD();</span>
+<span class="nc" id="L361">                            field.setText(NumericPrecisionPrefs.formatTime(jd));</span>
+<span class="nc" id="L362">                            field.setToolTipText(dateUtil.jdToCalendar(jd));</span>
+                        }
+                    }
+                }
+<span class="nc" id="L366">            }</span>
+        };
+    }
+
+    private DocumentListener createJDFieldDocumentListener(JTextField source) {
+<span class="nc" id="L371">        return new DocumentListener() {</span>
+
+<span class="nc" id="L373">            private JTextField sourceField = source;</span>
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+<span class="nc" id="L377">                updateToolTip(e);</span>
+<span class="nc" id="L378">            }</span>
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+<span class="nc" id="L382">                updateToolTip(e);</span>
+<span class="nc" id="L383">            }</span>
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+<span class="nc" id="L387">                updateToolTip(e);</span>
+<span class="nc" id="L388">            }</span>
+
+            private void updateToolTip(DocumentEvent e) {
+<span class="nc bnc" id="L391" title="All 2 branches missed.">                if (sourceField != null) {</span>
+<span class="nc" id="L392">                    String calendarString = null;</span>
+<span class="nc" id="L393">                    String text = sourceField.getText().trim();</span>
+<span class="nc bnc" id="L394" title="All 2 branches missed.">                    if (!&quot;&quot;.equals(text)) {</span>
+                        try {
+<span class="nc" id="L396">                            double d = NumberParser.parseDouble(text);</span>
+<span class="nc" id="L397">                            calendarString = dateUtil.jdToCalendar(d);</span>
+<span class="nc" id="L398">                        } catch (Exception ex) {</span>
+<span class="nc" id="L399">                            calendarString = null;</span>
+<span class="nc" id="L400">                        }</span>
+                    }
+<span class="nc" id="L402">                    sourceField.setToolTipText(calendarString);</span>
+                    // System.out.println(&quot;Tooltip for &quot; + sourceField.getName() + &quot; was set to: &quot; +
+                    // (calendarString == null ? &quot;&lt;null&gt;&quot; : calendarString));
+                }
+<span class="nc" id="L406">            }</span>
+        };
+    }
+
+    private JPanel createOptionsPane() {
+<span class="nc" id="L411">        JPanel panel = new JPanel();</span>
+<span class="nc" id="L412">        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L413">        panel.setBorder(BorderFactory.createTitledBorder(&quot;Options&quot;));</span>
+
+<span class="nc" id="L415">        panel.add(createAdditiveLoadCheckboxPane());</span>
+<span class="nc" id="L416">        panel.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+<span class="nc" id="L417">        panel.add(createMinFieldsCheckBoxPane());</span>
+<span class="nc" id="L418">        panel.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+<span class="nc" id="L419">        panel.add(createAllDataCheckBoxPane());</span>
+
+<span class="nc" id="L421">        return panel;</span>
+    }
+
+    private JPanel createMinFieldsCheckBoxPane() {
+<span class="nc" id="L425">        JPanel panel = new JPanel();</span>
+
+<span class="nc" id="L427">        minFieldsCheckbox = new JCheckBox(&quot;Minimal Fields?&quot;);</span>
+<span class="nc" id="L428">        panel.add(minFieldsCheckbox);</span>
+
+<span class="nc" id="L430">        return panel;</span>
+    }
+
+    private JPanel createAdditiveLoadCheckboxPane() {
+<span class="nc" id="L434">        JPanel panel = new JPanel();</span>
+
+<span class="nc" id="L436">        additiveLoadCheckbox = new JCheckBox(&quot;Add to current?&quot;);</span>
+<span class="nc" id="L437">        panel.add(additiveLoadCheckbox);</span>
+
+<span class="nc" id="L439">        return panel;</span>
+    }
+
+    private JPanel createAllDataCheckBoxPane() {
+<span class="nc" id="L443">        JPanel panel = new JPanel();</span>
+
+<span class="nc" id="L445">        allDataCheckBox = new JCheckBox(LocaleProps.get(&quot;NEW_STAR_FROM_AID_DLG_ALL_DATA&quot;));</span>
+<span class="nc" id="L446">        allDataCheckBox.addActionListener(createAllDataCheckBoxActionListener());</span>
+<span class="nc" id="L447">        panel.add(allDataCheckBox, BorderLayout.CENTER);</span>
+
+<span class="nc" id="L449">        return panel;</span>
+    }
+
+    private JPanel createSeriesSelectionPane() {
+<span class="nc" id="L453">        JPanel panel = new JPanel();</span>
+<span class="nc" id="L454">        panel.setBorder(BorderFactory.createTitledBorder(&quot;&quot;));</span>
+
+<span class="nc" id="L456">        aidSeriesPane = new AIDSeriesSelectionPane();</span>
+<span class="nc" id="L457">        panel.add(aidSeriesPane);</span>
+
+<span class="nc" id="L459">        return panel;</span>
+    }
+
+    private JPanel createObsCodesPane() {
+<span class="nc" id="L463">        Pair&lt;TextArea, JPanel&gt; pair = PluginComponentFactory.createTextAreaPane(&quot;Observer Codes&quot;,</span>
+                &quot;Observer codes, separated by spaces&quot;, 1, 20);
+
+<span class="nc" id="L466">        obsCodesField = pair.first;</span>
+
+<span class="nc" id="L468">        return pair.second;</span>
+    }
+
+    /**
+     * This component creates a VeLa Filter pane.
+     */
+    private JPanel createVeLaFilterPane() {
+<span class="nc" id="L475">        Pair&lt;TextArea, JPanel&gt; pair = PluginComponentFactory.createVeLaFilterPane();</span>
+<span class="nc" id="L476">        velaFilterField = pair.first;</span>
+
+<span class="nc" id="L478">        return pair.second;</span>
+    }
+
+    // Event handlers
+
+    // Return a listener for the star field.
+    private ActionListener createStarFieldActionListener() {
+<span class="nc" id="L485">        return new ActionListener() {</span>
+            public void actionPerformed(ActionEvent e) {
+                // Nothing to do
+<span class="nc" id="L488">            }</span>
+        };
+    }
+
+//	// Return listeners for the minimum Julian Day field.
+//
+//	private ActionListener createMinJDFieldActionListener() {
+//		return new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				// checkInput();
+//				minJDField.setToolTipText(dateUtil.jdToCalendar(NumberParser
+//						.parseDouble(minJDField.getText())));
+//			}
+//		};
+//	}
+//
+//	private FocusListener createMinJDFieldFocusListener() {
+//		return new FocusListener() {
+//			String prevString = &quot;&quot;;
+//
+//			public void focusGained(FocusEvent e) {
+//			}
+//
+//			public void focusLost(FocusEvent e) {
+//				String current = minJDField.getText();
+//				if (!prevString.equals(current)) {
+//					minJDField.setToolTipText(dateUtil
+//							.jdToCalendar(NumberParser.parseDouble(current)));
+//					prevString = current;
+//				}
+//			}
+//		};
+//	}
+
+    // Return a listener for the all-data checkbox.
+    private ActionListener createAllDataCheckBoxActionListener() {
+<span class="nc" id="L524">        return new ActionListener() {</span>
+            public void actionPerformed(ActionEvent e) {
+<span class="nc bnc" id="L526" title="All 2 branches missed.">                if (allDataCheckBox.isSelected()) {</span>
+                    // Disable date fields to avoid usability confusion.
+<span class="nc" id="L528">                    minJDField.setEnabled(false);</span>
+<span class="nc" id="L529">                    maxJDField.setEnabled(false);</span>
+                } else {
+                    // We've unchecked all data so we want to reenable fields
+                    // leaving the values that are there.
+<span class="nc" id="L533">                    minJDField.setEnabled(true);</span>
+<span class="nc" id="L534">                    maxJDField.setEnabled(true);</span>
+                }
+<span class="nc" id="L536">            }</span>
+        };
+    }
+
+//	// Return listeners for the maximum Julian Day field.
+//
+//	private ActionListener createMaxJDFieldActionListener() {
+//		return new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				// checkInput();
+//				maxJDField.setToolTipText(dateUtil.jdToCalendar(NumberParser
+//						.parseDouble(maxJDField.getText())));
+//			}
+//		};
+//	}
+//
+//	private FocusListener createMaxJDFieldFocusListener() {
+//		return new FocusListener() {
+//			String prevString = &quot;&quot;;
+//
+//			public void focusGained(FocusEvent e) {
+//			}
+//
+//			public void focusLost(FocusEvent e) {
+//				String current = maxJDField.getText();
+//				if (!prevString.equals(current)) {
+//					maxJDField.setToolTipText(dateUtil
+//							.jdToCalendar(NumberParser.parseDouble(current)));
+//					prevString = current;
+//				}
+//			}
+//		};
+//	}
+
+<span class="nc" id="L570">    class UpdateListener implements Listener&lt;StarGroupChangedMessage&gt; {</span>
+
+        @Override
+        public void update(StarGroupChangedMessage info) {
+<span class="nc" id="L574">            starGroupSelectionPane.refreshGroups();</span>
+<span class="nc" id="L575">        }</span>
+
+        @Override
+        public boolean canBeRemoved() {
+<span class="nc" id="L579">            return false;</span>
+        }
+    }
+
+    // Check that we have valid input in an appropriate subset
+    // of dialog widgets. The dialog will not be dismissed until
+    // there is an entry in the star text box and a date range
+    // or the all-data checkbox is selected.
+    private void checkInput() {
+<span class="nc" id="L588">        String text = starField.getText();</span>
+<span class="nc bnc" id="L589" title="All 2 branches missed.">        if (!whitespacePattern.matcher(text).matches()) {</span>
+            // AUID or star name?
+<span class="nc" id="L591">            text = sanitise(text);</span>
+<span class="nc bnc" id="L592" title="All 2 branches missed.">            if (auidPattern.matcher(text).matches()) {</span>
+<span class="nc" id="L593">                auid = text.trim();</span>
+            } else {
+<span class="nc" id="L595">                starName = text.trim();</span>
+            }
+        } else {
+            // There's nothing in the text field, so use the
+            // selected star group item. Note that by setting
+            // the star name, we will force the lookup of star
+            // info from the database.
+<span class="nc" id="L602">            starName = starGroupSelectionPane.getSelectedStarName();</span>
+        }
+
+        // Is the all-data checkbox selected?
+<span class="nc" id="L606">        wantAllData = allDataCheckBox.isSelected();</span>
+
+<span class="nc bnc" id="L608" title="All 2 branches missed.">        if (!wantAllData) {</span>
+            // Valid Julian Date range?
+            try {
+<span class="nc" id="L611">                String minJDText = minJDField.getText();</span>
+<span class="nc" id="L612">                minDate = new DateInfo(NumberParser.parseDouble(minJDText));</span>
+<span class="nc" id="L613">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L614">                MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;Minimum Julian Day&quot;, e);</span>
+<span class="nc" id="L615">            }</span>
+
+            try {
+<span class="nc" id="L618">                String maxJDText = maxJDField.getText();</span>
+<span class="nc" id="L619">                maxDate = new DateInfo(NumberParser.parseDouble(maxJDText));</span>
+<span class="nc" id="L620">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L621">                MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;Maximum Julian Day&quot;, e);</span>
+<span class="nc" id="L622">            }</span>
+        }
+
+        // Can we dismiss the dialog?
+<span class="nc bnc" id="L626" title="All 10 branches missed.">        if ((starName != null || auid != null) &amp;&amp; ((minDate != null &amp;&amp; maxDate != null) || wantAllData)</span>
+<span class="nc bnc" id="L627" title="All 2 branches missed.">                &amp;&amp; !getSelectedSeries().isEmpty()) {</span>
+<span class="nc" id="L628">            cancelled = false;</span>
+<span class="nc" id="L629">            setVisible(false);</span>
+<span class="nc" id="L630">            dispose();</span>
+        }
+<span class="nc" id="L632">    }</span>
+
+    private String sanitise(String str) {
+<span class="nc" id="L635">        return str.replace(&quot;\'&quot;, &quot;&quot;);</span>
+    }
+
+    protected void helpAction() {
+<span class="nc" id="L639">        Help.openPluginHelp(pluginDocName);</span>
+<span class="nc" id="L640">    }</span>
+
+    protected void cancelAction() {
+        // Nothing to do.
+<span class="nc" id="L644">    }</span>
+
+    protected void okAction() {
+<span class="nc" id="L647">        checkInput();</span>
+<span class="nc" id="L648">    }</span>
+
+    /**
+     * Reset this dialog's state so that we don't process old state. This is invoked
+     * by the base class's showDialog() method.
+     */
+    public void reset() {
+        // These fields will either be set to non-null values
+        // by checkInput() before the dialog is dismissed, or
+        // they will be irrelevant if wantAllData is true.
+<span class="nc" id="L658">        this.auid = null;</span>
+<span class="nc" id="L659">        this.starName = null;</span>
+<span class="nc" id="L660">        this.minDate = null;</span>
+<span class="nc" id="L661">        this.maxDate = null;</span>
+<span class="nc" id="L662">        this.wantAllData = false;</span>
+<span class="nc" id="L663">    }</span>
+
+    @Override
+    public void showDialog() {
+<span class="nc" id="L667">        starGroupSelectionPane.refreshGroups();</span>
+<span class="nc" id="L668">        super.showDialog();</span>
+<span class="nc" id="L669">    }</span>
+
+    // Singleton
+
+<span class="nc" id="L673">    private static StarSelectorDialog instance = new StarSelectorDialog();</span>
+
+    public static StarSelectorDialog getInstance() {
+<span class="nc" id="L676">        return instance;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

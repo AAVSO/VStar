@@ -1,0 +1,1627 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MenuBar.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui</a> &gt; <span class="el_source">MenuBar.java</span></div><h1>MenuBar.java</h1><pre class="source lang-java linenums">/**
+
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui;
+
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
+import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
+import org.aavso.tools.vstar.plugin.IPlugin;
+import org.aavso.tools.vstar.plugin.InputType;
+import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase;
+import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
+import org.aavso.tools.vstar.scripting.ScriptRunner;
+import org.aavso.tools.vstar.ui.dialog.AboutBox;
+import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser;
+import org.aavso.tools.vstar.ui.dialog.InfoDialog;
+import org.aavso.tools.vstar.ui.dialog.LogDialog;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.SeriesTypeCreationDialog;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementDialog;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementOperation;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
+import org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog;
+import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.MultipleObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PanType;
+import org.aavso.tools.vstar.ui.mediator.message.PhaseChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.UndoableActionType;
+import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.ui.vela.VeLaDialog;
+import org.aavso.tools.vstar.util.help.Help;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.notification.Listener;
+
+/**
+ * VStar's menu bar.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class MenuBar extends JMenuBar {
+
+	// File menu item names.
+<span class="nc" id="L90">	public static final String NEW_STAR_FROM_DATABASE = LocaleProps.get(&quot;FILE_MENU_NEW_STAR_FROM_DATABASE&quot;);</span>
+<span class="nc" id="L91">	public static final String NEW_STAR_FROM_FILE = LocaleProps.get(&quot;FILE_MENU_NEW_STAR_FROM_FILE&quot;);</span>
+<span class="nc" id="L92">	public static final String SAVE = LocaleProps.get(&quot;FILE_MENU_SAVE&quot;);</span>
+<span class="nc" id="L93">	public static final String PRINT = LocaleProps.get(&quot;FILE_MENU_PRINT&quot;);</span>
+<span class="nc" id="L94">	public static final String INFO = LocaleProps.get(&quot;FILE_MENU_INFO&quot;);</span>
+<span class="nc" id="L95">	public static final String LOG = LocaleProps.get(&quot;FILE_MENU_LOG&quot;);</span>
+<span class="nc" id="L96">	public static final String PREFS = LocaleProps.get(&quot;FILE_MENU_PREFS&quot;);</span>
+<span class="nc" id="L97">	public static final String QUIT = LocaleProps.get(&quot;FILE_MENU_QUIT&quot;);</span>
+
+	// Edit menu items.
+<span class="nc" id="L100">	public static final String UNDO = LocaleProps.get(&quot;EDIT_MENU_UNDO&quot;);</span>
+<span class="nc" id="L101">	public static final String REDO = LocaleProps.get(&quot;EDIT_MENU_REDO&quot;);</span>
+<span class="nc" id="L102">	public static final String SELECT_ALL = LocaleProps.get(&quot;SELECT_ALL&quot;);</span>
+<span class="nc" id="L103">	public static final String EXCLUDE_SELECTION = LocaleProps.get(&quot;EDIT_MENU_EXCLUDE_SELECTION&quot;);</span>
+
+	// View menu item names.
+<span class="nc" id="L106">	public static final String RAW_DATA_MODE = LocaleProps.get(&quot;VIEW_MENU_RAW_DATA_MODE&quot;);</span>
+<span class="nc" id="L107">	public static final String PHASE_PLOT_MODE = LocaleProps.get(&quot;VIEW_MENU_PHASE_PLOT_MODE&quot;);</span>
+<span class="nc" id="L108">	public static final String OB_DETAILS = LocaleProps.get(&quot;VIEW_MENU_OB_DETAILS&quot;);</span>
+<span class="nc" id="L109">	public static final String PLOT_CONTROL = LocaleProps.get(&quot;VIEW_MENU_PLOT_CONTROL&quot;);</span>
+<span class="nc" id="L110">	public static final String ZOOM_IN = LocaleProps.get(&quot;VIEW_MENU_ZOOM_IN&quot;);</span>
+<span class="nc" id="L111">	public static final String ZOOM_OUT = LocaleProps.get(&quot;VIEW_MENU_ZOOM_OUT&quot;);</span>
+<span class="nc" id="L112">	public static final String ZOOM_TO_FIT = LocaleProps.get(&quot;VIEW_MENU_ZOOM_TO_FIT&quot;);</span>
+<span class="nc" id="L113">	public static final String PAN_LEFT = LocaleProps.get(&quot;VIEW_MENU_PAN_LEFT&quot;);</span>
+<span class="nc" id="L114">	public static final String PAN_RIGHT = LocaleProps.get(&quot;VIEW_MENU_PAN_RIGHT&quot;);</span>
+<span class="nc" id="L115">	public static final String PAN_UP = LocaleProps.get(&quot;VIEW_MENU_PAN_UP&quot;);</span>
+<span class="nc" id="L116">	public static final String PAN_DOWN = LocaleProps.get(&quot;VIEW_MENU_PAN_DOWN&quot;);</span>
+<span class="nc" id="L117">	public static final String CREATE_SERIES = LocaleProps.get(&quot;VIEW_MENU_CREATE_SERIES&quot;);</span>
+<span class="nc" id="L118">	public static final String FILTER = LocaleProps.get(&quot;VIEW_MENU_FILTER&quot;);</span>
+<span class="nc" id="L119">	public static final String FILTERS = LocaleProps.get(&quot;VIEW_MENU_FILTERS&quot;);</span>
+<span class="nc" id="L120">	public static final String FILTER_FROM_PLOT = LocaleProps.get(&quot;VIEW_MENU_FILTER_FROM_PLOT&quot;);</span>
+<span class="nc" id="L121">	public static final String NO_FILTER = LocaleProps.get(&quot;VIEW_MENU_NO_FILTER&quot;);</span>
+
+	// Analysis menu item names.
+<span class="nc" id="L124">	public static final String PHASE_PLOT = LocaleProps.get(&quot;ANALYSIS_MENU_PHASE_PLOT&quot;);</span>
+<span class="nc" id="L125">	public static final String PHASE_PLOTS = LocaleProps.get(&quot;ANALYSIS_MENU_PHASE_PLOTS&quot;);</span>
+<span class="nc" id="L126">	public static final String POLYNOMIAL_FIT = LocaleProps.get(&quot;ANALYSIS_MENU_POLYNOMIAL_FIT&quot;);</span>
+<span class="nc" id="L127">	public static final String MODELS = LocaleProps.get(&quot;ANALYSIS_MENU_MODELS&quot;);</span>
+
+	// Tool menu item names.
+<span class="nc" id="L130">	public static final String PLUGIN_MANAGER = LocaleProps.get(&quot;TOOL_MENU_PLUGIN_MANAGER&quot;);</span>
+<span class="nc" id="L131">	public static final String RUN_SCRIPT = LocaleProps.get(&quot;TOOL_MENU_RUN_SCRIPT&quot;);</span>
+<span class="nc" id="L132">	public static final String VELA = LocaleProps.get(&quot;TOOL_MENU_VELA&quot;);</span>
+
+	// Help menu item names.
+<span class="nc" id="L135">	public static final String HELP_CONTENTS = LocaleProps.get(&quot;HELP_MENU_HELP_CONTENTS&quot;);</span>
+<span class="nc" id="L136">	public static final String VSTAR_ONLINE = LocaleProps.get(&quot;HELP_MENU_VSTAR_ONLINE&quot;);</span>
+<span class="nc" id="L137">	public static final String ABOUT = LocaleProps.get(&quot;HELP_MENU_ABOUT&quot;);</span>
+
+	// Set of menu items NOT to be rendered in a minimal UI such as for an
+	// applet.
+	public static final Set&lt;String&gt; minimalUIExclusions;
+
+	static {
+<span class="nc" id="L144">		minimalUIExclusions = new HashSet&lt;String&gt;();</span>
+<span class="nc" id="L145">		minimalUIExclusions.add(NEW_STAR_FROM_FILE);</span>
+<span class="nc" id="L146">		minimalUIExclusions.add(SAVE);</span>
+<span class="nc" id="L147">		minimalUIExclusions.add(PRINT);</span>
+<span class="nc" id="L148">		minimalUIExclusions.add(QUIT);</span>
+<span class="nc" id="L149">		minimalUIExclusions.add(RUN_SCRIPT);</span>
+<span class="nc" id="L150">	}</span>
+
+<span class="nc" id="L152">	private Mediator mediator = Mediator.getInstance();</span>
+
+	// Plug-in menu name to plug-in object maps.
+	private Map&lt;String, ObservationSourcePluginBase&gt; menuItemNameToObSourcePlugin;
+	private Map&lt;String, CustomFilterPluginBase&gt; menuItemNameToCustomFilterPlugin;
+	private Map&lt;String, PeriodAnalysisPluginBase&gt; menuItemNameToPeriodAnalysisPlugin;
+	private Map&lt;String, ModelCreatorPluginBase&gt; menuItemNameToModelCreatorPlugin;
+	private Map&lt;String, ObservationToolPluginBase&gt; menuItemNameToObsToolPlugin;
+	private Map&lt;String, GeneralToolPluginBase&gt; menuItemNameToGenToolPlugin;
+	private Map&lt;String, ObservationTransformerPluginBase&gt; menuItemNameToObsTransPlugin;
+
+	// Keep track of analysis menu items for enabling/disabling.
+	private List&lt;JMenuItem&gt; analysisMenuItems;
+
+	// The parent window.
+	private IMainUI parent;
+
+	// The user interface type.
+	private UIType uiType;
+
+	// Menu items.
+
+	// File menu.
+	JMenuItem fileNewStarFromDatabaseItem;
+	JMenuItem fileNewStarFromFileItem;
+	JMenuItem fileSaveItem;
+	JMenuItem filePrintItem;
+	JMenuItem fileInfoItem;
+	JMenuItem fileLogItem;
+	JMenuItem filePrefsItem;
+	JMenuItem fileQuitItem;
+
+	// Edit menu.
+	JMenu editMenu;
+	JMenuItem editUndoItem;
+	JMenuItem editRedoItem;
+	JMenuItem editSelectAllItem;
+	JMenuItem editExcludeSelectionItem;
+
+	// View menu.
+	JMenu viewMenu;
+	JCheckBoxMenuItem viewRawDataItem;
+	JCheckBoxMenuItem viewPhasePlotItem;
+	JMenuItem viewObDetailsItem;
+	JMenuItem viewPlotControlItem;
+	JMenuItem viewZoomInItem;
+	JMenuItem viewZoomOutItem;
+	JMenuItem viewZoomToFitItem;
+	JMenuItem viewPanLeftItem;
+	JMenuItem viewPanRightItem;
+	JMenuItem viewPanUpItem;
+	JMenuItem viewPanDownItem;
+	JMenuItem viewCreateSeriesItem;
+	JMenuItem viewFilterItem;
+	JMenuItem viewFiltersItem;
+	JMenuItem viewFilterFromPlotItem;
+	JMenuItem viewNoFilterItem;
+
+	// JMenu viewCustomFilterMenu;
+
+	// Analysis menu.
+	JMenuItem analysisPhasePlotItem;
+
+	JMenuItem analysisModelsItem;
+	JMenuItem analysisPhasePlotsItem;
+
+	// Tool menu.
+	JMenu toolMenu;
+	JMenuItem toolPluginManager;
+	JMenuItem toolRunScript;
+	JMenuItem toolVeLa;
+
+	// Help menu.
+	JMenuItem helpContentsItem;
+	JMenuItem helpVStarOnlineItem;
+	JMenuItem helpAboutItem;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param parent The frame's parent.
+	 * @param uiType The type of UI.
+	 */
+	public MenuBar(IMainUI parent, UIType uiType) {
+<span class="nc" id="L236">		super();</span>
+
+<span class="nc" id="L238">		this.parent = parent;</span>
+<span class="nc" id="L239">		this.uiType = uiType;</span>
+
+<span class="nc" id="L241">		createFileMenu();</span>
+<span class="nc" id="L242">		createEditMenu();</span>
+<span class="nc" id="L243">		createViewMenu();</span>
+<span class="nc" id="L244">		createAnalysisMenu();</span>
+<span class="nc" id="L245">		createToolMenu();</span>
+<span class="nc" id="L246">		createHelpMenu();</span>
+
+		// Listen to events
+
+<span class="nc" id="L250">		this.mediator.getProgressNotifier().addListener(createProgressListener());</span>
+
+<span class="nc" id="L252">		this.mediator.getNewStarNotifier().addListener(createNewStarListener());</span>
+
+<span class="nc" id="L254">		this.mediator.getAnalysisTypeChangeNotifier().addListener(createAnalysisTypeChangeListener());</span>
+
+<span class="nc" id="L256">		this.mediator.getObservationSelectionNotifier().addListener(createObservationSelectionListener());</span>
+
+<span class="nc" id="L258">		this.mediator.getMultipleObservationSelectionNotifier()</span>
+<span class="nc" id="L259">				.addListener(createMultipleObservationSelectionListener());</span>
+
+<span class="nc" id="L261">		this.mediator.getUndoActionNotifier().addListener(createUndoActionListener());</span>
+
+<span class="nc" id="L263">		this.mediator.getModelCreationNotifier().addListener(createModelCreationListener());</span>
+
+<span class="nc" id="L265">		this.mediator.getPhaseChangeNotifier().addListener(createPhaseChangeListener());</span>
+
+<span class="nc" id="L267">		this.mediator.getFilteredObservationNotifier().addListener(createObsFilterListener());</span>
+<span class="nc" id="L268">	}</span>
+
+	/**
+	 * @return the uiType
+	 */
+	public UIType getUiType() {
+<span class="nc" id="L274">		return uiType;</span>
+	}
+
+	private void createFileMenu() {
+<span class="nc" id="L278">		JMenu fileMenu = new JMenu(LocaleProps.get(&quot;FILE_MENU&quot;));</span>
+
+<span class="nc" id="L280">		List&lt;ObservationSourcePluginBase&gt; obSourcePlugins = PluginLoader.getObservationSourcePlugins();</span>
+
+<span class="nc bnc" id="L282" title="All 2 branches missed.">		if (!obSourcePlugins.isEmpty()) {</span>
+<span class="nc" id="L283">			menuItemNameToObSourcePlugin = new TreeMap&lt;String, ObservationSourcePluginBase&gt;();</span>
+
+<span class="nc" id="L285">			ActionListener obSourceListener = createObservationSourceListener();</span>
+
+<span class="nc" id="L287">			int internalPluginCount = 0;</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">			for (ObservationSourcePluginBase plugin : obSourcePlugins) {</span>
+<span class="nc bnc" id="L289" title="All 2 branches missed.">				if (&quot;Internal&quot;.equals(plugin.getGroup())) {</span>
+<span class="nc" id="L290">					internalPluginCount++;</span>
+				}
+<span class="nc" id="L292">			}</span>
+
+<span class="nc" id="L294">			int internalPluginIndex = 1;</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">			for (ObservationSourcePluginBase plugin : obSourcePlugins) {</span>
+<span class="nc" id="L296">				String itemName = plugin.getDisplayName();</span>
+<span class="nc bnc" id="L297" title="All 4 branches missed.">				if (plugin.getInputType() == InputType.NONE || plugin.getInputType() == InputType.URL</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">						|| LocaleProps.get(&quot;FILE_MENU_NEW_STAR_FROM_FILE&quot;).equals(itemName)</span>
+<span class="nc bnc" id="L299" title="All 2 branches missed.">						|| PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {</span>
+
+<span class="nc" id="L301">					JMenuItem obSourceMenuItem = new JMenuItem(itemName);</span>
+<span class="nc" id="L302">					obSourceMenuItem.addActionListener(obSourceListener);</span>
+<span class="nc" id="L303">					fileMenu.add(obSourceMenuItem);</span>
+
+<span class="nc bnc" id="L305" title="All 4 branches missed.">					if (&quot;Internal&quot;.equals(plugin.getGroup()) &amp;&amp; internalPluginIndex == internalPluginCount) {</span>
+<span class="nc" id="L306">						fileMenu.addSeparator();</span>
+					} else {
+<span class="nc" id="L308">						internalPluginIndex++;</span>
+					}
+
+<span class="nc" id="L311">					menuItemNameToObSourcePlugin.put(itemName, plugin);</span>
+				}
+<span class="nc" id="L313">			}</span>
+
+<span class="nc" id="L315">			fileMenu.addSeparator();</span>
+		}
+
+		// if (uiType != UIType.APPLET) {
+<span class="nc" id="L319">		fileSaveItem = new JMenuItem(SAVE);</span>
+<span class="nc" id="L320">		fileSaveItem.addActionListener(this.createSaveListener());</span>
+<span class="nc" id="L321">		fileSaveItem.setEnabled(false);</span>
+<span class="nc" id="L322">		fileMenu.add(fileSaveItem);</span>
+		// }
+
+		// if (uiType != UIType.APPLET) {
+<span class="nc" id="L326">		filePrintItem = new JMenuItem(PRINT);</span>
+<span class="nc" id="L327">		filePrintItem.addActionListener(this.createPrintListener());</span>
+<span class="nc" id="L328">		filePrintItem.setEnabled(false);</span>
+<span class="nc" id="L329">		fileMenu.add(filePrintItem);</span>
+
+<span class="nc" id="L331">		fileMenu.addSeparator();</span>
+		// }
+
+<span class="nc" id="L334">		fileInfoItem = new JMenuItem(INFO);</span>
+<span class="nc" id="L335">		fileInfoItem.addActionListener(this.createInfoListener());</span>
+<span class="nc" id="L336">		fileInfoItem.setEnabled(false);</span>
+<span class="nc" id="L337">		fileMenu.add(fileInfoItem);</span>
+
+<span class="nc" id="L339">		fileMenu.addSeparator();</span>
+
+<span class="nc" id="L341">		fileLogItem = new JMenuItem(LOG);</span>
+<span class="nc" id="L342">		fileLogItem.addActionListener(this.createLogListener());</span>
+<span class="nc" id="L343">		fileMenu.add(fileLogItem);</span>
+
+<span class="nc" id="L345">		filePrefsItem = new JMenuItem(PREFS);</span>
+<span class="nc" id="L346">		filePrefsItem.addActionListener(this.createPrefsListener());</span>
+<span class="nc" id="L347">		fileMenu.add(filePrefsItem);</span>
+
+		// Mac OS X applications don't have Quit item in File menu,
+		// but in application (VStar) menu. See also VStar.java.
+<span class="nc" id="L351">		String os_name = System.getProperty(&quot;os.name&quot;);</span>
+<span class="nc bnc" id="L352" title="All 2 branches missed.">		if (!os_name.startsWith(&quot;Mac OS X&quot;)) {</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">			if (uiType != UIType.APPLET) {</span>
+<span class="nc" id="L354">				fileMenu.addSeparator();</span>
+
+<span class="nc" id="L356">				fileQuitItem = new JMenuItem(QUIT, KeyEvent.VK_Q);</span>
+				// fileQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
+				// ActionEvent.META_MASK));
+<span class="nc" id="L359">				fileQuitItem.addActionListener(createQuitListener());</span>
+<span class="nc" id="L360">				fileMenu.add(fileQuitItem);</span>
+			}
+		}
+
+<span class="nc" id="L364">		this.add(fileMenu);</span>
+<span class="nc" id="L365">	}</span>
+
+	private void createEditMenu() {
+<span class="nc" id="L368">		editMenu = new JMenu(LocaleProps.get(&quot;EDIT_MENU&quot;));</span>
+
+<span class="nc" id="L370">		editUndoItem = new JMenuItem(UNDO);</span>
+<span class="nc" id="L371">		editUndoItem.setEnabled(false);</span>
+<span class="nc" id="L372">		editUndoItem.addActionListener(createUndoListener());</span>
+<span class="nc" id="L373">		editMenu.add(editUndoItem);</span>
+
+<span class="nc" id="L375">		editRedoItem = new JMenuItem(REDO);</span>
+<span class="nc" id="L376">		editRedoItem.setEnabled(false);</span>
+<span class="nc" id="L377">		editRedoItem.addActionListener(createRedoListener());</span>
+<span class="nc" id="L378">		editMenu.add(editRedoItem);</span>
+
+<span class="nc" id="L380">		editMenu.addSeparator();</span>
+
+<span class="nc" id="L382">		editSelectAllItem = new JMenuItem(SELECT_ALL);</span>
+<span class="nc" id="L383">		editSelectAllItem.setEnabled(false);</span>
+<span class="nc" id="L384">		editSelectAllItem.addActionListener(createSelectAllListener());</span>
+<span class="nc" id="L385">		editMenu.add(editSelectAllItem);</span>
+
+<span class="nc" id="L387">		editMenu.addSeparator();</span>
+
+<span class="nc" id="L389">		editExcludeSelectionItem = new JMenuItem(EXCLUDE_SELECTION);</span>
+<span class="nc" id="L390">		editExcludeSelectionItem.setEnabled(false);</span>
+<span class="nc" id="L391">		editExcludeSelectionItem.addActionListener(createExcludeSelectionListener());</span>
+<span class="nc" id="L392">		editMenu.add(editExcludeSelectionItem);</span>
+
+<span class="nc" id="L394">		this.add(editMenu);</span>
+<span class="nc" id="L395">	}</span>
+
+	private void createViewMenu() {
+<span class="nc" id="L398">		viewMenu = new JMenu(LocaleProps.get(&quot;VIEW_MENU&quot;));</span>
+
+<span class="nc" id="L400">		viewRawDataItem = new JCheckBoxMenuItem(RAW_DATA_MODE);</span>
+<span class="nc" id="L401">		viewRawDataItem.setEnabled(false);</span>
+<span class="nc" id="L402">		viewRawDataItem.addActionListener(createRawDataListener());</span>
+<span class="nc" id="L403">		viewMenu.add(viewRawDataItem);</span>
+
+<span class="nc" id="L405">		viewPhasePlotItem = new JCheckBoxMenuItem(PHASE_PLOT_MODE);</span>
+<span class="nc" id="L406">		viewPhasePlotItem.setEnabled(false);</span>
+<span class="nc" id="L407">		viewPhasePlotItem.addActionListener(createPhasePlotListener());</span>
+<span class="nc" id="L408">		viewMenu.add(viewPhasePlotItem);</span>
+
+<span class="nc" id="L410">		viewMenu.addSeparator();</span>
+
+<span class="nc" id="L412">		viewObDetailsItem = new JMenuItem(OB_DETAILS);</span>
+<span class="nc" id="L413">		viewObDetailsItem.setEnabled(false);</span>
+<span class="nc" id="L414">		viewObDetailsItem.addActionListener(createObDetailsListener());</span>
+<span class="nc" id="L415">		viewMenu.add(viewObDetailsItem);</span>
+
+<span class="nc" id="L417">		viewPlotControlItem = new JMenuItem(PLOT_CONTROL);</span>
+<span class="nc" id="L418">		viewPlotControlItem.setEnabled(false);</span>
+<span class="nc" id="L419">		viewPlotControlItem.addActionListener(createPlotControlListener());</span>
+<span class="nc" id="L420">		viewMenu.add(viewPlotControlItem);</span>
+
+<span class="nc" id="L422">		viewMenu.addSeparator();</span>
+
+<span class="nc" id="L424">		viewZoomInItem = new JMenuItem(ZOOM_IN);</span>
+<span class="nc" id="L425">		viewZoomInItem.setEnabled(false);</span>
+<span class="nc" id="L426">		viewZoomInItem.addActionListener(createZoomInListener());</span>
+<span class="nc" id="L427">		viewMenu.add(viewZoomInItem);</span>
+
+<span class="nc" id="L429">		viewZoomOutItem = new JMenuItem(ZOOM_OUT);</span>
+<span class="nc" id="L430">		viewZoomOutItem.setEnabled(false);</span>
+<span class="nc" id="L431">		viewZoomOutItem.addActionListener(createZoomOutListener());</span>
+<span class="nc" id="L432">		viewMenu.add(viewZoomOutItem);</span>
+
+<span class="nc" id="L434">		viewZoomToFitItem = new JMenuItem(ZOOM_TO_FIT);</span>
+<span class="nc" id="L435">		viewZoomToFitItem.setEnabled(false);</span>
+<span class="nc" id="L436">		viewZoomToFitItem.addActionListener(createZoomToFitListener());</span>
+		// viewMenu.add(viewZoomToFitItem);
+
+<span class="nc" id="L439">		viewMenu.addSeparator();</span>
+
+<span class="nc" id="L441">		viewPanLeftItem = new JMenuItem(PAN_LEFT);</span>
+<span class="nc" id="L442">		viewPanLeftItem.setEnabled(false);</span>
+<span class="nc" id="L443">		viewPanLeftItem.addActionListener(createPanLeftListener());</span>
+<span class="nc" id="L444">		viewMenu.add(viewPanLeftItem);</span>
+
+<span class="nc" id="L446">		viewPanRightItem = new JMenuItem(PAN_RIGHT);</span>
+<span class="nc" id="L447">		viewPanRightItem.setEnabled(false);</span>
+<span class="nc" id="L448">		viewPanRightItem.addActionListener(createPanRightListener());</span>
+<span class="nc" id="L449">		viewMenu.add(viewPanRightItem);</span>
+
+<span class="nc" id="L451">		viewPanUpItem = new JMenuItem(PAN_UP);</span>
+<span class="nc" id="L452">		viewPanUpItem.setEnabled(false);</span>
+<span class="nc" id="L453">		viewPanUpItem.addActionListener(createPanUpListener());</span>
+<span class="nc" id="L454">		viewMenu.add(viewPanUpItem);</span>
+
+<span class="nc" id="L456">		viewPanDownItem = new JMenuItem(PAN_DOWN);</span>
+<span class="nc" id="L457">		viewPanDownItem.setEnabled(false);</span>
+<span class="nc" id="L458">		viewPanDownItem.addActionListener(createPanDownListener());</span>
+<span class="nc" id="L459">		viewMenu.add(viewPanDownItem);</span>
+
+<span class="nc" id="L461">		viewMenu.addSeparator();</span>
+
+<span class="nc" id="L463">		viewCreateSeriesItem = new JMenuItem(CREATE_SERIES);</span>
+<span class="nc" id="L464">		viewCreateSeriesItem.setEnabled(false);</span>
+<span class="nc" id="L465">		viewCreateSeriesItem.addActionListener(e -&gt; {</span>
+			// create a named series from an existing series selection
+			// (GitHub issue #195)
+<span class="nc" id="L468">			Mediator mediator = Mediator.getInstance();</span>
+<span class="nc" id="L469">			ObservationAndMeanPlotModel obsModel = mediator.getObservationPlotModel(mediator.getAnalysisType());</span>
+<span class="nc" id="L470">			SingleSeriesSelectionDialog seriesDialog = new SingleSeriesSelectionDialog(obsModel);</span>
+<span class="nc bnc" id="L471" title="All 2 branches missed.">			if (!seriesDialog.isCancelled()) {</span>
+<span class="nc" id="L472">				SeriesType type = seriesDialog.getSeries();</span>
+<span class="nc" id="L473">				SeriesTypeCreationDialog seriesCreationDialog = new SeriesTypeCreationDialog(mediator.getValidObservationCategoryMap().get(type));</span>
+<span class="nc" id="L474">				seriesCreationDialog.showDialog();</span>
+			}
+<span class="nc" id="L476">		});</span>
+
+<span class="nc" id="L478">		viewMenu.add(viewCreateSeriesItem);</span>
+		
+<span class="nc" id="L480">		viewMenu.addSeparator();</span>
+
+<span class="nc" id="L482">		viewFilterItem = new JMenuItem(FILTER);</span>
+<span class="nc" id="L483">		viewFilterItem.setEnabled(false);</span>
+<span class="nc" id="L484">		viewFilterItem.addActionListener(createFilterListener());</span>
+<span class="nc" id="L485">		viewMenu.add(viewFilterItem);</span>
+
+<span class="nc" id="L487">		viewFilterFromPlotItem = new JMenuItem(FILTER_FROM_PLOT);</span>
+<span class="nc" id="L488">		viewFilterFromPlotItem.setEnabled(false);</span>
+<span class="nc" id="L489">		viewFilterFromPlotItem</span>
+<span class="nc" id="L490">				.addActionListener(createFilterFromPlotListener());</span>
+<span class="nc" id="L491">		viewMenu.add(viewFilterFromPlotItem);</span>
+
+<span class="nc" id="L493">		ActionListener customFilterListener = createCustomFilterListener();</span>
+
+<span class="nc" id="L495">		menuItemNameToCustomFilterPlugin = new TreeMap&lt;String, CustomFilterPluginBase&gt;();</span>
+
+<span class="nc bnc" id="L497" title="All 2 branches missed.">		for (CustomFilterPluginBase plugin : PluginLoader</span>
+<span class="nc" id="L498">				.getCustomFilterPlugins()) {</span>
+<span class="nc" id="L499">			String itemName = plugin.getDisplayName();</span>
+
+<span class="nc" id="L501">			JMenuItem customFilterMenuItem = new JMenuItem(itemName);</span>
+<span class="nc" id="L502">			customFilterMenuItem.addActionListener(customFilterListener);</span>
+<span class="nc" id="L503">			customFilterMenuItem.setEnabled(false);</span>
+<span class="nc" id="L504">			viewMenu.add(customFilterMenuItem);</span>
+
+<span class="nc" id="L506">			menuItemNameToCustomFilterPlugin.put(itemName, plugin);</span>
+<span class="nc" id="L507">		}</span>
+
+<span class="nc" id="L509">		viewFiltersItem = new JMenuItem(FILTERS);</span>
+<span class="nc" id="L510">		viewFiltersItem.setEnabled(false);</span>
+<span class="nc" id="L511">		viewFiltersItem.addActionListener(createFiltersListener());</span>
+<span class="nc" id="L512">		viewMenu.add(viewFiltersItem);</span>
+
+<span class="nc" id="L514">		viewNoFilterItem = new JMenuItem(NO_FILTER);</span>
+<span class="nc" id="L515">		viewNoFilterItem.setEnabled(false);</span>
+<span class="nc" id="L516">		viewNoFilterItem.addActionListener(createShowAllListener());</span>
+<span class="nc" id="L517">		viewMenu.add(viewNoFilterItem);</span>
+
+<span class="nc" id="L519">		this.add(viewMenu);</span>
+<span class="nc" id="L520">	}</span>
+
+	private void createAnalysisMenu() {
+<span class="nc" id="L523">		JMenu analysisMenu = new JMenu(LocaleProps.get(&quot;ANALYSIS_MENU&quot;));</span>
+
+<span class="nc" id="L525">		analysisPhasePlotItem = new JMenuItem(PHASE_PLOT);</span>
+<span class="nc" id="L526">		analysisPhasePlotItem.setEnabled(false);</span>
+<span class="nc" id="L527">		analysisPhasePlotItem.addActionListener(createCreatePhasePlotListener());</span>
+<span class="nc" id="L528">		analysisMenu.add(analysisPhasePlotItem);</span>
+
+<span class="nc" id="L530">		analysisPhasePlotsItem = new JMenuItem(PHASE_PLOTS);</span>
+<span class="nc" id="L531">		analysisPhasePlotsItem.setEnabled(false);</span>
+<span class="nc" id="L532">		analysisPhasePlotsItem.addActionListener(createPhasePlotsListener());</span>
+<span class="nc" id="L533">		analysisMenu.add(analysisPhasePlotsItem);</span>
+
+<span class="nc" id="L535">		analysisModelsItem = new JMenuItem(MODELS);</span>
+<span class="nc" id="L536">		analysisModelsItem.setEnabled(false);</span>
+<span class="nc" id="L537">		analysisModelsItem.addActionListener(createModelsListener());</span>
+<span class="nc" id="L538">		analysisMenu.add(analysisModelsItem);</span>
+
+		// Add period analysis and model creator plugins.
+<span class="nc" id="L541">		analysisMenuItems = new ArrayList&lt;JMenuItem&gt;();</span>
+<span class="nc" id="L542">		String lastGroup = null;</span>
+
+<span class="nc" id="L544">		menuItemNameToPeriodAnalysisPlugin = new TreeMap&lt;String, PeriodAnalysisPluginBase&gt;();</span>
+<span class="nc" id="L545">		lastGroup = addAnalysisPlugins(analysisMenu, createPeriodSearchListener(),</span>
+<span class="nc" id="L546">				PluginLoader.getPeriodAnalysisPlugins(), menuItemNameToPeriodAnalysisPlugin, lastGroup);</span>
+
+<span class="nc" id="L548">		menuItemNameToModelCreatorPlugin = new TreeMap&lt;String, ModelCreatorPluginBase&gt;();</span>
+<span class="nc" id="L549">		lastGroup = addAnalysisPlugins(analysisMenu, createModelCreatorListener(),</span>
+<span class="nc" id="L550">				PluginLoader.getModelCreatorPlugins(), menuItemNameToModelCreatorPlugin, lastGroup);</span>
+
+<span class="nc" id="L552">		this.add(analysisMenu);</span>
+<span class="nc" id="L553">	}</span>
+
+	// Add items for analysis plug-ins of type P to the analysis menu.
+	private &lt;P extends IPlugin&gt; String addAnalysisPlugins(JMenu analysisMenu, ActionListener listener, List&lt;P&gt; plugins,
+			Map&lt;String, P&gt; menuItemToPluginMap, String lastGroup) {
+
+<span class="nc bnc" id="L559" title="All 2 branches missed.">		for (P plugin : plugins) {</span>
+
+<span class="nc bnc" id="L561" title="All 4 branches missed.">			if (plugin.getGroup() != null &amp;&amp; !plugin.getGroup().equals(lastGroup)) {</span>
+<span class="nc" id="L562">				lastGroup = plugin.getGroup();</span>
+<span class="nc" id="L563">				analysisMenu.addSeparator();</span>
+			}
+
+<span class="nc" id="L566">			String itemName = plugin.getDisplayName() + &quot;...&quot;;</span>
+
+<span class="nc" id="L568">			JMenuItem analysisMenuItem = new JMenuItem(itemName);</span>
+<span class="nc" id="L569">			analysisMenuItem.addActionListener(listener);</span>
+<span class="nc" id="L570">			analysisMenu.add(analysisMenuItem);</span>
+<span class="nc" id="L571">			analysisMenuItem.setEnabled(false);</span>
+
+<span class="nc" id="L573">			menuItemToPluginMap.put(itemName, plugin);</span>
+<span class="nc" id="L574">			analysisMenuItems.add(analysisMenuItem);</span>
+<span class="nc" id="L575">		}</span>
+
+<span class="nc" id="L577">		return lastGroup;</span>
+	}
+
+	private void createToolMenu() {
+<span class="nc" id="L581">		toolMenu = new JMenu(LocaleProps.get(&quot;TOOL_MENU&quot;));</span>
+		// toolMenu.setEnabled(false);
+
+<span class="nc" id="L584">		toolPluginManager = new JMenuItem(PLUGIN_MANAGER);</span>
+<span class="nc" id="L585">		toolPluginManager.addActionListener(createPluginManagerListener());</span>
+<span class="nc" id="L586">		toolMenu.add(toolPluginManager);</span>
+
+		// if (uiType != UIType.APPLET) {
+<span class="nc" id="L589">		toolRunScript = new JMenuItem(RUN_SCRIPT);</span>
+<span class="nc" id="L590">		toolRunScript.addActionListener(createRunScriptListener());</span>
+<span class="nc" id="L591">		toolMenu.add(toolRunScript);</span>
+
+<span class="nc" id="L593">		toolVeLa = new JMenuItem(VELA);</span>
+<span class="nc" id="L594">		toolVeLa.addActionListener(createVeLaListener());</span>
+<span class="nc" id="L595">		toolMenu.add(toolVeLa);</span>
+
+		// toolMenu.addSeparator();
+		// }
+
+<span class="nc" id="L600">		List&lt;ObservationToolPluginBase&gt; obsToolPlugins = PluginLoader.getObservationToolPlugins();</span>
+
+<span class="nc bnc" id="L602" title="All 2 branches missed.">		if (!obsToolPlugins.isEmpty()) {</span>
+<span class="nc" id="L603">			toolMenu.addSeparator();</span>
+
+<span class="nc" id="L605">			ActionListener obsToolMenuItemListener = createObsToolMenuItemListener();</span>
+
+<span class="nc" id="L607">			menuItemNameToObsToolPlugin = new TreeMap&lt;String, ObservationToolPluginBase&gt;();</span>
+
+<span class="nc bnc" id="L609" title="All 2 branches missed.">			for (ObservationToolPluginBase plugin : obsToolPlugins) {</span>
+<span class="nc" id="L610">				String itemName = plugin.getDisplayName() + &quot;...&quot;;</span>
+
+<span class="nc" id="L612">				JMenuItem toolMenuItem = new JMenuItem(itemName);</span>
+<span class="nc" id="L613">				toolMenuItem.addActionListener(obsToolMenuItemListener);</span>
+<span class="nc" id="L614">				toolMenu.add(toolMenuItem);</span>
+
+<span class="nc" id="L616">				menuItemNameToObsToolPlugin.put(itemName, plugin);</span>
+<span class="nc" id="L617">			}</span>
+		}
+
+<span class="nc" id="L620">		List&lt;GeneralToolPluginBase&gt; genToolPlugins = PluginLoader.getGeneralToolPlugins();</span>
+
+<span class="nc bnc" id="L622" title="All 2 branches missed.">		if (!genToolPlugins.isEmpty()) {</span>
+<span class="nc" id="L623">			toolMenu.addSeparator();</span>
+
+<span class="nc" id="L625">			ActionListener genToolMenuItemListener = createGenToolMenuItemListener();</span>
+
+<span class="nc" id="L627">			menuItemNameToGenToolPlugin = new TreeMap&lt;String, GeneralToolPluginBase&gt;();</span>
+
+<span class="nc bnc" id="L629" title="All 2 branches missed.">			for (GeneralToolPluginBase plugin : genToolPlugins) {</span>
+<span class="nc" id="L630">				String itemName = plugin.getDisplayName() + &quot;...&quot;;</span>
+
+<span class="nc" id="L632">				JMenuItem toolMenuItem = new JMenuItem(itemName);</span>
+<span class="nc" id="L633">				toolMenuItem.addActionListener(genToolMenuItemListener);</span>
+<span class="nc" id="L634">				toolMenu.add(toolMenuItem);</span>
+
+<span class="nc" id="L636">				menuItemNameToGenToolPlugin.put(itemName, plugin);</span>
+<span class="nc" id="L637">			}</span>
+		}
+
+<span class="nc" id="L640">		List&lt;ObservationTransformerPluginBase&gt; obsTransPlugins = PluginLoader.getObservationTransformerPlugins();</span>
+
+<span class="nc bnc" id="L642" title="All 2 branches missed.">		if (!obsTransPlugins.isEmpty()) {</span>
+<span class="nc" id="L643">			toolMenu.addSeparator();</span>
+
+<span class="nc" id="L645">			ActionListener obsTransMenuItemListener = createObsTransMenuItemListener();</span>
+
+<span class="nc" id="L647">			menuItemNameToObsTransPlugin = new TreeMap&lt;String, ObservationTransformerPluginBase&gt;();</span>
+
+<span class="nc bnc" id="L649" title="All 2 branches missed.">			for (ObservationTransformerPluginBase plugin : obsTransPlugins) {</span>
+<span class="nc" id="L650">				String itemName = plugin.getDisplayName() + &quot;...&quot;;</span>
+
+<span class="nc" id="L652">				JMenuItem toolMenuItem = new JMenuItem(itemName);</span>
+<span class="nc" id="L653">				toolMenuItem.addActionListener(obsTransMenuItemListener);</span>
+<span class="nc" id="L654">				toolMenu.add(toolMenuItem);</span>
+
+<span class="nc" id="L656">				menuItemNameToObsTransPlugin.put(itemName, plugin);</span>
+<span class="nc" id="L657">			}</span>
+		}
+
+<span class="nc" id="L660">		this.add(toolMenu);</span>
+<span class="nc" id="L661">	}</span>
+
+	private void createHelpMenu() {
+<span class="nc" id="L664">		JMenu helpMenu = new JMenu(LocaleProps.get(&quot;HELP_MENU&quot;));</span>
+
+		// If default browser support is available, add an online docs menu
+		// items.
+<span class="nc bnc" id="L668" title="All 2 branches missed.">		if (Desktop.isDesktopSupported()) {</span>
+<span class="nc" id="L669">			Desktop desktop = Desktop.getDesktop();</span>
+<span class="nc bnc" id="L670" title="All 2 branches missed.">			if (desktop.isSupported(Desktop.Action.BROWSE)) {</span>
+				// User manual.
+<span class="nc" id="L672">				helpContentsItem = new JMenuItem(HELP_CONTENTS, KeyEvent.VK_H);</span>
+<span class="nc" id="L673">				helpContentsItem.addActionListener(createHelpContentsListener());</span>
+<span class="nc" id="L674">				helpMenu.add(helpContentsItem);</span>
+
+				// VStar online.
+<span class="nc" id="L677">				helpVStarOnlineItem = new JMenuItem(VSTAR_ONLINE);</span>
+<span class="nc" id="L678">				helpVStarOnlineItem.addActionListener(createVStarOnlineListener());</span>
+<span class="nc" id="L679">				helpMenu.add(helpVStarOnlineItem);</span>
+			}
+		}
+
+<span class="nc" id="L683">		helpMenu.addSeparator();</span>
+
+<span class="nc" id="L685">		helpAboutItem = new JMenuItem(ABOUT, KeyEvent.VK_A);</span>
+<span class="nc" id="L686">		helpAboutItem.addActionListener(createAboutListener());</span>
+<span class="nc" id="L687">		helpMenu.add(helpAboutItem);</span>
+
+<span class="nc" id="L689">		this.add(helpMenu);</span>
+<span class="nc" id="L690">	}</span>
+
+	// ** File Menu listeners **
+
+	/**
+	 * Returns the action listener to be invoked for observation source menu item
+	 * selections.
+	 */
+	public ActionListener createObservationSourceListener() {
+<span class="nc" id="L699">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L701">				String item = e.getActionCommand();</span>
+<span class="nc" id="L702">				ObservationSourcePluginBase plugin = menuItemNameToObSourcePlugin.get(item);</span>
+<span class="nc" id="L703">				mediator.createObservationArtefactsFromObSourcePlugin(plugin);</span>
+<span class="nc" id="L704">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for a particular observation source
+	 * menu item. TODO: interim solution until we have toolbar buttons with lists of
+	 * items!
+	 */
+	public ActionListener createObservationSourceListener(final String obsSourceItemName) {
+<span class="nc" id="L714">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+
+<span class="nc" id="L717">				ObservationSourcePluginBase plugin = menuItemNameToObSourcePlugin.get(obsSourceItemName);</span>
+<span class="nc" id="L718">				mediator.createObservationArtefactsFromObSourcePlugin(plugin);</span>
+<span class="nc" id="L719">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for File-&gt;Save...
+	 */
+	public ActionListener createSaveListener() {
+<span class="nc" id="L727">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L729">				mediator.saveCurrentMode(Mediator.getUI().getComponent());</span>
+<span class="nc" id="L730">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for File-&gt;Print...
+	 */
+	public ActionListener createPrintListener() {
+<span class="nc" id="L738">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L740">				mediator.printCurrentMode(Mediator.getUI().getComponent());</span>
+<span class="nc" id="L741">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for File-&gt;Info...
+	 */
+	public ActionListener createInfoListener() {
+<span class="nc" id="L749">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L751">				new InfoDialog(Mediator.getInstance().getNewStarMessageList());</span>
+<span class="nc" id="L752">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for File-&gt;Log...
+	 */
+	public ActionListener createLogListener() {
+<span class="nc" id="L760">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L762">				new LogDialog();</span>
+<span class="nc" id="L763">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for File-&gt;Preferences...
+	 */
+	public ActionListener createPrefsListener() {
+<span class="nc" id="L771">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L773">				PreferencesDialog prefsDialog = PreferencesDialog.getInstance();</span>
+<span class="nc" id="L774">				prefsDialog.showDialog();</span>
+<span class="nc" id="L775">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for File-&gt;Quit
+	 */
+	private ActionListener createQuitListener() {
+<span class="nc" id="L783">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L785">				mediator.quit();</span>
+<span class="nc" id="L786">			}</span>
+		};
+	}
+
+	// ** Edit Menu listeners **
+
+	/**
+	 * Returns the action listener to be invoked for Edit-&gt;Undo
+	 */
+	public ActionListener createUndoListener() {
+<span class="nc" id="L796">		return new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L799">				mediator.getUndoableActionManager().executeUndoAction();</span>
+
+<span class="nc bnc" id="L801" title="All 2 branches missed.">				if (mediator.getUndoableActionManager().isUndoStackEmpty()) {</span>
+<span class="nc" id="L802">					editUndoItem.setText(UNDO);</span>
+<span class="nc" id="L803">					editUndoItem.setEnabled(false);</span>
+				}
+<span class="nc" id="L805">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Edit-&gt;Redo
+	 */
+	public ActionListener createRedoListener() {
+<span class="nc" id="L813">		return new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L816">				mediator.getUndoableActionManager().executeRedoAction();</span>
+
+<span class="nc bnc" id="L818" title="All 2 branches missed.">				if (mediator.getUndoableActionManager().isRedoStackEmpty()) {</span>
+<span class="nc" id="L819">					editRedoItem.setText(REDO);</span>
+<span class="nc" id="L820">					editRedoItem.setEnabled(false);</span>
+				}
+<span class="nc" id="L822">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Edit-&gt;Select All
+	 */
+	public ActionListener createSelectAllListener() {
+<span class="nc" id="L830">		return new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L833">				AnalysisType type = Mediator.getInstance().getAnalysisType();</span>
+<span class="nc" id="L834">				Mediator.getInstance().getObservationListPane(type).selectAll();</span>
+<span class="nc" id="L835">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Edit-&gt;Exclude Selection
+	 */
+	public ActionListener createExcludeSelectionListener() {
+<span class="nc" id="L843">		return new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L846">				Mediator.getInstance().getUndoableActionManager().excludeCurrentSelection();</span>
+
+				// Once this menu item has been used for a particular selection,
+				// disable the menu item until the next selection is made.
+<span class="nc" id="L850">				editExcludeSelectionItem.setEnabled(false);</span>
+<span class="nc" id="L851">			}</span>
+		};
+	}
+
+	// ** View Menu listeners **
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Raw Data
+	 */
+	public ActionListener createRawDataListener() {
+<span class="nc" id="L861">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L863">				mediator.changeAnalysisType(AnalysisType.RAW_DATA);</span>
+<span class="nc" id="L864">				setRawDataViewMenuItemState(true);</span>
+<span class="nc" id="L865">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Phase Plot
+	 */
+	public ActionListener createPhasePlotListener() {
+<span class="nc" id="L873">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L875">				AnalysisType type = mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);</span>
+<span class="nc bnc" id="L876" title="All 2 branches missed.">				if (type == AnalysisType.PHASE_PLOT) {</span>
+					// It may be that no phase plot has been created because the
+					// phase plot dialog was cancelled.
+<span class="nc" id="L879">					setPhasePlotViewMenuItemState(true);</span>
+				}
+<span class="nc" id="L881">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Observation Details...
+	 */
+	public ActionListener createObDetailsListener() {
+<span class="nc" id="L889">		return new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L892">				mediator.showObservationDetails();</span>
+<span class="nc" id="L893">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Plot Control...
+	 */
+	public ActionListener createPlotControlListener() {
+<span class="nc" id="L901">		return new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L904">				mediator.showPlotControlDialog();</span>
+<span class="nc" id="L905">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Zoom In
+	 */
+	public ActionListener createZoomInListener() {
+<span class="nc" id="L913">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L915">				ZoomRequestMessage msg = new ZoomRequestMessage(this, ZoomType.ZOOM_IN);</span>
+<span class="nc" id="L916">				mediator.getZoomRequestNotifier().notifyListeners(msg);</span>
+<span class="nc" id="L917">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Zoom Out
+	 */
+	public ActionListener createZoomOutListener() {
+<span class="nc" id="L925">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L927">				ZoomRequestMessage msg = new ZoomRequestMessage(this, ZoomType.ZOOM_OUT);</span>
+<span class="nc" id="L928">				mediator.getZoomRequestNotifier().notifyListeners(msg);</span>
+<span class="nc" id="L929">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Zoom To Fit
+	 */
+	public ActionListener createZoomToFitListener() {
+<span class="nc" id="L937">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L939">				ZoomRequestMessage msg = new ZoomRequestMessage(this, ZoomType.ZOOM_TO_FIT);</span>
+<span class="nc" id="L940">				mediator.getZoomRequestNotifier().notifyListeners(msg);</span>
+<span class="nc" id="L941">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Filter...
+	 */
+	public ActionListener createFilterListener() {
+<span class="nc" id="L949">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L951">				mediator.getObsFilterDialog().showDialog();</span>
+<span class="nc" id="L952">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Filters...
+	 */
+	public ActionListener createFiltersListener() {
+<span class="nc" id="L960">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L962">				mediator.showFiltersDialog();</span>
+<span class="nc" id="L963">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Filter From Plot
+	 */
+	public ActionListener createFilterFromPlotListener() {
+<span class="nc" id="L971">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L973">				mediator.createFilterFromPlot();</span>
+<span class="nc" id="L974">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Custom Filter menu item
+	 * selections.
+	 */
+	public ActionListener createCustomFilterListener() {
+<span class="nc" id="L983">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L985">				String item = e.getActionCommand();</span>
+<span class="nc" id="L986">				CustomFilterPluginBase plugin = menuItemNameToCustomFilterPlugin.get(item);</span>
+<span class="nc" id="L987">				Mediator.getInstance().applyCustomFilterToCurrentObservations(plugin);</span>
+<span class="nc" id="L988">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Show All...
+	 */
+	public ActionListener createShowAllListener() {
+<span class="nc" id="L996">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L998">				mediator.getFilteredObservationNotifier().notifyListeners(FilteredObservationMessage.NO_FILTER);</span>
+<span class="nc" id="L999">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Pan Left...
+	 */
+	public ActionListener createPanLeftListener() {
+<span class="nc" id="L1007">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1009">				PanRequestMessage msg = new PanRequestMessage(this, PanType.LEFT);</span>
+<span class="nc" id="L1010">				mediator.getPanRequestNotifier().notifyListeners(msg);</span>
+<span class="nc" id="L1011">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Pan Right...
+	 */
+	public ActionListener createPanRightListener() {
+<span class="nc" id="L1019">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1021">				PanRequestMessage msg = new PanRequestMessage(this, PanType.RIGHT);</span>
+<span class="nc" id="L1022">				mediator.getPanRequestNotifier().notifyListeners(msg);</span>
+<span class="nc" id="L1023">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Pan Up...
+	 */
+	public ActionListener createPanUpListener() {
+<span class="nc" id="L1031">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1033">				PanRequestMessage msg = new PanRequestMessage(this, PanType.UP);</span>
+<span class="nc" id="L1034">				mediator.getPanRequestNotifier().notifyListeners(msg);</span>
+<span class="nc" id="L1035">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View-&gt;Pan Down...
+	 */
+	public ActionListener createPanDownListener() {
+<span class="nc" id="L1043">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1045">				PanRequestMessage msg = new PanRequestMessage(this, PanType.DOWN);</span>
+<span class="nc" id="L1046">				mediator.getPanRequestNotifier().notifyListeners(msg);</span>
+<span class="nc" id="L1047">			}</span>
+		};
+	}
+
+	// ** Analysis Menu listeners **
+
+	/**
+	 * Returns the action listener to be invoked for Analysis-&gt;Phase Plot
+	 */
+	public ActionListener createCreatePhasePlotListener() {
+<span class="nc" id="L1057">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1059">				mediator.createPhasePlot();</span>
+<span class="nc" id="L1060">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Analysis menu Period Search
+	 * items.
+	 */
+	public ActionListener createPeriodSearchListener() {
+<span class="nc" id="L1069">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1071">				String item = e.getActionCommand();</span>
+<span class="nc" id="L1072">				PeriodAnalysisPluginBase plugin = menuItemNameToPeriodAnalysisPlugin.get(item);</span>
+<span class="nc" id="L1073">				Mediator.getInstance().performPeriodAnalysis(plugin);</span>
+<span class="nc" id="L1074">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for a particular Analysis menu
+	 * Period Search item. TODO: interim solution until we have toolbar buttons with
+	 * lists of items!
+	 */
+	public ActionListener createPeriodSearchListener(final String periodSearchItemName) {
+<span class="nc" id="L1084">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1086">				PeriodAnalysisPluginBase plugin = menuItemNameToPeriodAnalysisPlugin.get(periodSearchItemName);</span>
+<span class="nc" id="L1087">				Mediator.getInstance().performPeriodAnalysis(plugin);</span>
+<span class="nc" id="L1088">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Analysis menu model creator
+	 * items.
+	 */
+	public ActionListener createModelCreatorListener() {
+<span class="nc" id="L1097">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1099">				String item = e.getActionCommand();</span>
+<span class="nc" id="L1100">				ModelCreatorPluginBase plugin = menuItemNameToModelCreatorPlugin.get(item);</span>
+<span class="nc" id="L1101">				Mediator.getInstance().performModellingOperation(plugin);</span>
+<span class="nc" id="L1102">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Analysis polynomial fit
+	 * item.&lt;br/&gt;
+	 * TODO: interim solution until we have toolbar buttons with lists of items!
+	 */
+	public ActionListener createPolynomialFitListener(final String polyFitItemName) {
+<span class="nc" id="L1112">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1114">				ModelCreatorPluginBase plugin = menuItemNameToModelCreatorPlugin.get(polyFitItemName);</span>
+<span class="nc" id="L1115">				Mediator.getInstance().performModellingOperation(plugin);</span>
+<span class="nc" id="L1116">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Analysis-&gt;Models...
+	 */
+	public ActionListener createModelsListener() {
+<span class="nc" id="L1124">		return new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1127">				mediator.showModelDialog();</span>
+<span class="nc" id="L1128">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Analysis-&gt;Phase Plots...
+	 */
+	public ActionListener createPhasePlotsListener() {
+<span class="nc" id="L1136">		return new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1139">				mediator.showPhaseDialog();</span>
+<span class="nc" id="L1140">			}</span>
+		};
+	}
+
+	// ** Tool menu listeners **
+
+	/**
+	 * Returns the action listener to be invoked for Tool -&gt; Plug-in Manager...
+	 */
+	public ActionListener createPluginManagerListener() {
+<span class="nc" id="L1150">		return new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Max: probably I'm paranoid: preventing opening PluginManagementDialog twice.
+<span class="nc bnc" id="L1154" title="All 2 branches missed.">				if (PluginManagementDialog.getPluginManagementActive())</span>
+<span class="nc" id="L1155">					return;</span>
+<span class="nc" id="L1156">				PluginManagementDialog.setPluginManagementActive(true);</span>
+<span class="nc" id="L1157">				final PluginManager manager = new PluginManager();</span>
+<span class="nc" id="L1158">				PluginManagementOperation op = new PluginManagementOperation(manager, &quot;Initialising Plug-in Manager&quot;) {</span>
+					@Override
+					public void execute() {
+						// try {
+						// Authenticator.getInstance().authenticate();
+<span class="nc" id="L1163">						javax.swing.SwingUtilities.invokeLater(new Runnable() {</span>
+							public void run() {
+<span class="nc" id="L1165">								Mediator.getUI().getStatusPane().setMessage(&quot;Initialising Plug-in Manager...&quot;);</span>
+<span class="nc" id="L1166">							}</span>
+						});
+						try {
+<span class="nc" id="L1169">							manager.init();</span>
+<span class="nc" id="L1170">						} catch (Throwable t) {</span>
+<span class="nc" id="L1171">							PluginManagementDialog.setPluginManagementActive(false);</span>
+<span class="nc" id="L1172">							throw t;</span>
+<span class="nc" id="L1173">						}</span>
+<span class="nc" id="L1174">						javax.swing.SwingUtilities.invokeLater(new Runnable() {</span>
+							public void run() {
+								// PluginManagementDialog clears pluginManagementActive flag on close.
+<span class="nc" id="L1177">								new PluginManagementDialog(manager);</span>
+<span class="nc" id="L1178">							}</span>
+						});
+<span class="nc" id="L1180">						javax.swing.SwingUtilities.invokeLater(new Runnable() {</span>
+							public void run() {
+<span class="nc" id="L1182">								Mediator.getUI().getStatusPane().setMessage(&quot;&quot;);</span>
+<span class="nc" id="L1183">							}</span>
+						});
+						// } catch (ConnectionException ex) {
+						// MessageBox.showErrorDialog(
+						// &quot;Authentication Source Error&quot;, ex);
+						// } catch (AuthenticationError ex) {
+						// MessageBox.showErrorDialog(&quot;Authentication Error&quot;,
+						// ex);
+						// } catch (CancellationException e) {
+						// // Nothing to do.
+						// }
+<span class="nc" id="L1194">					}</span>
+				};
+<span class="nc" id="L1196">				mediator.performPluginManagerOperation(op);</span>
+<span class="nc" id="L1197">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Tool -&gt; Run Script...
+	 */
+	public ActionListener createRunScriptListener() {
+<span class="nc" id="L1205">		return new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1208">				ScriptRunner.getInstance().runScript();</span>
+<span class="nc" id="L1209">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Tool -&gt; Run Script...
+	 */
+	public ActionListener createVeLaListener() {
+<span class="nc" id="L1217">		return new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1220">				new VeLaDialog();</span>
+<span class="nc" id="L1221">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Observation Tool menu item
+	 * selections.
+	 */
+	public ActionListener createObsToolMenuItemListener() {
+<span class="nc" id="L1230">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1232">				String item = e.getActionCommand();</span>
+<span class="nc" id="L1233">				ObservationToolPluginBase plugin = menuItemNameToObsToolPlugin.get(item);</span>
+<span class="nc" id="L1234">				Mediator.getInstance().invokeTool(plugin);</span>
+<span class="nc" id="L1235">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for General Tool menu item
+	 * selections.
+	 */
+	public ActionListener createGenToolMenuItemListener() {
+<span class="nc" id="L1244">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1246">				String item = e.getActionCommand();</span>
+<span class="nc" id="L1247">				GeneralToolPluginBase plugin = menuItemNameToGenToolPlugin.get(item);</span>
+				try {
+<span class="nc" id="L1249">					plugin.invoke();</span>
+<span class="nc" id="L1250">				} catch (Throwable t) {</span>
+<span class="nc" id="L1251">					MessageBox.showErrorDialog(&quot;Tool Error&quot;, t);</span>
+<span class="nc" id="L1252">				}</span>
+<span class="nc" id="L1253">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Observation Transformer menu
+	 * item selections.
+	 */
+	public ActionListener createObsTransMenuItemListener() {
+<span class="nc" id="L1262">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1264">				String item = e.getActionCommand();</span>
+<span class="nc" id="L1265">				ObservationTransformerPluginBase plugin = menuItemNameToObsTransPlugin.get(item);</span>
+				try {
+<span class="nc" id="L1267">					Mediator.getInstance().performObservationTransformationOperation(plugin);</span>
+<span class="nc" id="L1268">				} catch (Throwable t) {</span>
+<span class="nc" id="L1269">					MessageBox.showErrorDialog(&quot;Observation Transformation Error&quot;, t);</span>
+<span class="nc" id="L1270">				}</span>
+<span class="nc" id="L1271">			}</span>
+		};
+	}
+
+	// ** Help Menu listeners **
+
+	/**
+	 * Returns the action listener to be invoked for Help-&gt;User Manual Online...
+	 */
+	public ActionListener createHelpContentsListener() {
+<span class="nc" id="L1281">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1283">				Help.openVStarManual();</span>
+<span class="nc" id="L1284">			}</span>
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Help-&gt;VStar Online...
+	 */
+	public ActionListener createVStarOnlineListener() {
+<span class="nc" id="L1292">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1294">				Help.openVStarWebPage();</span>
+<span class="nc" id="L1295">			}</span>
+		};
+	}
+
+	/* Moved to Mediator
+	private void openHelpURLInWebBrowser(final String urlStr) {
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				// Try to open the VStar online page in the default web
+				// browser.
+				if (Desktop.isDesktopSupported()) {
+					Desktop desktop = Desktop.getDesktop();
+					URL url = null;
+					try {
+						url = new URL(urlStr);
+						java.net.URL helpURL = ResourceAccessor.getHelpHTMLResource();
+						if (desktop.isSupported(Desktop.Action.BROWSE)) {
+							try {
+								desktop.browse(url.toURI());
+							} catch (IOException e) {
+								MessageBox.showErrorDialog(&quot;VStar Help&quot;,
+										&quot;Error reading from '&quot; + helpURL.toString() + &quot;'&quot;);
+							} catch (URISyntaxException e) {
+								MessageBox.showErrorDialog(&quot;VStar Help&quot;,
+										&quot;Invalid address: '&quot; + helpURL.toString() + &quot;'&quot;);
+							}
+						}
+					} catch (MalformedURLException e) {
+						MessageBox.showErrorDialog(&quot;VStar Help&quot;, &quot;Invalid address.&quot;);
+					}
+				}
+			}
+		});
+	}
+	*/
+
+	/**
+	 * Returns the action listener to be invoked for Help-&gt;About...
+	 */
+	private ActionListener createAboutListener() {
+<span class="nc" id="L1335">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1337">				new AboutBox();</span>
+<span class="nc" id="L1338">			}</span>
+		};
+	}
+
+	/**
+	 * Return a progress listener.
+	 */
+	private Listener&lt;ProgressInfo&gt; createProgressListener() {
+<span class="nc" id="L1346">		final IMainUI parent = this.parent;</span>
+<span class="nc" id="L1347">		return new Listener&lt;ProgressInfo&gt;() {</span>
+			public void update(ProgressInfo info) {
+<span class="nc bnc" id="L1349" title="All 7 branches missed.">				switch (info.getType()) {</span>
+				case MIN_PROGRESS:
+<span class="nc" id="L1351">					break;</span>
+				case MAX_PROGRESS:
+<span class="nc" id="L1353">					break;</span>
+				case START_PROGRESS:
+<span class="nc" id="L1355">					resetProgress(parent);</span>
+<span class="nc" id="L1356">					break;</span>
+				case COMPLETE_PROGRESS:
+<span class="nc" id="L1358">					completeProgress();</span>
+<span class="nc" id="L1359">					break;</span>
+				case CLEAR_PROGRESS:
+<span class="nc" id="L1361">					break;</span>
+				case INCREMENT_PROGRESS:
+<span class="nc" id="L1363">					break;</span>
+				case BUSY_PROGRESS:
+					break;
+				}
+<span class="nc" id="L1367">			}</span>
+
+			public boolean canBeRemoved() {
+<span class="nc" id="L1370">				return false;</span>
+			}
+		};
+	}
+
+	/**
+	 * Return an analysis type change listener.
+	 */
+	private Listener&lt;AnalysisTypeChangeMessage&gt; createAnalysisTypeChangeListener() {
+<span class="nc" id="L1379">		return new Listener&lt;AnalysisTypeChangeMessage&gt;() {</span>
+			public void update(AnalysisTypeChangeMessage info) {
+<span class="nc bnc" id="L1381" title="All 3 branches missed.">				switch (info.getAnalysisType()) {</span>
+				case RAW_DATA:
+					// Flip raw/phase plot mode checkboxes.
+<span class="nc" id="L1384">					setRawDataViewMenuItemState(true);</span>
+<span class="nc" id="L1385">					setPhasePlotViewMenuItemState(false);</span>
+<span class="nc" id="L1386">					break;</span>
+				case PHASE_PLOT:
+					// Flip raw/phase plot mode checkboxes.
+<span class="nc" id="L1389">					setRawDataViewMenuItemState(false);</span>
+<span class="nc" id="L1390">					setPhasePlotViewMenuItemState(true);</span>
+					break;
+				}
+
+				// Enable filtering.
+<span class="nc" id="L1395">				viewFilterItem.setEnabled(true);</span>
+<span class="nc" id="L1396">				viewNoFilterItem.setEnabled(true);</span>
+				// viewCustomFilterMenu.setEnabled(true);
+<span class="nc" id="L1398">			}</span>
+
+			public boolean canBeRemoved() {
+<span class="nc" id="L1401">				return false;</span>
+			}
+		};
+	}
+
+	private void resetProgress(IMainUI parent) {
+		// TODO: why not set cursor in MainFrame or StatusPane?
+<span class="nc" id="L1408">		parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));</span>
+<span class="nc" id="L1409">		changeKeyMenuItemEnableState(false);</span>
+<span class="nc" id="L1410">	}</span>
+
+	private void completeProgress() {
+		// TODO: why not set cursor in MainFrame or StatusPane?
+<span class="nc" id="L1414">		parent.setCursor(null); // turn off the wait cursor</span>
+<span class="nc" id="L1415">		changeKeyMenuItemEnableState(true);</span>
+<span class="nc" id="L1416">	}</span>
+
+	// Returns a new star listener.
+	private Listener&lt;NewStarMessage&gt; createNewStarListener() {
+<span class="nc" id="L1420">		return new Listener&lt;NewStarMessage&gt;() {</span>
+
+			@Override
+			public void update(NewStarMessage msg) {
+<span class="nc" id="L1424">				editUndoItem.setText(UNDO);</span>
+<span class="nc" id="L1425">				editUndoItem.setEnabled(false);</span>
+
+<span class="nc" id="L1427">				editRedoItem.setText(REDO);</span>
+<span class="nc" id="L1428">				editRedoItem.setEnabled(false);</span>
+
+<span class="nc" id="L1430">				editSelectAllItem.setEnabled(true);</span>
+<span class="nc" id="L1431">				editExcludeSelectionItem.setEnabled(false);</span>
+
+				// TODO: I think this set needs to be expanded...
+<span class="nc" id="L1434">				viewPhasePlotItem.setEnabled(false);</span>
+<span class="nc" id="L1435">				viewObDetailsItem.setEnabled(false);</span>
+<span class="nc" id="L1436">				viewZoomInItem.setEnabled(false);</span>
+<span class="nc" id="L1437">				viewZoomOutItem.setEnabled(false);</span>
+<span class="nc" id="L1438">				viewZoomToFitItem.setEnabled(false);</span>
+<span class="nc" id="L1439">				viewCreateSeriesItem.setEnabled(false);</span>
+<span class="nc" id="L1440">				viewFiltersItem.setEnabled(false);</span>
+
+<span class="nc" id="L1442">				analysisPhasePlotItem.setEnabled(true);</span>
+<span class="nc" id="L1443">				analysisModelsItem.setEnabled(false);</span>
+<span class="nc" id="L1444">				analysisPhasePlotsItem.setEnabled(false);</span>
+<span class="nc" id="L1445">			}</span>
+
+			/**
+			 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+			 */
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L1452">				return false;</span>
+			}
+		};
+	}
+
+	// Returns a single observation selection listener that enables certain menu
+	// items.
+	private Listener&lt;ObservationSelectionMessage&gt; createObservationSelectionListener() {
+<span class="nc" id="L1460">		return new Listener&lt;ObservationSelectionMessage&gt;() {</span>
+			@Override
+			public void update(ObservationSelectionMessage info) {
+<span class="nc" id="L1463">				commonObservationSelectionActions();</span>
+<span class="nc" id="L1464">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L1468">				return false;</span>
+			}
+		};
+	}
+
+	// Returns a multiple observation selection listener that enables certain
+	// menu items.
+	private Listener&lt;MultipleObservationSelectionMessage&gt; createMultipleObservationSelectionListener() {
+<span class="nc" id="L1476">		return new Listener&lt;MultipleObservationSelectionMessage&gt;() {</span>
+			@Override
+			public void update(MultipleObservationSelectionMessage info) {
+<span class="nc" id="L1479">				commonObservationSelectionActions();</span>
+<span class="nc" id="L1480">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L1484">				return false;</span>
+			}
+		};
+	}
+
+	private void commonObservationSelectionActions() {
+<span class="nc" id="L1490">		editExcludeSelectionItem.setEnabled(true);</span>
+
+<span class="nc" id="L1492">		viewObDetailsItem.setEnabled(true);</span>
+<span class="nc" id="L1493">		viewZoomInItem.setEnabled(true);</span>
+<span class="nc" id="L1494">		viewZoomOutItem.setEnabled(true);</span>
+<span class="nc" id="L1495">		viewZoomToFitItem.setEnabled(true);</span>
+<span class="nc" id="L1496">	}</span>
+
+	// Returns an undo/redo action message listener that is used to update the
+	// Edit-&gt;Undo/Redo menu item.
+	private Listener&lt;UndoActionMessage&gt; createUndoActionListener() {
+<span class="nc" id="L1501">		return new Listener&lt;UndoActionMessage&gt;() {</span>
+			@Override
+			public void update(UndoActionMessage info) {
+<span class="nc" id="L1504">				String itemName = info.getType() + &quot; &quot; + info.getAction().getDisplayString();</span>
+
+<span class="nc" id="L1506">				JMenuItem item = null;</span>
+<span class="nc bnc" id="L1507" title="All 2 branches missed.">				if (info.getType() == UndoableActionType.UNDO) {</span>
+<span class="nc" id="L1508">					item = editUndoItem;</span>
+				} else {
+<span class="nc" id="L1510">					item = editRedoItem;</span>
+				}
+
+<span class="nc" id="L1513">				item.setText(itemName);</span>
+<span class="nc" id="L1514">				item.setEnabled(true);</span>
+<span class="nc" id="L1515">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L1519">				return false;</span>
+			}
+		};
+	}
+
+	/**
+	 * Return a model creation listener.
+	 */
+	public Listener&lt;ModelCreationMessage&gt; createModelCreationListener() {
+<span class="nc" id="L1528">		return new Listener&lt;ModelCreationMessage&gt;() {</span>
+			@Override
+			public void update(ModelCreationMessage info) {
+<span class="nc bnc" id="L1531" title="All 2 branches missed.">				if (!analysisModelsItem.isEnabled()) {</span>
+<span class="nc" id="L1532">					analysisModelsItem.setEnabled(true);</span>
+				}
+<span class="nc" id="L1534">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L1538">				return false;</span>
+			}
+		};
+	}
+
+	/**
+	 * Return a phase change listener.
+	 */
+	public Listener&lt;PhaseChangeMessage&gt; createPhaseChangeListener() {
+<span class="nc" id="L1547">		return new Listener&lt;PhaseChangeMessage&gt;() {</span>
+			@Override
+			public void update(PhaseChangeMessage info) {
+<span class="nc bnc" id="L1550" title="All 2 branches missed.">				if (!viewPhasePlotItem.isEnabled()) {</span>
+<span class="nc" id="L1551">					viewPhasePlotItem.setEnabled(true);</span>
+				}
+
+<span class="nc bnc" id="L1554" title="All 2 branches missed.">				if (!analysisPhasePlotsItem.isEnabled()) {</span>
+<span class="nc" id="L1555">					analysisPhasePlotsItem.setEnabled(true);</span>
+				}
+<span class="nc" id="L1557">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L1561">				return false;</span>
+			}
+		};
+	}
+
+	/**
+	 * Return an observation filter listener.
+	 */
+	public Listener&lt;FilteredObservationMessage&gt; createObsFilterListener() {
+<span class="nc" id="L1570">		return new Listener&lt;FilteredObservationMessage&gt;() {</span>
+			@Override
+			public void update(FilteredObservationMessage info) {
+<span class="nc" id="L1573">				viewFiltersItem.setEnabled(true);</span>
+<span class="nc" id="L1574">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L1578">				return false;</span>
+			}
+		};
+	}
+
+	// Helper methods
+
+	// Enables or disabled key menu items.
+	private void changeKeyMenuItemEnableState(boolean state) {
+<span class="nc" id="L1587">		this.fileInfoItem.setEnabled(state);</span>
+
+<span class="nc" id="L1589">		this.fileSaveItem.setEnabled(state);</span>
+<span class="nc" id="L1590">		this.filePrintItem.setEnabled(state);</span>
+
+<span class="nc bnc" id="L1592" title="All 2 branches missed.">		for (int i = 0; i &lt; this.viewMenu.getItemCount(); i++) {</span>
+<span class="nc" id="L1593">			JMenuItem item = this.viewMenu.getItem(i);</span>
+<span class="nc bnc" id="L1594" title="All 2 branches missed.">			if (item != null) {</span>
+				// Item could be a menu item separator I assume since we
+				// see null for some values of i.
+<span class="nc" id="L1597">				this.viewMenu.getItem(i).setEnabled(state);</span>
+			}
+		}
+
+<span class="nc bnc" id="L1601" title="All 2 branches missed.">		for (JMenuItem item : analysisMenuItems) {</span>
+<span class="nc" id="L1602">			item.setEnabled(state);</span>
+<span class="nc" id="L1603">		}</span>
+
+<span class="nc" id="L1605">		AnalysisType type = mediator.getAnalysisType();</span>
+
+<span class="nc bnc" id="L1607" title="All 3 branches missed.">		switch (type) {</span>
+		case RAW_DATA:
+<span class="nc" id="L1609">			setRawDataViewMenuItemState(true);</span>
+<span class="nc" id="L1610">			setPhasePlotViewMenuItemState(false);</span>
+<span class="nc" id="L1611">			break;</span>
+		case PHASE_PLOT:
+<span class="nc" id="L1613">			setRawDataViewMenuItemState(false);</span>
+<span class="nc" id="L1614">			setPhasePlotViewMenuItemState(true);</span>
+			break;
+		}
+<span class="nc" id="L1617">	}</span>
+
+	private void setRawDataViewMenuItemState(boolean state) {
+<span class="nc" id="L1620">		this.viewRawDataItem.setState(state);</span>
+<span class="nc" id="L1621">	}</span>
+
+	private void setPhasePlotViewMenuItemState(boolean state) {
+<span class="nc" id="L1624">		this.viewPhasePlotItem.setState(state);</span>
+<span class="nc" id="L1625">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

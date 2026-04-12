@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoginInfo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.resources</a> &gt; <span class="el_source">LoginInfo.java</span></div><h1>LoginInfo.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.resources;
+
+/**
+ * Information relating to login.
+ */
+public class LoginInfo {
+
+	private LoginType type;
+	private String userName;
+	private String observerCode;
+	private boolean isMember;
+	private String token;
+
+	/**
+	 * Constructor.
+	 */
+	public LoginInfo() {
+<span class="fc" id="L35">		super();</span>
+<span class="fc" id="L36">		this.type = null;</span>
+<span class="fc" id="L37">		this.userName = null;</span>
+		// Sensible default for when login fails or not logged in.
+<span class="fc" id="L39">		this.observerCode = &quot;&quot;;</span>
+<span class="fc" id="L40">		isMember = false;</span>
+<span class="fc" id="L41">		this.token = null;</span>
+<span class="fc" id="L42">	}</span>
+
+	/**
+	 * @return the type
+	 */
+	public LoginType getType() {
+<span class="nc" id="L48">		return type;</span>
+	}
+
+	/**
+	 * @param type
+	 *            the type to set
+	 */
+	public void setType(LoginType type) {
+<span class="nc" id="L56">		this.type = type;</span>
+<span class="nc" id="L57">	}</span>
+
+	/**
+	 * @return the userName
+	 */
+	public String getUserName() {
+<span class="nc" id="L63">		return userName;</span>
+	}
+
+	/**
+	 * @param userName
+	 *            the userName to set
+	 */
+	public void setUserName(String userName) {
+<span class="nc" id="L71">		this.userName = userName;</span>
+<span class="nc" id="L72">	}</span>
+
+	/**
+	 * @return the observerCode
+	 */
+	public String getObserverCode() {
+<span class="fc" id="L78">		return observerCode;</span>
+	}
+
+	/**
+	 * @param observerCode
+	 *            the observerCode to set
+	 */
+	public void setObserverCode(String observerCode) {
+<span class="fc" id="L86">		this.observerCode = observerCode;</span>
+<span class="fc" id="L87">	}</span>
+
+	/**
+	 * @return the isMember
+	 */
+	public boolean isMember() {
+<span class="fc" id="L93">		return isMember;</span>
+	}
+
+	/**
+	 * @param isMember the isMember to set
+	 */
+	public void setMember(boolean isMember) {
+<span class="fc" id="L100">		this.isMember = isMember;</span>
+<span class="fc" id="L101">	}</span>
+
+	/**
+	 * @return the token
+	 */
+	public String getToken() {
+<span class="nc" id="L107">		return token;</span>
+	}
+
+	/**
+	 * @param token the token to set
+	 */
+	public void setToken(String token) {
+<span class="nc" id="L114">		this.token = token;</span>
+<span class="nc" id="L115">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

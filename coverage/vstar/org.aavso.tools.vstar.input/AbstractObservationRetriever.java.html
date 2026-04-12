@@ -1,0 +1,698 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractObservationRetriever.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.input</a> &gt; <span class="el_source">AbstractObservationRetriever.java</span></div><h1>AbstractObservationRetriever.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+
+package org.aavso.tools.vstar.input;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.aavso.tools.vstar.data.InvalidObservation;
+import org.aavso.tools.vstar.data.Property;
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
+import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
+import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.vela.Operand;
+import org.aavso.tools.vstar.vela.Type;
+import org.aavso.tools.vstar.vela.VeLaEvalError;
+import org.aavso.tools.vstar.vela.VeLaInterpreter;
+import org.aavso.tools.vstar.vela.VeLaParseError;
+import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
+
+/**
+ * This is the abstract base class for all observation retrieval classes,
+ * irrespective of source (AAVSO standard file format, simple file format, VStar
+ * database).
+ */
+public abstract class AbstractObservationRetriever {
+
+<span class="fc" id="L57">	public final String MAGNITUDE = LocaleProps.get(&quot;MAGNITUDE&quot;);</span>
+
+	public final static int DEFAULT_CAPACITY = -1;
+	public final static String NO_VELA_FILTER = &quot;&quot;;
+
+	private final static boolean VERBOSE = false;
+	private final static boolean ADD_VSTAR_API = false;
+	
+	private String velaFilterStr;
+
+	private VeLaInterpreter vela;
+
+	private boolean velaErrorReported;
+
+	private double minMag;
+	private double maxMag;
+
+	protected boolean interrupted;
+
+	protected JDflavour jdFlavour;
+	
+	/**
+	 * The list of valid observations retrieved.
+	 */
+	protected ArrayList&lt;ValidObservation&gt; validObservations;
+
+	/**
+	 * The list of invalid observations retrieved.
+	 */
+	protected List&lt;InvalidObservation&gt; invalidObservations;
+
+	/**
+	 * A mapping from observation category (e.g. band, fainter-than) to list of
+	 * valid observations.
+	 */
+	protected Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; validObservationCategoryMap;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param initialCapacity
+	 *            The initial capacity of the valid observation list.
+	 * @param velaFilterStr
+	 *            The VeLa filter string to be applied for each observation
+	 *            before being added to the valid observation list.
+	 */
+	public AbstractObservationRetriever(int initialCapacity,
+<span class="fc" id="L104">			String velaFilterStr) {</span>
+<span class="fc" id="L105">		this.validObservations = new ArrayList&lt;ValidObservation&gt;();</span>
+<span class="fc" id="L106">		this.invalidObservations = new ArrayList&lt;InvalidObservation&gt;();</span>
+
+		// Optionally set the capacity of the valid observation list to speed up
+		// out-of-order insertion due to the shifting operations required.
+<span class="fc bfc" id="L110" title="All 2 branches covered.">		if (initialCapacity != DEFAULT_CAPACITY) {</span>
+<span class="fc" id="L111">			this.validObservations.ensureCapacity(initialCapacity);</span>
+		}
+
+<span class="fc" id="L114">		this.velaFilterStr = velaFilterStr.trim();</span>
+<span class="fc" id="L115">		velaErrorReported = false;</span>
+<span class="fc" id="L116">		vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());</span>
+
+		// Create observation category map and add discrepant and excluded
+		// series list so these are available if needed.
+		// In case filtered, model, and residual obs are later created, add
+		// these to the map. Means are created for each data set loaded, so
+		// don't need to add them here. TODO: we *could* add means here
+		// though...
+		// ...that might simplify handling of that series in model code...
+<span class="fc" id="L125">		this.validObservationCategoryMap = new TreeMap&lt;SeriesType, List&lt;ValidObservation&gt;&gt;();</span>
+
+<span class="fc" id="L127">		this.validObservationCategoryMap.put(SeriesType.DISCREPANT,</span>
+				new ArrayList&lt;ValidObservation&gt;());
+
+<span class="fc" id="L130">		this.validObservationCategoryMap.put(SeriesType.Excluded,</span>
+				new ArrayList&lt;ValidObservation&gt;());
+
+<span class="fc" id="L133">		this.validObservationCategoryMap.put(SeriesType.Filtered,</span>
+				new ArrayList&lt;ValidObservation&gt;());
+
+<span class="fc" id="L136">		this.validObservationCategoryMap.put(SeriesType.Model,</span>
+				new ArrayList&lt;ValidObservation&gt;());
+
+<span class="fc" id="L139">		this.validObservationCategoryMap.put(SeriesType.Residuals,</span>
+				new ArrayList&lt;ValidObservation&gt;());
+
+<span class="fc" id="L142">		this.minMag = Double.MAX_VALUE;</span>
+<span class="fc" id="L143">		this.maxMag = -Double.MAX_VALUE;</span>
+
+<span class="fc" id="L145">		interrupted = false;</span>
+
+<span class="fc" id="L147">		jdFlavour = JDflavour.JD;</span>
+
+<span class="fc" id="L149">		Mediator.getInstance().getStopRequestNotifier()</span>
+<span class="fc" id="L150">				.addListener(createStopRequestListener());</span>
+<span class="fc" id="L151">	}</span>
+
+	/**
+	 * Constructor
+	 */
+	public AbstractObservationRetriever(String velaFilterStr) {
+<span class="fc" id="L157">		this(DEFAULT_CAPACITY, velaFilterStr);</span>
+<span class="fc" id="L158">	}</span>
+
+	/**
+	 * Constructor
+	 */
+	public AbstractObservationRetriever() {
+<span class="nc" id="L164">		this(DEFAULT_CAPACITY, NO_VELA_FILTER);</span>
+<span class="nc" id="L165">	}</span>
+
+	/**
+	 * @return the minimum magnitude
+	 */
+	public double getMinMag() {
+<span class="nc" id="L171">		return minMag;</span>
+	}
+
+	/**
+	 * @param minMag
+	 *            the minimum magnitude to set
+	 */
+	public void setMinMag(double minMag) {
+<span class="nc" id="L179">		this.minMag = minMag;</span>
+<span class="nc" id="L180">	}</span>
+
+	/**
+	 * @return the maximum magnitude
+	 */
+	public double getMaxMag() {
+<span class="nc" id="L186">		return maxMag;</span>
+	}
+
+	/**
+	 * @param maxMag
+	 *            the maximum magnitude to set
+	 */
+	public void setMaxMag(double maxMag) {
+<span class="nc" id="L194">		this.maxMag = maxMag;</span>
+<span class="nc" id="L195">	}</span>
+
+	/**
+	 * @return was this retriever interrupted?
+	 */
+	public final boolean wasInterrupted() {
+<span class="fc" id="L201">		return interrupted;</span>
+	}
+
+	/**
+	 * Retrieve the set of observations from the specified source.
+	 * 
+	 * @throws throws ObservationReadError
+	 */
+	public abstract void retrieveObservations() throws ObservationReadError,
+			InterruptedException;
+
+	/**
+	 * Retrieve the type of the source of the observations.
+	 * 
+	 * @return The source type.
+	 */
+	public abstract String getSourceType();
+
+	/**
+	 * Retrieve the name of the source of the observations.
+	 * 
+	 * @return The source name.
+	 */
+	public abstract String getSourceName();
+
+	/**
+	 * @return the validObservations
+	 */
+	public List&lt;ValidObservation&gt; getValidObservations() {
+<span class="fc" id="L230">		return validObservations;</span>
+	}
+
+	/**
+	 * @return the invalidObservations
+	 */
+	public List&lt;InvalidObservation&gt; getInvalidObservations() {
+<span class="nc" id="L237">		return invalidObservations;</span>
+	}
+
+	/**
+	 * Has this observation retriever pulled in observations that correspond to
+	 * heliocentric JD values.
+	 * 
+	 * @return whether this observation retriever pulled in observations that
+	 *         correspond to heliocentric JD values.
+	 */
+	public boolean isHeliocentric() {
+<span class="nc bnc" id="L248" title="All 2 branches missed.">		return jdFlavour == JDflavour.HJD;</span>
+	}
+
+	/**
+	 * @param isHeliocentric
+	 
+	 * This method is deprecated.
+	 * &lt;p&gt; Use {@link AbstractObservationRetriever#setJDflavour(JDflavour)} instead. 
+	 */
+	@Deprecated
+	public void setHeliocentric(boolean isHeliocentric) {
+<span class="nc bnc" id="L259" title="All 2 branches missed.">		jdFlavour = isHeliocentric ? JDflavour.HJD : JDflavour.JD; </span>
+<span class="nc" id="L260">	}</span>
+
+	/**
+	 * @return the isBarycentric
+	 */
+	public boolean isBarycentric() {
+<span class="nc bnc" id="L266" title="All 2 branches missed.">		return jdFlavour == JDflavour.BJD;</span>
+	}
+
+	/**
+	 * @param isBarycentric
+	 * 
+	 * This method is deprecated.
+	 * &lt;p&gt; Use {@link AbstractObservationRetriever#setJDflavour(JDflavour)} instead.
+	 */
+	@Deprecated
+	public void setBarycentric(boolean isBarycentric) {
+<span class="nc bnc" id="L277" title="All 2 branches missed.">		jdFlavour = isBarycentric ? JDflavour.BJD : JDflavour.JD; </span>
+<span class="nc" id="L278">	}</span>
+	
+	public JDflavour getJDflavour() {
+<span class="fc" id="L281">		return jdFlavour; </span>
+	}
+	
+	public void setJDflavour(JDflavour jdFlavour) {
+<span class="nc" id="L285">		this.jdFlavour = jdFlavour; </span>
+<span class="nc" id="L286">	}</span>
+
+	/**
+	 * Returns a StarInfo instance for the object whose observations are being
+	 * loaded. Concrete subclasses may want to specialise this to add more
+	 * detail.
+	 * 
+	 * @return The StarInfo object.
+	 */
+	public StarInfo getStarInfo() {
+<span class="nc" id="L296">		return new StarInfo(this, getSourceName());</span>
+	}
+
+	/**
+	 * Returns the time units string (e.g. JD, HJD, BJD, ...).
+	 * 
+	 * @return The time units string.
+	 */
+	public String getTimeUnits() {
+<span class="nc" id="L305">		return jdFlavour.label;</span>
+	}
+
+	/**
+	 * Returns the brightness units string (e.g. Magnitude, Flux, ...).
+	 * 
+	 * @return The brightness units string.
+	 */
+	public String getBrightnessUnits() {
+<span class="nc" id="L314">		return MAGNITUDE;</span>
+	}
+
+	/**
+	 * Returns the custom domain title.
+	 * 
+	 * @return The custom domain title.
+	 */
+	public String getDomainTitle() {
+<span class="nc" id="L323">		return null;</span>
+	}
+
+	/**
+	 * Returns the custom range title.
+	 * 
+	 * @return The custom range title.
+	 */
+	public String getRangeTitle() {
+<span class="nc" id="L332">		return null;</span>
+	}
+	
+	/**
+	 * Set the VeLa filter string.
+	 * 
+	 * @param velaFilterStr
+	 *            the velaFilterStr to set
+	 */
+	public void setVelaFilter(String velaFilterStr) {
+<span class="nc" id="L342">		this.velaFilterStr = velaFilterStr;</span>
+<span class="nc" id="L343">	}</span>
+
+	/**
+	 * @return the validObservationCategoryMap
+	 */
+	public Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; getValidObservationCategoryMap() {
+<span class="nc" id="L349">		return validObservationCategoryMap;</span>
+	}
+
+	/**
+	 * Are there any series that should be excluded from addition in
+	 * collectAllValidObservations() and collectAllInvalidObservations()?
+	 * 
+	 * @return The set of series to be excluded from addition; may be null.
+	 */
+	public Set&lt;SeriesType&gt; seriesToExcludeWhenAdditive() {
+<span class="nc" id="L359">		return null;</span>
+	}
+
+	/**
+	 * Adds all of the specified observations to the current observations,
+	 * including classifying them by series. This can be used for additive load
+	 * operations.
+	 * 
+	 * @param obs
+	 *            The list of previously existing valid observations to be
+	 *            added.
+	 * @param newSourceName
+	 *            The name of the source for new obs (in this retriever).
+	 *
+	 * @throws ObservationReadError
+	 *             if the observation has no date or magnitude. The caller can
+	 *             either propagate this exception further or add to the invalid
+	 *             observation list, or do whatever else it considers to be
+	 *             appropriate.
+	 */
+	public void collectAllObservations(List&lt;ValidObservation&gt; obs,
+			String newSourceName) throws ObservationReadError {
+
+		// Set source name for new obs (those in this retriever).
+<span class="nc bnc" id="L383" title="All 2 branches missed.">		for (ValidObservation ob : validObservations) {</span>
+<span class="nc" id="L384">			ob.addDetail(&quot;SOURCE&quot;, new Property(newSourceName), &quot;Source&quot;);</span>
+<span class="nc" id="L385">		}</span>
+
+		// Add previously existing obs (those passed to this method).
+<span class="nc" id="L388">		Set&lt;SeriesType&gt; seriesToExclude = seriesToExcludeWhenAdditive();</span>
+
+<span class="nc bnc" id="L390" title="All 2 branches missed.">		for (ValidObservation ob : obs) {</span>
+			// If there are no series to exclude or the observation's band is
+			// not in the list of series to be excluded, include it.
+<span class="nc bnc" id="L393" title="All 2 branches missed.">			if (seriesToExclude == null</span>
+<span class="nc bnc" id="L394" title="All 2 branches missed.">					|| !seriesToExclude.contains(ob.getBand())) {</span>
+<span class="nc" id="L395">				collectObservation(ob);</span>
+			}
+<span class="nc" id="L397">		}</span>
+<span class="nc" id="L398">	}</span>
+
+	/**
+	 * Adds all the specified invalid observations to the existing invalid
+	 * observations. This can be used for additive load operations.
+	 * 
+	 * @param obs
+	 *            The list of previously existing invalid observations.
+	 */
+	public void addAllInvalidObservations(List&lt;InvalidObservation&gt; obs) {
+<span class="nc bnc" id="L408" title="All 2 branches missed.">		for (InvalidObservation ob : obs) {</span>
+<span class="nc" id="L409">			addInvalidObservation(ob);</span>
+<span class="nc" id="L410">		}</span>
+<span class="nc" id="L411">	}</span>
+
+	/**
+	 * Return number of records to be read if this observation retriever
+	 * supports progress tracking (e.g. per line) or null if not.
+	 * 
+	 * @return The number of records to be read or null if this cannot be
+	 *         determined.
+	 * @throws ObservationReadError
+	 *             If an error occurs while determining the number of records.
+	 */
+	public Integer getNumberOfRecords() throws ObservationReadError {
+<span class="nc" id="L423">		return null;</span>
+	}
+
+	/**
+	 * Increment observation retrieval progress.
+	 */
+	public void incrementProgress() {
+<span class="fc" id="L430">		Mediator.getInstance().getProgressNotifier()</span>
+<span class="fc" id="L431">				.notifyListeners(ProgressInfo.INCREMENT_PROGRESS);</span>
+<span class="fc" id="L432">	}</span>
+
+	/**
+	 * &lt;p&gt;
+	 * Add an observation to the list of valid observations.
+	 * &lt;/p&gt;
+	 * 
+	 * &lt;p&gt;
+	 * This is a convenience method that adds an observation to the list of
+	 * valid observations and categorises it by band/series. This method is
+	 * particularly suitable for observation source plugins since it asks
+	 * whether an observation satisfies the requirement that it has at least JD
+	 * and magnitude values.
+	 * &lt;/p&gt;
+	 * 
+	 * @param ob
+	 *            The valid observation to be added to collections.
+	 * 
+	 * @throws ObservationReadError
+	 *             if the observation has no date or magnitude. The caller can
+	 *             either propagate this exception further or add to the invalid
+	 *             observation list, or do whatever else it considers to be
+	 *             appropriate.
+	 */
+	protected void collectObservation(ValidObservation ob)
+			throws ObservationReadError {
+<span class="pc bpc" id="L458" title="1 of 2 branches missed.">		if (ob.getDateInfo() == null) {</span>
+<span class="nc" id="L459">			throw new ObservationReadError(&quot;Observation #&quot;</span>
+<span class="nc" id="L460">					+ ob.getRecordNumber() + &quot; has no date.&quot;);</span>
+		}
+
+<span class="pc bpc" id="L463" title="1 of 2 branches missed.">		if (ob.getMagnitude() == null) {</span>
+<span class="nc" id="L464">			throw new ObservationReadError(&quot;Observation #&quot;</span>
+<span class="nc" id="L465">					+ ob.getRecordNumber() + &quot; has no magnitude.&quot;);</span>
+		}
+
+<span class="fc" id="L468">		boolean include = true;</span>
+
+		// If a VeLa filter string is present, apply it to each observation.
+<span class="pc bpc" id="L471" title="1 of 2 branches missed.">		if (!NO_VELA_FILTER.equals(velaFilterStr)) {</span>
+<span class="nc" id="L472">			vela.pushEnvironment(new VeLaValidObservationEnvironment(ob));</span>
+			try {
+<span class="nc" id="L474">				Optional&lt;Operand&gt; value = vela.program(velaFilterStr);</span>
+<span class="nc bnc" id="L475" title="All 2 branches missed.">				if (value.isPresent()) {</span>
+					// There may be no value present because everything
+					// is commented or because no expression has been
+					// evaluated (e.g. one or more functions or variables
+					// have been defined but no expression has been evaluated
+					// that uses them). In this case, there's nothing to do.
+<span class="nc bnc" id="L481" title="All 2 branches missed.">					if (value.get().getType() == Type.BOOLEAN) {</span>
+<span class="nc" id="L482">						include = value.get().booleanVal();</span>
+					} else {
+<span class="nc bnc" id="L484" title="All 2 branches missed.">						if (!velaErrorReported) {</span>
+<span class="nc" id="L485">							MessageBox.showErrorDialog(&quot;Type Error&quot;,</span>
+									&quot;Expected a Boolean value&quot;);
+<span class="nc" id="L487">							velaErrorReported = true;</span>
+						}
+					}
+				}
+<span class="nc" id="L491">			} catch (VeLaParseError e) {</span>
+<span class="nc bnc" id="L492" title="All 2 branches missed.">				if (!velaErrorReported) {</span>
+<span class="nc" id="L493">					MessageBox.showErrorDialog(&quot;Parse Error&quot;,</span>
+<span class="nc" id="L494">							messageFromException(e));</span>
+<span class="nc" id="L495">					velaErrorReported = true;</span>
+				}
+<span class="nc" id="L497">			} catch (VeLaEvalError e) {</span>
+<span class="nc bnc" id="L498" title="All 2 branches missed.">				if (!velaErrorReported) {</span>
+<span class="nc" id="L499">					MessageBox.showErrorDialog(&quot;Evaluation Error&quot;,</span>
+<span class="nc" id="L500">							messageFromException(e));</span>
+<span class="nc" id="L501">					velaErrorReported = true;</span>
+				}
+			} finally {
+<span class="nc" id="L504">				vela.popEnvironment();</span>
+			}
+		}
+
+<span class="pc bpc" id="L508" title="1 of 2 branches missed.">		if (include) {</span>
+<span class="fc" id="L509">			addValidObservation(ob);</span>
+<span class="fc" id="L510">			categoriseValidObservation(ob);</span>
+		}
+<span class="fc" id="L512">	}</span>
+
+	/**
+	 * Add an observation to the list of invalid observations.
+	 * 
+	 * @param ob
+	 *            The invalid observation to be added.
+	 */
+	protected void addInvalidObservation(InvalidObservation ob) {
+<span class="nc" id="L521">		invalidObservations.add(ob);</span>
+<span class="nc" id="L522">	}</span>
+
+	/**
+	 * Here we categorise a valid observation in terms of whether it is
+	 * fainter-than, discrepant or excluded, belongs to a user-defined series,
+	 * or to a particular band. If this observation retriever is reading
+	 * helio/barycentric observations, we set the &quot;JD flavour&quot; on the observation
+	 * as well. The observation is then inserted into a map of categories and
+	 * the valid observation list.
+	 * 
+	 * @param validOb
+	 *            A valid observation.
+	 */
+	private void categoriseValidObservation(ValidObservation validOb) {
+<span class="fc" id="L536">		SeriesType category = null;</span>
+
+<span class="fc bfc" id="L538" title="All 2 branches covered.">		if (validOb.getMagnitude().isFainterThan()) {</span>
+<span class="fc" id="L539">			category = SeriesType.FAINTER_THAN;</span>
+<span class="fc bfc" id="L540" title="All 2 branches covered.">		} else if (validOb.isDiscrepant()) {</span>
+<span class="fc" id="L541">			category = SeriesType.DISCREPANT;</span>
+<span class="pc bpc" id="L542" title="1 of 2 branches missed.">		} else if (validOb.isExcluded()) {</span>
+<span class="nc" id="L543">			category = SeriesType.Excluded;</span>
+<span class="pc bpc" id="L544" title="1 of 2 branches missed.">		} else if (validOb.getBand() != validOb.getSeries()) {</span>
+<span class="nc" id="L545">			category = validOb.getSeries();</span>
+		} else {
+<span class="fc" id="L547">			category = validOb.getBand();</span>
+		}
+
+<span class="pc bpc" id="L550" title="1 of 2 branches missed.">		if (validOb.getJDflavour() == JDflavour.UNKNOWN) {</span>
+<span class="fc" id="L551">			validOb.setJDflavour(getJDflavour());</span>
+		}
+
+<span class="fc" id="L554">		List&lt;ValidObservation&gt; validObsList = validObservationCategoryMap</span>
+<span class="fc" id="L555">				.get(category);</span>
+
+<span class="fc bfc" id="L557" title="All 2 branches covered.">		if (validObsList == null) {</span>
+<span class="fc" id="L558">			validObsList = new ArrayList&lt;ValidObservation&gt;();</span>
+<span class="fc" id="L559">			validObservationCategoryMap.put(category, validObsList);</span>
+		}
+
+<span class="fc" id="L562">		insertObservation(validOb, validObsList);</span>
+<span class="fc" id="L563">	}</span>
+
+	/**
+	 * Adds an observation to the list of valid observations. Also, updates
+	 * min/max magnitude values for the dataset.
+	 * 
+	 * @param ob
+	 *            The valid observation to be added.
+	 */
+	public void addValidObservation(ValidObservation ob) {
+<span class="fc" id="L573">		insertObservation(ob, validObservations);</span>
+
+<span class="fc" id="L575">		double uncert = ob.getMagnitude().getUncertainty();</span>
+		// If uncertainty not given, get HQ uncertainty if present.
+<span class="pc bpc" id="L577" title="1 of 4 branches missed.">		if (uncert == 0.0 &amp;&amp; ob.getHqUncertainty() != null) {</span>
+<span class="nc" id="L578">			uncert = ob.getHqUncertainty();</span>
+		}
+
+<span class="fc bfc" id="L581" title="All 2 branches covered.">		if (ob.getMag() - uncert &lt; minMag) {</span>
+<span class="fc" id="L582">			minMag = ob.getMag() - uncert;</span>
+		}
+
+<span class="fc bfc" id="L585" title="All 2 branches covered.">		if (ob.getMag() + uncert &gt; maxMag) {</span>
+<span class="fc" id="L586">			maxMag = ob.getMag() + uncert;</span>
+		}
+<span class="fc" id="L588">	}</span>
+
+	/**
+	 * &lt;p&gt;
+	 * Insert an observation into the observation list with the post-condition
+	 * that the list remains sorted by JD. This post-condition is valid iff the
+	 * pre-condition that the list is already sorted before the addition is
+	 * satisfied.
+	 * &lt;/p&gt;
+	 * 
+	 * &lt;p&gt;
+	 * An observation source plug-in developer could, if so desired, completely
+	 * override this method if data is expected to be mostly out of order; in
+	 * the worst case, if all elements are out of order, the cost will be O(n^2)
+	 * due to the O(n) traversal being carried out n times for the number of
+	 * observations inserted.
+	 * &lt;/p&gt;
+	 * 
+	 * @param ob
+	 *            The observation to be inserted.
+	 * @param obs
+	 *            The list into which it is to be inserted.
+	 */
+	public void insertObservation(ValidObservation ob,
+			List&lt;ValidObservation&gt; obs) {
+<span class="fc" id="L613">		double newJD = ob.getJD();</span>
+<span class="fc" id="L614">		int obListSize = obs.size();</span>
+
+<span class="fc bfc" id="L616" title="All 4 branches covered.">		if (obListSize == 0 || newJD &gt;= obs.get(obListSize - 1).getJD()) {</span>
+			// The list is empty or the observation's JD is at least as
+			// high as that of the last observation in the list.
+<span class="fc" id="L619">			obs.add(ob);</span>
+		} else {
+			// The observation has a JD that is less than that of the
+			// observation at the end of the list. Incur an O(n) cost to
+			// insert the observation into the correct position in order to
+			// satisfy the post-condition.
+<span class="fc" id="L625">			int i = 0;</span>
+<span class="pc bpc" id="L626" title="1 of 4 branches missed.">			while (i &lt; obListSize &amp;&amp; newJD &gt; obs.get(i).getJD()) {</span>
+<span class="fc" id="L627">				i++;</span>
+			}
+<span class="fc" id="L629">			obs.add(i, ob);</span>
+		}
+<span class="fc" id="L631">	}</span>
+
+	/**
+	 * Skip any bytes at the start of a line that have an ordinal value of less
+	 * than zero, e.g. a byte-order mark sequence. This is likely to be an
+	 * exceptional case so low cost when amortised over all lines.
+	 * 
+	 * @param line
+	 *            The line to be processed.
+	 * @return The line without characters whose ordinal values are negative.
+	 */
+	protected String removeNegativeBytes(String line) {
+<span class="nc" id="L643">		byte[] bytes = line.getBytes();</span>
+
+<span class="nc" id="L645">		int i = 0;</span>
+<span class="nc bnc" id="L646" title="All 4 branches missed.">		for (; i &lt; bytes.length &amp;&amp; bytes[i] &lt; 0; i++)</span>
+			;
+<span class="nc bnc" id="L648" title="All 2 branches missed.">		if (i &gt; 0) {</span>
+<span class="nc" id="L649">			line = new String(bytes, i, line.length() - 1);</span>
+		}
+
+<span class="nc" id="L652">		return line;</span>
+	}
+
+	/**
+	 * Is the string empty?
+	 * 
+	 * @param str
+	 *            The string in question.
+	 * @return Whether or not it's empty.
+	 */
+	private boolean isEmpty(String str) {
+<span class="nc bnc" id="L663" title="All 4 branches missed.">		return str != null &amp;&amp; &quot;&quot;.equals(str.trim());</span>
+	}
+
+	/**
+	 * Given a throwable, return a message string.
+	 * 
+	 * @param t
+	 *            The throwable object.
+	 * @return The message.
+	 */
+	private String messageFromException(Throwable t) {
+<span class="nc" id="L674">		String msg = t.getMessage();</span>
+
+<span class="nc bnc" id="L676" title="All 4 branches missed.">		if (msg == null || isEmpty(msg)) {</span>
+<span class="nc" id="L677">			msg = t.toString();</span>
+		}
+
+<span class="nc" id="L680">		return msg;</span>
+	}
+
+	// Creates a stop request listener.
+	private Listener&lt;StopRequestMessage&gt; createStopRequestListener() {
+<span class="fc" id="L685">		return new Listener&lt;StopRequestMessage&gt;() {</span>
+			@Override
+			public void update(StopRequestMessage info) {
+<span class="nc" id="L688">				interrupted = true;</span>
+<span class="nc" id="L689">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L693">				return true;</span>
+			}
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

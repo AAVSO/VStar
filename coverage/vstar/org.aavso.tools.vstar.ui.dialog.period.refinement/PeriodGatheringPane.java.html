@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PeriodGatheringPane.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.period.refinement</a> &gt; <span class="el_source">PeriodGatheringPane.java</span></div><h1>PeriodGatheringPane.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.period.refinement;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.util.locale.NumberParser;
+
+/**
+ * This component gathers periods and makes them available as a list.
+ */
+public class PeriodGatheringPane extends JPanel implements
+		ListSelectionListener {
+
+	private List&lt;Double&gt; periods;
+
+	private JTextField periodField;
+	private JButton addPeriodButton;
+	
+	private JList periodList;
+	private DefaultListModel periodListModel;
+	private JButton deleteButton;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param title
+	 *            The title to be shown for this component.
+	 */
+<span class="nc" id="L63">	public PeriodGatheringPane(String title) {</span>
+<span class="nc" id="L64">		periods = new ArrayList&lt;Double&gt;();</span>
+
+<span class="nc" id="L66">		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L67">		setBorder(BorderFactory.createTitledBorder(title));</span>
+
+<span class="nc" id="L69">		add(createPeriodEntryPane());</span>
+<span class="nc" id="L70">		add(createListPane());</span>
+<span class="nc" id="L71">		add(createButtonPane());</span>
+<span class="nc" id="L72">	}</span>
+
+	/**
+	 * Gets the collected periods.
+	 * 
+	 * @return the period list
+	 */
+	public List&lt;Double&gt; getPeriods() {
+<span class="nc" id="L80">		return periods;</span>
+	}
+
+	private JPanel createPeriodEntryPane() {
+<span class="nc" id="L84">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L85">		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
+
+<span class="nc" id="L87">		periodField = new JTextField();</span>
+<span class="nc" id="L88">		panel.add(periodField);</span>
+
+<span class="nc" id="L90">		addPeriodButton = new JButton(&quot;Add&quot;);</span>
+<span class="nc" id="L91">		addPeriodButton.addActionListener(createAddPeriodButtonListener());</span>
+<span class="nc" id="L92">		panel.add(addPeriodButton);</span>
+		
+<span class="nc" id="L94">		return panel;</span>
+	}
+
+	private JPanel createListPane() {
+<span class="nc" id="L98">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L99">		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
+
+<span class="nc" id="L101">		periodListModel = new DefaultListModel();</span>
+<span class="nc" id="L102">		periodList = new JList(periodListModel);</span>
+<span class="nc" id="L103">		periodList</span>
+<span class="nc" id="L104">				.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);</span>
+<span class="nc" id="L105">		periodList.addListSelectionListener(this);</span>
+<span class="nc" id="L106">		JScrollPane periodListScroller = new JScrollPane(periodList);</span>
+
+<span class="nc" id="L108">		panel.add(periodListScroller);</span>
+
+<span class="nc" id="L110">		return panel;</span>
+	}
+
+	private JPanel createButtonPane() {
+<span class="nc" id="L114">		JPanel panel = new JPanel();</span>
+
+<span class="nc" id="L116">		deleteButton = new JButton(&quot;Delete&quot;);</span>
+<span class="nc" id="L117">		deleteButton.addActionListener(createDeleteButtonListener());</span>
+<span class="nc" id="L118">		deleteButton.setEnabled(false);</span>
+
+<span class="nc" id="L120">		panel.add(deleteButton, BorderLayout.CENTER);</span>
+
+<span class="nc" id="L122">		return panel;</span>
+	}
+
+	public void valueChanged(ListSelectionEvent e) {
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		if (e.getValueIsAdjusting() == false) {</span>
+
+<span class="nc bnc" id="L128" title="All 2 branches missed.">			if (periodList.getSelectedIndex() == -1) {</span>
+<span class="nc" id="L129">				deleteButton.setEnabled(false);</span>
+			} else {
+<span class="nc" id="L131">				deleteButton.setEnabled(true);</span>
+			}
+		}
+<span class="nc" id="L134">	}</span>
+
+	// Return a listener for the &quot;Add Period&quot; button that adds a valid period to
+	// the collection to be returned and the GUI list component. The period
+	// field is then cleared ready for the next addition.
+	private ActionListener createAddPeriodButtonListener() {
+<span class="nc" id="L140">		final Component topPane = this;</span>
+<span class="nc" id="L141">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L143">				String periodStr = periodField.getText();</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">				if (!&quot;&quot;.equals(periodStr.trim())) {</span>
+					try {
+<span class="nc" id="L146">						double period = NumberParser.parseDouble(periodStr);</span>
+<span class="nc" id="L147">						periods.add(period);</span>
+<span class="nc" id="L148">						periodListModel.addElement(periodStr);</span>
+<span class="nc" id="L149">					} catch (NumberFormatException ex) {</span>
+<span class="nc" id="L150">						MessageBox.showErrorDialog(topPane,</span>
+								&quot;Period Entry Error&quot;, &quot;'&quot; + periodStr
+										+ &quot;' is not a valid period value.&quot;);
+<span class="nc" id="L153">					}</span>
+<span class="nc" id="L154">					periodField.setText(&quot;&quot;);</span>
+				}
+<span class="nc" id="L156">			}</span>
+		};
+	}
+
+	// Return a listener for the &quot;Delete&quot; button that removes the selected item
+	// from the period list.
+	private ActionListener createDeleteButtonListener() {
+<span class="nc" id="L163">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L165">				periodListModel.remove(periodList.getSelectedIndex());</span>
+<span class="nc" id="L166">			}</span>
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

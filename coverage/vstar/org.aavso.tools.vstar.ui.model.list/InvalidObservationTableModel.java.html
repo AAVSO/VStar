@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InvalidObservationTableModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.model.list</a> &gt; <span class="el_source">InvalidObservationTableModel.java</span></div><h1>InvalidObservationTableModel.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.model.list;
+
+import java.util.List;
+
+import javax.swing.table.AbstractTableModel;
+
+import org.aavso.tools.vstar.data.InvalidObservation;
+
+/**
+ * A table model for invalid observations.
+ */
+<span class="nc" id="L29">@SuppressWarnings(&quot;serial&quot;)</span>
+public class InvalidObservationTableModel extends AbstractTableModel {
+
+	private final static int COLUMNS = 3;
+
+	/**
+	 * The list of invalid observations retrieved.
+	 */
+	protected List&lt;InvalidObservation&gt; invalidObservations;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param invalidObservations
+	 */
+	public InvalidObservationTableModel(
+			List&lt;InvalidObservation&gt; invalidObservations) {
+<span class="nc" id="L46">		super();</span>
+<span class="nc" id="L47">		this.invalidObservations = invalidObservations;</span>
+<span class="nc" id="L48">	}</span>
+
+	/**
+	 * @see javax.swing.table.TableModel#getColumnCount()
+	 */
+	public int getColumnCount() {
+<span class="nc" id="L54">		return COLUMNS;</span>
+	}
+
+	/**
+	 * @see javax.swing.table.TableModel#getRowCount()
+	 */
+	public int getRowCount() {
+<span class="nc" id="L61">		return invalidObservations.size();</span>
+	}
+
+	/**
+	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
+	 */
+	public String getColumnName(int column) {
+<span class="nc" id="L68">		String columnName = null;</span>
+		
+<span class="nc bnc" id="L70" title="All 4 branches missed.">		switch (column) {</span>
+		case 0:
+<span class="nc" id="L72">			columnName = &quot;Record&quot;;</span>
+<span class="nc" id="L73">			break;</span>
+		case 1:
+<span class="nc" id="L75">			columnName = &quot;Observation&quot;;</span>
+<span class="nc" id="L76">			break;</span>
+		case 2:
+<span class="nc" id="L78">			columnName = &quot;Error&quot;;</span>
+			break;
+		}
+
+<span class="nc" id="L82">		return columnName;</span>
+	}
+
+	/**
+	 * @see javax.swing.table.TableModel#getValueAt(int, int)
+	 */
+	public Object getValueAt(int rowIndex, int columnIndex) {
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		assert columnIndex &lt; COLUMNS;</span>
+
+<span class="nc" id="L91">		Object value = null;</span>
+<span class="nc" id="L92">		InvalidObservation invalidOb = invalidObservations.get(rowIndex);</span>
+<span class="nc bnc" id="L93" title="All 4 branches missed.">		switch (columnIndex) {</span>
+		case 0:
+			// TODO: we really want to return an integer so that column 
+			// sorting works properly for numbers!
+			//value = String.format(&quot;%d&quot;, invalidOb.getRecordNumber());
+<span class="nc" id="L98">			value = invalidOb.getRecordNumber();</span>
+<span class="nc" id="L99">			break;</span>
+		case 1:
+<span class="nc" id="L101">			value = invalidOb.getInputLine();</span>
+<span class="nc" id="L102">			break;</span>
+		case 2:
+<span class="nc" id="L104">			value = invalidOb.getError();</span>
+			break;
+		}
+<span class="nc" id="L107">		return value;</span>
+	}
+
+	/**
+	 * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
+	 */
+	public Class&lt;?&gt; getColumnClass(int columnIndex) {
+<span class="nc" id="L114">		Class&lt;?&gt; clazz = null;</span>
+		
+<span class="nc bnc" id="L116" title="All 4 branches missed.">		switch(columnIndex) {</span>
+		case 0:
+			//clazz = String.class;
+<span class="nc" id="L119">			clazz = Integer.class;</span>
+<span class="nc" id="L120">			break;</span>
+		case 1:
+<span class="nc" id="L122">			clazz = String.class;</span>
+<span class="nc" id="L123">			break;</span>
+		case 2:
+<span class="nc" id="L125">			clazz = String.class;</span>
+			break;
+		}
+		
+<span class="nc" id="L129">		return clazz;</span>
+	}	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

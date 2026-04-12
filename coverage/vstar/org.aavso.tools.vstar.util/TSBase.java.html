@@ -1,0 +1,649 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TSBase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util</a> &gt; <span class="el_source">TSBase.java</span></div><h1>TSBase.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util;
+
+import java.util.List;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+
+/**
+ * This is the base class for all AAVSO TS-based algorithms translated from the
+ * ts1201.f Fortran code.
+ */
+
+// TODO: make 51 a named constant
+
+public class TSBase {
+
+	protected final static int MAX_TOP_HITS = 101; // was 21
+
+	private List&lt;ValidObservation&gt; observations;
+
+	protected double dangcut;
+	protected double damp;
+	protected double damp2;
+	protected double dave;
+<span class="fc" id="L41">	protected double dcoef[] = new double[51];</span>
+	protected double dfouramp2;
+	protected double dfpow;
+<span class="fc" id="L44">	protected double dfre[] = new double[MAX_TOP_HITS];</span>
+<span class="fc" id="L45">	protected double dgnu[] = new double[MAX_TOP_HITS];</span>
+<span class="fc" id="L46">	protected double dgper[] = new double[MAX_TOP_HITS];</span>
+<span class="fc" id="L47">	protected double dgpower[] = new double[MAX_TOP_HITS];</span>
+<span class="fc" id="L48">	protected double dgamplitude[] = new double[MAX_TOP_HITS]; // dbenn</span>
+	// (semi-amplitude?)
+	protected double dlamp;
+	protected double dllamp;
+	protected double dlnu;
+	protected double dlper;
+	protected double dlpower;
+	protected double dlamplitude; // dbenn (semi-amplitude?)
+<span class="fc" id="L56">	protected double dmat[][] = new double[51][51];</span>
+	protected double dpower;
+	protected double dsig;
+	protected double dt0;
+	protected double dtsig;
+	protected double dtave;
+	protected double dtscale;
+	protected double dtvar;
+	protected double dtzero;
+	protected double dvar;
+<span class="fc" id="L66">	protected double dvec[] = new double[51];</span>
+	protected double dweight;
+	protected double ff;
+	protected double hifre;
+	protected int ma;
+	protected int magspan;
+	protected int mb;
+	protected int mhigh;
+	protected int mlow;
+	protected int nbias;
+	protected int nbrake;
+	protected int ndigt;
+	protected int ndim;
+	protected int ndim2;
+	protected int nfre;
+	protected int nj;
+	protected int nlolim;
+	protected int npoly;
+	protected int numact;
+	protected int numraw;
+	protected int nuplim;
+<span class="fc" id="L87">	protected String obias[] = new String[51];</span>
+	protected String obs[];
+	protected double tlolim;
+	protected double tmark;
+	protected double tresolv;
+	protected double tuplim;
+	protected double tuplimit;
+	protected double tvec[];
+	protected double wvec[];
+	protected double xvec[];
+
+	protected boolean interrupted;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param observations
+	 *            The observations over which to perform a period analysis.
+	 */
+<span class="fc" id="L106">	public TSBase(List&lt;ValidObservation&gt; observations) {</span>
+<span class="fc" id="L107">		this.observations = observations;</span>
+
+		// Create input arrays.
+
+		// TODO: change to zero index start to get rid of +1!
+<span class="fc" id="L112">		int sz = observations.size() + 1;</span>
+<span class="fc" id="L113">		this.obs = new String[sz];</span>
+<span class="fc" id="L114">		this.tvec = new double[sz];</span>
+<span class="fc" id="L115">		this.xvec = new double[sz];</span>
+<span class="fc" id="L116">		this.wvec = new double[sz];</span>
+
+<span class="fc" id="L118">		interrupted = false;</span>
+<span class="fc" id="L119">	}</span>
+
+	// -------------------------------------------------------------------------------
+
+	public void load_raw() {
+
+		double dtspan, x, dd, dtcorr, dx;
+		double jda, jdb;
+		int num, n;
+		double deetee, deex;
+
+<span class="fc" id="L130">		ma = 999999;</span>
+<span class="fc" id="L131">		mb = -999999;</span>
+<span class="fc" id="L132">		num = 0;</span>
+<span class="fc" id="L133">		jda = observations.get(0).getJD();</span>
+<span class="fc" id="L134">		jdb = observations.get(observations.size() - 1).getJD();</span>
+
+<span class="fc bfc" id="L136" title="All 2 branches covered.">		for (ValidObservation observation : this.observations) {</span>
+<span class="fc" id="L137">			num = num + 1;</span>
+<span class="fc" id="L138">			deetee = observation.getJD();</span>
+<span class="fc" id="L139">			deex = observation.getMag();</span>
+<span class="fc" id="L140">			tvec[num] = deetee;</span>
+<span class="fc" id="L141">			xvec[num] = deex;</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">			if (num == 1)</span>
+<span class="fc" id="L143">				dt0 = (int) (tvec[num]); // TODO: do this once at start?</span>
+
+<span class="fc" id="L145">			tvec[num] = tvec[num] - dt0;</span>
+<span class="fc" id="L146">			wvec[num] = 1.0;</span>
+<span class="fc" id="L147">			obs[num] = &quot;    &quot;;</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">			if (tvec[num] &lt; tvec[num - 1]) {</span>
+<span class="nc" id="L149">				dx = tvec[num];</span>
+<span class="nc" id="L150">				x = xvec[num];</span>
+<span class="nc" id="L151">				boolean skip_n_gets0 = false;</span>
+<span class="nc bnc" id="L152" title="All 4 branches missed.">				for (n = num - 1; n &gt;= 1 &amp;&amp; !skip_n_gets0; n--) {</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">					if (dx &gt;= tvec[n]) {</span>
+<span class="nc" id="L154">						skip_n_gets0 = true;</span>
+<span class="nc" id="L155">						break;</span>
+					}
+<span class="nc" id="L157">					tvec[n + 1] = tvec[n];</span>
+<span class="nc" id="L158">					xvec[n + 1] = xvec[n];</span>
+				}
+<span class="nc bnc" id="L160" title="All 2 branches missed.">				if (!skip_n_gets0) {</span>
+<span class="nc" id="L161">					n = 0;</span>
+				}
+<span class="nc" id="L163">				tvec[n + 1] = dx;</span>
+<span class="nc" id="L164">				xvec[n + 1] = x;</span>
+			}
+<span class="fc bfc" id="L166" title="All 2 branches covered.">			if (xvec[num] &lt; (double) ma)</span>
+<span class="fc" id="L167">				ma = (int) (xvec[num]);</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">			if (xvec[num] &gt; (double) mb)</span>
+<span class="fc" id="L169">				mb = (int) (xvec[num]);</span>
+<span class="fc" id="L170">		}</span>
+<span class="fc" id="L171">		ma = ma - 1;</span>
+<span class="fc" id="L172">		mb = mb + 2;</span>
+<span class="fc" id="L173">		mlow = ma;</span>
+<span class="fc" id="L174">		mhigh = mb;</span>
+<span class="fc" id="L175">		magspan = mhigh - mlow;</span>
+<span class="fc" id="L176">		numraw = num;</span>
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">		if (tvec[1] &lt; 0.0) {</span>
+<span class="nc" id="L178">			dx = (int) (-1.0 * tvec[1]) + 1.0;</span>
+<span class="nc" id="L179">			dt0 = dt0 - dx;</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">			for (n = 1; n &lt;= num; n++) {</span>
+<span class="nc" id="L181">				tvec[n] = tvec[n] + dx;</span>
+			}
+		}
+<span class="fc" id="L184">		dtspan = tvec[numraw];</span>
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">		if (dtspan &lt; 1.0)</span>
+<span class="nc" id="L186">			dtspan = 1.0;</span>
+<span class="fc" id="L187">		x = Math.log10(dtspan);</span>
+<span class="fc" id="L188">		x = (int) (x - 0.5);</span>
+<span class="fc" id="L189">		ndigt = 7 - (int) x;</span>
+<span class="fc" id="L190">		tresolv = Math.pow(10.0, x);</span>
+<span class="fc" id="L191">		dd = (int) (dt0 / tresolv) - 1.0;</span>
+<span class="fc" id="L192">		dd = dd * tresolv;</span>
+<span class="fc" id="L193">		dtcorr = dt0 - dd;</span>
+<span class="fc" id="L194">		dt0 = dd;</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">		for (n = 1; n &lt;= numraw; n++) {</span>
+<span class="fc" id="L196">			tvec[n] = tvec[n] + dtcorr;</span>
+		}
+<span class="fc" id="L198">		x = (int) (tvec[numraw] / tresolv) + 2.0;</span>
+<span class="fc" id="L199">		tuplimit = x * tresolv;</span>
+<span class="fc" id="L200">		tlolim = 0.0;</span>
+<span class="fc" id="L201">		tuplim = tuplimit;</span>
+<span class="fc" id="L202">		nlolim = 1;</span>
+<span class="fc" id="L203">		nuplim = numraw;</span>
+<span class="fc" id="L204">		tmark = 0.0;</span>
+
+<span class="fc" id="L206">		statcomp();</span>
+<span class="fc" id="L207">	}</span>
+
+	// -------------------------------------------------------------------------------
+
+	protected void statcomp() {
+		int n, nx;
+		double dw, dt, dx, dtspan, xx, dts2;
+
+<span class="fc" id="L215">		setlimit();</span>
+
+<span class="fc" id="L217">		nbrake = 0;</span>
+<span class="fc" id="L218">		numact = 0;</span>
+<span class="fc" id="L219">		dweight = 0.0;</span>
+<span class="fc" id="L220">		dave = 0.0;</span>
+<span class="fc" id="L221">		dtave = 0.0;</span>
+<span class="fc" id="L222">		dtvar = 0.0;</span>
+<span class="fc" id="L223">		dvar = 0.0;</span>
+
+<span class="fc bfc" id="L225" title="All 2 branches covered.">		for (n = nlolim; n &lt;= nuplim; n++) {</span>
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">			if (wvec[n] &gt; 0.0) {</span>
+<span class="fc" id="L227">				numact = numact + 1;</span>
+<span class="fc" id="L228">				dw = wvec[n];</span>
+<span class="fc" id="L229">				dt = tvec[n];</span>
+<span class="fc" id="L230">				dx = xvec[n];</span>
+<span class="fc" id="L231">				dweight = dweight + dw;</span>
+<span class="fc" id="L232">				dave = dave + (dw * dx);</span>
+<span class="fc" id="L233">				dvar = dvar + ((dw * dx) * (dw * dx));</span>
+<span class="fc" id="L234">				dtave = dtave + dt;</span>
+<span class="fc" id="L235">				dtvar = dtvar + (dt * dt);</span>
+			}
+		}
+
+<span class="pc bpc" id="L239" title="1 of 2 branches missed.">		if (numact &lt; 1) {</span>
+<span class="nc" id="L240">			dave = 0.0;</span>
+<span class="nc" id="L241">			dvar = 0.0;</span>
+<span class="nc" id="L242">			dsig = 0.0;</span>
+<span class="nc" id="L243">			return;</span>
+		}
+
+<span class="fc" id="L246">		dave = dave / dweight;</span>
+<span class="fc" id="L247">		dvar = dvar / dweight;</span>
+<span class="fc" id="L248">		dvar = dvar - (dave * dave);</span>
+
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">		if (dvar &lt; 0.0)</span>
+<span class="nc" id="L251">			dvar = 0.0;</span>
+<span class="fc" id="L252">		dsig = 0.0;</span>
+
+<span class="pc bpc" id="L254" title="1 of 2 branches missed.">		if (numact &gt; 1)</span>
+<span class="fc" id="L255">			dsig = Math.sqrt(dvar * (double) (numact) / (double) (numact - 1));</span>
+
+<span class="fc" id="L257">		dtave = dtave / (double) (numact);</span>
+<span class="fc" id="L258">		dtvar = (dtvar / (double) (numact)) - (dtave * dtave);</span>
+
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">		if (dtvar &lt; 0.0)</span>
+<span class="nc" id="L261">			dtvar = 0.0;</span>
+
+<span class="fc" id="L263">		dtsig = Math.sqrt(dtvar);</span>
+<span class="fc" id="L264">		dtspan = tvec[nuplim] - tvec[nlolim];</span>
+
+<span class="pc bpc" id="L266" title="1 of 2 branches missed.">		if (dtspan &lt;= 0.0)</span>
+<span class="nc" id="L267">			return;</span>
+
+<span class="fc" id="L269">		xx = Math.log10(dtspan);</span>
+<span class="fc" id="L270">		nx = (int) (xx + 0.5);</span>
+<span class="fc" id="L271">		dtscale = Math.pow(10.0, nx);</span>
+<span class="fc" id="L272">		dts2 = Math.pow(10.0, (nx - 3));</span>
+<span class="fc" id="L273">		dtzero = dtave / dts2;</span>
+<span class="fc" id="L274">		dtzero = dts2 * (int) (dtzero + 0.5);</span>
+<span class="fc" id="L275">	}</span>
+
+	// -------------------------------------------------------------------------------
+
+	protected void setlimit() {
+		int n;
+
+<span class="fc" id="L282">		nlolim = 0;</span>
+<span class="fc" id="L283">		nuplim = 0;</span>
+
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">		for (n = 1; n &lt;= numraw; n++) {</span>
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">			if (tvec[n] &gt;= tlolim)</span>
+<span class="fc" id="L287">				break;</span>
+		}
+
+<span class="fc" id="L290">		nlolim = n;</span>
+<span class="fc bfc" id="L291" title="All 2 branches covered.">		for (n = nlolim; n &lt;= numraw; n++) {</span>
+<span class="pc bpc" id="L292" title="1 of 2 branches missed.">			if (tvec[n] &gt; tuplim)</span>
+<span class="nc" id="L293">				break;</span>
+		}
+
+<span class="fc" id="L296">		nuplim = n - 1;</span>
+<span class="fc" id="L297">	}</span>
+
+	protected void project() throws InterruptedException {
+<span class="fc" id="L300">		double dpow[] = new double[51]; // TODO just 50 (0:50); same for others</span>
+		// below?
+<span class="fc" id="L302">		double drad[] = new double[51];</span>
+<span class="fc" id="L303">		double dcc[] = new double[51];</span>
+<span class="fc" id="L304">		double dss[] = new double[51];</span>
+		double dt, dx, dphase, twopi;
+		int n, n1, n2, nf, nf2, nb, np;
+
+		int ii, jj;
+
+<span class="fc" id="L310">		twopi = 6.283185307179586;</span>
+
+<span class="fc bfc" id="L312" title="All 2 branches covered.">		for (ii = 0; ii &lt;= 50; ii++) {</span>
+<span class="fc bfc" id="L313" title="All 2 branches covered.">			for (jj = 0; jj &lt;= 50; jj++) {</span>
+<span class="fc" id="L314">				dmat[ii][jj] = 0.0;</span>
+			}
+<span class="fc" id="L316">			dvec[ii] = 0.0;</span>
+
+<span class="pc bpc" id="L318" title="1 of 2 branches missed.">			if (interrupted) {</span>
+<span class="nc" id="L319">				throw new InterruptedException();</span>
+			}
+		}
+
+<span class="fc" id="L323">		ndim2 = npoly + (2 * nfre);</span>
+<span class="fc" id="L324">		ndim = ndim2 + nbias;</span>
+<span class="fc" id="L325">		dweight = 0.0;</span>
+
+		// TODO: why do we zero dmat and dvec again here? we just did it above!
+<span class="fc bfc" id="L328" title="All 2 branches covered.">		for (n1 = 0; n1 &lt;= ndim; n1++) {</span>
+<span class="fc" id="L329">			dvec[n1] = 0.0;</span>
+<span class="fc bfc" id="L330" title="All 2 branches covered.">			for (n2 = 0; n2 &lt;= ndim; n2++) {</span>
+<span class="fc" id="L331">				dmat[n1][n2] = 0.0;</span>
+			}
+
+<span class="pc bpc" id="L334" title="1 of 2 branches missed.">			if (interrupted) {</span>
+<span class="nc" id="L335">				throw new InterruptedException();</span>
+			}
+		}
+
+<span class="fc bfc" id="L339" title="All 2 branches covered.">		for (nf = 1; nf &lt;= nfre; nf++) {</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">			if (dfre[nf] &lt; dangcut) {</span>
+<span class="fc" id="L341">				dfpow = 0.0;</span>
+<span class="fc" id="L342">				dpower = 0.0;</span>
+<span class="fc" id="L343">				return;</span>
+			}
+
+<span class="fc" id="L346">			drad[nf] = twopi * dfre[nf] * dtscale;</span>
+<span class="fc bfc" id="L347" title="All 2 branches covered.">			for (nf2 = nf + 1; nf2 &lt;= nfre; nf2++) {</span>
+<span class="pc bpc" id="L348" title="1 of 2 branches missed.">				if (Math.abs(dfre[nf] - dfre[nf2]) &lt; 1E-8) {</span>
+<span class="nc" id="L349">					dpower = 0.0;</span>
+<span class="nc" id="L350">					return;</span>
+				}
+			}
+
+<span class="pc bpc" id="L354" title="1 of 2 branches missed.">			if (interrupted) {</span>
+<span class="nc" id="L355">				throw new InterruptedException();</span>
+			}
+		}
+
+<span class="fc" id="L359">		dpow[0] = 1.0;</span>
+
+		// main loop for summation
+<span class="fc bfc" id="L362" title="All 2 branches covered.">		for (n = nlolim; n &lt;= nuplim; n++) {</span>
+<span class="pc bpc" id="L363" title="1 of 2 branches missed.">			if (wvec[n] &gt; 0.0) {</span>
+<span class="fc" id="L364">				dweight = dweight + 1.0;</span>
+<span class="fc" id="L365">				dt = tvec[n];</span>
+<span class="fc" id="L366">				dt = (dt - dtzero) / dtscale;</span>
+<span class="fc" id="L367">				dx = xvec[n];</span>
+
+				// compute powers of time
+<span class="fc bfc" id="L370" title="All 2 branches covered.">				for (np = 1; np &lt;= npoly; np++) {</span>
+<span class="fc" id="L371">					dpow[np] = dpow[np - 1] * dt;</span>
+				}
+
+<span class="pc bpc" id="L374" title="1 of 2 branches missed.">				if (interrupted) {</span>
+<span class="nc" id="L375">					throw new InterruptedException();</span>
+				}
+
+				// compute trig functions
+<span class="fc bfc" id="L379" title="All 2 branches covered.">				for (nf = 1; nf &lt;= nfre; nf++) {</span>
+<span class="fc" id="L380">					dphase = drad[nf] * dt;</span>
+<span class="fc" id="L381">					dcc[nf] = Math.cos(dphase);</span>
+<span class="fc" id="L382">					dss[nf] = Math.sin(dphase);</span>
+				}
+
+<span class="pc bpc" id="L385" title="1 of 2 branches missed.">				if (interrupted) {</span>
+<span class="nc" id="L386">					throw new InterruptedException();</span>
+				}
+
+				// compute matrix coefficients for polynomials...
+<span class="fc bfc" id="L390" title="All 2 branches covered.">				for (np = 0; np &lt;= npoly; np++) {</span>
+<span class="fc" id="L391">					dmat[0][np] = dmat[0][np] + dpow[np];</span>
+<span class="fc bfc" id="L392" title="All 2 branches covered.">					if (np &gt; 0) {</span>
+<span class="fc" id="L393">						dmat[np][npoly] = dmat[np][npoly]</span>
+								+ (dpow[np] * dpow[npoly]);
+					}
+
+					// TODO: dmat screws up somewhere between here...
+					// dependent upon dpow, dcc, and dss arrays
+
+<span class="fc" id="L400">					dvec[np] = dvec[np] + (dx * dpow[np]);</span>
+<span class="fc" id="L401">					n2 = npoly;</span>
+					// ...and for products of polynomials with trig functions
+<span class="fc bfc" id="L403" title="All 2 branches covered.">					for (nf = 1; nf &lt;= nfre; nf++) {</span>
+<span class="fc" id="L404">						n2 = n2 + 2;</span>
+<span class="fc" id="L405">						dmat[np][n2 - 1] = dmat[np][n2 - 1]</span>
+								+ (dpow[np] * dcc[nf]);
+<span class="fc" id="L407">						dmat[np][n2] = dmat[np][n2] + (dpow[np] * dss[nf]);</span>
+					}
+
+<span class="pc bpc" id="L410" title="1 of 2 branches missed.">					if (interrupted) {</span>
+<span class="nc" id="L411">						throw new InterruptedException();</span>
+					}
+				}
+
+				// compute matrix values for products of trig functions
+<span class="fc" id="L416">				n1 = npoly;</span>
+<span class="fc bfc" id="L417" title="All 2 branches covered.">				for (nf = 1; nf &lt;= nfre; nf++) {</span>
+<span class="fc" id="L418">					n2 = n1;</span>
+<span class="fc" id="L419">					n1 = n1 + 2;</span>
+<span class="fc" id="L420">					dvec[n1 - 1] = dvec[n1 - 1] + (dx * dcc[nf]);</span>
+<span class="fc" id="L421">					dvec[n1] = dvec[n1] + (dx * dss[nf]);</span>
+<span class="fc bfc" id="L422" title="All 2 branches covered.">					for (nf2 = nf; nf2 &lt;= nfre; nf2++) {</span>
+<span class="fc" id="L423">						n2 = n2 + 2;</span>
+<span class="fc" id="L424">						dmat[n1 - 1][n2 - 1] = dmat[n1 - 1][n2 - 1]</span>
+								+ (dcc[nf] * dcc[nf2]);
+<span class="fc" id="L426">						dmat[n1 - 1][n2] = dmat[n1 - 1][n2]</span>
+								+ (dcc[nf] * dss[nf2]);
+<span class="fc" id="L428">						dmat[n1][n2 - 1] = dmat[n1][n2 - 1]</span>
+								+ (dss[nf] * dcc[nf2]);
+<span class="fc" id="L430">						dmat[n1][n2] = dmat[n1][n2] + (dss[nf] * dss[nf2]);</span>
+					}
+
+<span class="pc bpc" id="L433" title="1 of 2 branches missed.">					if (interrupted) {</span>
+<span class="nc" id="L434">						throw new InterruptedException();</span>
+					}
+				}
+
+				// compute matrix entries for observer bias functions
+<span class="pc bpc" id="L439" title="1 of 2 branches missed.">				for (nb = 1; nb &lt;= nbias; nb++) {</span>
+					// TODO: equals() vs '==' ?
+<span class="nc bnc" id="L441" title="All 2 branches missed.">					if (obs[n] == obias[nb]) {</span>
+<span class="nc" id="L442">						n2 = ndim2 + nb;</span>
+<span class="nc" id="L443">						dmat[n2][n2] = dmat[n2][n2] + 1.0;</span>
+<span class="nc" id="L444">						dvec[n2] = dvec[n2] + dx;</span>
+<span class="nc bnc" id="L445" title="All 2 branches missed.">						for (np = 0; np &lt;= npoly; np++) {</span>
+<span class="nc" id="L446">							dmat[np][n2] = dmat[np][n2] + dpow[np];</span>
+						}
+<span class="nc" id="L448">						n1 = npoly;</span>
+<span class="nc bnc" id="L449" title="All 2 branches missed.">						for (nf = 1; nf &lt;= nfre; nf++) {</span>
+<span class="nc" id="L450">							n1 = n1 + 2;</span>
+<span class="nc" id="L451">							dmat[n1 - 1][n2] = dmat[n1 - 1][n2] + dcc[nf];</span>
+<span class="nc" id="L452">							dmat[n1][n2] = dmat[n1][n2] + dss[nf];</span>
+						}
+					}
+
+<span class="nc bnc" id="L456" title="All 2 branches missed.">					if (interrupted) {</span>
+<span class="nc" id="L457">						throw new InterruptedException();</span>
+					}
+				}
+			}
+		}
+		// end of summation loop
+
+		// check for absent bias observers
+		// TODO: needed?
+<span class="pc bpc" id="L466" title="1 of 2 branches missed.">		for (n = 1; n &lt;= nbias; n++) {</span>
+<span class="nc bnc" id="L467" title="All 2 branches missed.">			if (dmat[ndim2 + n][ndim2 + n] &lt; 1.0) {</span>
+				// write(6,*) 'absent BIAS Obs: ',obias(n)
+<span class="nc" id="L469">				ndim = ndim2;</span>
+<span class="nc" id="L470">				nbias = 0;</span>
+			}
+		}
+
+<span class="pc bpc" id="L474" title="1 of 2 branches missed.">		if (interrupted) {</span>
+<span class="nc" id="L475">			throw new InterruptedException();</span>
+		}
+
+<span class="fc bfc" id="L478" title="All 2 branches covered.">		for (n1 = 1; n1 &lt;= npoly - 1; n1++) {</span>
+<span class="fc bfc" id="L479" title="All 2 branches covered.">			for (n2 = n1; n2 &lt;= npoly - 1; n2++) {</span>
+<span class="fc" id="L480">				dmat[n1][n2] = dmat[n1 - 1][n2 + 1];</span>
+			}
+
+<span class="pc bpc" id="L483" title="1 of 2 branches missed.">			if (interrupted) {</span>
+<span class="nc" id="L484">				throw new InterruptedException();</span>
+			}
+		}
+
+<span class="fc bfc" id="L488" title="All 2 branches covered.">		for (n1 = 0; n1 &lt;= ndim; n1++) {</span>
+<span class="fc" id="L489">			dvec[n1] = dvec[n1] / dweight;</span>
+<span class="fc bfc" id="L490" title="All 2 branches covered.">			for (n2 = n1; n2 &lt;= ndim; n2++) {</span>
+<span class="fc" id="L491">				dmat[n1][n2] = dmat[n1][n2] / dweight;</span>
+			}
+
+<span class="pc bpc" id="L494" title="1 of 2 branches missed.">			if (interrupted) {</span>
+<span class="nc" id="L495">				throw new InterruptedException();</span>
+			}
+		}
+
+<span class="fc" id="L499">		dmat[0][0] = 1.0;</span>
+<span class="fc bfc" id="L500" title="All 2 branches covered.">		for (n1 = 1; n1 &lt;= ndim; n1++) {</span>
+<span class="fc bfc" id="L501" title="All 2 branches covered.">			for (n2 = 0; n2 &lt;= n1 - 1; n2++) {</span>
+<span class="fc" id="L502">				dmat[n1][n2] = dmat[n2][n1];</span>
+			}
+
+<span class="pc bpc" id="L505" title="1 of 2 branches missed.">			if (interrupted) {</span>
+<span class="nc" id="L506">				throw new InterruptedException();</span>
+			}
+		}
+
+<span class="fc" id="L510">		matinv();</span>
+
+<span class="fc" id="L512">		damp2 = 0.0;</span>
+<span class="fc bfc" id="L513" title="All 2 branches covered.">		for (n1 = 0; n1 &lt;= ndim; n1++) {</span>
+<span class="fc" id="L514">			dcoef[n1] = 0.0;</span>
+<span class="fc bfc" id="L515" title="All 2 branches covered.">			for (n2 = 0; n2 &lt;= ndim; n2++) {</span>
+<span class="fc" id="L516">				dcoef[n1] = dcoef[n1] + (dmat[n1][n2] * dvec[n2]);</span>
+			}
+<span class="fc" id="L518">			damp2 = damp2 + (dcoef[n1] * dvec[n1]);</span>
+
+<span class="pc bpc" id="L520" title="1 of 2 branches missed.">			if (interrupted) {</span>
+<span class="nc" id="L521">				throw new InterruptedException();</span>
+			}
+		}
+
+<span class="fc" id="L525">		damp2 = damp2 - (dave * dave);</span>
+<span class="pc bpc" id="L526" title="1 of 2 branches missed.">		if (damp2 &lt; 0.0)</span>
+<span class="nc" id="L527">			damp2 = 0.0;</span>
+<span class="pc bpc" id="L528" title="1 of 2 branches missed.">		if (ndim &gt; 0) {</span>
+<span class="fc" id="L529">			dpower = (double) (numact - 1) * damp2 / dvar / (double) (ndim);</span>
+		} else {
+<span class="nc" id="L531">			dpower = 0.0;</span>
+		}
+
+		// compute Fourier power, amplitude squared
+
+<span class="fc" id="L536">		dfpow = (double) (numact - 1) * (damp2 - dfouramp2);</span>
+<span class="fc" id="L537">		dfpow = dfpow / (dvar - dfouramp2) / 2.0;</span>
+<span class="fc" id="L538">		damp = 2.0 * (damp2 - dfouramp2);</span>
+<span class="pc bpc" id="L539" title="1 of 2 branches missed.">		if (damp &lt; 0.0)</span>
+<span class="nc" id="L540">			damp = 0.0;</span>
+<span class="fc" id="L541">		damp = Math.sqrt(damp);</span>
+<span class="fc" id="L542">	}</span>
+
+	// -------------------------------------------------------------------------------
+
+	protected void matinv() {
+<span class="fc" id="L547">		double dsol[][] = new double[101][101];</span>
+<span class="fc" id="L548">		double dfac = 0;</span>
+<span class="fc" id="L549">		int ni = 0;</span>
+<span class="fc" id="L550">		int nj = 0;</span>
+<span class="fc" id="L551">		int nk = 0;</span>
+
+<span class="fc bfc" id="L553" title="All 2 branches covered.">		for (ni = 0; ni &lt;= ndim; ni++) {</span>
+<span class="fc bfc" id="L554" title="All 2 branches covered.">			for (nj = 0; nj &lt;= ndim; nj++) {</span>
+<span class="fc" id="L555">				dsol[ni][nj] = 0.0;</span>
+			}
+<span class="fc" id="L557">			dsol[ni][ni] = 1.0;</span>
+		}
+
+<span class="fc bfc" id="L560" title="All 2 branches covered.">		for (ni = 0; ni &lt;= ndim; ni++) {</span>
+<span class="pc bpc" id="L561" title="1 of 2 branches missed.">			if (dmat[ni][ni] == 0.0) {</span>
+<span class="nc bnc" id="L562" title="All 2 branches missed.">				if (ni == ndim)</span>
+<span class="nc" id="L563">					return;</span>
+<span class="nc" id="L564">				boolean exit_and_carry_on = false;</span>
+<span class="nc bnc" id="L565" title="All 2 branches missed.">				for (nj = ni + 1; nj &lt;= ndim; nj++) {</span>
+<span class="nc bnc" id="L566" title="All 2 branches missed.">					if (dmat[nj][ni] != 0.0) {</span>
+<span class="nc" id="L567">						exit_and_carry_on = true;</span>
+<span class="nc" id="L568">						break;</span>
+					}
+				}
+
+<span class="nc bnc" id="L572" title="All 2 branches missed.">				if (!exit_and_carry_on)</span>
+<span class="nc" id="L573">					return;</span>
+
+<span class="nc bnc" id="L575" title="All 2 branches missed.">				for (nk = 0; nk &lt;= ndim; nk++) {</span>
+<span class="nc" id="L576">					dmat[ni][nk] = dmat[ni][nk] + dmat[nj][nk];</span>
+<span class="nc" id="L577">					dsol[ni][nk] = dsol[ni][nk] + dsol[nj][nk];</span>
+				}
+			}
+
+<span class="fc" id="L581">			dfac = dmat[ni][ni];</span>
+<span class="fc bfc" id="L582" title="All 2 branches covered.">			for (nj = 0; nj &lt;= ndim; nj++) {</span>
+<span class="fc" id="L583">				dmat[ni][nj] = dmat[ni][nj] / dfac;</span>
+<span class="fc" id="L584">				dsol[ni][nj] = dsol[ni][nj] / dfac;</span>
+			}
+
+<span class="fc bfc" id="L587" title="All 2 branches covered.">			for (nj = 0; nj &lt;= ndim; nj++) {</span>
+<span class="fc bfc" id="L588" title="All 2 branches covered.">				if (nj != ni) {</span>
+<span class="fc" id="L589">					dfac = dmat[nj][ni];</span>
+<span class="fc bfc" id="L590" title="All 2 branches covered.">					for (nk = 0; nk &lt;= ndim; nk++) {</span>
+<span class="fc" id="L591">						dmat[nj][nk] = dmat[nj][nk] - (dmat[ni][nk] * dfac);</span>
+<span class="fc" id="L592">						dsol[nj][nk] = dsol[nj][nk] - (dsol[ni][nk] * dfac);</span>
+					}
+				}
+			}
+		}
+
+<span class="fc bfc" id="L598" title="All 2 branches covered.">		for (ni = 0; ni &lt;= ndim; ni++) {</span>
+<span class="fc bfc" id="L599" title="All 2 branches covered.">			for (nj = 0; nj &lt;= ndim; nj++) {</span>
+<span class="fc" id="L600">				dmat[ni][nj] = dsol[ni][nj];</span>
+			}
+		}
+<span class="fc" id="L603">	}</span>
+
+	/**
+	 * Applies a function defined by polynomial or Fourier coefficients to the
+	 * specified time parameter.
+	 * 
+	 * @param dtime
+	 *            The time parameter to which the function is to be applied.
+	 * @return The resulting of applying the function to the parameter.
+	 */
+	protected double smooth(double dtime) {
+		double dmag;
+		double dt, dphase;
+		double twopi;
+		int np, n2, nf;
+
+<span class="fc" id="L619">		twopi = Math.PI * 2;</span>
+
+<span class="fc" id="L621">		dt = (dtime - dtzero) / dtscale;</span>
+<span class="fc" id="L622">		dmag = dcoef[0]; // constant coefficient</span>
+<span class="fc bfc" id="L623" title="All 2 branches covered.">		for (np = 1; np &lt;= npoly; np++) {</span>
+<span class="fc" id="L624">			dmag = dmag + (dcoef[np] * (Math.pow(dt, np)));</span>
+		}
+<span class="fc" id="L626">		n2 = npoly;</span>
+<span class="fc bfc" id="L627" title="All 2 branches covered.">		for (nf = 1; nf &lt;= nfre; nf++) {</span>
+<span class="fc" id="L628">			n2 = n2 + 2;</span>
+<span class="fc" id="L629">			dphase = twopi * dfre[nf] * dtscale * dt; // TODO: why divide by</span>
+			// dtscale above at all?
+<span class="fc" id="L631">			dmag = dmag + (dcoef[n2 - 1] * Math.cos(dphase));</span>
+<span class="fc" id="L632">			dmag = dmag + (dcoef[n2] * Math.sin(dphase));</span>
+		}
+<span class="fc" id="L634">		return dmag;</span>
+	}
+
+	/**
+	 * Return the zero-point offset that must be subtracted from each time step
+	 * when creating a model equation or performing a model fit operation.
+	 * Obviously, the point in time at which this is called matters. It must not
+	 * be called until after load_raw(), and so also statcomp(), has been invoked.
+	 * 
+	 * @return The zero-point offset/term/subrahend.
+	 */
+	protected double getZeroPointOffset() {
+<span class="fc" id="L646">		return dt0 + dtzero;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Notifier.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.notification</a> &gt; <span class="el_source">Notifier.java</span></div><h1>Notifier.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.notification;
+
+import java.util.concurrent.CopyOnWriteArrayList;
+
+/**
+ * A notifier class genericised on the class of object that will be sent to
+ * Listeners. This is a simpler, more flexible, and more type-safe form of the
+ * Observer pattern than the one provided via the standard Java
+ * Observer/Observable framework. A good candidate for T is an enum. Notice that
+ * both notifier and listener must share the same type T.
+ */
+public class Notifier&lt;T&gt; {
+
+	// The list of objects with an interest in the
+	// notifier's activities.
+	private CopyOnWriteArrayList&lt;Listener&lt;T&gt;&gt; listeners;
+
+	// The list of messages for this notifier's listeners.
+	private CopyOnWriteArrayList&lt;T&gt; messages;
+	
+	/**
+	 * Constructor
+	 */
+<span class="fc" id="L41">	public Notifier() {</span>
+<span class="fc" id="L42">		this.listeners = new CopyOnWriteArrayList&lt;Listener&lt;T&gt;&gt;();</span>
+<span class="fc" id="L43">		this.messages = new CopyOnWriteArrayList&lt;T&gt;();</span>
+<span class="fc" id="L44">	}</span>
+
+	/**
+	 * Add a listener with no immediate notification message.
+	 * 
+	 * @param listener
+	 *            The listener to add.
+	 */
+	public void addListener(Listener&lt;T&gt; listener) {
+<span class="fc" id="L53">		this.addListener(listener, false);</span>
+<span class="fc" id="L54">	}</span>
+
+	/**
+	 * Add a listener, and specify whether to notify it immediately.
+	 * 
+	 * @param listener
+	 *            The listener to add.
+	 * @param immediateMessages
+	 *            Send all messages so far to this new listener.
+	 */
+	public void addListener(Listener&lt;T&gt; listener, boolean immediateMessages) {
+<span class="fc" id="L65">		listeners.addIfAbsent(listener);</span>
+
+<span class="fc bfc" id="L67" title="All 2 branches covered.">		if (immediateMessages) {</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">			for (T message : messages) {</span>
+<span class="fc" id="L69">				listener.update(message);</span>
+<span class="fc" id="L70">			}</span>
+		}
+<span class="fc" id="L72">	}</span>
+
+	/**
+	 * Remove a listener, if it says it is willing to be removed.
+	 * 
+	 * @param listener
+	 *            The listener to remove.
+	 */
+	public void removeListenerIfWilling(Listener&lt;T&gt; listener) {
+<span class="fc bfc" id="L81" title="All 2 branches covered.">		if (listener.canBeRemoved()) {</span>
+<span class="fc" id="L82">			listeners.remove(listener);</span>
+		}
+<span class="fc" id="L84">	}</span>
+
+	/**
+	 * Remove all listeners that are willing to be removed.
+	 * Also, clear the message list.
+	 */
+	public void cleanup() {
+<span class="fc" id="L91">		messages.clear();</span>
+		
+<span class="fc bfc" id="L93" title="All 2 branches covered.">		for (Listener&lt;T&gt; listener : listeners) {</span>
+<span class="fc" id="L94">			removeListenerIfWilling(listener);</span>
+<span class="fc" id="L95">		}</span>
+<span class="fc" id="L96">	}</span>
+	
+	/**
+	 * Notify all listeners of an activity update and collect the message
+	 * for future replay, in particular for new listeners.
+	 * 
+	 * @param message
+	 *            The message to pass to each listener.
+	 */
+	public void notifyListeners(T message) {
+<span class="fc" id="L106">		messages.add(message);</span>
+		
+<span class="fc bfc" id="L108" title="All 2 branches covered.">		for (Listener&lt;T&gt; listener : listeners) {</span>
+<span class="fc" id="L109">			listener.update(message);</span>
+<span class="fc" id="L110">		}</span>
+<span class="fc" id="L111">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

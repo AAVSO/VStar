@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractDateUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.date</a> &gt; <span class="el_source">AbstractDateUtil.java</span></div><h1>AbstractDateUtil.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+
+package org.aavso.tools.vstar.util.date;
+
+/**
+ * This abstract class is the base for classes that need to convert between
+ * Julian Day and Calendar Date.
+ */
+<span class="fc" id="L25">public abstract class AbstractDateUtil {</span>
+
+	// The concrete AbstractDateUtil Singleton.
+<span class="fc" id="L28">	private final static AbstractDateUtil dateUtilInstance = new MeeusDateUtil();</span>
+
+	/**
+	 * Getter for date AbstractDateUtil Singleton.
+	 * 
+	 * @return The concrete AbstractDateUtil Singleton instance.
+	 */
+	public static AbstractDateUtil getInstance() {
+<span class="fc" id="L36">		return dateUtilInstance;</span>
+	}
+
+	/**
+	 * Method to convert the integer part of a JD into a calendar date.
+	 * 
+	 * @param jd
+	 *            Julian Day (double)
+	 * @return calendar date string of the form &quot;YEAR MON DAY&quot;
+	 */
+
+	public abstract String jdToCalendar(double jd)
+			throws IllegalArgumentException;
+
+	/**
+	 * Method to convert the integer part of a JD into a calendar date.
+	 * 
+	 * @param jd
+	 *            Julian Day (double)
+	 * @return structure of the form year, month, day
+	 */
+	public abstract YMD jdToYMD(double jd)
+			throws IllegalArgumentException;
+
+	/**
+	 * Method to convert the Julian Day corresponding to the specified year,
+	 * month, and day.
+	 * 
+	 * @param year
+	 *            The year.
+	 * @param month
+	 *            The month (1..12).
+	 * @param day
+	 *            The day which may contain a fractional component.
+	 * @return The Julian Day (double)
+	 */
+	public abstract double calendarToJD(int year, int month, double day)
+			throws IllegalArgumentException;
+
+	/**
+	 * Returns the name of the month given the month number.
+	 * 
+	 * @param month
+	 *            The month number from 1..12
+	 * @return The month name
+	 */
+	public String getMonthName(int month) throws IllegalArgumentException {
+<span class="nc" id="L83">		String mon = null;</span>
+
+<span class="nc bnc" id="L85" title="All 13 branches missed.">		switch (month) {</span>
+		case 1:
+<span class="nc" id="L87">			mon = &quot;JAN&quot;;</span>
+<span class="nc" id="L88">			break;</span>
+		case 2:
+<span class="nc" id="L90">			mon = &quot;FEB&quot;;</span>
+<span class="nc" id="L91">			break;</span>
+		case 3:
+<span class="nc" id="L93">			mon = &quot;MAR&quot;;</span>
+<span class="nc" id="L94">			break;</span>
+		case 4:
+<span class="nc" id="L96">			mon = &quot;APR&quot;;</span>
+<span class="nc" id="L97">			break;</span>
+		case 5:
+<span class="nc" id="L99">			mon = &quot;MAY&quot;;</span>
+<span class="nc" id="L100">			break;</span>
+		case 6:
+<span class="nc" id="L102">			mon = &quot;JUN&quot;;</span>
+<span class="nc" id="L103">			break;</span>
+		case 7:
+<span class="nc" id="L105">			mon = &quot;JUL&quot;;</span>
+<span class="nc" id="L106">			break;</span>
+		case 8:
+<span class="nc" id="L108">			mon = &quot;AUG&quot;;</span>
+<span class="nc" id="L109">			break;</span>
+		case 9:
+<span class="nc" id="L111">			mon = &quot;SEP&quot;;</span>
+<span class="nc" id="L112">			break;</span>
+		case 10:
+<span class="nc" id="L114">			mon = &quot;OCT&quot;;</span>
+<span class="nc" id="L115">			break;</span>
+		case 11:
+<span class="nc" id="L117">			mon = &quot;NOV&quot;;</span>
+<span class="nc" id="L118">			break;</span>
+		case 12:
+<span class="nc" id="L120">			mon = &quot;DEC&quot;;</span>
+<span class="nc" id="L121">			break;</span>
+		default:
+<span class="nc" id="L123">			throw new IllegalArgumentException(&quot;Month number '&quot; + month</span>
+					+ &quot;' out of range.&quot;);
+		}
+
+<span class="nc" id="L127">		return mon;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

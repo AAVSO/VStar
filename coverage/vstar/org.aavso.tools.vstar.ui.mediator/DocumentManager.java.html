@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DocumentManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.mediator</a> &gt; <span class="el_source">DocumentManager.java</span></div><h1>DocumentManager.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.mediator;
+
+import java.awt.Window;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.ui.IMainUI;
+import org.aavso.tools.vstar.ui.UIType;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PhaseChangeMessage;
+import org.aavso.tools.vstar.ui.model.list.AbstractModelObservationTableModel;
+import org.aavso.tools.vstar.ui.model.list.PhasePlotModelObservationTableModel;
+import org.aavso.tools.vstar.ui.model.list.RawDataModelObservationTableModel;
+import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPane;
+import org.aavso.tools.vstar.util.model.IModel;
+import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.stats.BinningResult;
+import org.aavso.tools.vstar.util.stats.PhaseCalcs;
+
+/**
+ * This class manages the creation of VStar &quot;documents&quot;, i.e. models and GUI
+ * components and important state. It will also expand to manage document
+ * printing, saving (and the need to) etc. Another thing this class will allow
+ * us to do is to cache GUI components (and by association, their models)
+ * permitting reuse of these and updates to models. TODO: call it
+ * ComponentManager instead?
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class DocumentManager {
+
+    private Mediator mediator;
+
+    // Model and residuals maps.
+    private Map&lt;String, SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt;&gt; rawDataModelComponents;
+    private Map&lt;String, SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt;&gt; phasedModelComponents;
+
+    private Map&lt;String, SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt;&gt; rawDataResidualComponents;
+    private Map&lt;String, SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt;&gt; phasedResidualComponents;
+
+    private boolean phasePlotExists;
+    private double epoch;
+    private double period;
+
+    // state of user-controllable plot pane characteristics
+    private Map&lt;AnalysisType, Boolean&gt; showErrorBars;
+    private Map&lt;AnalysisType, Boolean&gt; showCrossHairs;
+    private Map&lt;AnalysisType, Boolean&gt; invertRange;
+    private Map&lt;AnalysisType, Boolean&gt; invertSeriesOrder;
+    private Map&lt;AnalysisType, Boolean&gt; joinMeans;
+
+    private Map&lt;String, String&gt; statsInfo;
+
+<span class="nc" id="L72">    private static int filterNum = 0;</span>
+
+<span class="nc" id="L74">    public DocumentManager() {</span>
+<span class="nc" id="L75">        mediator = Mediator.getInstance();</span>
+
+<span class="nc" id="L77">        init();</span>
+<span class="nc" id="L78">    }</span>
+
+    // ** phase, epoch, period methods **
+
+    public boolean phasePlotExists() {
+<span class="nc" id="L83">        return phasePlotExists;</span>
+    }
+
+    public double getEpoch() {
+<span class="nc" id="L87">        return epoch;</span>
+    }
+
+    public double getPeriod() {
+<span class="nc" id="L91">        return period;</span>
+    }
+
+    // ** user-controllable plot pane methods **
+
+    public void toggleErrorBarState() {
+<span class="nc" id="L97">        togglePlotControlState(showErrorBars);</span>
+<span class="nc" id="L98">    }</span>
+
+    public void toggleCrossHairState() {
+<span class="nc" id="L101">        togglePlotControlState(showCrossHairs);</span>
+<span class="nc" id="L102">    }</span>
+
+    public void toggleRangeAxisInversionState() {
+<span class="nc" id="L105">        togglePlotControlState(invertRange);</span>
+<span class="nc" id="L106">    }</span>
+
+    public void toggleSeriesOrderInversionState() {
+<span class="nc" id="L109">        togglePlotControlState(invertSeriesOrder);</span>
+<span class="nc" id="L110">    }</span>
+
+    public void toggleJoinMeansState() {
+<span class="nc" id="L113">        togglePlotControlState(joinMeans);</span>
+<span class="nc" id="L114">    }</span>
+
+    public boolean shouldShowErrorBars(AnalysisType analysisType) {
+<span class="nc" id="L117">        return showErrorBars.get(analysisType);</span>
+    }
+
+    public boolean shouldShowErrorBars() {
+<span class="nc" id="L121">        return shouldShowErrorBars(mediator.getAnalysisType());</span>
+    }
+
+    public boolean shouldShowCrossHairs(AnalysisType analysisType) {
+<span class="nc" id="L125">        return showCrossHairs.get(analysisType);</span>
+    }
+
+    public boolean shouldShowCrossHairs() {
+<span class="nc" id="L129">        return shouldShowCrossHairs(mediator.getAnalysisType());</span>
+    }
+
+    public boolean shouldInvertRange(AnalysisType analysisType) {
+<span class="nc" id="L133">        return invertRange.get(analysisType);</span>
+    }
+
+    public boolean shouldInvertRange() {
+<span class="nc" id="L137">        return shouldInvertRange(mediator.getAnalysisType());</span>
+    }
+
+    public boolean shouldInvertSeriesOrder(AnalysisType analysisType) {
+<span class="nc" id="L141">        return invertSeriesOrder.get(analysisType);</span>
+    }
+    
+    public boolean shouldInvertSeriesOrder() {
+<span class="nc" id="L145">        return shouldInvertSeriesOrder(mediator.getAnalysisType());</span>
+    }
+
+    public boolean shouldJoinMeans(AnalysisType analysisType) {
+<span class="nc" id="L149">        return joinMeans.get(analysisType);</span>
+    }
+    
+    public boolean shouldJoinMeans() {
+<span class="nc" id="L153">        return shouldJoinMeans(mediator.getAnalysisType());</span>
+    }
+
+    private void togglePlotControlState(Map&lt;AnalysisType, Boolean&gt; map) {
+<span class="nc" id="L157">        AnalysisType analysisType = mediator.getAnalysisType();</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        map.put(analysisType, !map.get(analysisType));</span>
+<span class="nc" id="L159">    }</span>
+
+    // ** List pane methods **
+
+    public SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt; getModelListPane(AnalysisType type,
+            IModel model) {
+<span class="nc" id="L165">        SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt; pane = null;</span>
+<span class="nc" id="L166">        String key = model.getDescription();</span>
+
+<span class="nc bnc" id="L168" title="All 3 branches missed.">        switch (type) {</span>
+        case RAW_DATA:
+<span class="nc bnc" id="L170" title="All 2 branches missed.">            if (!rawDataModelComponents.containsKey(key)) {</span>
+                // Create model table model and GUI component since they have
+                // not been.
+<span class="nc" id="L173">                RawDataModelObservationTableModel modelTableModel = new RawDataModelObservationTableModel(</span>
+<span class="nc" id="L174">                        model.getFit(), SeriesType.Model);</span>
+<span class="nc" id="L175">                String summary = model.toString();</span>
+<span class="nc" id="L176">                SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt; modelPane = new SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt;(</span>
+                        modelTableModel, summary);
+
+<span class="nc" id="L179">                rawDataModelComponents.put(key, modelPane);</span>
+            }
+
+<span class="nc" id="L182">            pane = rawDataModelComponents.get(key);</span>
+<span class="nc" id="L183">            break;</span>
+
+        case PHASE_PLOT:
+<span class="nc" id="L186">            key = getPhasedModelKey(model);</span>
+
+<span class="nc bnc" id="L188" title="All 2 branches missed.">            if (!phasedModelComponents.containsKey(key)) {</span>
+                // Set the fit list's phases according to the last phase change.
+                // It's okay to modify the original data.
+<span class="nc" id="L191">                PhaseCalcs.setPhases(model.getFit(), epoch, period);</span>
+
+                // Create model table model and GUI component since they have
+                // not been.
+<span class="nc" id="L195">                PhasePlotModelObservationTableModel modelTableModel = new PhasePlotModelObservationTableModel(</span>
+<span class="nc" id="L196">                        model.getFit(), SeriesType.Model);</span>
+<span class="nc" id="L197">                String summary = model.toString();</span>
+<span class="nc" id="L198">                SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt; modelPane = new SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt;(</span>
+                        modelTableModel, summary);
+
+<span class="nc" id="L201">                phasedModelComponents.put(key, modelPane);</span>
+            }
+
+<span class="nc" id="L204">            pane = phasedModelComponents.get(key);</span>
+            break;
+        }
+
+<span class="nc" id="L208">        return pane;</span>
+    }
+
+    public SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt; getResidualsListPane(AnalysisType type,
+            IModel model) {
+<span class="nc" id="L213">        SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt; pane = null;</span>
+<span class="nc" id="L214">        String key = model.getDescription();</span>
+
+<span class="nc bnc" id="L216" title="All 3 branches missed.">        switch (type) {</span>
+        case RAW_DATA:
+<span class="nc bnc" id="L218" title="All 2 branches missed.">            if (!rawDataResidualComponents.containsKey(key)) {</span>
+<span class="nc" id="L219">                RawDataModelObservationTableModel residualsTableModel = new RawDataModelObservationTableModel(</span>
+<span class="nc" id="L220">                        model.getResiduals(), SeriesType.Residuals);</span>
+<span class="nc" id="L221">                String summary = model.toString();</span>
+<span class="nc" id="L222">                SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt; residualsPane = new SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt;(</span>
+                        residualsTableModel, summary);
+
+<span class="nc" id="L225">                rawDataResidualComponents.put(key, residualsPane);</span>
+            }
+
+<span class="nc" id="L228">            pane = rawDataResidualComponents.get(key);</span>
+<span class="nc" id="L229">            break;</span>
+
+        case PHASE_PLOT:
+<span class="nc" id="L232">            key = getPhasedModelKey(model);</span>
+
+<span class="nc bnc" id="L234" title="All 2 branches missed.">            if (!phasedResidualComponents.containsKey(key)) {</span>
+                // Set the residual list's phases according to the last phase
+                // change.
+                // It's okay to modify the original data.
+<span class="nc" id="L238">                PhaseCalcs.setPhases(model.getResiduals(), epoch, period);</span>
+
+                // Create model table model and GUI component since they have
+                // not been.
+<span class="nc" id="L242">                PhasePlotModelObservationTableModel residualsTableModel = new PhasePlotModelObservationTableModel(</span>
+<span class="nc" id="L243">                        model.getResiduals(), SeriesType.Residuals);</span>
+<span class="nc" id="L244">                String summary = model.toString();</span>
+<span class="nc" id="L245">                SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt; residualsPane = new SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt;(</span>
+                        residualsTableModel, summary);
+
+<span class="nc" id="L248">                phasedResidualComponents.put(key, residualsPane);</span>
+            }
+
+<span class="nc" id="L251">            pane = phasedResidualComponents.get(key);</span>
+            break;
+        }
+
+<span class="nc" id="L255">        return pane;</span>
+    }
+
+    // ** Stats info methods **
+
+    /**
+     * Add a statistics information string.
+     * 
+     * @param key  The key against which this information is to be stored.
+     * @param info The information string to be added.
+     */
+    public void addStatsInfo(String key, String info) {
+<span class="nc" id="L267">        statsInfo.put(key, info);</span>
+<span class="nc" id="L268">    }</span>
+
+    /**
+     * @return the statsInfo
+     */
+    public Map&lt;String, String&gt; getStatsInfo() {
+<span class="nc" id="L274">        return statsInfo;</span>
+    }
+
+    // Returns a mean observation change (binning result) listener.
+    protected Listener&lt;BinningResult&gt; createBinChangeListener() {
+<span class="nc" id="L279">        return new Listener&lt;BinningResult&gt;() {</span>
+            public void update(BinningResult info) {
+<span class="nc" id="L281">                updateAnovaInfo(info);</span>
+<span class="nc" id="L282">            }</span>
+
+            public boolean canBeRemoved() {
+<span class="nc" id="L285">                return false;</span>
+            }
+        };
+    }
+
+    /**
+     * Update the anova information from a binning result.
+     * 
+     * @param binningResult The binning result to use.
+     */
+    public void updateAnovaInfo(BinningResult binningResult) {
+<span class="nc" id="L296">        addStatsInfo(&quot;Mean Source Series&quot;, binningResult.getSeries().getDescription());</span>
+
+<span class="nc" id="L298">        addStatsInfo(&quot;anova&quot;, createAnovaText(binningResult));</span>
+<span class="nc" id="L299">    }</span>
+
+    // Returns ANOVA result text suitable for display.
+    public String createAnovaText(BinningResult binningResult) {
+<span class="nc" id="L303">        return binningResult.createAnovaText();</span>
+    }
+
+    // ** Filter-related methods **
+
+    /**
+     * Return the name of the next untitled filter.
+     * 
+     * @return the next untitled filter name
+     */
+    public String getNextUntitledFilterName() {
+<span class="nc" id="L314">        filterNum++;</span>
+<span class="nc" id="L315">        return &quot;Untitled Filter &quot; + filterNum;</span>
+    }
+
+    // Helpers
+
+    /**
+     * Returns a unique phase model key for a model given the current epoch and
+     * period associated with a phase change.
+     * 
+     * @param model The model whose description we will use as part of the key.
+     * @return The unique key from the tuple: &lt;description, epoch, period&gt;.
+     */
+    private String getPhasedModelKey(IModel model) {
+<span class="nc" id="L328">        return String.format(&quot;%s:e=%f,p=%f&quot;, model.getDescription(), epoch, period);</span>
+    }
+
+    /**
+     * Initialise (or reset) data members
+     */
+    public void init() {
+<span class="nc" id="L335">        phasePlotExists = false;</span>
+<span class="nc" id="L336">        epoch = 0;</span>
+<span class="nc" id="L337">        period = 0;</span>
+
+        // model maps
+<span class="nc bnc" id="L340" title="All 2 branches missed.">        if (rawDataModelComponents == null) {</span>
+<span class="nc" id="L341">            rawDataModelComponents = new HashMap&lt;String, SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt;&gt;();</span>
+        }
+<span class="nc" id="L343">        rawDataModelComponents.clear();</span>
+
+<span class="nc bnc" id="L345" title="All 2 branches missed.">        if (phasedModelComponents == null) {</span>
+<span class="nc" id="L346">            phasedModelComponents = new HashMap&lt;String, SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt;&gt;();</span>
+        }
+<span class="nc" id="L348">        phasedModelComponents.clear();</span>
+
+<span class="nc bnc" id="L350" title="All 2 branches missed.">        if (rawDataResidualComponents == null) {</span>
+<span class="nc" id="L351">            rawDataResidualComponents = new HashMap&lt;String, SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt;&gt;();</span>
+        }
+<span class="nc" id="L353">        rawDataResidualComponents.clear();</span>
+
+<span class="nc bnc" id="L355" title="All 2 branches missed.">        if (phasedResidualComponents == null) {</span>
+<span class="nc" id="L356">            phasedResidualComponents = new HashMap&lt;String, SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt;&gt;();</span>
+        }
+<span class="nc" id="L358">        phasedResidualComponents.clear();</span>
+
+        // Boolean maps
+<span class="nc bnc" id="L361" title="All 2 branches missed.">        if (showErrorBars == null) {</span>
+<span class="nc" id="L362">            showErrorBars = new HashMap&lt;AnalysisType, Boolean&gt;();</span>
+        }
+<span class="nc" id="L364">        showErrorBars.put(AnalysisType.RAW_DATA, true);</span>
+<span class="nc" id="L365">        showErrorBars.put(AnalysisType.PHASE_PLOT, true);</span>
+
+<span class="nc bnc" id="L367" title="All 2 branches missed.">        if (showCrossHairs == null) {</span>
+<span class="nc" id="L368">            showCrossHairs = new HashMap&lt;AnalysisType, Boolean&gt;();</span>
+        }
+<span class="nc" id="L370">        showCrossHairs.put(AnalysisType.RAW_DATA, true);</span>
+<span class="nc" id="L371">        showCrossHairs.put(AnalysisType.PHASE_PLOT, true);</span>
+
+<span class="nc bnc" id="L373" title="All 2 branches missed.">        if (invertRange == null) {</span>
+<span class="nc" id="L374">            invertRange = new HashMap&lt;AnalysisType, Boolean&gt;();</span>
+        }
+<span class="nc" id="L376">        invertRange.put(AnalysisType.RAW_DATA, true);</span>
+<span class="nc" id="L377">        invertRange.put(AnalysisType.PHASE_PLOT, true);</span>
+
+<span class="nc bnc" id="L379" title="All 2 branches missed.">        if (invertSeriesOrder == null) {</span>
+<span class="nc" id="L380">            invertSeriesOrder = new HashMap&lt;AnalysisType, Boolean&gt;();</span>
+        }
+<span class="nc" id="L382">        invertSeriesOrder.put(AnalysisType.RAW_DATA, true);</span>
+<span class="nc" id="L383">        invertSeriesOrder.put(AnalysisType.PHASE_PLOT, true);</span>
+
+<span class="nc bnc" id="L385" title="All 2 branches missed.">        if (joinMeans == null) {</span>
+<span class="nc" id="L386">            joinMeans = new HashMap&lt;AnalysisType, Boolean&gt;();</span>
+        }
+<span class="nc" id="L388">        joinMeans.put(AnalysisType.RAW_DATA, true);</span>
+<span class="nc" id="L389">        joinMeans.put(AnalysisType.PHASE_PLOT, true);</span>
+
+        // stats info map
+<span class="nc bnc" id="L392" title="All 2 branches missed.">        if (statsInfo == null) {</span>
+<span class="nc" id="L393">            statsInfo = new TreeMap&lt;String, String&gt;();</span>
+        }
+<span class="nc" id="L395">        statsInfo.clear();</span>
+<span class="nc" id="L396">    }</span>
+
+    /**
+     * Return a phase change listener that updates epoch and period information in
+     * preparation for creating or retrieving phase plot components.&lt;br/&gt;
+     * TODO: when we have finally unified observations as a single list across all
+     * models, a listener for this message can call setPhases() on that list.
+     */
+    public Listener&lt;PhaseChangeMessage&gt; createPhaseChangeListener() {
+<span class="nc" id="L405">        return new Listener&lt;PhaseChangeMessage&gt;() {</span>
+            @Override
+            public void update(PhaseChangeMessage info) {
+<span class="nc" id="L408">                phasePlotExists = true;</span>
+<span class="nc" id="L409">                epoch = info.getEpoch();</span>
+<span class="nc" id="L410">                period = info.getPeriod();</span>
+<span class="nc" id="L411">            }</span>
+
+            @Override
+            public boolean canBeRemoved() {
+<span class="nc" id="L415">                return false;</span>
+            }
+        };
+    }
+
+    /**
+     * Find and return the active window or null if one does not exist, e.g. the
+     * case where the UI is that of an applet.
+     */
+    public static Window findActiveWindow() {
+<span class="nc" id="L425">        Window wdw = null;</span>
+
+<span class="nc" id="L427">        IMainUI ui = Mediator.getUI();</span>
+
+<span class="nc bnc" id="L429" title="All 2 branches missed.">        if (ui != null) {</span>
+<span class="nc bnc" id="L430" title="All 2 branches missed.">            if (ui.getUiType() == UIType.DESKTOP) {</span>
+<span class="nc bnc" id="L431" title="All 2 branches missed.">                if (Window.getWindows().length &gt; 0) {</span>
+<span class="nc bnc" id="L432" title="All 2 branches missed.">                    for (Window window : Window.getWindows()) {</span>
+                        // At least find the main window...
+<span class="nc bnc" id="L434" title="All 2 branches missed.">                        if (window instanceof org.aavso.tools.vstar.ui.MainFrame) {</span>
+<span class="nc" id="L435">                            wdw = window;</span>
+                        }
+                        // ...even better if it's the focus owner. If nothing
+                        // else, by the end of the loop, we should have found
+                        // the main window, whether or not it has the focus.
+<span class="nc bnc" id="L440" title="All 2 branches missed.">                        if (window.isFocusOwner()) {</span>
+<span class="nc" id="L441">                            wdw = window;</span>
+<span class="nc" id="L442">                            break;</span>
+                        }
+                    }
+                }
+            }
+        }
+
+<span class="nc" id="L449">        return wdw;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

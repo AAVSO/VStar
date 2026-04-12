@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RelativeAmplitudeAndPhaseCreator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.model</a> &gt; <span class="el_source">RelativeAmplitudeAndPhaseCreator.java</span></div><h1>RelativeAmplitudeAndPhaseCreator.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.model;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.aavso.tools.vstar.util.locale.NumberParser;
+
+/**
+ * This class computes relative amplitudes and phases from a set of multi-period
+ * fit model coefficients in the presence of harmonics, grouped by fundamental
+ * frequency, and makes them available in different string formats.
+ */
+public class RelativeAmplitudeAndPhaseCreator {
+
+	private List&lt;PeriodFitParameters&gt; paramsSeq;
+	private Map&lt;Double, List&lt;PeriodFitParameters&gt;&gt; harmonicMap;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param paramsList
+	 *            A list of period fit parameters containing information about
+	 *            coefficients (sine and cosine) and the frequencies (and
+	 *            harmonics) that were inputs to the model.
+	 */
+	public RelativeAmplitudeAndPhaseCreator(
+<span class="nc" id="L48">			List&lt;PeriodFitParameters&gt; paramsList) {</span>
+<span class="nc" id="L49">		paramsSeq = new ArrayList&lt;PeriodFitParameters&gt;(paramsList);</span>
+<span class="nc" id="L50">		Collections.sort(paramsSeq);</span>
+
+<span class="nc" id="L52">		createHarmonicMap();</span>
+<span class="nc" id="L53">	}</span>
+
+	/**
+	 * 
+	 * @return The mapping from fundamental frequencies to sorted period fit
+	 *         parameter list.
+	 */
+	public Map&lt;Double, List&lt;PeriodFitParameters&gt;&gt; getHarmonicMap() {
+<span class="nc" id="L61">		return harmonicMap;</span>
+	}
+
+	/**
+	 * Returns a list of known (mapped) fundamental frequencies.
+	 * 
+	 * @return The list of fundamental frequencies.
+	 */
+	public Set&lt;Double&gt; getFundamentals() {
+<span class="nc" id="L70">		return harmonicMap.keySet();</span>
+	}
+
+	/**
+	 * Do any of the fundamental frequencies map to lists of harmonics, i.e.
+	 * lists of period fit parameters of length &gt; 1 (since first is always the
+	 * fundamental)?
+	 * 
+	 * @return Whether or not any fundamentals have harmonics.
+	 */
+	public boolean hasHarmonics() {
+<span class="nc" id="L81">		boolean result = false;</span>
+
+<span class="nc bnc" id="L83" title="All 2 branches missed.">		for (Double freq : harmonicMap.keySet()) {</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">			if (harmonicMap.get(freq).size() &gt; 1) {</span>
+<span class="nc" id="L85">				result = true;</span>
+<span class="nc" id="L86">				break;</span>
+			}
+<span class="nc" id="L88">		}</span>
+
+<span class="nc" id="L90">		return result;</span>
+	}
+
+	/**
+	 * Returns a string representing the sequence of relative amplitude-phase
+	 * pairs for a given fundamental frequency, at a specified precision, with
+	 * the option of whether the relative phase values should be in radians or
+	 * cycles.
+	 * 
+	 * @param fundamental
+	 *            The fundamental frequency whose relative values we seek.
+	 * @param precision
+	 *            The required precision (decimal places).
+	 * @param cycles
+	 *            Whether cycles (true) or radians (false) should be returned in
+	 *            the string.
+	 * @return The string of space-delimited relative amplitude-phase pairs.
+	 */
+	public String getRelativeSequenceString(double fundamental, int precision,
+			boolean cycles) {
+<span class="nc" id="L110">		String str = &quot;&quot;;</span>
+
+<span class="nc bnc" id="L112" title="All 2 branches missed.">		if (harmonicMap.containsKey(fundamental)) {</span>
+<span class="nc" id="L113">			List&lt;PeriodFitParameters&gt; paramsList = harmonicMap.get(fundamental);</span>
+
+<span class="nc" id="L115">			String fmt = &quot;%1.&quot; + precision + &quot;f %1.&quot; + precision + &quot;f &quot;;</span>
+
+<span class="nc" id="L117">			double firstAmplitude = paramsList.get(0).getAmplitude();</span>
+<span class="nc" id="L118">			double firstPhase = paramsList.get(0).getPhase();</span>
+
+<span class="nc bnc" id="L120" title="All 2 branches missed.">			for (int i = 1; i &lt; paramsList.size(); i++) {</span>
+<span class="nc" id="L121">				PeriodFitParameters params = paramsList.get(i);</span>
+
+<span class="nc" id="L123">				double relativeAmplitude = params</span>
+<span class="nc" id="L124">						.getRelativeAmplitude(firstAmplitude);</span>
+
+<span class="nc" id="L126">				double relativePhase = Double.NaN;</span>
+
+<span class="nc bnc" id="L128" title="All 2 branches missed.">				if (cycles) {</span>
+<span class="nc" id="L129">					relativePhase = params.getRelativePhaseInCycles(firstPhase);</span>
+				} else {
+<span class="nc" id="L131">					relativePhase = params.getRelativePhase(firstPhase);</span>
+				}
+
+<span class="nc" id="L134">				str += String.format(fmt, relativeAmplitude, relativePhase);</span>
+			}
+<span class="nc" id="L136">		} else {</span>
+<span class="nc" id="L137">			String msg = String.format(&quot;Fundamental frequency '&quot; + fundamental</span>
+<span class="nc" id="L138">					+ &quot;' unknown.&quot;, fundamental);</span>
+<span class="nc" id="L139">			throw new IllegalArgumentException(msg);</span>
+		}
+
+<span class="nc" id="L142">		return str;</span>
+	}
+
+	/**
+	 * Returns a list relative amplitudes for a given fundamental frequency.
+	 * 
+	 * @param fundamental
+	 *            The fundamental frequency whose relative values we seek.
+	 * @return The list of relative amplitudes.
+	 */
+	public List&lt;Double&gt; getRelativeAmplitudes(double fundamental) {
+<span class="nc" id="L153">		List&lt;Double&gt; relativeAmplitudes = new ArrayList&lt;Double&gt;();</span>
+
+<span class="nc bnc" id="L155" title="All 2 branches missed.">		if (harmonicMap.containsKey(fundamental)) {</span>
+<span class="nc" id="L156">			List&lt;PeriodFitParameters&gt; paramsList = harmonicMap.get(fundamental);</span>
+
+<span class="nc" id="L158">			double firstAmplitude = paramsList.get(0).getAmplitude();</span>
+
+<span class="nc bnc" id="L160" title="All 2 branches missed.">			for (int i = 1; i &lt; paramsList.size(); i++) {</span>
+<span class="nc" id="L161">				PeriodFitParameters params = paramsList.get(i);</span>
+
+<span class="nc" id="L163">				double relativeAmplitude = params</span>
+<span class="nc" id="L164">						.getRelativeAmplitude(firstAmplitude);</span>
+
+<span class="nc" id="L166">				relativeAmplitudes.add(relativeAmplitude);</span>
+			}
+<span class="nc" id="L168">		} else {</span>
+<span class="nc" id="L169">			String msg = String.format(&quot;Fundamental frequency '&quot; + fundamental</span>
+<span class="nc" id="L170">					+ &quot;' unknown.&quot;, fundamental);</span>
+<span class="nc" id="L171">			throw new IllegalArgumentException(msg);</span>
+		}
+
+<span class="nc" id="L174">		return relativeAmplitudes;</span>
+	}
+
+	/**
+	 * Returns a list relative phases for a given fundamental frequency, with
+	 * the option of whether the relative phase values should be in radians or
+	 * cycles.
+	 * 
+	 * @param fundamental
+	 *            The fundamental frequency whose relative values we seek.
+	 * @param cycles
+	 *            Whether cycles (true) or radians (false) should be returned.
+	 * @return The list of relative phases.
+	 */
+	public List&lt;Double&gt; getRelativePhases(double fundamental, boolean cycles) {
+<span class="nc" id="L189">		List&lt;Double&gt; relativePhases = new ArrayList&lt;Double&gt;();</span>
+
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		if (harmonicMap.containsKey(fundamental)) {</span>
+<span class="nc" id="L192">			List&lt;PeriodFitParameters&gt; paramsList = harmonicMap.get(fundamental);</span>
+
+<span class="nc" id="L194">			double firstPhase = paramsList.get(0).getPhase();</span>
+
+<span class="nc bnc" id="L196" title="All 2 branches missed.">			for (int i = 1; i &lt; paramsList.size(); i++) {</span>
+<span class="nc" id="L197">				PeriodFitParameters params = paramsList.get(i);</span>
+
+<span class="nc" id="L199">				double relativePhase = Double.NaN;</span>
+
+<span class="nc bnc" id="L201" title="All 2 branches missed.">				if (cycles) {</span>
+<span class="nc" id="L202">					relativePhase = params.getRelativePhaseInCycles(firstPhase);</span>
+				} else {
+<span class="nc" id="L204">					relativePhase = params.getRelativePhase(firstPhase);</span>
+				}
+
+<span class="nc" id="L207">				relativePhases.add(relativePhase);</span>
+			}
+<span class="nc" id="L209">		} else {</span>
+<span class="nc" id="L210">			String msg = String.format(&quot;Fundamental frequency '&quot; + fundamental</span>
+<span class="nc" id="L211">					+ &quot;' unknown.&quot;, fundamental);</span>
+<span class="nc" id="L212">			throw new IllegalArgumentException(msg);</span>
+		}
+
+<span class="nc" id="L215">		return relativePhases;</span>
+	}
+
+	// Create a mapping from fundamental frequency to period fit parameters
+	// ordered by harmonic number (multiple of fundamental frequency).
+	private void createHarmonicMap() {
+<span class="nc" id="L221">		harmonicMap = new TreeMap&lt;Double, List&lt;PeriodFitParameters&gt;&gt;();</span>
+
+		// Find the fundamentals, setting up the map's keys and empty lists.
+<span class="nc bnc" id="L224" title="All 2 branches missed.">		for (PeriodFitParameters params : paramsSeq) {</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">			if (params.getHarmonic().isFundamental()) {</span>
+				// Truncate the string to ensure we don't get rounding errors
+				// when looking for harmonics.
+<span class="nc" id="L228">				double fund = round(params.getHarmonic().getFrequency(), 4);</span>
+<span class="nc" id="L229">				harmonicMap.put(fund, new ArrayList&lt;PeriodFitParameters&gt;());</span>
+			}
+<span class="nc" id="L231">		}</span>
+
+		// Now iterate over all parameters again, looking for frequencies
+		// that have a particular fundamental, and adding each to the
+		// corresponding mapped list.
+		//
+		// The post-condition is that all parameters whose frequencies have a
+		// particular fundamental (including the fundamental itself) will be
+		// grouped into a list mapped from a key which is the fundamental
+		// frequency. List elements will be ordered by harmonic number iff
+		// the parameters list was so ordered to begin with.
+<span class="nc bnc" id="L242" title="All 2 branches missed.">		for (PeriodFitParameters params : paramsSeq) {</span>
+<span class="nc" id="L243">			double fund = round(params.getHarmonic().getFundamentalFrequency(), 4);</span>
+<span class="nc" id="L244">			harmonicMap.get(fund).add(params);</span>
+<span class="nc" id="L245">		}</span>
+<span class="nc" id="L246">	}</span>
+
+	// Return the number rounded to the specified precision.
+	private double round(double n, int precision) {
+<span class="nc" id="L250">		String fmt = &quot;%1.&quot; + precision + &quot;f&quot;;</span>
+<span class="nc" id="L251">		String nStr = String.format(fmt, n);</span>
+<span class="nc" id="L252">		return NumberParser.parseDouble(nStr);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

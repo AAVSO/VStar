@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HarmonicInputDialog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.model</a> &gt; <span class="el_source">HarmonicInputDialog.java</span></div><h1>HarmonicInputDialog.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.model;
+
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.help.Help;
+import org.aavso.tools.vstar.util.model.Harmonic;
+
+/**
+ * This dialog gathers the harmonics to be used as input to model creation.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class HarmonicInputDialog extends AbstractOkCancelDialog {
+
+	private Map&lt;Double, List&lt;Harmonic&gt;&gt; freqToHarmonics;
+
+	private List&lt;Harmonic&gt; harmonicsPerSelectedPeriod;
+
+	private List&lt;HarmonicPeriodPane&gt; harmonicPeriodPanes;
+	
+<span class="nc" id="L51">	private String helpTopic = null;</span>
+
+	/**
+	 * Constructor
+	 * 
+	 * @param parent
+	 *            The parent component relative to which this dialog should be
+	 *            displayed.
+	 * @param userSelectedFreqs
+	 *            The user selected frequencies.
+	 * @param lastHarmonicSearchResult
+	 *            The most recent harmonic search result.
+	 * @param helpTopic
+	 *            The help topic: an absolute URL or a plug-in doc name. 
+	 */
+	public HarmonicInputDialog(Component parent,
+			List&lt;Double&gt; userSelectedFreqs,
+			Map&lt;Double, List&lt;Harmonic&gt;&gt; freqToHarmonicsMap,
+			String helpTopic) {
+<span class="nc" id="L70">		super(&quot;Periods (days)&quot;);</span>
+
+<span class="nc" id="L72">		this.freqToHarmonics = freqToHarmonicsMap;</span>
+
+<span class="nc" id="L74">		harmonicsPerSelectedPeriod = new ArrayList&lt;Harmonic&gt;();</span>
+
+<span class="nc" id="L76">		Container contentPane = this.getContentPane();</span>
+
+<span class="nc" id="L78">		JPanel topPane = new JPanel();</span>
+<span class="nc" id="L79">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+
+		// Number-of-harmonics per user-specified frequency/period pane.
+<span class="nc" id="L82">		JScrollPane harmonicPerUserPeriodScroller = new JScrollPane(</span>
+<span class="nc" id="L83">				createHarmonicPerUserPeriodPane(userSelectedFreqs));</span>
+<span class="nc" id="L84">		topPane.add(harmonicPerUserPeriodScroller);</span>
+
+<span class="nc bnc" id="L86" title="All 4 branches missed.">		if (helpTopic == null || &quot;&quot;.equals(helpTopic)) {</span>
+			// OK, Cancel
+<span class="nc" id="L88">			topPane.add(createButtonPane());</span>
+		} else {
+			// OK, Cancel, Help
+<span class="nc" id="L91">			topPane.add(createButtonPane2());</span>
+<span class="nc" id="L92">			this.helpTopic = helpTopic;</span>
+		}
+
+<span class="nc" id="L95">		contentPane.add(topPane);</span>
+
+<span class="nc" id="L97">		this.pack();</span>
+<span class="nc" id="L98">		setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L99">		this.setVisible(true);</span>
+<span class="nc" id="L100">	}</span>
+
+	/**
+	 * Constructor
+	 * 
+	 * @param parent
+	 *            The parent component relative to which this dialog should be
+	 *            displayed.
+	 * @param userSelectedFreqs
+	 *            The user selected frequencies.
+	 * @param lastHarmonicSearchResult
+	 *            The most recent harmonic search result.
+	 */
+	public HarmonicInputDialog(Component parent,
+			List&lt;Double&gt; userSelectedFreqs,
+			Map&lt;Double, List&lt;Harmonic&gt;&gt; freqToHarmonicsMap) {
+<span class="nc" id="L116">		this(parent, userSelectedFreqs, freqToHarmonicsMap, null);</span>
+<span class="nc" id="L117">	}</span>
+
+
+	private JPanel createHarmonicPerUserPeriodPane(
+			List&lt;Double&gt; userSelectedFreqs) {
+<span class="nc" id="L122">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L123">		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L124">		panel.setBorder(BorderFactory</span>
+<span class="nc" id="L125">				.createTitledBorder(&quot;Harmonics per period&quot;));</span>
+
+<span class="nc" id="L127">		harmonicPeriodPanes = new ArrayList&lt;HarmonicPeriodPane&gt;();</span>
+
+<span class="nc bnc" id="L129" title="All 2 branches missed.">		for (double freq : userSelectedFreqs) {</span>
+<span class="nc" id="L130">			int maxHarmonics = getMaxHarmonicsForFreq(freq);</span>
+<span class="nc" id="L131">			HarmonicPeriodPane harmonicPeriodPane = new HarmonicPeriodPane(</span>
+					freq, maxHarmonics, Harmonic.FUNDAMENTAL);
+<span class="nc" id="L133">			harmonicPeriodPanes.add(harmonicPeriodPane);</span>
+<span class="nc" id="L134">			panel.add(harmonicPeriodPane);</span>
+<span class="nc" id="L135">			panel.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+<span class="nc" id="L136">		}</span>
+
+<span class="nc" id="L138">		return panel;</span>
+	}
+
+	// Get an appropriate max-number-of-harmonics value for the specified
+	// frequency, based upon the last harmonic search result if one exists.
+	private int getMaxHarmonicsForFreq(double freq) {
+<span class="nc" id="L144">		int maxHarmonics = 25;</span>
+
+		// If there are less harmonics for the frequency than the default, use
+		// this. Allowing this to have no reasonable bound just doesn't make
+		// sense
+		// from a computational feasibility viewpoint anyway.
+		// if (freqToHarmonics.containsKey(freq)
+		// &amp;&amp; freqToHarmonics.get(freq).size() &lt; maxHarmonics) {
+		// maxHarmonics = freqToHarmonics.get(freq).size();
+		// }
+
+<span class="nc" id="L155">		return maxHarmonics;</span>
+	}
+
+	/**
+	 * Return all harmonics per user-specified period and harmonic number.
+	 * 
+	 * @return A list of harmonics for each user-specified frequency/period that
+	 *         includes the frequency itself and the number of harmonics of that
+	 *         frequency (e.g. to be modelled).
+	 */
+	public List&lt;Harmonic&gt; getHarmonics() {
+<span class="nc bnc" id="L166" title="All 2 branches missed.">		for (HarmonicPeriodPane pane : harmonicPeriodPanes) {</span>
+<span class="nc" id="L167">			List&lt;Harmonic&gt; harmonicsForPeriod = pane.getHarmonicListForPeriod();</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">			if (!harmonicsForPeriod.isEmpty()) {</span>
+<span class="nc" id="L169">				harmonicsPerSelectedPeriod.addAll(harmonicsForPeriod);</span>
+			} else {
+<span class="nc" id="L171">				return Collections.EMPTY_LIST;</span>
+			}
+<span class="nc" id="L173">		}</span>
+
+<span class="nc" id="L175">		return harmonicsPerSelectedPeriod;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
+	 */
+	@Override
+	protected void helpAction() {
+<span class="nc" id="L183">		Help.openPluginHelp(helpTopic);</span>
+<span class="nc" id="L184">	}</span>
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
+	 */
+	@Override
+	protected void cancelAction() {
+		// Nothing to do.
+<span class="nc" id="L192">	}</span>
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
+	 */
+	@Override
+	protected void okAction() {
+<span class="nc" id="L199">		cancelled = false;</span>
+<span class="nc" id="L200">		setVisible(false);</span>
+<span class="nc" id="L201">		dispose();</span>
+<span class="nc" id="L202">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

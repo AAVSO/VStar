@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VSXWebServiceZapperLogger.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.discrepant</a> &gt; <span class="el_source">VSXWebServiceZapperLogger.java</span></div><h1>VSXWebServiceZapperLogger.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2016  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.discrepant;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+
+import javax.net.ssl.HttpsURLConnection;
+
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+
+/**
+ * A discrepant reporter that writes to the Zapper log using the VSX web
+ * service.
+ */
+public class VSXWebServiceZapperLogger implements IDiscrepantReporter {
+
+	private String endPoint;
+
+	/**
+	 * Constructor
+	 */
+<span class="nc" id="L42">	public VSXWebServiceZapperLogger() {</span>
+<span class="nc" id="L43">		this.endPoint = ResourceAccessor.getVsxApiUrlBase() + &quot;api.zapperlog&quot;;</span>
+<span class="nc" id="L44">	}</span>
+
+	@Override
+	public void lodge(DiscrepantReport report) {
+
+		try {
+			// Create a POST request for the authentication end point.
+<span class="nc" id="L51">			URL url = new URL(endPoint);</span>
+<span class="nc" id="L52">			HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();</span>
+<span class="nc" id="L53">			conn.setDoOutput(true);</span>
+<span class="nc" id="L54">			conn.setUseCaches(false);</span>
+<span class="nc" id="L55">			conn.setRequestMethod(&quot;POST&quot;);</span>
+
+			// Create the POST message data.
+<span class="nc" id="L58">			String auidEncoded = URLEncoder.encode(report.getAuid(), &quot;UTF-8&quot;);</span>
+<span class="nc" id="L59">			String nameEncoded = URLEncoder.encode(report.getName(), &quot;UTF-8&quot;);</span>
+<span class="nc" id="L60">			String editorEncoded = URLEncoder.encode(report.getEditor(),</span>
+					&quot;UTF-8&quot;);
+<span class="nc" id="L62">			String commentsEncoded = URLEncoder.encode(report.getComments(),</span>
+					&quot;UTF-8&quot;);
+
+<span class="nc" id="L65">			String data = String.format(&quot;%s=%s&amp;%s=%s&amp;%s=%s&amp;%s=%s&amp;%s=%s&amp;%s=%s&quot;,</span>
+					&quot;auid&quot;, auidEncoded, &quot;name&quot;, nameEncoded, &quot;unique_id&quot;,
+<span class="nc" id="L67">					report.getUniqueId(), &quot;editor&quot;, editorEncoded, &quot;editdate&quot;,</span>
+<span class="nc" id="L68">					report.getJd(), &quot;editorcomments&quot;, commentsEncoded);</span>
+
+<span class="nc" id="L70">			conn.setRequestProperty(&quot;Content-Length&quot;,</span>
+<span class="nc" id="L71">					String.valueOf(data.length()));</span>
+
+			// Send the POST request.
+<span class="nc" id="L74">			OutputStream os = conn.getOutputStream();</span>
+<span class="nc" id="L75">			os.write(data.getBytes());</span>
+<span class="nc" id="L76">			os.flush();</span>
+<span class="nc" id="L77">			os.close();</span>
+
+<span class="nc bnc" id="L79" title="All 2 branches missed.">			if (conn.getResponseCode() == 200) {</span>
+<span class="nc" id="L80">				MessageBox.showMessageDialog(&quot;Discrepant Report&quot;,</span>
+						&quot;Lodged Discrepant Report with AAVSO&quot;);
+			} else {
+<span class="nc" id="L83">				MessageBox.showErrorDialog(&quot;Discrepant Reporting Error&quot;,</span>
+						&quot;Unable to lodge report&quot;);
+			}
+<span class="nc" id="L86">		} catch (MalformedURLException e) {</span>
+<span class="nc" id="L87">			MessageBox.showErrorDialog(&quot;Discrepant Reporting Error&quot;, e);</span>
+<span class="nc" id="L88">		} catch (IOException e) {</span>
+<span class="nc" id="L89">			MessageBox.showErrorDialog(&quot;Discrepant Reporting Error&quot;, e);</span>
+<span class="nc" id="L90">		}</span>
+<span class="nc" id="L91">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

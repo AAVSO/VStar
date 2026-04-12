@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApplicationProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.property</a> &gt; <span class="el_source">ApplicationProperties.java</span></div><h1>ApplicationProperties.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.property;
+
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.util.prefs.Preferences;
+
+import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+
+/**
+ * This class creates, reads, and updates VStar properties, e.g. Window location
+ * and size. Although there can be more than one instance of this class, it
+ * makes most sense for one class to have control over just one instance.
+ */
+public class ApplicationProperties {
+
+	private final static String ERROR_DIALOG_TITLE = &quot;User properties error&quot;;
+
+	// Property keys.
+	private static final String MAIN_WDW_HEIGHT = &quot;main_wdw_height&quot;;
+	private static final String MAIN_WDW_WIDTH = &quot;main_wdw_width&quot;;
+	private static final String MAIN_WDW_UPPER_LEFT_X = &quot;main_wdw_upper_left_x&quot;;
+	private static final String MAIN_WDW_UPPER_LEFT_Y = &quot;main_wdw_upper_left_y&quot;;
+
+	// Default values.
+	private static final int DEFAULT_MIN_MAINWDW_HEIGHT = 600;
+	private static final int DEFAULT_MIN_MAINWDW_WIDTH = 800;
+	
+	// Defaults initialized in constructor
+	private int defaultMainWDWheight;
+	private int defaultMainWDWwidth;
+	private int defaultMainWDWupperLeftX;
+	private int defaultMainWDWupperLeftY;
+	
+	// screen size
+	private int screenHeight;
+	private int screenWidth;
+	
+	private final static String PREFS_PREFIX = &quot;VSTAR_APPLICATION_PROPERTIES_&quot;;
+	
+	private MainFrame frame;
+	
+	private Preferences prefs;
+	
+	
+	/**
+	 * Constructor.
+	 * 
+	 * If the properties file does not exist, create it.
+	 * 
+	 * @param frame
+	 *            The main window instance from which to populate initial
+	 *            properties.
+	 */
+<span class="nc" id="L72">	public ApplicationProperties(MainFrame frame) {</span>
+		// Create preferences node.
+		try {
+<span class="nc" id="L75">			prefs = Preferences.userNodeForPackage(ApplicationProperties.class);</span>
+<span class="nc" id="L76">		} catch (Throwable t) {</span>
+			// We need VStar to function in the absence of prefs.
+<span class="nc" id="L78">			prefs = null;</span>
+<span class="nc" id="L79">		}</span>
+<span class="nc" id="L80">		this.frame = frame;</span>
+		// Tune default values
+<span class="nc" id="L82">		Toolkit toolkit = Toolkit.getDefaultToolkit();</span>
+<span class="nc" id="L83">		Dimension screenSize = toolkit.getScreenSize();</span>
+<span class="nc" id="L84">		screenHeight = screenSize.height;</span>
+<span class="nc" id="L85">		screenWidth = screenSize.width;</span>
+		
+		// if prefs == null (e.g. VStar invoked via Web Start) we  provide some reasonable defaults.		
+<span class="nc" id="L88">		defaultMainWDWheight = Math.min(Math.max(MainFrame.HEIGHT, screenHeight / 6 * 5), screenHeight);</span>
+<span class="nc" id="L89">		defaultMainWDWwidth = Math.min(Math.max(MainFrame.WIDTH, screenWidth / 6 * 5), screenWidth);</span>
+<span class="nc" id="L90">		defaultMainWDWupperLeftX = (screenWidth - defaultMainWDWwidth) / 2;</span>
+<span class="nc" id="L91">		defaultMainWDWupperLeftY = (screenHeight - defaultMainWDWheight) / 2;</span>
+<span class="nc" id="L92">	}</span>
+
+	// Property getters.
+	
+	public int getMainWdwHeight() {
+<span class="nc bnc" id="L97" title="All 2 branches missed.">		int height = prefs == null ? </span>
+<span class="nc" id="L98">				defaultMainWDWheight : </span>
+<span class="nc" id="L99">					prefs.getInt(PREFS_PREFIX + MAIN_WDW_HEIGHT, defaultMainWDWheight);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">		if (height &gt; screenHeight)</span>
+<span class="nc" id="L101">			height = screenHeight;</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">		if (height &lt; DEFAULT_MIN_MAINWDW_HEIGHT)</span>
+<span class="nc" id="L103">			height = Math.min(DEFAULT_MIN_MAINWDW_HEIGHT, screenHeight);</span>
+<span class="nc" id="L104">		return height;</span>
+	}
+
+	public int getMainWdwWidth() {
+<span class="nc bnc" id="L108" title="All 2 branches missed.">		int width = prefs == null ? </span>
+<span class="nc" id="L109">				defaultMainWDWwidth : </span>
+<span class="nc" id="L110">					prefs.getInt(PREFS_PREFIX + MAIN_WDW_WIDTH, defaultMainWDWwidth);</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		if (width &gt; screenWidth)</span>
+<span class="nc" id="L112">			width = screenWidth;</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">		if (width &lt; DEFAULT_MIN_MAINWDW_WIDTH)</span>
+<span class="nc" id="L114">			width = Math.min(DEFAULT_MIN_MAINWDW_WIDTH, screenWidth); </span>
+<span class="nc" id="L115">		return width;</span>
+	}
+
+	public int getMainWdwUpperLeftX() {
+<span class="nc bnc" id="L119" title="All 2 branches missed.">		int x = prefs == null ? </span>
+<span class="nc" id="L120">				defaultMainWDWupperLeftX : </span>
+<span class="nc" id="L121">					prefs.getInt(PREFS_PREFIX + MAIN_WDW_UPPER_LEFT_X, defaultMainWDWupperLeftX);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">		if (x &lt; 0)</span>
+<span class="nc" id="L123">			x = 0;</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">		else if (x + 20 &gt; screenWidth)</span>
+<span class="nc" id="L125">			x = defaultMainWDWupperLeftX;</span>
+<span class="nc" id="L126">		return x;</span>
+	}
+
+	public int getMainWdwUpperLeftY() {
+<span class="nc bnc" id="L130" title="All 2 branches missed.">		int y = prefs == null ? </span>
+<span class="nc" id="L131">				defaultMainWDWupperLeftY : </span>
+<span class="nc" id="L132">					prefs.getInt(PREFS_PREFIX + MAIN_WDW_UPPER_LEFT_Y, defaultMainWDWupperLeftY);</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">		if (y &lt; 0)</span>
+<span class="nc" id="L134">			y = 0;</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">		else if (y + 20 &gt; screenHeight)</span>
+<span class="nc" id="L136">			y = defaultMainWDWupperLeftY;</span>
+<span class="nc" id="L137">		return y;</span>
+	}
+
+	
+	/**
+	 * Update the application properties and store them.
+	 */
+	public void update() {
+<span class="nc bnc" id="L145" title="All 2 branches missed.">		if (prefs != null) {</span>
+			try {
+<span class="nc" id="L147">				prefs.putInt(PREFS_PREFIX + MAIN_WDW_HEIGHT, frame.getHeight());</span>
+<span class="nc" id="L148">				prefs.putInt(PREFS_PREFIX + MAIN_WDW_WIDTH, frame.getWidth());</span>
+<span class="nc" id="L149">				prefs.putInt(PREFS_PREFIX + MAIN_WDW_UPPER_LEFT_X, frame.getX());</span>
+<span class="nc" id="L150">				prefs.putInt(PREFS_PREFIX + MAIN_WDW_UPPER_LEFT_Y, frame.getY());</span>
+<span class="nc" id="L151">				prefs.flush();</span>
+<span class="nc" id="L152">			} catch (Throwable t) {</span>
+<span class="nc" id="L153">				MessageBox.showErrorDialog(frame, ERROR_DIALOG_TITLE, t);</span>
+<span class="nc" id="L154">				System.exit(-1);</span>
+<span class="nc" id="L155">			}</span>
+		}
+<span class="nc" id="L157">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

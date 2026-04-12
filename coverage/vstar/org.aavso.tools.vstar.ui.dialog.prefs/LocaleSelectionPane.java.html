@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LocaleSelectionPane.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.prefs</a> &gt; <span class="el_source">LocaleSelectionPane.java</span></div><h1>LocaleSelectionPane.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2017  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.prefs;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+
+/**
+ * Locale selection panel.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class LocaleSelectionPane extends JPanel implements IPreferenceComponent {
+
+	private JComboBox&lt;Locale&gt; localeSelector;
+	private Locale currentLocale;
+
+	/**
+	 * Constructor.
+	 */
+	public LocaleSelectionPane() {
+<span class="nc" id="L52">		super();</span>
+
+<span class="nc" id="L54">		JPanel seriesSizePane = new JPanel();</span>
+<span class="nc" id="L55">		seriesSizePane.setLayout(new BoxLayout(seriesSizePane,</span>
+				BoxLayout.PAGE_AXIS));
+<span class="nc" id="L57">		seriesSizePane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L59">		Map&lt;String, Locale&gt; localeMap = new TreeMap&lt;String, Locale&gt;();</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">		for (Locale locale : Locale.getAvailableLocales()) {</span>
+<span class="nc" id="L61">			localeMap.put(locale.toLanguageTag(), locale);</span>
+		}
+		
+<span class="nc" id="L64">		List&lt;Locale&gt; sortedLocales = new ArrayList&lt;Locale&gt;();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">		for (String languageTag : localeMap.keySet()) {</span>
+<span class="nc" id="L66">			sortedLocales.add(localeMap.get(languageTag));</span>
+<span class="nc" id="L67">		}</span>
+		
+<span class="nc" id="L69">		localeSelector = new JComboBox&lt;Locale&gt;(sortedLocales.toArray(new Locale[0]));</span>
+<span class="nc" id="L70">		localeSelector.setToolTipText(&quot;Select Locale&quot;);</span>
+<span class="nc" id="L71">		localeSelector.addActionListener(createLocaleSelectorActionListener());</span>
+<span class="nc" id="L72">		localeSelector.setBorder(BorderFactory.createTitledBorder(&quot;Locale&quot;));</span>
+<span class="nc" id="L73">		seriesSizePane.add(localeSelector);</span>
+
+<span class="nc" id="L75">		seriesSizePane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+<span class="nc" id="L77">		seriesSizePane.add(createButtonPane());</span>
+
+<span class="nc" id="L79">		this.add(seriesSizePane);</span>
+<span class="nc" id="L80">	}</span>
+
+	protected JPanel createButtonPane() {
+<span class="nc" id="L83">		JPanel panel = new JPanel(new BorderLayout());</span>
+
+<span class="nc" id="L85">		JButton setDefaultsButton = new JButton(&quot;Set Default Locale&quot;);</span>
+<span class="nc" id="L86">		setDefaultsButton</span>
+<span class="nc" id="L87">				.addActionListener(createSetDefaultsButtonActionListener());</span>
+<span class="nc" id="L88">		panel.add(setDefaultsButton, BorderLayout.LINE_START);</span>
+
+<span class="nc" id="L90">		JButton applyButton = new JButton(LocaleProps.get(&quot;APPLY_BUTTON&quot;));</span>
+<span class="nc" id="L91">		applyButton.addActionListener(createApplyButtonActionListener());</span>
+<span class="nc" id="L92">		panel.add(applyButton, BorderLayout.LINE_END);</span>
+
+<span class="nc" id="L94">		return panel;</span>
+	}
+
+	// Series selector action listener creator.
+	private ActionListener createLocaleSelectorActionListener() {
+<span class="nc" id="L99">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L101">				currentLocale = (Locale) localeSelector.getSelectedItem();</span>
+<span class="nc" id="L102">			}</span>
+		};
+	}
+
+	// Set defaults action button listener.
+	private ActionListener createSetDefaultsButtonActionListener() {
+<span class="nc" id="L108">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L110">				LocaleProps.setDefaultLocalePref();</span>
+<span class="nc" id="L111">				reset();</span>
+<span class="nc" id="L112">			}</span>
+		};
+	}
+
+	// Set apply button listener.
+	private ActionListener createApplyButtonActionListener() {
+<span class="nc" id="L118">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L120">				update();</span>
+<span class="nc" id="L121">			}</span>
+		};
+	}
+
+	/**
+	 * Updates the locale.
+	 */
+	@Override
+	public void update() {
+<span class="nc" id="L130">		LocaleProps.setLocalePref(currentLocale);</span>
+<span class="nc" id="L131">	}</span>
+
+	/**
+	 * Prepare this pane for use by resetting whatever needs to be, in
+	 * particular, updating the selector with the current locale preferences.
+	 */
+	@Override
+	public void reset() {
+<span class="nc" id="L139">		localeSelector.setSelectedItem((Locale) LocaleProps.getLocale());</span>
+<span class="nc" id="L140">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

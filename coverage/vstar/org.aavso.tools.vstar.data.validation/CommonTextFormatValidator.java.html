@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommonTextFormatValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.data.validation</a> &gt; <span class="el_source">CommonTextFormatValidator.java</span></div><h1>CommonTextFormatValidator.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.data.validation;
+
+import java.io.IOException;
+import java.util.Map;
+
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.exception.ObservationValidationWarning;
+import org.aavso.tools.vstar.input.text.ObservationFieldSplitter;
+
+import com.csvreader.CsvReader;
+
+/**
+ * This class accepts a line of text for tokenising, validation, and
+ * ValidObservation instance creation that is common to all text format sources.
+ * Currently, simple and AAVSO download file formats have an intersecting set of
+ * mandatory and optional fields. The field indices differ across formats but the 
+ * fieldIndexMap constructor argument caters for the differences.
+ */
+public class CommonTextFormatValidator {
+
+	protected final static String COMMON_VALFLAG_PATTERN = &quot;G|D|T|P|U|V|Z&quot;;
+	
+	protected final ObservationFieldSplitter fieldSplitter;
+
+	protected CsvReader lineReader;
+
+	protected final JulianDayValidator julianDayValidator;
+	protected final MagnitudeFieldValidator magnitudeFieldValidator;
+	protected final UncertaintyValueValidator uncertaintyValueValidator;
+	protected final ObserverCodeValidator observerCodeValidator;
+	protected final ValflagValidator valflagValidator;
+
+	protected final Map&lt;String, Integer&gt; fieldIndexMap;
+
+	protected String[] fields;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param desc
+	 *            A description of the kind of line we are validating.
+	 * @param lineReader
+	 *            The CsvReader that will be used to return fields, created with
+	 *            the appropriate delimiter and data source.
+	 * @param minFields
+	 *            The minimum number of fields permitted in an observation line.
+	 * @param maxFields
+	 *            The maximum number of fields permitted in an observation line.
+	 * @param valflagPatternStr
+	 *            A regex pattern representing the alternations of permitted
+	 *            valflags for this validator instance, e.g. COMMON_VALFLAG_PATTERN
+	 * @param fieldInfoSource
+	 *            A mapping from field name to field index that makes sense for
+	 *            the source.
+	 */
+	public CommonTextFormatValidator(String desc, CsvReader lineReader,
+			int minFields, int maxFields, String valflagPatternStr,
+<span class="fc" id="L79">			IFieldInfoSource fieldInfoSource) throws IOException {</span>
+
+<span class="fc" id="L81">		this.lineReader = lineReader;</span>
+		
+<span class="fc" id="L83">		this.fieldSplitter = new ObservationFieldSplitter(lineReader,</span>
+				minFields, maxFields);
+
+<span class="fc" id="L86">		this.fieldIndexMap = fieldInfoSource.getFieldIndexMap();</span>
+
+<span class="fc" id="L88">		this.julianDayValidator = new JulianDayValidator();</span>
+<span class="fc" id="L89">		this.magnitudeFieldValidator = new MagnitudeFieldValidator();</span>
+<span class="fc" id="L90">		this.uncertaintyValueValidator = new UncertaintyValueValidator(</span>
+				new InclusiveRangePredicate(0, 1));
+<span class="fc" id="L92">		this.observerCodeValidator = new ObserverCodeValidator();</span>
+<span class="fc" id="L93">		this.valflagValidator = new ValflagValidator(valflagPatternStr);</span>
+
+<span class="fc" id="L95">		this.fields = null;</span>
+<span class="fc" id="L96">	}</span>
+
+	/**
+	 * Attempt to read the next record, returning whether it was.
+	 * 
+	 * @return Whether the next record was read.
+	 * @throws IOException
+	 *             If a read error occurred.
+	 */
+	public boolean next() throws IOException {
+<span class="fc" id="L106">		return lineReader.readRecord();</span>
+	}
+
+	/**
+	 * Return the current raw record.
+	 * 
+	 * @return The current raw record.
+	 */
+	public String getRawRecord() {
+<span class="fc" id="L115">		return lineReader.getRawRecord();</span>
+	}
+
+	/**
+	 * Validate an observation line and either return a ValidObservation
+	 * instance, or throw an exception indicating the error.
+	 * 
+	 * Uncertainty, observer code, and valflag fields are optional. The
+	 * uncertainty field may be present however, whether or not the magnitude
+	 * field has a &quot;:&quot; (meaning 'uncertain') suffix.
+	 * 
+	 * @param line
+	 *            The line of text to be tokenised and validated.
+	 * @return The validated ValidObservation object or null if one could not be
+	 *         created from the current record's fields.
+	 */
+	public ValidObservation validate() throws IOException,
+			ObservationValidationError, ObservationValidationWarning {
+
+<span class="fc" id="L134">		ValidObservation observation = null;</span>
+
+		// Get an array of fields split on the expected delimiter.
+<span class="fc" id="L137">		fields = fieldSplitter.getFields();</span>
+
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">		if (fields.length != 0) {</span>
+			// Create a new valid observation, making the assumption
+			// that validation will pass.
+<span class="fc" id="L142">			observation = new ValidObservation();</span>
+
+			// Validate the fields.
+<span class="fc" id="L145">			DateInfo dateInfo = julianDayValidator</span>
+<span class="fc" id="L146">					.validate(fields[fieldIndexMap.get(&quot;JD_FIELD&quot;)]);</span>
+<span class="fc" id="L147">			observation.setDateInfo(dateInfo);</span>
+
+<span class="fc" id="L149">			Magnitude magnitude = magnitudeFieldValidator</span>
+<span class="fc" id="L150">					.validate(fields[fieldIndexMap.get(&quot;MAGNITUDE_FIELD&quot;)]);</span>
+
+<span class="fc" id="L152">			Double uncertaintyMag = uncertaintyValueValidator</span>
+<span class="fc" id="L153">					.validate(fields[fieldIndexMap.get(&quot;UNCERTAINTY_FIELD&quot;)]);</span>
+
+<span class="fc bfc" id="L155" title="All 2 branches covered.">			if (uncertaintyMag != null) {</span>
+<span class="fc" id="L156">				magnitude.setUncertainty(uncertaintyMag);</span>
+			}
+
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">			if (magnitude.isBrighterThan()) {</span>
+<span class="nc" id="L160">				throw new ObservationValidationError(</span>
+						&quot;Was '&gt;' intended (brighter than) or '&lt;'?&quot;);
+			}
+
+<span class="fc" id="L164">			observation.setMagnitude(magnitude);</span>
+
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">			if (observation.getBand() == null) {</span>
+<span class="fc" id="L167">				observation.setBand(SeriesType.Unspecified);</span>
+			}
+
+<span class="fc" id="L170">			observation</span>
+<span class="fc" id="L171">					.setObsCode(observerCodeValidator</span>
+<span class="fc" id="L172">							.validate(fields[fieldIndexMap</span>
+<span class="fc" id="L173">									.get(&quot;OBSERVER_CODE_FIELD&quot;)]));</span>
+
+<span class="fc" id="L175">			String valflag = fields[fieldIndexMap.get(&quot;VALFLAG_FIELD&quot;)];</span>
+<span class="fc" id="L176">			observation.setValidationType(valflagValidator.validate(valflag));</span>
+		}
+
+<span class="fc" id="L179">		return observation;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

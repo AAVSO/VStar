@@ -1,0 +1,1501 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ValidObservation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.data</a> &gt; <span class="el_source">ValidObservation.java</span></div><h1>ValidObservation.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.data;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
+
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
+/**
+ * &lt;p&gt;
+ * This class corresponds to a single valid variable star observation. Depending
+ * upon the source, some fields may be null. Some are not permitted to be null
+ * however and these are documented below.
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * For reference, here are the fields in the order they appear in the AAVSO
+ * download format:
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * JD(0), MAGNITUDE(1), UNCERTAINTY(2), HQ_UNCERTAINTY(3), BAND(4),
+ * OBSERVER_CODE(5), COMMENT_CODE(6), COMP_STAR_1(7), COMP_STAR_2(8), CHARTS(9),
+ * COMMENTS(10), TRANSFORMED(11), AIRMASS(12), VALFLAG(13), CMAG(14), KMAG(15),
+ * HJD(16), NAME(17), AFFILIATION(18), MTYPE(19), GROUP(20), ADS_REFERENCE(21),
+ * DIGITIZER(22), CREDIT(23)
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * The simple format file has these fields:
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * JD MAGNITUDE [UNCERTAINTY] [OBSERVER_CODE] [VALFLAG]
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * When VStar was first developed, observation source plugins were not
+ * anticipated, but should have been. The additional details members permit
+ * other typed information to be stored for an observation.
+ * &lt;/p&gt;
+ */
+public class ValidObservation extends Observation {
+
+<span class="fc" id="L66">	public enum JDflavour {</span>
+<span class="fc" id="L67">		UNKNOWN(&quot;Time&quot;), JD(&quot;JD&quot;), HJD(&quot;HJD&quot;), BJD(&quot;BJD&quot;);</span>
+
+		public final String label;
+
+<span class="fc" id="L71">		private JDflavour(String label) {</span>
+<span class="fc" id="L72">			this.label = label;</span>
+<span class="fc" id="L73">		}</span>
+	}
+
+	// Julian Day, calendar date, and cache.
+<span class="fc" id="L77">	private DateInfo dateInfo = null;</span>
+	private final static WeakHashMap&lt;DateInfo, DateInfo&gt; dateInfoCache;
+	static {
+<span class="fc" id="L80">		dateInfoCache = new WeakHashMap&lt;DateInfo, DateInfo&gt;();</span>
+	}
+
+	// Magnitude, uncertainty, fainter/brighter-than, and cache.
+<span class="fc" id="L84">	private Magnitude magnitude = null;</span>
+	private final static WeakHashMap&lt;Magnitude, Magnitude&gt; magnitudeCache;
+	static {
+<span class="fc" id="L87">		magnitudeCache = new WeakHashMap&lt;Magnitude, Magnitude&gt;();</span>
+	}
+
+<span class="fc" id="L90">	private Double hqUncertainty = null;</span>
+<span class="fc" id="L91">	private SeriesType band = null;</span>
+<span class="fc" id="L92">	private SeriesType series = null; // series and band may differ on copy</span>
+
+	// Comment codes and cache.
+<span class="fc" id="L95">	private CommentCodes commentCode = null;</span>
+	private final static WeakHashMap&lt;CommentCodes, CommentCodes&gt; commentCodeCache;
+	static {
+<span class="fc" id="L98">		commentCodeCache = new WeakHashMap&lt;CommentCodes, CommentCodes&gt;();</span>
+	}
+
+<span class="fc" id="L101">	private boolean transformed = false;</span>
+<span class="fc" id="L102">	private ValidationType validationType = null;</span>
+
+	// Heliocentric vs Geocentric Julian Date; uses dateInfo cache.
+<span class="fc" id="L105">	private DateInfo hJD = null;</span>
+
+<span class="fc" id="L107">	private MTypeType mType = MTypeType.STD;</span>
+
+<span class="fc" id="L109">	private String obsType = ObsType.UNKNOWN.getDescription();</span>
+
+	// Phase values will be computed later, if a phase plot is requested.
+	// They may change over the lifetime of a ValidObservation instance
+	// since different epoch determination methods will result in different
+	// phase values.
+<span class="fc" id="L115">	private Double standardPhase = null;</span>
+<span class="fc" id="L116">	private Double previousCyclePhase = null;</span>
+
+<span class="fc" id="L118">	private boolean excluded = false;</span>
+
+<span class="fc" id="L120">	private JDflavour jdFlavour = JDflavour.UNKNOWN;</span>
+
+	// Optional string-based observation details.
+	private Map&lt;String, Property&gt; details;
+
+	// Optional observation detail titles, and shadow save collection.
+<span class="fc" id="L126">	private static Map&lt;String, String&gt; detailTitles = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L127">	private static Map&lt;String, String&gt; savedDetailTitles = null;</span>
+
+	// Optional observation detail types, and shadow save collection.
+	// @deprecated
+<span class="fc" id="L131">	private static Map&lt;String, Class&lt;?&gt;&gt; detailTypes = new HashMap&lt;String, Class&lt;?&gt;&gt;();</span>
+<span class="fc" id="L132">	private static Map&lt;String, Class&lt;?&gt;&gt; savedDetailTypes = null;</span>
+
+	// Ordering of keys via an index of insertion to titles table.
+<span class="fc" id="L135">	private static int detailIndex = 0;</span>
+<span class="fc" id="L136">	private static int savedDetailIndex = 0;</span>
+<span class="fc" id="L137">	private static Map&lt;Integer, String&gt; indexToDetailKey = new HashMap&lt;Integer, String&gt;();</span>
+<span class="fc" id="L138">	private static Map&lt;Integer, String&gt; savedIndexToDetailKey = null;</span>
+<span class="fc" id="L139">	private static Map&lt;String, Integer&gt; detailKeyToIndex = new HashMap&lt;String, Integer&gt;();</span>
+<span class="fc" id="L140">	private static Map&lt;String, Integer&gt; savedDetailKeyToIndex = null;</span>
+
+	private final static String nameKey = &quot;NAME&quot;;
+	private final static String nameTitle = &quot;Name&quot;;
+
+	private final static String obsCodeKey = &quot;OBS_CODE&quot;;
+	private final static String obsCodeTitle = &quot;Observer Code&quot;;
+
+	private final static String compStar1Key = &quot;COMP_STAR1&quot;;
+	private final static String compStar1Title = &quot;Comparison Star 1&quot;;
+
+	private final static String compStar2Key = &quot;COMP_STAR2&quot;;
+	private final static String compStar2Title = &quot;Comparison Star 2&quot;;
+
+	private final static String chartsKey = &quot;CHARTS&quot;;
+	private final static String chartsTitle = &quot;Charts&quot;;
+
+	private final static String commentsKey = &quot;COMMENTS&quot;;
+	private final static String commentsTitle = &quot;Comments&quot;;
+
+	private final static String airmassKey = &quot;AIRMASS&quot;;
+	private final static String airmassTitle = &quot;Airmass&quot;;
+
+	private final static String cMagKey = &quot;CMAG&quot;;
+	private final static String cMagTitle = &quot;CMag&quot;;
+
+	private final static String kMagKey = &quot;KMAG&quot;;
+	private final static String kMagTitle = &quot;KMag&quot;;
+
+	private final static String affiliationKey = &quot;AFFILIATION&quot;;
+	private final static String affiliationTitle = &quot;Affiliation&quot;;
+
+	private final static String groupKey = &quot;GROUP&quot;;
+	private final static String groupTitle = &quot;Group&quot;;
+
+	private final static String pubrefKey = &quot;PUBREF&quot;;
+	private final static String pubrefTitle = &quot;ADS Reference&quot;;
+
+	private final static String digitizerKey = &quot;DIGTIZER&quot;;
+	private final static String digitizerTitle = &quot;Digitizer&quot;;
+
+	private final static String creditKey = &quot;CREDIT&quot;;
+	private final static String creditTitle = &quot;Credit&quot;;
+
+	// The set of standard detail keys.
+	private final static Set&lt;String&gt; standardDetailKeys;
+
+	static {
+<span class="fc" id="L188">		standardDetailKeys = new HashSet&lt;String&gt;();</span>
+<span class="fc" id="L189">		standardDetailKeys.add(nameKey);</span>
+<span class="fc" id="L190">		standardDetailKeys.add(obsCodeKey);</span>
+<span class="fc" id="L191">		standardDetailKeys.add(compStar1Key);</span>
+<span class="fc" id="L192">		standardDetailKeys.add(compStar2Key);</span>
+<span class="fc" id="L193">		standardDetailKeys.add(chartsKey);</span>
+<span class="fc" id="L194">		standardDetailKeys.add(commentsKey);</span>
+<span class="fc" id="L195">		standardDetailKeys.add(airmassKey);</span>
+<span class="fc" id="L196">		standardDetailKeys.add(cMagKey);</span>
+<span class="fc" id="L197">		standardDetailKeys.add(kMagKey);</span>
+<span class="fc" id="L198">		standardDetailKeys.add(affiliationKey);</span>
+<span class="fc" id="L199">		standardDetailKeys.add(groupKey);</span>
+<span class="fc" id="L200">		standardDetailKeys.add(pubrefKey);</span>
+<span class="fc" id="L201">		standardDetailKeys.add(digitizerKey);</span>
+<span class="fc" id="L202">		standardDetailKeys.add(creditKey);</span>
+	}
+
+	// A cache of detail values.
+	private static final WeakHashMap&lt;Property, Property&gt; detailValueCache;
+
+	static {
+<span class="fc" id="L209">		detailValueCache = new WeakHashMap&lt;Property, Property&gt;();</span>
+<span class="fc" id="L210">	}</span>
+
+	/**
+	 * Constructor.
+	 * 
+	 * All fields start out as null or false.
+	 */
+	public ValidObservation() {
+<span class="fc" id="L218">		super(0);</span>
+<span class="fc" id="L219">		details = new HashMap&lt;String, Property&gt;();</span>
+<span class="fc" id="L220">	}</span>
+
+	/**
+	 * Creates and returns a new ValidObservation instance that is a copy of the
+	 * current instance.&lt;br/&gt;
+	 * See https://github.com/AAVSO/VStar/issues/51
+	 * 
+	 * @param type the series with which the copied observation will be associated
+	 *             (may be null)
+	 * @return the new observation instance
+	 */
+	public ValidObservation copy(SeriesType series) {
+<span class="fc" id="L232">		ValidObservation ob = new ValidObservation();</span>
+
+<span class="fc" id="L234">		ob.setJD(this.getJD());</span>
+<span class="fc" id="L235">		ob.setJDflavour(this.getJDflavour());</span>
+<span class="fc" id="L236">		ob.setMagnitude(this.getMagnitude().copy());</span>
+<span class="fc" id="L237">		ob.setHqUncertainty(this.getHqUncertainty());</span>
+<span class="fc" id="L238">		ob.setBand(this.getBand());</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">		if (series != null) ob.setSeries(series);</span>
+<span class="fc" id="L240">		ob.setCommentCode(this.getCommentCode());</span>
+<span class="fc" id="L241">		ob.setTransformed(this.isTransformed());</span>
+<span class="fc" id="L242">		ob.setValidationType(this.getValidationType());</span>
+<span class="fc" id="L243">		ob.setHJD(this.getHJD());</span>
+<span class="fc" id="L244">		ob.setMType(this.getMType());</span>
+<span class="fc" id="L245">		ob.setObsType(this.getObsType());</span>
+<span class="fc" id="L246">		ob.setStandardPhase(this.getStandardPhase());</span>
+<span class="fc" id="L247">		ob.setPreviousCyclePhase(this.getPreviousCyclePhase());</span>
+<span class="fc" id="L248">		ob.setExcluded(this.isExcluded());</span>
+<span class="fc" id="L249">		ob.details = new HashMap&lt;String, Property&gt;(this.details);</span>
+
+<span class="fc" id="L251">		return ob;</span>
+	}
+
+	/**
+	 * Creates and returns a new ValidObservation instance that is a copy of the
+	 * current instance that is not associated with a different series.&lt;br/&gt;
+	 * 
+	 * @return the new observation instance
+	 */
+	public ValidObservation copy() {
+<span class="fc" id="L261">		return copy(null);</span>
+	}
+
+	/**
+	 * Reset static non-cache maps and detail index in readiness for a new dataset.
+	 */
+	public static void reset() {
+<span class="nc bnc" id="L268" title="All 2 branches missed.">		if (detailTitles != null) {</span>
+<span class="nc" id="L269">			savedDetailTitles = new HashMap&lt;String, String&gt;(detailTitles);</span>
+<span class="nc" id="L270">			detailTitles.clear();</span>
+		}
+		
+<span class="nc bnc" id="L273" title="All 2 branches missed.">		if (detailTypes != null) {</span>
+<span class="nc" id="L274">			savedDetailTypes = new HashMap&lt;String, Class&lt;?&gt;&gt;(detailTypes);</span>
+<span class="nc" id="L275">			detailTypes.clear();</span>
+		}
+
+<span class="nc bnc" id="L278" title="All 2 branches missed.">		if (indexToDetailKey != null) {</span>
+<span class="nc" id="L279">			savedIndexToDetailKey = new HashMap&lt;Integer, String&gt;(indexToDetailKey);</span>
+<span class="nc" id="L280">			indexToDetailKey.clear();</span>
+		}
+
+<span class="nc bnc" id="L283" title="All 2 branches missed.">		if (detailKeyToIndex != null) {</span>
+<span class="nc" id="L284">			savedDetailKeyToIndex = new HashMap&lt;String, Integer&gt;(detailKeyToIndex);</span>
+<span class="nc" id="L285">			detailKeyToIndex.clear();</span>
+		}
+
+<span class="nc" id="L288">		savedDetailIndex = detailIndex;</span>
+<span class="nc" id="L289">		detailIndex = 0;</span>
+<span class="nc" id="L290">	}</span>
+
+	/**
+	 * Restore static non-cache maps and detail index when a dataset load failure
+	 * occurs.
+	 */
+	public static void restore() {
+		// Don't restore to null values, e.g. in the case of a first observation
+		// load failure, the saved map values may still be at their default of
+		// null.
+
+<span class="nc bnc" id="L301" title="All 2 branches missed.">		if (savedDetailTitles != null) {</span>
+<span class="nc" id="L302">			detailTitles = savedDetailTitles;</span>
+		}
+
+<span class="nc bnc" id="L305" title="All 2 branches missed.">		if (savedDetailTypes != null) {</span>
+<span class="nc" id="L306">			detailTypes = savedDetailTypes;</span>
+		}
+
+<span class="nc bnc" id="L309" title="All 2 branches missed.">		if (savedIndexToDetailKey != null) {</span>
+<span class="nc" id="L310">			indexToDetailKey = savedIndexToDetailKey;</span>
+		}
+
+<span class="nc bnc" id="L313" title="All 2 branches missed.">		if (savedDetailKeyToIndex != null) {</span>
+<span class="nc" id="L314">			detailKeyToIndex = savedDetailKeyToIndex;</span>
+		}
+
+<span class="nc" id="L317">		detailIndex = savedDetailIndex;</span>
+<span class="nc" id="L318">	}</span>
+
+	// Getters and Setters
+
+	/**
+	 * Generic cached value getter.
+	 * 
+	 * @param &lt;T&gt;   The type of the cached value.
+	 * @param cache The cache in which to look for the value.
+	 * @param value The value to look up.
+	 * @return The present or future cached value.
+	 */
+	private static &lt;T&gt; T getCachedValue(WeakHashMap&lt;T, T&gt; cache, T value) {
+<span class="fc bfc" id="L331" title="All 2 branches covered.">		if (cache.containsKey(value)) {</span>
+<span class="fc" id="L332">			value = cache.get(value);</span>
+		} else {
+<span class="fc" id="L334">			cache.put(value, value);</span>
+		}
+
+<span class="fc" id="L337">		return value;</span>
+	}
+
+	/**
+	 * @return details map
+	 */
+	public Map&lt;String, Property&gt; getDetails() {
+<span class="fc" id="L344">		return details;</span>
+	}
+
+	/**
+	 * @return the detailTitles
+	 */
+	public static Map&lt;String, String&gt; getDetailTitles() {
+<span class="nc" id="L351">		return detailTitles;</span>
+	}
+
+	/**
+	 * @return the detail types
+	 */
+	public static Map&lt;String, Class&lt;?&gt;&gt; getDetailTypes() {
+<span class="nc" id="L358">		return detailTypes;</span>
+	}
+
+	/**
+	 * Return the detail key given the detail ordering index.
+	 * 
+	 * @param the detail index
+	 * @return the detail key
+	 */
+	public static String getDetailKey(int index) {
+<span class="nc" id="L368">		return indexToDetailKey.get(index);</span>
+	}
+
+	/**
+	 * Return the detail index given the key.
+	 * 
+	 * @param the detail key
+	 * @return the detail index
+	 */
+	public static int getDetailIndex(String key) {
+<span class="nc" id="L378">		return detailKeyToIndex.get(key);</span>
+	}
+
+	/**
+	 * Add an observation detail, if the value is not null.
+	 * 
+	 * @param key   The detail key.
+	 * @param value The detail property value.
+	 * @param title The detail title, e.g. for use in table column, observation
+	 *              details.
+	 */
+	public void addDetail(String key, Property value, String title) {
+<span class="pc bpc" id="L390" title="2 of 4 branches missed.">		if (key != null &amp;&amp; value != null) {</span>
+<span class="fc" id="L391">			value = getCachedValue(detailValueCache, value);</span>
+<span class="fc" id="L392">			details.put(key, value);</span>
+<span class="fc bfc" id="L393" title="All 2 branches covered.">			if (!detailTitles.containsKey(key)) {</span>
+<span class="fc" id="L394">				detailTitles.put(key, title);</span>
+<span class="fc" id="L395">				detailTypes.put(key, value.getClazz());</span>
+<span class="fc" id="L396">				indexToDetailKey.put(detailIndex, key);</span>
+<span class="fc" id="L397">				detailKeyToIndex.put(key, detailIndex);</span>
+<span class="fc" id="L398">				detailIndex++;</span>
+			}
+		}
+<span class="fc" id="L401">	}</span>
+
+	/**
+	 * Add an observation detail, whose value is of type integer.
+	 * 
+	 * @param key   The detail key.
+	 * @param value The detail integer value.
+	 * @param title The detail title, e.g. for use in table column, observation
+	 *              details.
+	 */
+	public void addDetail(String key, Integer value, String title) {
+<span class="nc" id="L412">		addDetail(key, new Property(value), title);</span>
+<span class="nc" id="L413">	}</span>
+
+	/**
+	 * Add an observation detail, whose value is of type real.
+	 * 
+	 * @param key   The detail key.
+	 * @param value The detail real value.
+	 * @param title The detail title, e.g. for use in table column, observation
+	 *              details.
+	 */
+	public void addDetail(String key, Double value, String title) {
+<span class="nc" id="L424">		addDetail(key, new Property(value), title);</span>
+<span class="nc" id="L425">	}</span>
+
+	/**
+	 * Add an observation detail, whose value is of type Boolean.
+	 * 
+	 * @param key   The detail key.
+	 * @param value The detail Boolean value.
+	 * @param title The detail title, e.g. for use in table column, observation
+	 *              details.
+	 */
+	public void addDetail(String key, Boolean value, String title) {
+<span class="nc" id="L436">		addDetail(key, new Property(value), title);</span>
+<span class="nc" id="L437">	}</span>
+
+	/**
+	 * Add an observation detail, whose value is of type string.
+	 * 
+	 * @param key   The detail key.
+	 * @param value The detail string value.
+	 * @param title The detail title, e.g. for use in table column, observation
+	 *              details.
+	 */
+	public void addDetail(String key, String value, String title) {
+<span class="nc" id="L448">		addDetail(key, new Property(value), title);</span>
+<span class="nc" id="L449">	}</span>
+
+	/**
+	 * @return details map value given a key, if it exists, otherwise the empty
+	 *         string.
+	 */
+	public Property getDetail(String key) {
+<span class="fc bfc" id="L456" title="All 2 branches covered.">		return detailExists(key) ? details.get(key) : Property.NO_VALUE;</span>
+	}
+
+	/**
+	 * @return detail titles map value given a key
+	 */
+//	public String getDetailTitle(String key) {
+//		return detailTitles.get(key);
+//	}
+
+	/**
+	 * @return detail types map value given a key
+	 */
+//	public Class&lt;?&gt; getDetailType(String key) {
+//		return detailTypes.get(key);
+//	}
+
+	/**
+	 * Does the specified detail key exist?
+	 * 
+	 * @param key The detail key.
+	 * @return Whether or not detail exists.
+	 */
+	public boolean detailExists(String key) {
+<span class="fc" id="L480">		return details.keySet().contains(key);</span>
+	}
+
+	/**
+	 * Does the specified detail key exist and is it non-empty?
+	 * 
+	 * @param key The detail key.
+	 * @return Whether or not non-empty detail exists.
+	 */
+	public boolean nonEmptyDetailExists(String key) {
+<span class="nc bnc" id="L490" title="All 4 branches missed.">		return detailExists(key) &amp;&amp; !isEmpty(key);</span>
+	}
+
+	/**
+	 * Does the specified detail title key exist?
+	 * 
+	 * @param key The detail key.
+	 * @return Whether or not the detail title exists.
+	 */
+	public boolean detailTitleExists(String key) {
+<span class="nc" id="L500">		return detailTitles.keySet().contains(key);</span>
+	}
+
+	/**
+	 * Does the specified detail key correspond to a standard detail key?
+	 * 
+	 * @param key The detail key.
+	 * @return Whether or not the detail key is standard.
+	 */
+	public boolean isStandardDetailKey(String key) {
+<span class="nc" id="L510">		return standardDetailKeys.contains(key);</span>
+	}
+
+	/**
+	 * @return the standarddetailkeys
+	 */
+	public static Set&lt;String&gt; getStandardDetailKeys() {
+<span class="nc" id="L517">		return standardDetailKeys;</span>
+	}
+
+	/**
+	 * @return the dateInfo
+	 */
+	public DateInfo getDateInfo() {
+<span class="fc" id="L524">		return dateInfo;</span>
+	}
+
+	/**
+	 * @param dateInfo the dateInfo to set
+	 */
+	public void setDateInfo(DateInfo dateInfo) {
+<span class="fc" id="L531">		this.dateInfo = getCachedValue(dateInfoCache, dateInfo);</span>
+<span class="fc" id="L532">	}</span>
+
+	/**
+	 * @return the magnitude
+	 */
+	public Magnitude getMagnitude() {
+<span class="fc" id="L538">		return magnitude;</span>
+	}
+
+	/**
+	 * @param magnitude the magnitude to set
+	 */
+	public void setMagnitude(Magnitude magnitude) {
+//		this.magnitude = getCachedValue(magnitudeCache, magnitude);
+<span class="fc" id="L546">		this.magnitude = magnitude;</span>
+<span class="fc" id="L547">	}</span>
+
+	/**
+	 * @param mag the magnitude component to set.
+	 */
+	public void setMag(double mag) {
+//		setMagnitude(new Magnitude(mag, magnitude.getUncertainty()));
+<span class="nc" id="L554">		this.magnitude.setMagValue(mag);</span>
+<span class="nc" id="L555">	}</span>
+
+	/**
+	 * @return the obsCode
+	 */
+	public String getObsCode() {
+<span class="fc" id="L561">		return getDetail(obsCodeKey).getStrVal();</span>
+	}
+
+	/**
+	 * @param obsCode the obsCode to set
+	 */
+	public void setObsCode(String obsCode) {
+<span class="fc" id="L568">		addDetail(obsCodeKey, new Property(obsCode), obsCodeTitle);</span>
+<span class="fc" id="L569">	}</span>
+
+	/**
+	 * @return whether this observation is discrepant
+	 */
+	public boolean isDiscrepant() {
+<span class="fc" id="L575">		return ValidationType.DISCREPANT.equals(validationType);</span>
+	}
+
+	/**
+	 * @param discrepant the discrepant to set
+	 */
+	public void setDiscrepant(boolean discrepant) {
+		// TODO: Should we keep a record of the last known value of
+		// this field before it was marked as discrepant? Right now,
+		// we are going from {G,D,P} -&gt; D -&gt; G -&gt; D -&gt; G ... so we are
+		// potentially losing information. This is a good candidate
+		// for undoable edits.
+<span class="pc bpc" id="L587" title="1 of 2 branches missed.">		this.validationType = discrepant ? ValidationType.DISCREPANT : ValidationType.GOOD;</span>
+<span class="fc" id="L588">	}</span>
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+<span class="fc" id="L594">		return getDetail(nameKey).getStrVal();</span>
+	}
+
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+<span class="fc" id="L601">		addDetail(nameKey, new Property(name), nameTitle);</span>
+<span class="fc" id="L602">	}</span>
+
+	/**
+	 * @return the validationType
+	 */
+	public ValidationType getValidationType() {
+<span class="fc" id="L608">		return validationType;</span>
+	}
+
+	/**
+	 * @param validationType the validationType to set
+	 */
+	public void setValidationType(ValidationType validationType) {
+<span class="fc" id="L615">		this.validationType = validationType;</span>
+<span class="fc" id="L616">	}</span>
+
+	/**
+	 * @return the hqUncertainty
+	 */
+	public Double getHqUncertainty() {
+<span class="fc" id="L622">		return hqUncertainty;</span>
+	}
+
+	/**
+	 * @param hqUncertainty the hqUncertainty to set
+	 */
+	public void setHqUncertainty(Double hqUncertainty) {
+<span class="fc" id="L629">		this.hqUncertainty = hqUncertainty;</span>
+<span class="fc" id="L630">	}</span>
+
+	/**
+	 * @return the band
+	 */
+	public SeriesType getBand() {
+<span class="fc" id="L636">		return band;</span>
+	}
+
+	/**
+	 * @param band the band to set
+	 */
+	public void setBand(SeriesType band) {
+<span class="fc" id="L643">		this.band = band;</span>
+<span class="fc" id="L644">		setSeries(band);</span>
+<span class="fc" id="L645">	}</span>
+
+	/**
+	 * @return the series with which this observation is associated
+	 */
+	public SeriesType getSeries() {
+<span class="fc" id="L651">		return series;</span>
+	}
+
+	/**
+	 * @param series the series with which this observation is associated
+	 */
+	public void setSeries(SeriesType series) {
+<span class="fc" id="L658">		this.series = series;</span>
+<span class="fc" id="L659">	}</span>
+
+	/**
+	 * @return the commentCode
+	 */
+	public CommentCodes getCommentCode() {
+<span class="fc" id="L665">		return commentCode;</span>
+	}
+
+	/**
+	 * @param commentCodeStr the comment code string to set
+	 */
+	public void setCommentCode(String commentCodeStr) {
+<span class="fc" id="L672">		this.commentCode = getCachedValue(commentCodeCache, new CommentCodes(commentCodeStr));</span>
+<span class="fc" id="L673">	}</span>
+
+	/**
+	 * @param commentCodes the comment codes to set
+	 */
+	public void setCommentCode(CommentCodes commentCodes) {
+<span class="fc" id="L679">		this.commentCode = getCachedValue(commentCodeCache, commentCodes);</span>
+<span class="fc" id="L680">	}</span>
+
+	/**
+	 * @return the compStar1
+	 */
+	public String getCompStar1() {
+<span class="nc" id="L686">		return getDetail(compStar1Key).getStrVal();</span>
+	}
+
+	/**
+	 * @param compStar1 the compStar1 to set
+	 */
+	public void setCompStar1(String compStar1) {
+<span class="fc" id="L693">		addDetail(compStar1Key, new Property(compStar1), compStar1Title);</span>
+<span class="fc" id="L694">	}</span>
+
+	/**
+	 * @return the compStar2
+	 */
+	public String getCompStar2() {
+<span class="nc" id="L700">		return getDetail(compStar2Key).getStrVal();</span>
+	}
+
+	/**
+	 * @param compStar2 the compStar2 to set
+	 */
+	public void setCompStar2(String compStar2) {
+<span class="fc" id="L707">		addDetail(compStar2Key, new Property(compStar2), compStar2Title);</span>
+<span class="fc" id="L708">	}</span>
+
+	/**
+	 * @return the charts
+	 */
+	public String getCharts() {
+<span class="nc" id="L714">		return getDetail(chartsKey).getStrVal();</span>
+	}
+
+	/**
+	 * @param charts the charts to set
+	 */
+	public void setCharts(String charts) {
+<span class="fc" id="L721">		addDetail(chartsKey, new Property(charts), chartsTitle);</span>
+<span class="fc" id="L722">	}</span>
+
+	/**
+	 * @return the comments
+	 */
+	public String getComments() {
+<span class="nc" id="L728">		return getDetail(commentsKey).getStrVal();</span>
+	}
+
+	/**
+	 * @param comments the comments to set
+	 */
+	public void setComments(String comments) {
+<span class="fc" id="L735">		addDetail(commentsKey, new Property(comments), commentsTitle);</span>
+<span class="fc" id="L736">	}</span>
+
+	/**
+	 * @return the transformed
+	 */
+	public boolean isTransformed() {
+<span class="fc" id="L742">		return transformed;</span>
+	}
+
+	/**
+	 * @param transformed the transformed to set
+	 */
+	public void setTransformed(boolean transformed) {
+<span class="fc" id="L749">		this.transformed = transformed;</span>
+<span class="fc" id="L750">	}</span>
+
+	/**
+	 * @return the airmass
+	 */
+	public String getAirmass() {
+<span class="nc" id="L756">		return getDetail(airmassKey).getStrVal();</span>
+	}
+
+	/**
+	 * @param airmass the airmass to set
+	 */
+	public void setAirmass(String airmass) {
+<span class="fc" id="L763">		addDetail(airmassKey, new Property(airmass), airmassTitle);</span>
+<span class="fc" id="L764">	}</span>
+
+	/**
+	 * @return the cMag
+	 */
+	public String getCMag() {
+<span class="nc" id="L770">		return getDetail(cMagKey).getStrVal();</span>
+	}
+
+	/**
+	 * @param cMag the cMag to set
+	 */
+	public void setCMag(String cMag) {
+<span class="pc bpc" id="L777" title="1 of 2 branches missed.">		if (&quot;0.ensemb&quot;.equals(cMag)) {</span>
+<span class="nc" id="L778">			cMag = &quot;Ensemble&quot;;</span>
+		}
+<span class="fc" id="L780">		addDetail(cMagKey, new Property(cMag), cMagTitle);</span>
+<span class="fc" id="L781">	}</span>
+
+	/**
+	 * @return the kMag
+	 */
+	public String getKMag() {
+<span class="nc" id="L787">		return getDetail(kMagKey).getStrVal();</span>
+	}
+
+	/**
+	 * @param kMag the kMag to set
+	 */
+	public void setKMag(String kMag) {
+<span class="fc" id="L794">		addDetail(kMagKey, new Property(kMag), kMagTitle);</span>
+<span class="fc" id="L795">	}</span>
+
+	/**
+	 * @return the hJD
+	 */
+	public DateInfo getHJD() {
+<span class="fc" id="L801">		return hJD;</span>
+	}
+
+	/**
+	 * @param hJD the hJD to set
+	 */
+	public void setHJD(DateInfo hJD) {
+<span class="fc" id="L808">		this.hJD = getCachedValue(dateInfoCache, hJD);</span>
+<span class="fc" id="L809">	}</span>
+
+	/**
+	 * @return the affiliation
+	 */
+	public String getAffiliation() {
+<span class="nc" id="L815">		return getDetail(affiliationKey).getStrVal();</span>
+	}
+
+	/**
+	 * @param affiliation the affiliation to set
+	 */
+	public void setAffiliation(String affiliation) {
+<span class="fc" id="L822">		addDetail(affiliationKey, new Property(affiliation), affiliationTitle);</span>
+<span class="fc" id="L823">	}</span>
+
+	/**
+	 * @return the mType
+	 */
+	public MTypeType getMType() {
+<span class="fc" id="L829">		return mType;</span>
+	}
+
+	/**
+	 * @param mType the mType to set
+	 */
+	public void setMType(MTypeType mType) {
+<span class="fc" id="L836">		this.mType = mType;</span>
+<span class="fc" id="L837">	}</span>
+
+	/**
+	 * @return the group
+	 */
+	public String getGroup() {
+<span class="nc" id="L843">		return getDetail(groupKey).getStrVal();</span>
+	}
+
+	/**
+	 * @param group the group of filters used for this observation
+	 */
+	public void setGroup(String group) {
+<span class="fc" id="L850">		addDetail(groupKey, new Property(group), groupTitle);</span>
+<span class="fc" id="L851">	}</span>
+
+	/**
+	 * @return the obsType
+	 */
+	public String getObsType() {
+<span class="fc" id="L857">		return obsType;</span>
+	}
+
+	/**
+	 * @param obsType the obsType to set
+	 */
+	public void setObsType(String obsType) {
+<span class="fc" id="L864">		this.obsType = obsType;</span>
+<span class="fc" id="L865">	}</span>
+
+	/**
+	 * @return the ADS Reference
+	 */
+	public String getADSRef() {
+<span class="nc" id="L871">		return getDetail(pubrefKey).getStrVal();</span>
+	}
+
+	/**
+	 * @param ADS Reference the ADS Reference to set
+	 */
+	public void setADSRef(String adsRef) {
+<span class="fc" id="L878">		addDetail(pubrefKey, new Property(adsRef), pubrefTitle);</span>
+<span class="fc" id="L879">	}</span>
+
+	/**
+	 * @return the digitizer
+	 */
+	public String getDigitizer() {
+<span class="nc" id="L885">		return getDetail(digitizerKey).getStrVal();</span>
+	}
+
+	/**
+	 * @param digitizer the digitizer to set
+	 */
+	public void setDigitizer(String digitizer) {
+<span class="fc" id="L892">		addDetail(digitizerKey, new Property(digitizer), digitizerTitle);</span>
+<span class="fc" id="L893">	}</span>
+
+	/**
+	 * @return the credit
+	 */
+	public String getCredit() {
+<span class="nc" id="L899">		return getDetail(creditKey).getStrVal();</span>
+	}
+
+	/**
+	 * @param credit the organization to be credited for the observation
+	 */
+	public void setCredit(String credit) {
+<span class="fc" id="L906">		addDetail(creditKey, new Property(credit), creditTitle);</span>
+<span class="fc" id="L907">	}</span>
+
+	/**
+	 * @return the standardPhase
+	 */
+	public Double getStandardPhase() {
+<span class="fc" id="L913">		return standardPhase;</span>
+	}
+
+	/**
+	 * @param standardPhase the standardPhase to set
+	 */
+	public void setStandardPhase(Double standardPhase) {
+<span class="fc" id="L920">		this.standardPhase = standardPhase;</span>
+<span class="fc" id="L921">	}</span>
+
+	/**
+	 * @return the previousCyclePhase
+	 */
+	public Double getPreviousCyclePhase() {
+<span class="fc" id="L927">		return previousCyclePhase;</span>
+	}
+
+	/**
+	 * @param previousCyclePhase the previousCyclePhase to set
+	 */
+	public void setPreviousCyclePhase(Double previousCyclePhase) {
+<span class="fc" id="L934">		this.previousCyclePhase = previousCyclePhase;</span>
+<span class="fc" id="L935">	}</span>
+
+	/**
+	 * @return the excluded
+	 */
+	public boolean isExcluded() {
+<span class="fc" id="L941">		return excluded;</span>
+	}
+
+	/**
+	 * @param excluded the excluded to set
+	 */
+	public void setExcluded(boolean excluded) {
+<span class="fc" id="L948">		this.excluded = excluded;</span>
+<span class="fc" id="L949">	}</span>
+
+	/**
+	 * @return true if Heliocentric
+	 */
+	public boolean isHeliocentric() {
+<span class="nc bnc" id="L955" title="All 2 branches missed.">		return jdFlavour == JDflavour.HJD;</span>
+	}
+
+	/**
+	 * @return true if Barycentric
+	 */
+	public boolean isBarycentric() {
+<span class="nc bnc" id="L962" title="All 2 branches missed.">		return jdFlavour == JDflavour.BJD;</span>
+	}
+
+	public JDflavour getJDflavour() {
+<span class="fc" id="L966">		return jdFlavour;</span>
+	}
+
+	public void setJDflavour(JDflavour jdFlavour) {
+<span class="fc" id="L970">		this.jdFlavour = jdFlavour;</span>
+<span class="fc" id="L971">	}</span>
+
+	public String getTimeUnits() {
+<span class="nc" id="L974">		return jdFlavour.label;</span>
+	}
+
+	// Output formatting methods.
+
+	public String toString() {
+<span class="nc" id="L980">		StringBuffer strBuf = new StringBuffer();</span>
+
+<span class="nc bnc" id="L982" title="All 2 branches missed.">		if (nonEmptyDetailExists(nameKey)) {</span>
+<span class="nc" id="L983">			strBuf.append(details.get(nameKey));</span>
+<span class="nc" id="L984">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L987" title="All 2 branches missed.">		if (dateInfo != null) {</span>
+<span class="nc" id="L988">			strBuf.append(getTimeUnits());</span>
+<span class="nc" id="L989">			strBuf.append(&quot;: &quot;);</span>
+<span class="nc" id="L990">			strBuf.append(NumericPrecisionPrefs.formatTime(dateInfo.getJulianDay()));</span>
+<span class="nc" id="L991">			strBuf.append(&quot;\n&quot;);</span>
+
+<span class="nc" id="L993">			strBuf.append(&quot;Calendar Date: &quot;);</span>
+<span class="nc" id="L994">			strBuf.append(dateInfo.getCalendarDate());</span>
+<span class="nc" id="L995">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+		// If we are not in phase plot mode, we should not represent ourselves
+		// as having a phase.
+<span class="nc bnc" id="L1000" title="All 2 branches missed.">		if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {</span>
+<span class="nc bnc" id="L1001" title="All 2 branches missed.">			if (standardPhase != null) {</span>
+<span class="nc" id="L1002">				strBuf.append(&quot;Standard Phase: &quot;);</span>
+<span class="nc" id="L1003">				strBuf.append(NumericPrecisionPrefs.formatTime(standardPhase));</span>
+<span class="nc" id="L1004">				strBuf.append(&quot;\n&quot;);</span>
+			}
+
+<span class="nc bnc" id="L1007" title="All 2 branches missed.">			if (previousCyclePhase != null) {</span>
+<span class="nc" id="L1008">				strBuf.append(&quot;Previous Cycle Phase: &quot;);</span>
+<span class="nc" id="L1009">				strBuf.append(NumericPrecisionPrefs.formatTime(previousCyclePhase));</span>
+<span class="nc" id="L1010">				strBuf.append(&quot;\n&quot;);</span>
+			}
+		}
+
+<span class="nc" id="L1014">		strBuf.append(&quot;Magnitude: &quot;);</span>
+<span class="nc" id="L1015">		strBuf.append(magnitude.toString());</span>
+<span class="nc" id="L1016">		strBuf.append(&quot;\n&quot;);</span>
+
+<span class="nc bnc" id="L1018" title="All 2 branches missed.">		if (hqUncertainty != null) {</span>
+<span class="nc" id="L1019">			strBuf.append(&quot;HQ Uncertainty: &quot;);</span>
+<span class="nc" id="L1020">			strBuf.append(NumericPrecisionPrefs.formatMag(hqUncertainty));</span>
+<span class="nc" id="L1021">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1024" title="All 2 branches missed.">		if (validationType != null) {</span>
+<span class="nc" id="L1025">			strBuf.append(&quot;Validation: &quot;);</span>
+<span class="nc" id="L1026">			strBuf.append(validationType.toString());</span>
+<span class="nc" id="L1027">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1030" title="All 2 branches missed.">		if (obsType != null) {</span>
+<span class="nc" id="L1031">			strBuf.append(&quot;Observation Type: &quot;);</span>
+<span class="nc" id="L1032">			strBuf.append(obsType);</span>
+<span class="nc" id="L1033">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1036" title="All 2 branches missed.">		if (band != null) {</span>
+<span class="nc" id="L1037">			strBuf.append(&quot;Band: &quot;);</span>
+<span class="nc" id="L1038">			strBuf.append(band.getDescription());</span>
+<span class="nc" id="L1039">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1042" title="All 2 branches missed.">		if (nonEmptyDetailExists(obsCodeKey)) {</span>
+<span class="nc" id="L1043">			strBuf.append(detailTitles.get(obsCodeKey) + &quot;: &quot;);</span>
+<span class="nc" id="L1044">			strBuf.append(details.get(obsCodeKey));</span>
+<span class="nc" id="L1045">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1048" title="All 2 branches missed.">		if (commentCode != null) {</span>
+<span class="nc" id="L1049">			String str = getCommentCode().getOrigString();</span>
+<span class="nc bnc" id="L1050" title="All 2 branches missed.">			if (str.trim().length() != 0) {</span>
+<span class="nc" id="L1051">				strBuf.append(&quot;Comment Codes:\n&quot;);</span>
+<span class="nc" id="L1052">				strBuf.append(&quot;[&quot;);</span>
+<span class="nc" id="L1053">				strBuf.append(str);</span>
+<span class="nc" id="L1054">				strBuf.append(&quot;]\n&quot;);</span>
+<span class="nc" id="L1055">				strBuf.append(commentCode.toString());</span>
+			}
+		}
+
+<span class="nc bnc" id="L1059" title="All 2 branches missed.">		if (nonEmptyDetailExists(compStar1Key)) {</span>
+<span class="nc" id="L1060">			strBuf.append(detailTitles.get(compStar1Key) + &quot;: &quot;);</span>
+<span class="nc" id="L1061">			strBuf.append(details.get(compStar1Key));</span>
+<span class="nc" id="L1062">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1065" title="All 2 branches missed.">		if (nonEmptyDetailExists(compStar2Key)) {</span>
+<span class="nc" id="L1066">			strBuf.append(detailTitles.get(compStar2Key) + &quot;: &quot;);</span>
+<span class="nc" id="L1067">			strBuf.append(details.get(compStar2Key));</span>
+<span class="nc" id="L1068">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1071" title="All 2 branches missed.">		if (nonEmptyDetailExists(chartsKey)) {</span>
+<span class="nc" id="L1072">			strBuf.append(detailTitles.get(chartsKey) + &quot;: &quot;);</span>
+<span class="nc" id="L1073">			strBuf.append(details.get(chartsKey));</span>
+<span class="nc" id="L1074">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1077" title="All 2 branches missed.">		if (nonEmptyDetailExists(commentsKey)) {</span>
+<span class="nc" id="L1078">			strBuf.append(detailTitles.get(commentsKey) + &quot;: &quot;);</span>
+<span class="nc" id="L1079">			strBuf.append(details.get(commentsKey));</span>
+<span class="nc" id="L1080">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1083" title="All 2 branches missed.">		if (transformed) {</span>
+<span class="nc" id="L1084">			strBuf.append(&quot;Transformed: yes\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1087" title="All 2 branches missed.">		if (nonEmptyDetailExists(airmassKey)) {</span>
+<span class="nc" id="L1088">			strBuf.append(detailTitles.get(airmassKey) + &quot;: &quot;);</span>
+<span class="nc" id="L1089">			strBuf.append(details.get(airmassKey));</span>
+<span class="nc" id="L1090">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1093" title="All 2 branches missed.">		if (nonEmptyDetailExists(cMagKey)) {</span>
+<span class="nc" id="L1094">			strBuf.append(detailTitles.get(cMagKey) + &quot;: &quot;);</span>
+<span class="nc" id="L1095">			strBuf.append(details.get(cMagKey));</span>
+<span class="nc" id="L1096">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1099" title="All 2 branches missed.">		if (nonEmptyDetailExists(kMagKey)) {</span>
+<span class="nc" id="L1100">			strBuf.append(detailTitles.get(kMagKey) + &quot;: &quot;);</span>
+<span class="nc" id="L1101">			strBuf.append(details.get(kMagKey));</span>
+<span class="nc" id="L1102">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1105" title="All 2 branches missed.">		if (hJD != null) {</span>
+<span class="nc" id="L1106">			strBuf.append(&quot;Heliocentric Julian Day: &quot;);</span>
+<span class="nc" id="L1107">			strBuf.append(NumericPrecisionPrefs.formatTime(hJD.getJulianDay()));</span>
+<span class="nc" id="L1108">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1111" title="All 2 branches missed.">		if (nonEmptyDetailExists(groupKey)) {</span>
+<span class="nc" id="L1112">			strBuf.append(detailTitles.get(groupKey) + &quot;: &quot;);</span>
+<span class="nc" id="L1113">			strBuf.append(details.get(groupKey));</span>
+<span class="nc" id="L1114">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1117" title="All 2 branches missed.">		if (nonEmptyDetailExists(pubrefKey)) {</span>
+<span class="nc" id="L1118">			strBuf.append(detailTitles.get(pubrefKey) + &quot;: &quot;);</span>
+<span class="nc" id="L1119">			strBuf.append(details.get(pubrefKey));</span>
+<span class="nc" id="L1120">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1123" title="All 2 branches missed.">		if (nonEmptyDetailExists(digitizerKey)) {</span>
+<span class="nc" id="L1124">			strBuf.append(detailTitles.get(digitizerKey) + &quot;: &quot;);</span>
+<span class="nc" id="L1125">			strBuf.append(details.get(digitizerKey));</span>
+<span class="nc" id="L1126">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1129" title="All 2 branches missed.">		if (nonEmptyDetailExists(creditKey)) {</span>
+<span class="nc" id="L1130">			strBuf.append(detailTitles.get(creditKey) + &quot;: &quot;);</span>
+<span class="nc" id="L1131">			strBuf.append(details.get(creditKey));</span>
+<span class="nc" id="L1132">			strBuf.append(&quot;\n&quot;);</span>
+		}
+
+		// Add any remaining non-AAVSO details, e.g. for a plugin.
+<span class="nc bnc" id="L1136" title="All 2 branches missed.">		for (String key : details.keySet()) {</span>
+<span class="nc bnc" id="L1137" title="All 2 branches missed.">			if (!standardDetailKeys.contains(key)) {</span>
+<span class="nc" id="L1138">				strBuf.append(detailTitles.get(key) + &quot;: &quot;);</span>
+<span class="nc" id="L1139">				strBuf.append(details.get(key));</span>
+<span class="nc" id="L1140">				strBuf.append(&quot;\n&quot;);</span>
+			}
+<span class="nc" id="L1142">		}</span>
+
+<span class="nc" id="L1144">		return strBuf.toString();</span>
+	}
+
+	/**
+	 * Returns a line in TSV format of the following fields (bracketed fields are
+	 * optional):
+	 * 
+	 * [Phase,]JD,MAGNITUDE,[UNCERTAINTY],[OBSERVER_CODE],[VALFLAG]
+	 * 
+	 * @param delimiter The field delimiter to use.
+	 */
+	public String toSimpleFormatString(String delimiter) {
+<span class="nc" id="L1156">		return toSimpleFormatString(delimiter, true);</span>
+	}
+
+	/**
+	 * Returns a line in TSV format of the following fields (bracketed fields are
+	 * optional):
+	 * 
+	 * [Phase,][JD,]MAGNITUDE,[UNCERTAINTY],[OBSERVER_CODE],[VALFLAG]
+	 * 
+	 * @param delimiter The field delimiter to use.
+	 * @param includeJD Should the JD be included in the output?
+	 */
+	public String toSimpleFormatString(String delimiter, boolean includeJD) {
+<span class="nc" id="L1169">		StringBuffer buf = new StringBuffer();</span>
+
+<span class="nc bnc" id="L1171" title="All 2 branches missed.">		if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {</span>
+<span class="nc" id="L1172">			buf.append(this.getStandardPhase());</span>
+<span class="nc" id="L1173">			buf.append(delimiter);</span>
+		}
+
+<span class="nc bnc" id="L1176" title="All 4 branches missed.">		if (includeJD &amp;&amp; this.getDateInfo() != null) {</span>
+<span class="nc" id="L1177">			buf.append(this.getDateInfo().getJulianDay());</span>
+<span class="nc" id="L1178">			buf.append(delimiter);</span>
+		}
+
+<span class="nc bnc" id="L1181" title="All 2 branches missed.">		buf.append(this.getMagnitude().isFainterThan() ? &quot;&lt;&quot; : &quot;&quot;);</span>
+<span class="nc" id="L1182">		buf.append(this.getMagnitude().getMagValue());</span>
+<span class="nc" id="L1183">		buf.append(delimiter);</span>
+
+<span class="nc" id="L1185">		double uncertainty = this.getMagnitude().getUncertainty();</span>
+		// TODO: why != here and &gt; in next method?
+<span class="nc bnc" id="L1187" title="All 2 branches missed.">		if (uncertainty != 0.0) {</span>
+<span class="nc" id="L1188">			buf.append(uncertainty);</span>
+		}
+<span class="nc" id="L1190">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1192" title="All 2 branches missed.">		if (nonEmptyDetailExists(obsCodeKey)) {</span>
+<span class="nc" id="L1193">			buf.append(quoteForCSVifNeeded(details.get(obsCodeKey).toString(), delimiter));</span>
+		}
+<span class="nc" id="L1195">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1197" title="All 2 branches missed.">		if (this.validationType != null) {</span>
+<span class="nc" id="L1198">			buf.append(this.validationType.getValflag());</span>
+		}
+<span class="nc" id="L1200">		buf.append(&quot;\n&quot;);</span>
+
+<span class="nc" id="L1202">		return buf.toString();</span>
+	}
+
+	/**
+	 * Returns a line in delimiter-separator (TSV, CSV, ...) AAVSO download format.
+	 * 
+	 * @param delimiter The field delimiter to use.
+	 */
+	public String toAAVSOFormatString(String delimiter) {
+<span class="nc" id="L1211">		return toAAVSOFormatString(delimiter, true);</span>
+	}
+
+	/**
+	 * Returns a line in delimiter-separator (TSV, CSV, ...) AAVSO download format.
+	 * 
+	 * @param delimiter The field delimiter to use.
+	 * @param includeJD Should the JD be included in the output?
+	 */
+	public String toAAVSOFormatString(String delimiter, boolean includeJD) {
+<span class="nc" id="L1221">		StringBuffer buf = new StringBuffer();</span>
+
+<span class="nc bnc" id="L1223" title="All 2 branches missed.">		if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {</span>
+<span class="nc" id="L1224">			buf.append(this.getStandardPhase());</span>
+<span class="nc" id="L1225">			buf.append(delimiter);</span>
+		}
+
+<span class="nc bnc" id="L1228" title="All 4 branches missed.">		if (includeJD &amp;&amp; this.getDateInfo() != null) {</span>
+<span class="nc" id="L1229">			buf.append(this.getDateInfo().getJulianDay());</span>
+<span class="nc" id="L1230">			buf.append(delimiter);</span>
+		}
+
+<span class="nc bnc" id="L1233" title="All 2 branches missed.">		buf.append(this.getMagnitude().isFainterThan() ? &quot;&lt;&quot; : &quot;&quot;);</span>
+<span class="nc" id="L1234">		buf.append(this.getMagnitude().getMagValue());</span>
+<span class="nc" id="L1235">		buf.append(delimiter);</span>
+
+<span class="nc" id="L1237">		double uncertainty = this.getMagnitude().getUncertainty();</span>
+<span class="nc bnc" id="L1238" title="All 2 branches missed.">		if (uncertainty &gt; 0.0) {</span>
+<span class="nc" id="L1239">			buf.append(uncertainty);</span>
+		}
+<span class="nc" id="L1241">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1243" title="All 2 branches missed.">		if (this.getHqUncertainty() != null) {</span>
+<span class="nc" id="L1244">			double hqUncertainty = this.getHqUncertainty();</span>
+<span class="nc bnc" id="L1245" title="All 2 branches missed.">			if (hqUncertainty &gt; 0.0) {</span>
+<span class="nc" id="L1246">				buf.append(hqUncertainty);</span>
+			}
+		}
+<span class="nc" id="L1249">		buf.append(delimiter);</span>
+
+<span class="nc" id="L1251">		buf.append(quoteForCSVifNeeded(this.getBand().getShortName(), delimiter));</span>
+<span class="nc" id="L1252">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1254" title="All 2 branches missed.">		if (nonEmptyDetailExists(obsCodeKey)) {</span>
+<span class="nc" id="L1255">			buf.append(quoteForCSVifNeeded(details.get(obsCodeKey).toString(), delimiter));</span>
+		}
+<span class="nc" id="L1257">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1259" title="All 2 branches missed.">		if (this.getCommentCode() != null) {</span>
+<span class="nc" id="L1260">			buf.append(quoteForCSVifNeeded(this.getCommentCode().getOrigString(), delimiter));</span>
+		}
+<span class="nc" id="L1262">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1264" title="All 2 branches missed.">		if (this.getCompStar1() != null) {</span>
+<span class="nc" id="L1265">			buf.append(quoteForCSVifNeeded(this.getCompStar1(), delimiter));</span>
+		}
+<span class="nc" id="L1267">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1269" title="All 2 branches missed.">		if (this.getCompStar2() != null) {</span>
+<span class="nc" id="L1270">			buf.append(quoteForCSVifNeeded(this.getCompStar2(), delimiter));</span>
+		}
+<span class="nc" id="L1272">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1274" title="All 2 branches missed.">		if (this.getCharts() != null) {</span>
+<span class="nc" id="L1275">			buf.append(quoteForCSVifNeeded(this.getCharts(), delimiter));</span>
+		}
+<span class="nc" id="L1277">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1279" title="All 2 branches missed.">		if (this.getComments() != null) {</span>
+<span class="nc" id="L1280">			buf.append(quoteForCSVifNeeded(this.getComments(), delimiter));</span>
+		}
+<span class="nc" id="L1282">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1284" title="All 2 branches missed.">		buf.append(this.isTransformed() ? &quot;Yes&quot; : &quot;No&quot;);</span>
+<span class="nc" id="L1285">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1287" title="All 2 branches missed.">		if (this.getAirmass() != null) {</span>
+<span class="nc" id="L1288">			buf.append(this.getAirmass());</span>
+		}
+<span class="nc" id="L1290">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1292" title="All 2 branches missed.">		if (this.validationType != null) {</span>
+<span class="nc" id="L1293">			buf.append(this.validationType.getValflag());</span>
+		}
+<span class="nc" id="L1295">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1297" title="All 2 branches missed.">		if (this.getCMag() != null) {</span>
+<span class="nc" id="L1298">			buf.append(this.getCMag());</span>
+		}
+<span class="nc" id="L1300">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1302" title="All 2 branches missed.">		if (this.getKMag() != null) {</span>
+<span class="nc" id="L1303">			buf.append(this.getKMag());</span>
+		}
+<span class="nc" id="L1305">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1307" title="All 2 branches missed.">		if (this.getHJD() != null) {</span>
+<span class="nc" id="L1308">			buf.append(hJD.getJulianDay());</span>
+		}
+<span class="nc" id="L1310">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1312" title="All 2 branches missed.">		buf.append(quoteForCSVifNeeded(!isEmpty(this.getName()) ? this.getName() : &quot;Unknown&quot;, delimiter));</span>
+<span class="nc" id="L1313">		buf.append(delimiter);</span>
+
+		// Affiliation
+<span class="nc bnc" id="L1316" title="All 2 branches missed.">		if (getAffiliation() != null) {</span>
+<span class="nc" id="L1317">			buf.append(quoteForCSVifNeeded(getAffiliation(), delimiter));</span>
+		}
+<span class="nc" id="L1319">		buf.append(delimiter);</span>
+
+<span class="nc bnc" id="L1321" title="All 2 branches missed.">		buf.append(quoteForCSVifNeeded(this.getMType() != null ? this.getMType().getShortName() : MTypeType.STD.getShortName(), delimiter));</span>
+<span class="nc" id="L1322">		buf.append(delimiter);</span>
+
+		// Group
+<span class="nc bnc" id="L1325" title="All 2 branches missed.">		if (getGroup() != null) {</span>
+<span class="nc" id="L1326">			buf.append(quoteForCSVifNeeded(getGroup(), delimiter));</span>
+		}
+<span class="nc" id="L1328">		buf.append(delimiter);</span>
+
+		// ADS Reference
+<span class="nc bnc" id="L1331" title="All 2 branches missed.">		if (getADSRef() != null) {</span>
+<span class="nc" id="L1332">			buf.append(quoteForCSVifNeeded(getADSRef(), delimiter));</span>
+		}
+<span class="nc" id="L1334">		buf.append(delimiter);</span>
+
+		// Digitizer
+<span class="nc bnc" id="L1337" title="All 2 branches missed.">		if (getDigitizer() != null) {</span>
+<span class="nc" id="L1338">			buf.append(quoteForCSVifNeeded(getDigitizer(), delimiter));</span>
+		}
+<span class="nc" id="L1340">		buf.append(delimiter);</span>
+
+		// Credit
+<span class="nc bnc" id="L1343" title="All 2 branches missed.">		if (getCredit() != null) {</span>
+<span class="nc" id="L1344">			buf.append(quoteForCSVifNeeded(getCredit(), delimiter));</span>
+		}
+<span class="nc" id="L1346">		buf.append(delimiter);</span>
+
+		// ObsType
+		// TODO: in AID but not yet AAVSO download format!
+		// buf.append(delimiter);
+
+		// TODO: handle reading in aavso text and aid obs readers
+
+<span class="nc" id="L1354">		buf.append(&quot;\n&quot;);</span>
+
+<span class="nc" id="L1356">		return buf.toString();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L1361">		final int prime = 31;</span>
+<span class="fc" id="L1362">		int result = 1;</span>
+<span class="pc bpc" id="L1363" title="1 of 2 branches missed.">		result = prime * result + ((band == null) ? 0 : band.hashCode());</span>
+<span class="pc bpc" id="L1364" title="1 of 2 branches missed.">		result = prime * result + ((commentCode == null) ? 0 : commentCode.hashCode());</span>
+<span class="pc bpc" id="L1365" title="1 of 2 branches missed.">		result = prime * result + ((dateInfo == null) ? 0 : dateInfo.hashCode());</span>
+<span class="pc bpc" id="L1366" title="1 of 2 branches missed.">		result = prime * result + ((details == null) ? 0 : details.hashCode());</span>
+<span class="pc bpc" id="L1367" title="1 of 2 branches missed.">		result = prime * result + (excluded ? 1231 : 1237);</span>
+<span class="pc bpc" id="L1368" title="1 of 2 branches missed.">		result = prime * result + ((hJD == null) ? 0 : hJD.hashCode());</span>
+<span class="pc bpc" id="L1369" title="1 of 2 branches missed.">		result = prime * result + ((hqUncertainty == null) ? 0 : hqUncertainty.hashCode());</span>
+<span class="pc bpc" id="L1370" title="1 of 2 branches missed.">		result = prime * result + ((jdFlavour == null) ? 0 : jdFlavour.hashCode());</span>
+<span class="pc bpc" id="L1371" title="1 of 2 branches missed.">		result = prime * result + ((mType == null) ? 0 : mType.hashCode());</span>
+<span class="pc bpc" id="L1372" title="1 of 2 branches missed.">		result = prime * result + ((magnitude == null) ? 0 : magnitude.hashCode());</span>
+<span class="pc bpc" id="L1373" title="1 of 2 branches missed.">		result = prime * result + ((obsType == null) ? 0 : obsType.hashCode());</span>
+<span class="pc bpc" id="L1374" title="1 of 2 branches missed.">		result = prime * result + ((previousCyclePhase == null) ? 0 : previousCyclePhase.hashCode());</span>
+<span class="pc bpc" id="L1375" title="1 of 2 branches missed.">		result = prime * result + ((series == null) ? 0 : series.hashCode());</span>
+<span class="pc bpc" id="L1376" title="1 of 2 branches missed.">		result = prime * result + ((standardPhase == null) ? 0 : standardPhase.hashCode());</span>
+<span class="pc bpc" id="L1377" title="1 of 2 branches missed.">		result = prime * result + (transformed ? 1231 : 1237);</span>
+<span class="fc bfc" id="L1378" title="All 2 branches covered.">		result = prime * result + ((validationType == null) ? 0 : validationType.hashCode());</span>
+<span class="fc" id="L1379">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L1384" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L1385">			return true;</span>
+<span class="nc bnc" id="L1386" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L1387">			return false;</span>
+<span class="nc bnc" id="L1388" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L1389">			return false;</span>
+<span class="nc" id="L1390">		ValidObservation other = (ValidObservation) obj;</span>
+<span class="nc bnc" id="L1391" title="All 2 branches missed.">		if (band == null) {</span>
+<span class="nc bnc" id="L1392" title="All 2 branches missed.">			if (other.band != null)</span>
+<span class="nc" id="L1393">				return false;</span>
+<span class="nc bnc" id="L1394" title="All 2 branches missed.">		} else if (!band.equals(other.band))</span>
+<span class="nc" id="L1395">			return false;</span>
+<span class="nc bnc" id="L1396" title="All 2 branches missed.">		if (commentCode == null) {</span>
+<span class="nc bnc" id="L1397" title="All 2 branches missed.">			if (other.commentCode != null)</span>
+<span class="nc" id="L1398">				return false;</span>
+<span class="nc bnc" id="L1399" title="All 2 branches missed.">		} else if (!commentCode.equals(other.commentCode))</span>
+<span class="nc" id="L1400">			return false;</span>
+<span class="nc bnc" id="L1401" title="All 2 branches missed.">		if (dateInfo == null) {</span>
+<span class="nc bnc" id="L1402" title="All 2 branches missed.">			if (other.dateInfo != null)</span>
+<span class="nc" id="L1403">				return false;</span>
+<span class="nc bnc" id="L1404" title="All 2 branches missed.">		} else if (!dateInfo.equals(other.dateInfo))</span>
+<span class="nc" id="L1405">			return false;</span>
+<span class="nc bnc" id="L1406" title="All 2 branches missed.">		if (details == null) {</span>
+<span class="nc bnc" id="L1407" title="All 2 branches missed.">			if (other.details != null)</span>
+<span class="nc" id="L1408">				return false;</span>
+<span class="nc bnc" id="L1409" title="All 2 branches missed.">		} else if (!details.equals(other.details))</span>
+<span class="nc" id="L1410">			return false;</span>
+<span class="nc bnc" id="L1411" title="All 2 branches missed.">		if (excluded != other.excluded)</span>
+<span class="nc" id="L1412">			return false;</span>
+<span class="nc bnc" id="L1413" title="All 2 branches missed.">		if (hJD == null) {</span>
+<span class="nc bnc" id="L1414" title="All 2 branches missed.">			if (other.hJD != null)</span>
+<span class="nc" id="L1415">				return false;</span>
+<span class="nc bnc" id="L1416" title="All 2 branches missed.">		} else if (!hJD.equals(other.hJD))</span>
+<span class="nc" id="L1417">			return false;</span>
+<span class="nc bnc" id="L1418" title="All 2 branches missed.">		if (hqUncertainty == null) {</span>
+<span class="nc bnc" id="L1419" title="All 2 branches missed.">			if (other.hqUncertainty != null)</span>
+<span class="nc" id="L1420">				return false;</span>
+<span class="nc bnc" id="L1421" title="All 2 branches missed.">		} else if (!hqUncertainty.equals(other.hqUncertainty))</span>
+<span class="nc" id="L1422">			return false;</span>
+<span class="nc bnc" id="L1423" title="All 2 branches missed.">		if (jdFlavour != other.jdFlavour)</span>
+<span class="nc" id="L1424">			return false;</span>
+<span class="nc bnc" id="L1425" title="All 2 branches missed.">		if (mType != other.mType)</span>
+<span class="nc" id="L1426">			return false;</span>
+<span class="nc bnc" id="L1427" title="All 2 branches missed.">		if (magnitude == null) {</span>
+<span class="nc bnc" id="L1428" title="All 2 branches missed.">			if (other.magnitude != null)</span>
+<span class="nc" id="L1429">				return false;</span>
+<span class="nc bnc" id="L1430" title="All 2 branches missed.">		} else if (!magnitude.equals(other.magnitude))</span>
+<span class="nc" id="L1431">			return false;</span>
+<span class="nc bnc" id="L1432" title="All 2 branches missed.">		if (obsType == null) {</span>
+<span class="nc bnc" id="L1433" title="All 2 branches missed.">			if (other.obsType != null)</span>
+<span class="nc" id="L1434">				return false;</span>
+<span class="nc bnc" id="L1435" title="All 2 branches missed.">		} else if (!obsType.equals(other.obsType))</span>
+<span class="nc" id="L1436">			return false;</span>
+<span class="nc bnc" id="L1437" title="All 2 branches missed.">		if (previousCyclePhase == null) {</span>
+<span class="nc bnc" id="L1438" title="All 2 branches missed.">			if (other.previousCyclePhase != null)</span>
+<span class="nc" id="L1439">				return false;</span>
+<span class="nc bnc" id="L1440" title="All 2 branches missed.">		} else if (!previousCyclePhase.equals(other.previousCyclePhase))</span>
+<span class="nc" id="L1441">			return false;</span>
+<span class="nc bnc" id="L1442" title="All 2 branches missed.">		if (series == null) {</span>
+<span class="nc bnc" id="L1443" title="All 2 branches missed.">			if (other.series != null)</span>
+<span class="nc" id="L1444">				return false;</span>
+<span class="nc bnc" id="L1445" title="All 2 branches missed.">		} else if (!series.equals(other.series))</span>
+<span class="nc" id="L1446">			return false;</span>
+<span class="nc bnc" id="L1447" title="All 2 branches missed.">		if (standardPhase == null) {</span>
+<span class="nc bnc" id="L1448" title="All 2 branches missed.">			if (other.standardPhase != null)</span>
+<span class="nc" id="L1449">				return false;</span>
+<span class="nc bnc" id="L1450" title="All 2 branches missed.">		} else if (!standardPhase.equals(other.standardPhase))</span>
+<span class="nc" id="L1451">			return false;</span>
+<span class="nc bnc" id="L1452" title="All 2 branches missed.">		if (transformed != other.transformed)</span>
+<span class="nc" id="L1453">			return false;</span>
+<span class="nc bnc" id="L1454" title="All 2 branches missed.">		if (validationType != other.validationType)</span>
+<span class="nc" id="L1455">			return false;</span>
+<span class="nc" id="L1456">		return true;</span>
+	}
+
+	// Convenience methods.
+
+	public double getJD() {
+<span class="fc" id="L1462">		return this.dateInfo.getJulianDay();</span>
+	}
+
+	public void setJD(double jd) {
+<span class="fc" id="L1466">		setDateInfo(new DateInfo(jd));</span>
+<span class="fc" id="L1467">	}</span>
+
+	public double getMag() {
+<span class="fc" id="L1470">		return this.magnitude.getMagValue();</span>
+	}
+
+	// Helpers
+
+	private boolean isEmpty(String s) {
+<span class="nc bnc" id="L1476" title="All 4 branches missed.">		return s == null || s.trim().length() == 0;</span>
+	}
+
+	/**
+	 * Precede any double quote in the argument with another and
+	 * wrap the whole argument in double quotes.
+	 * 
+	 * @param field The field to be quoted
+	 * @return The quoted field
+	 */
+	public static String quoteForCSV(String field) {
+<span class="nc" id="L1487">		return &quot;\&quot;&quot; + field.replace(&quot;\&quot;&quot;, &quot;\&quot;\&quot;&quot;) + &quot;\&quot;&quot;;</span>
+	}
+
+	/**
+	 * Double-quote the argument only if the delimiter occurs in the argument. 
+	 * 
+	 * @param field The field to be quoted
+	 * @param delimiter field delimiter
+	 * @return The quoted field
+	 */
+	public static String quoteForCSVifNeeded(String field, String delimiter) {
+<span class="nc bnc" id="L1498" title="All 2 branches missed.">		return field.contains(delimiter) ? quoteForCSV(field) : field;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

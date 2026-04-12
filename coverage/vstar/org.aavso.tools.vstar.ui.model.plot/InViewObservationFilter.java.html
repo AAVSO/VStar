@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InViewObservationFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.model.plot</a> &gt; <span class="el_source">InViewObservationFilter.java</span></div><h1>InViewObservationFilter.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2015  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.model.plot;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.filter.IFilterDescription;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
+/**
+ * This class creates a filtered subset of observations based upon what is
+ * currently in the raw plot.
+ */
+public class InViewObservationFilter {
+
+	private double lowerTimeBound;
+	private double upperTimeBound;
+	private double lowerMagBound;
+	private double upperMagBound;
+
+	private ObservationPlotModel model;
+
+	private String seriesListStr;
+
+	private Set&lt;ValidObservation&gt; filteredObs;
+
+<span class="nc" id="L50">	public InViewObservationFilter() {</span>
+		// Assume raw mode!
+<span class="nc" id="L52">		AnalysisType analysisType = AnalysisType.RAW_DATA;</span>
+
+<span class="nc" id="L54">		model = Mediator.getInstance().getObservationPlotModel(analysisType);</span>
+
+<span class="nc" id="L56">		ObservationAndMeanPlotPane plotPane = Mediator.getInstance()</span>
+<span class="nc" id="L57">				.getPlotPane(analysisType);</span>
+
+<span class="nc" id="L59">		lowerTimeBound = plotPane.getChartPanel().getChart().getXYPlot()</span>
+<span class="nc" id="L60">				.getDomainAxis().getRange().getLowerBound();</span>
+
+<span class="nc" id="L62">		upperTimeBound = plotPane.getChartPanel().getChart().getXYPlot()</span>
+<span class="nc" id="L63">				.getDomainAxis().getRange().getUpperBound();</span>
+
+<span class="nc" id="L65">		lowerMagBound = plotPane.getChartPanel().getChart().getXYPlot()</span>
+<span class="nc" id="L66">				.getRangeAxis().getRange().getLowerBound();</span>
+
+<span class="nc" id="L68">		upperMagBound = plotPane.getChartPanel().getChart().getXYPlot()</span>
+<span class="nc" id="L69">				.getRangeAxis().getRange().getUpperBound();</span>
+
+<span class="nc" id="L71">		seriesListStr = &quot;&quot;;</span>
+<span class="nc" id="L72">	}</span>
+
+	/**
+	 * Creates a filter of observations visible in the range and sends a
+	 * filtered observation message to be consumed by listeners (plots, tables).
+	 */
+	public void execute() {
+<span class="nc" id="L79">		filter();</span>
+
+		// Removing trailing comma and space from series list string.
+<span class="nc bnc" id="L82" title="All 2 branches missed.">		if (!seriesListStr.isEmpty()) {</span>
+<span class="nc" id="L83">			seriesListStr = seriesListStr.substring(0,</span>
+<span class="nc" id="L84">					seriesListStr.length() - 2);</span>
+		}
+
+<span class="nc bnc" id="L87" title="All 2 branches missed.">		if (filteredObs.size() != 0) {</span>
+
+<span class="nc" id="L89">			IFilterDescription desc = new IFilterDescription() {</span>
+
+<span class="nc" id="L91">				private String lowerTimeBoundStr = NumericPrecisionPrefs</span>
+<span class="nc" id="L92">						.formatTime(lowerTimeBound);</span>
+<span class="nc" id="L93">				private String upperTimeBoundStr = NumericPrecisionPrefs</span>
+<span class="nc" id="L94">						.formatTime(upperTimeBound);</span>
+
+<span class="nc" id="L96">				private String lowerMagBoundStr = NumericPrecisionPrefs</span>
+<span class="nc" id="L97">						.formatMag(lowerMagBound);</span>
+<span class="nc" id="L98">				private String upperMagBoundStr = NumericPrecisionPrefs</span>
+<span class="nc" id="L99">						.formatMag(upperMagBound);</span>
+
+				@Override
+				public boolean isParsable() {
+<span class="nc" id="L103">					return true;</span>
+				}
+
+				@Override
+				public String getFilterName() {
+<span class="nc" id="L108">					return String.format(&quot;Observations in time range %s..%s &quot;</span>
+							+ &quot;and magnitude range %s..%s in [%s]&quot;,
+							lowerTimeBoundStr, upperTimeBoundStr,
+							lowerMagBoundStr, upperMagBoundStr, seriesListStr);
+				}
+
+				@Override
+				public String getFilterDescription() {
+<span class="nc" id="L116">					return &quot;time &gt;= &quot; + lowerTimeBoundStr + &quot; AND time &lt;= &quot;</span>
+							+ upperTimeBoundStr + &quot; AND magnitude &gt;= &quot;
+							+ lowerMagBoundStr + &quot; AND magnitude &lt;= &quot;
+							+ upperMagBoundStr + &quot; AND series in [&quot;
+							+ seriesListStr + &quot;]&quot;;
+				}
+			};
+
+<span class="nc" id="L124">			FilteredObservationMessage msg = new FilteredObservationMessage(</span>
+					this, desc, filteredObs);
+
+<span class="nc" id="L127">			Mediator.getInstance().getFilteredObservationNotifier()</span>
+<span class="nc" id="L128">					.notifyListeners(msg);</span>
+<span class="nc" id="L129">		} else {</span>
+<span class="nc" id="L130">			String errMsg = &quot;No observations matched.&quot;;</span>
+<span class="nc" id="L131">			MessageBox.showWarningDialog(Mediator.getUI().getComponent(),</span>
+					&quot;Observation Filter&quot;, errMsg);
+		}
+<span class="nc" id="L134">	}</span>
+
+	/**
+	 * Create a sorted subset of observations in the range.
+	 */
+	private void filter() {
+		// We use a LinkedHashSet to maintain addition and lookup efficiency
+		// while maintaining insertion order.
+<span class="nc" id="L142">		filteredObs = new LinkedHashSet&lt;ValidObservation&gt;();</span>
+
+<span class="nc bnc" id="L144" title="All 2 branches missed.">		for (SeriesType series : model.getVisibleSeries()) {</span>
+<span class="nc" id="L145">			seriesListStr += series.getShortName() + &quot;, &quot;;</span>
+
+<span class="nc bnc" id="L147" title="All 2 branches missed.">			for (ValidObservation ob : model.getObservations(series)) {</span>
+				// Skip to the start of the time range and stop when we exceed
+				// the upper bound of the time range.
+<span class="nc bnc" id="L150" title="All 2 branches missed.">				if (ob.getJD() &lt; lowerTimeBound) {</span>
+<span class="nc" id="L151">					continue;</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">				} else if (ob.getJD() &gt; upperTimeBound) {</span>
+<span class="nc" id="L153">					break;</span>
+				} else {
+					// Include observation in filtered subset if in the
+					// view's magnitude range.
+<span class="nc bnc" id="L157" title="All 2 branches missed.">					if (ob.getMag() &gt;= lowerMagBound</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">							&amp;&amp; ob.getMag() &lt;= upperMagBound) {</span>
+<span class="nc" id="L159">						filteredObs.add(ob);</span>
+					}
+				}
+<span class="nc" id="L162">			}</span>
+<span class="nc" id="L163">		}</span>
+<span class="nc" id="L164">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

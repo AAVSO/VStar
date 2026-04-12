@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Operand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.vela</a> &gt; <span class="el_source">Operand.java</span></div><h1>Operand.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.vela;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.BiConsumer;
+
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
+/**
+ * VeLa: VStar expression Language
+ *
+ * A class that represents typed operands.
+ * 
+ * Note: should cache Operand instances
+ */
+public class Operand {
+
+    private Type type;
+    private long intVal;
+    private double doubleVal;
+    private String stringVal;
+    private boolean booleanVal;
+    private List&lt;Operand&gt; listVal;
+    private FunctionExecutor functionVal;
+
+<span class="fc" id="L44">    public static Operand EMPTY_LIST = new Operand(Type.LIST, Collections.emptyList());</span>
+
+<span class="fc" id="L46">    public static Operand NO_VALUE = new Operand(Type.NONE, false);</span>
+
+<span class="fc" id="L48">    public Operand(Type type, long value) {</span>
+<span class="fc" id="L49">        this.type = type;</span>
+<span class="fc" id="L50">        intVal = value;</span>
+<span class="fc" id="L51">    }</span>
+
+<span class="fc" id="L53">    public Operand(Type type, double value) {</span>
+<span class="fc" id="L54">        this.type = type;</span>
+<span class="fc" id="L55">        doubleVal = value;</span>
+<span class="fc" id="L56">    }</span>
+
+<span class="fc" id="L58">    public Operand(Type type, String value) {</span>
+<span class="fc" id="L59">        this.type = type;</span>
+<span class="fc" id="L60">        stringVal = value;</span>
+<span class="fc" id="L61">    }</span>
+
+<span class="fc" id="L63">    public Operand(Type type, boolean value) {</span>
+<span class="fc" id="L64">        this.type = type;</span>
+<span class="fc" id="L65">        booleanVal = value;</span>
+<span class="fc" id="L66">    }</span>
+
+<span class="fc" id="L68">    public Operand(Type type, List&lt;Operand&gt; value) {</span>
+<span class="fc" id="L69">        this.type = type;</span>
+<span class="fc" id="L70">        listVal = value;</span>
+<span class="fc" id="L71">    }</span>
+
+<span class="fc" id="L73">    public Operand(Type type, FunctionExecutor value) {</span>
+<span class="fc" id="L74">        this.type = type;</span>
+<span class="fc" id="L75">        functionVal = value;</span>
+<span class="fc" id="L76">    }</span>
+
+    // For object copy
+    private Operand() {
+    }
+
+    /**
+     * @return the type
+     */
+    public Type getType() {
+<span class="fc" id="L86">        return type;</span>
+    }
+
+    /**
+     * @param type the type to set
+     */
+    public void setType(Type type) {
+<span class="nc" id="L93">        this.type = type;</span>
+<span class="nc" id="L94">    }</span>
+
+    /**
+     * @param intVal the intVal to set
+     */
+    public void setIntegerVal(long intVal) {
+<span class="nc" id="L100">        this.intVal = intVal;</span>
+<span class="nc" id="L101">    }</span>
+
+    /**
+     * @param doubleVal the doubleVal to set
+     */
+    public void setDoubleVal(double doubleVal) {
+<span class="nc" id="L107">        this.doubleVal = doubleVal;</span>
+<span class="nc" id="L108">    }</span>
+
+    /**
+     * @return the intVal
+     */
+    public long intVal() {
+<span class="fc" id="L114">        return intVal;</span>
+    }
+
+    /**
+     * @return the doubleVal
+     */
+    public double doubleVal() {
+<span class="fc" id="L121">        return doubleVal;</span>
+    }
+
+    /**
+     * @param stringVal the stringVal to set
+     */
+    public void setStringVal(String stringVal) {
+<span class="nc" id="L128">        this.stringVal = stringVal;</span>
+<span class="nc" id="L129">    }</span>
+
+    /**
+     * @return the stringVal
+     */
+    public String stringVal() {
+<span class="fc" id="L135">        return stringVal;</span>
+    }
+
+    /**
+     * @param booleanVal the booleanVal to set
+     */
+    public void setBooleanVal(boolean booleanVal) {
+<span class="nc" id="L142">        this.booleanVal = booleanVal;</span>
+<span class="nc" id="L143">    }</span>
+
+    /**
+     * @return the booleanVal
+     */
+    public boolean booleanVal() {
+<span class="fc" id="L149">        return booleanVal;</span>
+    }
+
+    /**
+     * @return the listVal
+     */
+    public List&lt;Operand&gt; listVal() {
+<span class="fc" id="L156">        return listVal;</span>
+    }
+
+    /**
+     * @param listVal the listVal to set
+     */
+    public void setListVal(List&lt;Operand&gt; listVal) {
+<span class="nc" id="L163">        this.listVal = listVal;</span>
+<span class="nc" id="L164">    }</span>
+
+    /**
+     * @return the functionVal
+     */
+    public FunctionExecutor functionVal() {
+<span class="fc" id="L170">        return functionVal;</span>
+    }
+
+    /**
+     * @param functionVal the functionVal to set
+     */
+    public void setFunctionVal(FunctionExecutor functionVal) {
+<span class="nc" id="L177">        this.functionVal = functionVal;</span>
+<span class="nc" id="L178">    }</span>
+
+    /**
+     * Convert this operand to the required type, if possible, first making a copy
+     * if the required type is different from the current type.
+     * 
+     * @param requiredType The required type.
+     * @return The unchanged operand or a new operand that conforms to the required
+     *         type.
+     */
+    public Operand convert(Type requiredType) {
+<span class="fc" id="L189">        Operand operand = this;</span>
+
+<span class="fc bfc" id="L191" title="All 2 branches covered.">        if (!type.isComposite()) {</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">            if (type != requiredType) {</span>
+<span class="fc bfc" id="L193" title="All 4 branches covered.">                if (type == Type.INTEGER &amp;&amp; requiredType == Type.REAL) {</span>
+<span class="fc" id="L194">                    operand = new Operand(Type.REAL, (double) intVal);</span>
+<span class="fc bfc" id="L195" title="All 4 branches covered.">                } else if (type != Type.STRING &amp;&amp; requiredType == Type.STRING) {</span>
+<span class="fc" id="L196">                    operand = operand.convertToString();</span>
+                }
+            }
+        }
+
+<span class="fc" id="L201">        return operand;</span>
+    }
+
+    /**
+     * Convert this operand's type to string.
+     */
+    public Operand convertToString() {
+<span class="pc bpc" id="L208" title="1 of 6 branches missed.">        assert type == Type.INTEGER || type == Type.REAL || type == Type.BOOLEAN;</span>
+
+<span class="fc" id="L210">        Operand operand = this;</span>
+
+<span class="pc bpc" id="L212" title="1 of 4 branches missed.">        switch (type) {</span>
+        case INTEGER:
+<span class="fc" id="L214">            operand = new Operand(Type.STRING, Long.toString(intVal));</span>
+<span class="fc" id="L215">            break;</span>
+        case REAL:
+<span class="fc" id="L217">            operand = new Operand(Type.STRING, NumericPrecisionPrefs.formatOther(doubleVal));</span>
+<span class="fc" id="L218">            break;</span>
+        case BOOLEAN:
+<span class="fc" id="L220">            operand = new Operand(Type.STRING, Boolean.toString(booleanVal));</span>
+<span class="fc" id="L221">            break;</span>
+        default:
+            break;
+        }
+
+<span class="fc" id="L226">        return operand;</span>
+    }
+
+    public String toHumanReadableString() {
+<span class="fc" id="L230">        String str = &quot;&quot;;</span>
+
+<span class="pc bpc" id="L232" title="3 of 7 branches missed.">        switch (type) {</span>
+        case INTEGER:
+<span class="fc" id="L234">            str = Long.toString(intVal);</span>
+<span class="fc" id="L235">            break;</span>
+        case REAL:
+<span class="fc" id="L237">            str = NumericPrecisionPrefs.formatOther(doubleVal);</span>
+<span class="fc" id="L238">            break;</span>
+        case BOOLEAN:
+<span class="nc bnc" id="L240" title="All 2 branches missed.">            str = booleanVal ? &quot;True&quot; : &quot;False&quot;;</span>
+<span class="nc" id="L241">            break;</span>
+        case STRING:
+<span class="fc" id="L243">            str = stringVal;</span>
+<span class="fc" id="L244">            break;</span>
+        case LIST:
+<span class="nc" id="L246">            str = listVal.toString().replace(&quot;,&quot;, &quot;&quot;);</span>
+<span class="nc" id="L247">            break;</span>
+        case FUNCTION:
+<span class="fc" id="L249">            str = functionVal.toString();</span>
+<span class="fc" id="L250">            break;</span>
+        default:
+            break;
+        }
+
+<span class="fc" id="L255">        return str;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L260">        String str = &quot;&quot;;</span>
+
+<span class="pc bpc" id="L262" title="3 of 7 branches missed.">        switch (type) {</span>
+        case INTEGER:
+<span class="fc" id="L264">            str = Long.toString(intVal);</span>
+<span class="fc" id="L265">            break;</span>
+        case REAL:
+<span class="fc" id="L267">            str = NumericPrecisionPrefs.formatOther(doubleVal);</span>
+<span class="fc" id="L268">            break;</span>
+        case BOOLEAN:
+<span class="fc bfc" id="L270" title="All 2 branches covered.">            str = booleanVal ? &quot;True&quot; : &quot;False&quot;;</span>
+<span class="fc" id="L271">            break;</span>
+        case STRING:
+<span class="fc" id="L273">            str = &quot;\&quot;&quot; + stringVal + &quot;\&quot;&quot;;</span>
+<span class="fc" id="L274">            break;</span>
+        case LIST:
+<span class="nc" id="L276">            str = listVal.toString().replace(&quot;,&quot;, &quot;&quot;);</span>
+<span class="nc" id="L277">            break;</span>
+        case FUNCTION:
+<span class="nc" id="L279">            str = functionVal.toString();</span>
+<span class="nc" id="L280">            break;</span>
+        default:
+            break;
+        }
+
+<span class="fc" id="L285">        return str;</span>
+    }
+
+    /**
+     * Given a VeLa type and a Java object, return an Operand instance.
+     * 
+     * @param type The VeLa type.
+     * @param obj  The Java object.
+     * @return A corresponding Operand instance.
+     */
+    public static Operand object2Operand(Type type, Object obj) {
+<span class="fc" id="L296">        Operand operand = null;</span>
+
+        try {
+<span class="pc bpc" id="L299" title="4 of 9 branches missed.">            switch (type) {</span>
+            case INTEGER:
+<span class="fc bfc" id="L301" title="All 2 branches covered.">                if (obj instanceof Integer) {</span>
+<span class="fc" id="L302">                    operand = new Operand(Type.INTEGER, (int) obj);</span>
+                } else {
+<span class="fc" id="L304">                    operand = new Operand(Type.INTEGER, (long) obj);</span>
+                }
+<span class="fc" id="L306">                break;</span>
+            case REAL:
+<span class="fc bfc" id="L308" title="All 2 branches covered.">                if (obj instanceof Float) {</span>
+<span class="fc" id="L309">                    operand = new Operand(Type.REAL, (float) obj);</span>
+                } else {
+<span class="fc" id="L311">                    operand = new Operand(Type.REAL, (double) obj);</span>
+                }
+<span class="fc" id="L313">                break;</span>
+            case BOOLEAN:
+<span class="fc" id="L315">                operand = new Operand(Type.BOOLEAN, (boolean) obj);</span>
+<span class="fc" id="L316">                break;</span>
+            case STRING:
+<span class="fc" id="L318">                operand = new Operand(Type.STRING, (String) obj);</span>
+<span class="fc" id="L319">                break;</span>
+            case LIST:
+<span class="fc" id="L321">                List&lt;Operand&gt; arr = new ArrayList&lt;Operand&gt;();</span>
+
+                try {
+<span class="fc bfc" id="L324" title="All 2 branches covered.">                    if (obj.getClass() == Type.FLOAT_ARR.getClass()) {</span>
+<span class="fc bfc" id="L325" title="All 2 branches covered.">                        for (float n : (float[]) obj) {</span>
+<span class="fc" id="L326">                            arr.add(new Operand(Type.REAL, n));</span>
+                        }
+<span class="fc bfc" id="L328" title="All 2 branches covered.">                    } else if (obj.getClass() == Type.DBL_ARR.getClass()) {</span>
+<span class="fc bfc" id="L329" title="All 2 branches covered.">                        for (double n : (double[]) obj) {</span>
+<span class="fc" id="L330">                            arr.add(new Operand(Type.REAL, n));</span>
+                        }
+<span class="fc bfc" id="L332" title="All 2 branches covered.">                    } else if (obj.getClass() == Type.DBL_CLASS_ARR.getClass()) {</span>
+<span class="fc bfc" id="L333" title="All 2 branches covered.">                        for (Double n : (Double[]) obj) {</span>
+<span class="fc" id="L334">                            arr.add(new Operand(Type.REAL, n));</span>
+                        }
+<span class="fc bfc" id="L336" title="All 2 branches covered.">                    } else if (obj.getClass() == Type.INT_ARR.getClass()) {</span>
+<span class="fc bfc" id="L337" title="All 2 branches covered.">                        for (int n : (int[]) obj) {</span>
+<span class="fc" id="L338">                            arr.add(new Operand(Type.INTEGER, n));</span>
+                        }
+<span class="fc bfc" id="L340" title="All 2 branches covered.">                    } else if (obj.getClass() == Type.LONG_ARR.getClass()) {</span>
+<span class="fc bfc" id="L341" title="All 2 branches covered.">                        for (long n : (long[]) obj) {</span>
+<span class="fc" id="L342">                            arr.add(new Operand(Type.INTEGER, n));</span>
+                        }
+<span class="fc bfc" id="L344" title="All 2 branches covered.">                    } else if (obj.getClass() == Type.BOOL_ARR.getClass()) {</span>
+<span class="fc bfc" id="L345" title="All 2 branches covered.">                        for (boolean b : (boolean[]) obj) {</span>
+<span class="fc" id="L346">                            arr.add(new Operand(Type.BOOLEAN, b));</span>
+                        }
+<span class="pc bpc" id="L348" title="1 of 2 branches missed.">                    } else if (obj.getClass() == Type.STR_ARR.getClass()) {</span>
+<span class="fc bfc" id="L349" title="All 2 branches covered.">                        for (String s : (String[]) obj) {</span>
+<span class="fc" id="L350">                            arr.add(new Operand(Type.STRING, s));</span>
+                        }
+                    }
+                } finally {
+<span class="pc bpc" id="L354" title="1 of 2 branches missed.">                    if (!arr.isEmpty()) {</span>
+<span class="fc" id="L355">                        operand = new Operand(Type.LIST, arr);</span>
+                    }
+                }
+<span class="fc" id="L358">                break;</span>
+            case FUNCTION:
+<span class="nc" id="L360">                operand = new Operand(Type.FUNCTION, (FunctionExecutor) obj);</span>
+<span class="nc" id="L361">                break;</span>
+            case OBJECT:
+                // TODO
+<span class="nc" id="L364">                break;</span>
+            case NONE:
+<span class="nc" id="L366">                operand = NO_VALUE;</span>
+                break;
+            }
+<span class="fc" id="L369">        } catch (Exception e) {</span>
+<span class="nc" id="L370">            java2VeLaTypeError(obj.getClass(), type);</span>
+<span class="fc" id="L371">        }</span>
+
+<span class="fc" id="L373">        return operand;</span>
+    }
+
+    /**
+     * Return a Java object corresponding to this Operand instance.
+     * 
+     * @param javaType The target Java type, that may be necessary to know.
+     * @return A corresponding Java object.
+     */
+    public Object toObject(Class&lt;?&gt; javaType) {
+<span class="fc" id="L383">        Object obj = null;</span>
+
+<span class="pc bpc" id="L385" title="3 of 8 branches missed.">        switch (type) {</span>
+        case INTEGER:
+<span class="fc" id="L387">            obj = numericVeLaToJava(javaType, intVal);</span>
+<span class="fc" id="L388">            break;</span>
+        case REAL:
+<span class="fc" id="L390">            obj = numericVeLaToJava(javaType, doubleVal);</span>
+<span class="fc" id="L391">            break;</span>
+        case BOOLEAN:
+<span class="pc bpc" id="L393" title="1 of 2 branches missed.">            if (javaType == boolean.class) {</span>
+<span class="fc" id="L394">                obj = booleanVal;</span>
+            } else {
+<span class="nc" id="L396">                vela2JavaTypeError(this, javaType);</span>
+            }
+<span class="nc" id="L398">            break;</span>
+        case STRING:
+<span class="pc bpc" id="L400" title="1 of 4 branches missed.">            if (javaType == String.class || javaType == CharSequence.class) {</span>
+<span class="fc" id="L401">                obj = stringVal;</span>
+            } else {
+<span class="nc" id="L403">                vela2JavaTypeError(this, javaType);</span>
+            }
+<span class="nc" id="L405">            break;</span>
+        case LIST:
+            try {
+<span class="pc bpc" id="L408" title="1 of 4 branches missed.">                if (javaType == Type.DBL_ARR.getClass() || javaType == Type.DBL_CLASS_ARR.getClass()) {</span>
+<span class="fc" id="L409">                    double[] reals = new double[listVal.size()];</span>
+<span class="fc" id="L410">                    list2Array(Type.REAL, (op, i) -&gt; {</span>
+<span class="fc" id="L411">                        reals[i++] = op.doubleVal;</span>
+<span class="fc" id="L412">                    });</span>
+<span class="fc" id="L413">                    obj = reals;</span>
+<span class="fc bfc" id="L414" title="All 2 branches covered.">                } else if (javaType == Type.INT_ARR.getClass()) {</span>
+<span class="fc" id="L415">                    long[] ints = new long[listVal.size()];</span>
+<span class="fc" id="L416">                    list2Array(Type.INTEGER, (op, i) -&gt; {</span>
+<span class="fc" id="L417">                        ints[i++] = op.intVal;</span>
+<span class="fc" id="L418">                    });</span>
+<span class="fc" id="L419">                    obj = ints;</span>
+<span class="fc bfc" id="L420" title="All 2 branches covered.">                } else if (javaType == Type.BOOL_ARR.getClass()) {</span>
+<span class="fc" id="L421">                    boolean[] booleans = new boolean[listVal.size()];</span>
+<span class="fc" id="L422">                    list2Array(Type.BOOLEAN, (op, i) -&gt; {</span>
+<span class="fc" id="L423">                        booleans[i++] = op.booleanVal;</span>
+<span class="fc" id="L424">                    });</span>
+<span class="fc" id="L425">                    obj = booleans;</span>
+<span class="pc bpc" id="L426" title="1 of 2 branches missed.">                } else if (javaType == Type.STR_ARR.getClass()) {</span>
+<span class="fc" id="L427">                    String[] strings = new String[listVal.size()];</span>
+<span class="fc" id="L428">                    list2Array(Type.STRING, (op, i) -&gt; {</span>
+<span class="fc" id="L429">                        strings[i++] = op.stringVal;</span>
+<span class="fc" id="L430">                    });</span>
+<span class="fc" id="L431">                    obj = strings;</span>
+                }
+<span class="nc" id="L433">            } catch (Exception e) {</span>
+<span class="nc" id="L434">                vela2JavaTypeError(this, javaType);</span>
+<span class="fc" id="L435">            }</span>
+<span class="nc" id="L436">            break;</span>
+        case FUNCTION:
+            // TODO
+<span class="nc" id="L439">            break;</span>
+        case OBJECT:
+            // TODO
+<span class="nc" id="L442">            break;</span>
+        case NONE:
+            // TODO
+            break;
+        }
+
+<span class="fc" id="L448">        return obj;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L453">        final int prime = 31;</span>
+<span class="nc" id="L454">        int result = 1;</span>
+<span class="nc bnc" id="L455" title="All 2 branches missed.">        result = prime * result + (booleanVal ? 1231 : 1237);</span>
+        long temp;
+<span class="nc" id="L457">        temp = Double.doubleToLongBits(doubleVal);</span>
+<span class="nc" id="L458">        result = prime * result + (int) (temp ^ (temp &gt;&gt;&gt; 32));</span>
+<span class="nc bnc" id="L459" title="All 2 branches missed.">        result = prime * result + ((functionVal == null) ? 0 : functionVal.hashCode());</span>
+<span class="nc" id="L460">        result = prime * result + (int) (intVal ^ (intVal &gt;&gt;&gt; 32));</span>
+<span class="nc bnc" id="L461" title="All 2 branches missed.">        result = prime * result + ((listVal == null) ? 0 : listVal.hashCode());</span>
+<span class="nc bnc" id="L462" title="All 2 branches missed.">        result = prime * result + ((stringVal == null) ? 0 : stringVal.hashCode());</span>
+<span class="nc bnc" id="L463" title="All 2 branches missed.">        result = prime * result + ((type == null) ? 0 : type.hashCode());</span>
+<span class="nc" id="L464">        return result;</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="fc bfc" id="L469" title="All 2 branches covered.">        if (this == obj)</span>
+<span class="fc" id="L470">            return true;</span>
+<span class="pc bpc" id="L471" title="1 of 2 branches missed.">        if (obj == null)</span>
+<span class="nc" id="L472">            return false;</span>
+<span class="pc bpc" id="L473" title="1 of 2 branches missed.">        if (getClass() != obj.getClass())</span>
+<span class="nc" id="L474">            return false;</span>
+<span class="fc" id="L475">        Operand other = (Operand) obj;</span>
+<span class="pc bpc" id="L476" title="1 of 2 branches missed.">        if (booleanVal != other.booleanVal)</span>
+<span class="nc" id="L477">            return false;</span>
+<span class="fc bfc" id="L478" title="All 2 branches covered.">        if (Double.doubleToLongBits(doubleVal) != Double.doubleToLongBits(other.doubleVal))</span>
+<span class="fc" id="L479">            return false;</span>
+<span class="pc bpc" id="L480" title="1 of 2 branches missed.">        if (functionVal == null) {</span>
+<span class="pc bpc" id="L481" title="1 of 2 branches missed.">            if (other.functionVal != null)</span>
+<span class="nc" id="L482">                return false;</span>
+<span class="nc bnc" id="L483" title="All 2 branches missed.">        } else if (!functionVal.equals(other.functionVal))</span>
+<span class="nc" id="L484">            return false;</span>
+<span class="fc bfc" id="L485" title="All 2 branches covered.">        if (intVal != other.intVal)</span>
+<span class="fc" id="L486">            return false;</span>
+<span class="fc bfc" id="L487" title="All 2 branches covered.">        if (listVal == null) {</span>
+<span class="pc bpc" id="L488" title="1 of 2 branches missed.">            if (other.listVal != null)</span>
+<span class="nc" id="L489">                return false;</span>
+<span class="pc bpc" id="L490" title="1 of 2 branches missed.">        } else if (!listVal.equals(other.listVal))</span>
+<span class="nc" id="L491">            return false;</span>
+<span class="fc bfc" id="L492" title="All 2 branches covered.">        if (stringVal == null) {</span>
+<span class="pc bpc" id="L493" title="1 of 2 branches missed.">            if (other.stringVal != null)</span>
+<span class="nc" id="L494">                return false;</span>
+<span class="pc bpc" id="L495" title="1 of 2 branches missed.">        } else if (!stringVal.equals(other.stringVal))</span>
+<span class="nc" id="L496">            return false;</span>
+<span class="pc bpc" id="L497" title="1 of 2 branches missed.">        if (type != other.type)</span>
+<span class="nc" id="L498">            return false;</span>
+<span class="fc" id="L499">        return true;</span>
+    }
+
+    public Operand copy() {
+<span class="nc" id="L503">        Operand operand = new Operand();</span>
+
+<span class="nc" id="L505">        operand.type = type;</span>
+
+<span class="nc bnc" id="L507" title="All 7 branches missed.">        switch (type) {</span>
+        case INTEGER:
+<span class="nc" id="L509">            operand.intVal = intVal;</span>
+<span class="nc" id="L510">            break;</span>
+        case REAL:
+<span class="nc" id="L512">            operand.doubleVal = doubleVal;</span>
+<span class="nc" id="L513">            break;</span>
+        case BOOLEAN:
+<span class="nc" id="L515">            operand.booleanVal = booleanVal;</span>
+<span class="nc" id="L516">            break;</span>
+        case STRING:
+<span class="nc" id="L518">            operand.stringVal = stringVal;</span>
+<span class="nc" id="L519">            break;</span>
+        case LIST:
+<span class="nc" id="L521">            List&lt;Operand&gt; list = new ArrayList&lt;Operand&gt;();</span>
+<span class="nc bnc" id="L522" title="All 2 branches missed.">            for (Operand op : listVal) {</span>
+<span class="nc" id="L523">                list.add(op.copy());</span>
+<span class="nc" id="L524">            }</span>
+<span class="nc" id="L525">            operand.listVal = list;</span>
+<span class="nc" id="L526">            break;</span>
+        case FUNCTION:
+<span class="nc" id="L528">            operand.functionVal = functionVal;</span>
+<span class="nc" id="L529">            break;</span>
+        default:
+            break;
+        }
+
+<span class="nc" id="L534">        return operand;</span>
+    }
+
+    // Helpers
+
+    private Number numericVeLaToJava(Class&lt;?&gt; javaType, Object obj) {
+
+<span class="fc" id="L541">        Number num = null;</span>
+
+<span class="fc bfc" id="L543" title="All 2 branches covered.">        if (javaType.equals(int.class)) {</span>
+<span class="fc" id="L544">            num = ((Number) obj).intValue();</span>
+<span class="fc bfc" id="L545" title="All 2 branches covered.">        } else if (javaType.equals(long.class)) {</span>
+<span class="fc" id="L546">            num = ((Number) obj).longValue();</span>
+<span class="fc bfc" id="L547" title="All 2 branches covered.">        } else if (javaType.equals(float.class)) {</span>
+<span class="fc" id="L548">            num = ((Number) obj).floatValue();</span>
+<span class="pc bpc" id="L549" title="1 of 2 branches missed.">        } else if (javaType.equals(double.class)) {</span>
+<span class="fc" id="L550">            num = ((Number) obj).doubleValue();</span>
+        } else {
+<span class="nc" id="L552">            throw new VeLaEvalError(&quot;Cannot convert object to numeric value&quot;);</span>
+        }
+
+<span class="fc" id="L555">        return num;</span>
+    }
+
+    /**
+     * Build an array from a VeLa list via an assigner object carrying out type
+     * conversions where necessary/possible. Concrete assigner objects exploit the
+     * existence of an array in their environment (see toObject()).
+     *
+     * The purpose of this function is to avoid code duplication in toObject().
+     *
+     * @param requiredType The array element type required.
+     * @param assigner     An object that assigns the appropriately typed value from
+     *                     an operand to the ith element of an array.
+     */
+    private void list2Array(Type requiredType, BiConsumer&lt;Operand, Integer&gt; assigner) {
+<span class="fc bfc" id="L570" title="All 2 branches covered.">        for (int i = 0; i &lt; listVal.size(); i++) {</span>
+<span class="fc" id="L571">            Operand op = listVal.get(i);</span>
+<span class="fc" id="L572">            op = op.convert(requiredType);</span>
+<span class="pc bpc" id="L573" title="1 of 2 branches missed.">            if (op.type == requiredType) {</span>
+<span class="fc" id="L574">                assigner.accept(op, i);</span>
+            } else {
+<span class="nc" id="L576">                throw new VeLaEvalError(&quot;Cannot convert from &quot; + op.type + &quot; to &quot; + requiredType);</span>
+            }
+        }
+<span class="fc" id="L579">    }</span>
+
+    private static void vela2JavaTypeError(Operand op, Class&lt;?&gt; requiredType) {
+<span class="fc" id="L582">        throw new VeLaEvalError(&quot;Cannot convert from &quot; + op.type + &quot; to &quot; + requiredType);</span>
+
+    }
+
+    private static void java2VeLaTypeError(Class&lt;?&gt; jtype, Type vtype) {
+<span class="fc" id="L587">        throw new VeLaEvalError(&quot;Cannot convert from &quot; + jtype + &quot; to &quot; + vtype);</span>
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

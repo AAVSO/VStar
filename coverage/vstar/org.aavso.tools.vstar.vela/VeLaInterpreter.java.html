@@ -1,0 +1,2149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VeLaInterpreter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.vela</a> &gt; <span class="el_source">VeLaInterpreter.java</span></div><h1>VeLaInterpreter.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.vela;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.Stack;
+import java.util.TreeMap;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.aavso.tools.vstar.scripting.VStarScriptingAPI;
+import org.aavso.tools.vstar.ui.VStar;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.date.AbstractDateUtil;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ConsoleErrorListener;
+import org.antlr.v4.runtime.ParserRuleContext;
+
+/**
+ * VeLa: VStar expression Language interpreter
+ */
+public class VeLaInterpreter {
+
+    private boolean verbose;
+
+    private List&lt;File&gt; sourceDirectories;
+
+    private Stack&lt;Operand&gt; stack;
+
+    private Stack&lt;VeLaEnvironment&lt;Operand&gt;&gt; environments;
+
+    // AST and result caches.
+<span class="fc" id="L68">    private static Map&lt;String, AST&gt; exprToAST = new HashMap&lt;String, AST&gt;();</span>
+
+    // Regular expression pattern cache.
+<span class="fc" id="L71">    private static Map&lt;String, Pattern&gt; regexPatterns = new HashMap&lt;String, Pattern&gt;();</span>
+
+<span class="fc" id="L73">    private static List&lt;FunctionExecutor&gt; javaClassFunctionExecutors = null;</span>
+
+    private VeLaErrorListener errorListener;
+
+    /**
+     * Construct a VeLa interpreter with an initial scope and intrinsic functions.
+     * 
+     * @param verbose           Verbose mode?
+     * @param addVStarAPI       Add the VStar API?
+     * @param sourceDirectories A list of source directories containing VeLa source
+     *                          files (ending in &quot;.vl&quot; or &quot;.vela&quot;) to be loaded.
+     */
+<span class="fc" id="L85">    public VeLaInterpreter(boolean verbose, boolean addVStarAPI, List&lt;File&gt; sourceDirectories) {</span>
+<span class="fc" id="L86">        this.verbose = verbose;</span>
+<span class="fc" id="L87">        this.sourceDirectories = sourceDirectories;</span>
+
+<span class="fc" id="L89">        errorListener = new VeLaErrorListener();</span>
+
+<span class="fc" id="L91">        stack = new Stack&lt;Operand&gt;();</span>
+<span class="fc" id="L92">        environments = new Stack&lt;VeLaEnvironment&lt;Operand&gt;&gt;();</span>
+
+<span class="fc" id="L94">        environments.push(new VeLaScope());</span>
+
+        // Collect functions from reflection over Java classes
+<span class="fc" id="L97">        Set&lt;Class&lt;?&gt;&gt; permittedTypes = new HashSet&lt;Class&lt;?&gt;&gt;();</span>
+<span class="fc" id="L98">        permittedTypes.add(int.class);</span>
+<span class="fc" id="L99">        permittedTypes.add(double.class);</span>
+<span class="fc" id="L100">        permittedTypes.add(boolean.class);</span>
+<span class="fc" id="L101">        permittedTypes.add(String.class);</span>
+<span class="fc" id="L102">        permittedTypes.add(CharSequence.class);</span>
+<span class="fc" id="L103">        permittedTypes.add(void.class);</span>
+<span class="fc" id="L104">        permittedTypes.add(Type.DBL_ARR.getClass());</span>
+<span class="fc" id="L105">        permittedTypes.add(Type.DBL_CLASS_ARR.getClass());</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">        if (addVStarAPI) {</span>
+            // TODO: really needed here?
+<span class="nc" id="L108">            permittedTypes.add(VStarScriptingAPI.class);</span>
+        }
+
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (javaClassFunctionExecutors == null) {</span>
+<span class="fc" id="L112">            javaClassFunctionExecutors = new ArrayList&lt;FunctionExecutor&gt;();</span>
+<span class="fc" id="L113">            addFunctionExecutorsFromClass(Math.class, null, permittedTypes, Collections.emptySet());</span>
+
+<span class="fc" id="L115">            addFunctionExecutorsFromClass(String.class, null, permittedTypes,</span>
+<span class="fc" id="L116">                    new HashSet&lt;String&gt;(Arrays.asList(&quot;JOIN&quot;, &quot;FORMAT&quot;)));</span>
+
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">            if (addVStarAPI) {</span>
+<span class="nc" id="L119">                addFunctionExecutorsFromClass(VStarScriptingAPI.class, VStarScriptingAPI.getInstance(), permittedTypes,</span>
+<span class="nc" id="L120">                        Collections.emptySet());</span>
+            }
+        }
+
+        // intrinsic bindings and functions
+<span class="fc" id="L125">        initBindings();</span>
+<span class="fc" id="L126">        initFunctionExecutors();</span>
+
+        // standard library code
+<span class="fc" id="L129">        loadStdLib();</span>
+
+        // allows user to override intrinsic/standard library code
+<span class="fc" id="L132">        loadUserCode();</span>
+<span class="fc" id="L133">    }</span>
+
+    /**
+     * Construct a VeLa interpreter with verbose mode as specified, adding the VeLa
+     * API, and no source directories.
+     * 
+     * @param verbose Verbose mode?
+     */
+    public VeLaInterpreter(boolean verbose) {
+<span class="nc" id="L142">        this(verbose, true, Collections.emptyList());</span>
+<span class="nc" id="L143">    }</span>
+
+    /**
+     * Construct a VeLa interpreter with verbose mode set to false, adding the VeLa
+     * API, and no source directories.
+     */
+    public VeLaInterpreter() {
+<span class="nc" id="L150">        this(false, true, Collections.emptyList());</span>
+<span class="nc" id="L151">    }</span>
+
+    /**
+     * @param verbose the verbose to set
+     */
+    public void setVerbose(boolean verbose) {
+<span class="nc" id="L157">        this.verbose = verbose;</span>
+<span class="nc" id="L158">    }</span>
+
+    /**
+     * Push an environment onto the stack.
+     * 
+     * @param environment The environment to be pushed.
+     */
+    public void pushEnvironment(VeLaEnvironment&lt;Operand&gt; environment) {
+<span class="fc" id="L166">        this.environments.push(environment);</span>
+<span class="fc" id="L167">    }</span>
+
+    /**
+     * Pop the top-most environment from the stack and return it.
+     * 
+     * @return The top-most environment.
+     */
+    public VeLaEnvironment&lt;Operand&gt; popEnvironment() {
+<span class="fc" id="L175">        return this.environments.pop();</span>
+    }
+
+    /**
+     * Peek the top-most environment on the stack and return it.
+     * 
+     * @return The top-most environment.
+     */
+    public VeLaEnvironment&lt;Operand&gt; peekEnvironment() {
+<span class="fc" id="L184">        return this.environments.peek();</span>
+    }
+
+    /**
+     * @return The stack of environments
+     */
+    public Stack&lt;VeLaEnvironment&lt;Operand&gt;&gt; getEnvironments() {
+<span class="nc" id="L191">        return environments;</span>
+    }
+
+    /**
+     * Return all scopes (activation records) on the stack as a list in order from
+     * oldest to newest.
+     */
+    public List&lt;VeLaScope&gt; getScopes() {
+<span class="fc" id="L199">        List&lt;VeLaScope&gt; scopes = new ArrayList&lt;VeLaScope&gt;();</span>
+
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        for (VeLaEnvironment&lt;Operand&gt; env : environments) {</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">            if (env instanceof VeLaScope) {</span>
+<span class="fc" id="L203">                scopes.add((VeLaScope) env);</span>
+            }
+<span class="fc" id="L205">        }</span>
+
+<span class="fc" id="L207">        return scopes;</span>
+    }
+
+    /**
+     * @return the operand stack
+     */
+    public Stack&lt;Operand&gt; getStack() {
+<span class="fc" id="L214">        return stack;</span>
+    }
+
+    /**
+     * Pop and return an operand from the stack if not empty.
+     * 
+     * @param msgOnError The exception message to use if the stack is empty.
+     * @return The operand on top of the stack.
+     * @throws VeLaEvalError Thrown when the stack is empty.
+     */
+    public Operand pop(String msgOnError) throws VeLaEvalError {
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">        if (!stack.isEmpty()) {</span>
+<span class="fc" id="L226">            return stack.pop();</span>
+        } else {
+<span class="nc" id="L228">            throw new VeLaEvalError(msgOnError);</span>
+        }
+    }
+
+    /**
+     * VeLa program interpreter entry point.
+     * 
+     * @param file A path to a file containing a VeLa program string to be
+     *             interpreted.
+     * @return An optional result, depending upon whether a value was left on the
+     *         stack.
+     * @throws VeLaParseError If a parse error occurs.
+     * @throws VeLaEvalError  If an evaluation error occurs.
+     */
+    public Optional&lt;Operand&gt; program(File path) throws VeLaParseError, VeLaEvalError {
+<span class="fc" id="L243">        StringBuffer code = new StringBuffer();</span>
+
+        try {
+<span class="fc" id="L246">            try (Stream&lt;String&gt; stream = Files.lines(Paths.get(path.getAbsolutePath()))) {</span>
+<span class="fc" id="L247">                stream.forEachOrdered(line -&gt; {</span>
+<span class="fc" id="L248">                    code.append(line);</span>
+<span class="fc" id="L249">                    code.append(&quot;\n&quot;);</span>
+<span class="fc" id="L250">                });</span>
+            }
+<span class="nc" id="L252">        } catch (IOException e) {</span>
+<span class="nc" id="L253">            throw new VeLaEvalError(&quot;Error when attempting to read VeLa file &quot; + path.getAbsolutePath());</span>
+<span class="fc" id="L254">        }</span>
+
+<span class="fc" id="L256">        return program(code.toString());</span>
+    }
+
+    /**
+     * VeLa program interpreter entry point.
+     * 
+     * @param prog The VeLa program string to be interpreted.
+     * @return An optional result, depending upon whether a value was left on the
+     *         stack.
+     * @throws VeLaParseError If a parse error occurs.
+     * @throws VeLaEvalError  If an evaluation error occurs.
+     */
+    public Optional&lt;Operand&gt; program(String prog) throws VeLaParseError, VeLaEvalError {
+<span class="fc" id="L269">        return veLaToResultASTPair(prog).first;</span>
+    }
+
+    /**
+     * VeLa program interpreter entry point.
+     * 
+     * @param prog The VeLa program string to be interpreted.
+     * @return A pair consisting of an optional result, depending upon whether a
+     *         value was left on the stack, and the AST that gave rise to the
+     *         result.
+     * @throws VeLaParseError If a parse error occurs.
+     * @throws VeLaEvalError  If an evaluation error occurs.
+     */
+    public Pair&lt;Optional&lt;Operand&gt;, AST&gt; veLaToResultASTPair(String prog) throws VeLaParseError, VeLaEvalError {
+<span class="fc" id="L283">        VeLaParser.SequenceContext tree = getParser(prog).sequence();</span>
+<span class="fc" id="L284">        return commonInterpreter(prog, tree);</span>
+    }
+
+    /**
+     * Expression interpreter entry point.
+     * 
+     * @param expr The expression string to be interpreted.
+     * @return An operand.
+     * @throws VeLaParseError If a parse error occurs.
+     * @throws VeLaEvalError  If an evaluation error occurs.
+     */
+//    public double expression(String expr) throws VeLaEvalError {
+//
+//        // TODO: why?
+//
+//        VeLaParser.AdditiveExpressionContext tree = getParser(expr).additiveExpression();
+//
+//        Optional&lt;Operand&gt; result = commonInterpreter(expr, tree).first;
+//
+//        if (result.isPresent()) {
+//            if (result.get().getType() == Type.REAL) {
+//                return (double) result.get().doubleVal();
+//            } else if (result.get().getType() == Type.INTEGER) {
+//                return result.get().intVal();
+//            } else {
+//                throw new VeLaEvalError(&quot;Numeric value expected as result&quot;);
+//            }
+//        } else {
+//            throw new VeLaEvalError(&quot;Numeric value expected as result&quot;);
+//        }
+//    }
+
+    /**
+     * Expression interpreter entry point.
+     * 
+     * @param expr The expression string to be interpreted.
+     * @return An operand.
+     * @throws VeLaParseError If a parse error occurs.
+     * @throws VeLaEvalError  If an evaluation error occurs.
+     */
+    public Operand expressionToOperand(String expr) throws VeLaParseError, VeLaEvalError {
+
+        // TODO: why?
+
+<span class="fc" id="L328">        VeLaParser.ExpressionContext tree = getParser(expr).expression();</span>
+
+<span class="fc" id="L330">        Optional&lt;Operand&gt; result = commonInterpreter(expr, tree).first;</span>
+
+<span class="pc bpc" id="L332" title="1 of 2 branches missed.">        if (result.isPresent()) {</span>
+<span class="fc" id="L333">            return result.get();</span>
+        } else {
+<span class="nc" id="L335">            throw new VeLaEvalError(&quot;Result expected&quot;);</span>
+        }
+    }
+
+    /**
+     * VeLa boolean expression interpreter entry point.
+     * 
+     * @param expr The VeLa expression string to be interpreted.
+     * @return A Boolean value result.
+     * @throws VeLaParseError If a parse error occurs.
+     * @throws VeLaEvalError  If an evaluation error occurs.
+     * Only used in test code: remove?
+     */
+    @Deprecated
+    public boolean booleanExpression(String expr) throws VeLaParseError, VeLaEvalError {
+
+<span class="fc" id="L351">        VeLaParser.BooleanExpressionContext tree = getParser(expr).booleanExpression();</span>
+
+<span class="fc" id="L353">        Optional&lt;Operand&gt; result = commonInterpreter(expr, tree).first;</span>
+
+<span class="pc bpc" id="L355" title="1 of 2 branches missed.">        if (result.isPresent()) {</span>
+<span class="fc" id="L356">            return result.get().booleanVal();</span>
+        } else {
+<span class="nc" id="L358">            throw new VeLaEvalError(&quot;Numeric value expected as result&quot;);</span>
+        }
+    }
+
+    // Helpers
+
+    /**
+     * Given an expression string, return a VeLa parser object.
+     * 
+     * @param expr The expression string.
+     * @return The parser object.
+     */
+    private VeLaParser getParser(String expr) {
+<span class="fc" id="L371">        CharStream stream = new ANTLRInputStream(expr);</span>
+
+<span class="fc" id="L373">        VeLaLexer lexer = new VeLaLexer(stream);</span>
+<span class="fc" id="L374">        lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);</span>
+<span class="fc" id="L375">        lexer.addErrorListener(errorListener);</span>
+
+<span class="fc" id="L377">        CommonTokenStream tokens = new CommonTokenStream(lexer);</span>
+
+<span class="fc" id="L379">        VeLaParser parser = new VeLaParser(tokens);</span>
+<span class="fc" id="L380">        parser.addErrorListener(errorListener);</span>
+
+<span class="fc" id="L382">        return parser;</span>
+    }
+
+    /**
+     * Common VeLa evaluation entry point. This will be most effective when prog is
+     * an often used expression.
+     * 
+     * @param prog The VeLa program string to be interpreted.
+     * @param tree The result of parsing the VeLa expression.
+     * @return An optional result depending upon whether a value is left on the
+     *         stack and the AST that was constructed and evaluated.
+     * @throws VeLaEvalError If an evaluation error occurs.
+     */
+    public Pair&lt;Optional&lt;Operand&gt;, AST&gt; commonInterpreter(String prog, ParserRuleContext tree) throws VeLaEvalError {
+
+<span class="fc" id="L397">        Optional&lt;Operand&gt; result = Optional.empty();</span>
+
+<span class="fc" id="L399">        AST ast = commonParseTreeWalker(prog, tree);</span>
+
+<span class="pc bpc" id="L401" title="1 of 2 branches missed.">        if (ast != null) {</span>
+            // Evaluate the abstract syntax tree and cache the result.
+<span class="fc" id="L403">            eval(ast);</span>
+<span class="fc bfc" id="L404" title="All 2 branches covered.">            if (!stack.isEmpty()) {</span>
+<span class="fc" id="L405">                result = Optional.of(stack.pop());</span>
+            } else {
+<span class="fc" id="L407">                result = Optional.empty();</span>
+            }
+        }
+
+<span class="fc" id="L411">        return new Pair&lt;Optional&lt;Operand&gt;, AST&gt;(result, ast);</span>
+    }
+
+    /**
+     * Common parse tree walker and AST generator.
+     * 
+     * @param prog The VeLa program to be interpreted.
+     * @param tree The parse tree resulting from parsing the VeLa expression.
+     * @return The abstract syntax tree created by walking the parse tree.
+     * @throws VeLaParseError If a parse error occurs.
+     */
+    protected AST commonParseTreeWalker(String prog, ParserRuleContext tree) throws VeLaParseError {
+
+<span class="fc" id="L424">        AST ast = null;</span>
+
+        // Remove whitespace and change to uppercase to ensure a canonical
+        // expression string for caching purposes.
+<span class="fc" id="L428">        prog = prog.replace(&quot; &quot;, &quot;&quot;).replace(&quot;\t&quot;, &quot;&quot;).toUpperCase();</span>
+
+        // We cache abstract syntax trees by top-level program string
+        // to improve performance.
+        // boolean astCached = false;
+<span class="fc bfc" id="L433" title="All 2 branches covered.">        if (exprToAST.containsKey(prog)) {</span>
+<span class="fc" id="L434">            ast = exprToAST.get(prog);</span>
+            // astCached = true;
+        } else {
+<span class="fc" id="L437">            ExpressionVisitor visitor = new ExpressionVisitor(this);</span>
+<span class="fc" id="L438">            ast = visitor.visit(tree);</span>
+
+<span class="pc bpc" id="L440" title="1 of 2 branches missed.">            if (ast != null) {</span>
+                // This relates a VeLa program or expression to an AST.
+<span class="fc" id="L442">                exprToAST.put(prog, ast);</span>
+            }
+        }
+
+//		if (verbose &amp;&amp; ast != null) {
+//			if (astCached) {
+//				System.out.println(String.format(&quot;%s [AST cached]&quot;, ast));
+//			} else {
+//				System.out.println(ast);
+//			}
+//		}
+
+<span class="fc" id="L454">        return ast;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Given an AST representing a VeLa program, interpret this via a depth first
+     * traversal, leaving the result of evaluation on the stack.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * The name &quot;eval&quot; is used in deference to John McCarthy's Lisp and its eval
+     * function, the equivalent of Maxwell's equations in Computer Science.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * I've also just noticed that VeLa is an anagram of eval! :)
+     * &lt;/p&gt;
+     * 
+     * @param ast An abstract syntax tree.
+     * @throws VeLaEvalError If an evaluation error occurs.
+     */
+    public void eval(AST ast) throws VeLaEvalError {
+<span class="fc bfc" id="L474" title="All 2 branches covered.">        if (ast.isLiteral()) {</span>
+<span class="fc" id="L475">            stack.push(ast.getOperand());</span>
+        } else {
+<span class="fc" id="L477">            Operation op = ast.getOp();</span>
+
+<span class="fc bfc" id="L479" title="All 2 branches covered.">            if (op.arity() == 2) {</span>
+                // Binary
+<span class="fc" id="L481">                eval(ast.left());</span>
+<span class="fc" id="L482">                eval(ast.right());</span>
+
+<span class="fc" id="L484">                applyBinaryOperation(op);</span>
+
+<span class="fc bfc" id="L486" title="All 2 branches covered.">            } else if (op.arity() == 1) {</span>
+                // Unary
+<span class="fc" id="L488">                eval(ast.head());</span>
+
+<span class="fc" id="L490">                Operand operand = stack.pop();</span>
+
+<span class="pc bpc" id="L492" title="1 of 3 branches missed.">                switch (op) {</span>
+                case NEG:
+<span class="pc bpc" id="L494" title="1 of 4 branches missed.">                    switch (operand.getType()) {</span>
+                    case INTEGER:
+<span class="fc" id="L496">                        stack.push(new Operand(Type.INTEGER, -operand.intVal()));</span>
+<span class="fc" id="L497">                        break;</span>
+                    case REAL:
+<span class="fc" id="L499">                        stack.push(new Operand(Type.REAL, -operand.doubleVal()));</span>
+<span class="fc" id="L500">                        break;</span>
+                    case LIST:
+<span class="fc" id="L502">                        List&lt;Operand&gt; negResult = new ArrayList&lt;Operand&gt;();</span>
+<span class="fc bfc" id="L503" title="All 2 branches covered.">                        for (int i = 0; i &lt; operand.listVal().size(); i++) {</span>
+<span class="fc" id="L504">                            Operand scalar = operand.listVal().get(i);</span>
+<span class="pc bpc" id="L505" title="1 of 3 branches missed.">                            switch (scalar.getType()) {</span>
+                            case INTEGER:
+<span class="fc" id="L507">                                negResult.add(new Operand(Type.INTEGER, -scalar.intVal()));</span>
+<span class="fc" id="L508">                                break;</span>
+                            case REAL:
+<span class="fc" id="L510">                                negResult.add(new Operand(Type.REAL, -scalar.doubleVal()));</span>
+<span class="fc" id="L511">                                break;</span>
+                            default:
+<span class="nc" id="L513">                                binaryOpError(op, Type.INTEGER, Type.REAL);</span>
+                                break;
+                            }
+                        }
+<span class="fc" id="L517">                        stack.push(new Operand(Type.LIST, negResult));</span>
+<span class="fc" id="L518">                        break;</span>
+                    default:
+<span class="nc" id="L520">                        binaryOpError(op, Type.INTEGER, Type.REAL, Type.LIST);</span>
+<span class="nc" id="L521">                        break;</span>
+                    }
+                    break;
+                case NOT:
+<span class="pc bpc" id="L525" title="1 of 4 branches missed.">                    switch (operand.getType()) {</span>
+                    case BOOLEAN:
+<span class="fc bfc" id="L527" title="All 2 branches covered.">                        stack.push(new Operand(Type.BOOLEAN, !operand.booleanVal()));</span>
+<span class="fc" id="L528">                        break;</span>
+                    case INTEGER:
+<span class="fc" id="L530">                        stack.push(new Operand(Type.INTEGER, ~operand.intVal()));</span>
+<span class="fc" id="L531">                        break;</span>
+                    case LIST:
+<span class="fc" id="L533">                        List&lt;Operand&gt; notResult = new ArrayList&lt;Operand&gt;();</span>
+<span class="fc bfc" id="L534" title="All 2 branches covered.">                        for (int i = 0; i &lt; operand.listVal().size(); i++) {</span>
+<span class="fc" id="L535">                            Operand scalar = operand.listVal().get(i);</span>
+<span class="pc bpc" id="L536" title="1 of 3 branches missed.">                            switch (scalar.getType()) {</span>
+                            case BOOLEAN:
+<span class="fc bfc" id="L538" title="All 2 branches covered.">                                notResult.add(new Operand(Type.BOOLEAN, !scalar.booleanVal()));</span>
+<span class="fc" id="L539">                                break;</span>
+                            case INTEGER:
+<span class="fc" id="L541">                                notResult.add(new Operand(Type.INTEGER, ~scalar.intVal()));</span>
+<span class="fc" id="L542">                                break;</span>
+                            default:
+<span class="nc" id="L544">                                binaryOpError(op, Type.INTEGER, Type.BOOLEAN);</span>
+                                break;
+                            }
+                        }
+<span class="fc" id="L548">                        stack.push(new Operand(Type.LIST, notResult));</span>
+<span class="fc" id="L549">                        break;</span>
+                    default:
+<span class="nc" id="L551">                        binaryOpError(op, Type.INTEGER, Type.BOOLEAN, Type.LIST);</span>
+                        ;
+                        break;
+                    }
+                }
+<span class="fc bfc" id="L556" title="All 2 branches covered.">            } else if (ast.getOp() == Operation.SYMBOL) {</span>
+                // Look up variable or function in the environment stack,
+                // pushing it onto the operand stack if it exists, looking for
+                // and evaluating a function if not, throwing an exception
+                // otherwise.
+<span class="fc" id="L561">                String name = ast.getToken().toUpperCase();</span>
+                // Bound symbol?
+<span class="fc" id="L563">                Optional&lt;Operand&gt; result = lookupBinding(name);</span>
+<span class="fc bfc" id="L564" title="All 2 branches covered.">                if (result.isPresent()) {</span>
+<span class="fc" id="L565">                    stack.push(result.get());</span>
+                } else {
+                    // Function?
+<span class="fc" id="L568">                    Optional&lt;List&lt;FunctionExecutor&gt;&gt; funList = lookupFunctions(name);</span>
+<span class="pc bpc" id="L569" title="1 of 2 branches missed.">                    if (funList.isPresent()) {</span>
+                        // The first function in the list is chosen in the
+                        // absence of parameter type information.
+<span class="fc" id="L572">                        stack.push(new Operand(Type.FUNCTION, funList.get().get(0)));</span>
+                    } else {
+<span class="nc" id="L574">                        throw new VeLaEvalError(&quot;Unknown binding \&quot;&quot; + ast.getToken() + &quot;\&quot;&quot;);</span>
+                    }
+                }
+<span class="fc bfc" id="L577" title="All 2 branches covered.">            } else if (ast.getOp() == Operation.LIST) {</span>
+                // Evaluate list elements.
+<span class="fc" id="L579">                List&lt;Operand&gt; elements = new ArrayList&lt;Operand&gt;();</span>
+
+<span class="fc bfc" id="L581" title="All 2 branches covered.">                if (ast.hasChildren()) {</span>
+<span class="fc bfc" id="L582" title="All 2 branches covered.">                    for (int i = ast.getChildren().size() - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L583">                        eval(ast.getChildren().get(i));</span>
+                    }
+
+                    // Create and push list of operands.
+<span class="fc bfc" id="L587" title="All 2 branches covered.">                    for (int i = 1; i &lt;= ast.getChildren().size(); i++) {</span>
+<span class="fc" id="L588">                        elements.add(stack.pop());</span>
+                    }
+                }
+
+<span class="fc" id="L592">                stack.push(new Operand(Type.LIST, elements));</span>
+<span class="pc bpc" id="L593" title="1 of 2 branches missed.">            } else if (ast.getOp().isSpecialForm()) {</span>
+<span class="fc" id="L594">                specialForm(ast);</span>
+            }
+        }
+<span class="fc" id="L597">    }</span>
+
+    /**
+     * Handle special forms.
+     * 
+     * @param ast The special form's AST.
+     */
+    private void specialForm(AST ast) {
+<span class="pc bpc" id="L605" title="1 of 8 branches missed.">        switch (ast.getOp()) {</span>
+        case SEQUENCE:
+            // Evaluate each child AST in turn. No children means an empty
+            // program or one consisting only of whitespace or comments.
+<span class="fc bfc" id="L609" title="All 2 branches covered.">            if (ast.hasChildren()) {</span>
+<span class="fc bfc" id="L610" title="All 2 branches covered.">                for (AST child : ast.getChildren()) {</span>
+<span class="fc" id="L611">                    eval(child);</span>
+<span class="fc" id="L612">                }</span>
+            }
+            break;
+
+        case BIND:
+        case IS:
+<span class="fc" id="L618">            eval(ast.right());</span>
+<span class="fc" id="L619">            String varName = ast.left().getToken();</span>
+<span class="fc" id="L620">            String msg = &quot;No value to bind to \&quot;&quot; + varName + &quot;\&quot;&quot;;</span>
+<span class="fc bfc" id="L621" title="All 2 branches covered.">            bind(varName, pop(msg), ast.getOp() == Operation.IS);</span>
+<span class="fc" id="L622">            break;</span>
+
+        case FUNDEF:
+            // Does this function have a name or is it anonymous?
+<span class="fc" id="L626">            Optional&lt;String&gt; name = Optional.empty();</span>
+<span class="fc bfc" id="L627" title="All 2 branches covered.">            if (ast.head().getOp() == Operation.SYMBOL) {</span>
+<span class="fc" id="L628">                name = Optional.of(ast.head().getToken());</span>
+            }
+
+            // Extract components from AST in order to create a function
+            // executor.
+<span class="fc" id="L633">            Optional&lt;String&gt; helpString = Optional.empty();</span>
+<span class="fc" id="L634">            List&lt;String&gt; parameterNames = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L635">            List&lt;Type&gt; parameterTypes = new ArrayList&lt;Type&gt;();</span>
+<span class="fc" id="L636">            Optional&lt;Type&gt; returnType = Optional.empty();</span>
+<span class="fc" id="L637">            Optional&lt;AST&gt; functionBody = Optional.empty();</span>
+
+<span class="fc bfc" id="L639" title="All 4 branches covered.">            for (int i = name.isPresent() ? 1 : 0; i &lt; ast.getChildren().size(); i++) {</span>
+<span class="fc" id="L640">                AST child = ast.getChildren().get(i);</span>
+<span class="pc bpc" id="L641" title="1 of 5 branches missed.">                switch (child.getOp()) {</span>
+                case HELP_COMMENT:
+<span class="fc" id="L643">                    String help = child.getToken();</span>
+<span class="fc" id="L644">                    help = help.replace(&quot;&lt;&lt;&quot;, &quot;&quot;).replace(&quot;&gt;&gt;&quot;, &quot;&quot;).trim();</span>
+<span class="fc" id="L645">                    helpString = Optional.of(help);</span>
+<span class="fc" id="L646">                    break;</span>
+
+                case PAIR:
+<span class="fc bfc" id="L649" title="All 2 branches covered.">                    if (child.hasChildren()) {</span>
+<span class="fc" id="L650">                        parameterNames.add(child.left().getToken());</span>
+<span class="fc" id="L651">                        parameterTypes.add(Type.name2Vela(child.right().getToken()));</span>
+                    }
+                    break;
+
+                case SYMBOL:
+<span class="fc" id="L656">                    returnType = Optional.of(Type.name2Vela(child.getToken()));</span>
+<span class="fc" id="L657">                    break;</span>
+
+                case SEQUENCE:
+<span class="fc" id="L660">                    functionBody = Optional.of(child);</span>
+<span class="fc" id="L661">                    break;</span>
+
+                default:
+                    break;
+                }
+            }
+
+            // Add the named function to the top-most scope's function namespace
+            // or the push the anonymous function to the operand stack.
+<span class="fc" id="L670">            UserDefinedFunctionExecutor function = new UserDefinedFunctionExecutor(this, name, parameterNames,</span>
+                    parameterTypes, returnType, functionBody, helpString);
+
+<span class="fc bfc" id="L673" title="All 2 branches covered.">            if (name.isPresent()) {</span>
+<span class="fc" id="L674">                addFunctionExecutor(function);</span>
+            } else {
+<span class="fc" id="L676">                stack.push(new Operand(Type.FUNCTION, function));</span>
+            }
+
+<span class="fc" id="L679">            break;</span>
+
+        case FUNCALL:
+<span class="fc" id="L682">            List&lt;Operand&gt; params = new ArrayList&lt;Operand&gt;();</span>
+
+<span class="fc" id="L684">            FunctionExecutor anon = null;</span>
+
+<span class="fc" id="L686">            int childLimit = 1;</span>
+
+<span class="fc bfc" id="L688" title="All 2 branches covered.">            for (int i = ast.getChildren().size() - 1; i &gt;= childLimit; i--) {</span>
+<span class="fc" id="L689">                eval(ast.getChildren().get(i));</span>
+            }
+
+            // Prepare actual parameter list.
+<span class="fc bfc" id="L693" title="All 2 branches covered.">            for (int i = childLimit; i &lt;= ast.getChildren().size() - 1; i++) {</span>
+<span class="fc" id="L694">                Operand value = stack.pop();</span>
+<span class="fc" id="L695">                params.add(value);</span>
+            }
+
+<span class="fc bfc" id="L698" title="All 2 branches covered.">            if (ast.head().getOp() == Operation.SYMBOL) {</span>
+<span class="fc" id="L699">                applyFunction(ast.head().getToken(), params);</span>
+            } else {
+<span class="fc" id="L701">                eval(ast.head());</span>
+<span class="fc" id="L702">                anon = stack.pop().functionVal();</span>
+
+<span class="pc bpc" id="L704" title="1 of 2 branches missed.">                if (!applyFunction(anon, params)) {</span>
+<span class="nc" id="L705">                    throw new VeLaEvalError(&quot;Invalid parameters for function \&quot;&quot; + anon + &quot;\&quot;&quot;);</span>
+                }
+            }
+
+            break;
+
+        case WHEN:
+            // Evaluate each antecedent in turn, pushing the value
+            // of the first consequent whose antecedent is true and stop
+            // antecedent evaluation.
+<span class="fc bfc" id="L715" title="All 2 branches covered.">            for (AST pair : ast.getChildren()) {</span>
+<span class="fc" id="L716">                eval(pair.left());</span>
+<span class="fc bfc" id="L717" title="All 2 branches covered.">                if (stack.pop().booleanVal()) {</span>
+<span class="fc" id="L718">                    eval(pair.right());</span>
+<span class="fc" id="L719">                    break;</span>
+                }
+<span class="fc" id="L721">            }</span>
+<span class="fc" id="L722">            break;</span>
+
+        case IF:
+            // Evaluate the antecedent, pushing the value of the first
+            // consequent if the condition is true, and the value of the
+            // second consequent otherwise.
+<span class="fc" id="L728">            eval(ast.head());</span>
+<span class="fc bfc" id="L729" title="All 2 branches covered.">            if (stack.pop().booleanVal()) {</span>
+<span class="fc" id="L730">                eval(ast.getChildren().get(1));</span>
+<span class="pc bpc" id="L731" title="1 of 2 branches missed.">            } else if (ast.getChildren().size() == 3) {</span>
+<span class="fc" id="L732">                eval(ast.getChildren().get(2));</span>
+            }
+            break;
+
+        case WHILE:
+            // Evaluate the condition, executing the body while it is true.
+            while (true) {
+<span class="fc" id="L739">                eval(ast.left());</span>
+<span class="pc bpc" id="L740" title="2 of 6 branches missed.">                if (!stack.isEmpty() &amp;&amp; stack.peek().getType() == Type.BOOLEAN &amp;&amp; stack.pop().booleanVal()) {</span>
+<span class="fc" id="L741">                    eval(ast.right());</span>
+                } else {
+                    break;
+                }
+            }
+            break;
+
+        default:
+            break;
+        }
+<span class="fc" id="L751">    }</span>
+
+    /**
+     * Apply a binary operation to the values on the stack, consuming them and
+     * leaving a result on the stack.
+     * 
+     * @param op The operation to be applied.
+     */
+    private void applyBinaryOperation(Operation op) {
+<span class="fc" id="L760">        Operand operand2 = stack.pop();</span>
+<span class="fc" id="L761">        Operand operand1 = stack.pop();</span>
+
+<span class="fc bfc" id="L763" title="All 4 branches covered.">        if (operand1.getType() == Type.LIST || operand2.getType() == Type.LIST) {</span>
+<span class="fc" id="L764">            applyBinaryListOperation(op, operand1, operand2);</span>
+        } else {
+            // TODO Refactor to N methods or define functions for each in
+            // Operation/Operand or use lambda for n+m, n-m ...
+            // =&gt;
+            // https://stackoverflow.com/questions/13604703/how-do-i-define-a-method-which-takes-a-lambda-as-a-parameter-in-java-8
+            // type unification is not relevant to all operations, e.g. IN;
+
+            // Unify the operand types if possible.
+<span class="fc" id="L773">            Pair&lt;Operand, Operand&gt; operands = unifyTypes(operand1, operand2);</span>
+<span class="fc" id="L774">            operand1 = operands.first;</span>
+<span class="fc" id="L775">            operand2 = operands.second;</span>
+
+            // Arbitrarily use the type of the first operand.
+<span class="fc" id="L778">            Type type = operands.first.getType();</span>
+
+<span class="pc bpc" id="L780" title="1 of 19 branches missed.">            switch (op) {</span>
+            case ADD:
+<span class="pc bpc" id="L782" title="1 of 4 branches missed.">                switch (type) {</span>
+                case INTEGER:
+<span class="fc" id="L784">                    stack.push(new Operand(Type.INTEGER, operand1.intVal() + operand2.intVal()));</span>
+<span class="fc" id="L785">                    break;</span>
+                case REAL:
+<span class="fc" id="L787">                    stack.push(new Operand(Type.REAL, operand1.doubleVal() + operand2.doubleVal()));</span>
+<span class="fc" id="L788">                    break;</span>
+                case STRING:
+<span class="fc" id="L790">                    stack.push(new Operand(Type.STRING, operand1.stringVal() + operand2.stringVal()));</span>
+<span class="fc" id="L791">                    break;</span>
+                default:
+<span class="nc" id="L793">                    binaryOpError(op, Type.INTEGER, Type.REAL, Type.STRING);</span>
+<span class="nc" id="L794">                    break;</span>
+                }
+                break;
+            case SUB:
+<span class="pc bpc" id="L798" title="1 of 3 branches missed.">                switch (type) {</span>
+                case INTEGER:
+<span class="fc" id="L800">                    stack.push(new Operand(Type.INTEGER, operand1.intVal() - operand2.intVal()));</span>
+<span class="fc" id="L801">                    break;</span>
+                case REAL:
+<span class="fc" id="L803">                    stack.push(new Operand(Type.REAL, operand1.doubleVal() - operand2.doubleVal()));</span>
+<span class="fc" id="L804">                    break;</span>
+                default:
+<span class="nc" id="L806">                    binaryOpError(op, Type.INTEGER, Type.REAL);</span>
+<span class="nc" id="L807">                    break;</span>
+                }
+                break;
+            case MUL:
+<span class="pc bpc" id="L811" title="1 of 3 branches missed.">                switch (type) {</span>
+                case INTEGER:
+<span class="fc" id="L813">                    stack.push(new Operand(Type.INTEGER, operand1.intVal() * operand2.intVal()));</span>
+<span class="fc" id="L814">                    break;</span>
+                case REAL:
+<span class="fc" id="L816">                    stack.push(new Operand(Type.REAL, operand1.doubleVal() * operand2.doubleVal()));</span>
+<span class="fc" id="L817">                    break;</span>
+                default:
+<span class="nc" id="L819">                    binaryOpError(op, Type.INTEGER, Type.REAL);</span>
+<span class="nc" id="L820">                    break;</span>
+                }
+                break;
+            case DIV:
+<span class="pc bpc" id="L824" title="1 of 3 branches missed.">                switch (type) {</span>
+                case INTEGER:
+<span class="fc bfc" id="L826" title="All 2 branches covered.">                    if (operand2.intVal() != 0) {</span>
+<span class="fc" id="L827">                        stack.push(new Operand(Type.INTEGER, operand1.intVal() / operand2.intVal()));</span>
+                    } else {
+<span class="fc" id="L829">                        throw new VeLaEvalError(</span>
+<span class="fc" id="L830">                                String.format(&quot;%s/%s: division by zero error&quot;, operand1.intVal(), operand2.intVal()));</span>
+                    }
+                    break;
+                case REAL:
+<span class="fc" id="L834">                    Double result = operand1.doubleVal() / operand2.doubleVal();</span>
+<span class="fc bfc" id="L835" title="All 2 branches covered.">                    if (!result.isInfinite()) {</span>
+<span class="fc" id="L836">                        stack.push(new Operand(Type.REAL, result));</span>
+                    } else {
+<span class="fc" id="L838">                        throw new VeLaEvalError(String.format(&quot;%s/%s: division by zero error&quot;, operand1.doubleVal(),</span>
+<span class="fc" id="L839">                                operand2.doubleVal()));</span>
+                    }
+                    break;
+                default:
+<span class="nc" id="L843">                    binaryOpError(op, Type.INTEGER, Type.REAL);</span>
+<span class="nc" id="L844">                    break;</span>
+                }
+                break;
+            case POW:
+<span class="pc bpc" id="L848" title="1 of 3 branches missed.">                switch (type) {</span>
+                case INTEGER:
+<span class="fc" id="L850">                    long base = operand1.intVal();</span>
+<span class="fc" id="L851">                    long result = base;</span>
+<span class="fc" id="L852">                    long exponent = operand2.intVal();</span>
+<span class="fc bfc" id="L853" title="All 2 branches covered.">                    if (exponent == 0) {</span>
+<span class="fc" id="L854">                        result = 1;</span>
+                    } else {
+                        // multiply operand1 by itself n-1 times
+<span class="fc bfc" id="L857" title="All 2 branches covered.">                        for (int i = 1; i &lt;= exponent - 1; i++) {</span>
+<span class="fc" id="L858">                            result *= base;</span>
+                        }
+                    }
+<span class="fc" id="L861">                    stack.push(new Operand(Type.INTEGER, result));</span>
+<span class="fc" id="L862">                    break;</span>
+                case REAL:
+<span class="fc" id="L864">                    stack.push(new Operand(Type.REAL, Math.pow(operand1.doubleVal(), operand2.doubleVal())));</span>
+<span class="fc" id="L865">                    break;</span>
+                default:
+<span class="nc" id="L867">                    binaryOpError(op, Type.INTEGER, Type.REAL);</span>
+<span class="nc" id="L868">                    break;</span>
+                }
+                break;
+            case AND:
+<span class="pc bpc" id="L872" title="1 of 3 branches missed.">                switch (type) {</span>
+                case BOOLEAN:
+<span class="fc" id="L874">                    stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() &amp; operand2.booleanVal()));</span>
+<span class="fc" id="L875">                    break;</span>
+                case INTEGER:
+<span class="fc" id="L877">                    stack.push(new Operand(Type.INTEGER, operand1.intVal() &amp; operand2.intVal()));</span>
+<span class="fc" id="L878">                    break;</span>
+                default:
+<span class="nc" id="L880">                    binaryOpError(op, Type.INTEGER, Type.BOOLEAN);</span>
+<span class="nc" id="L881">                    break;</span>
+                }
+                break;
+            case XOR:
+<span class="pc bpc" id="L885" title="1 of 3 branches missed.">                switch (type) {</span>
+                case BOOLEAN:
+<span class="fc" id="L887">                    stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() ^ operand2.booleanVal()));</span>
+<span class="fc" id="L888">                    break;</span>
+                case INTEGER:
+<span class="fc" id="L890">                    stack.push(new Operand(Type.INTEGER, operand1.intVal() ^ operand2.intVal()));</span>
+<span class="fc" id="L891">                    break;</span>
+                default:
+<span class="nc" id="L893">                    binaryOpError(op, Type.INTEGER, Type.BOOLEAN);</span>
+<span class="nc" id="L894">                    break;</span>
+                }
+                break;
+            case OR:
+<span class="pc bpc" id="L898" title="1 of 3 branches missed.">                switch (type) {</span>
+                case BOOLEAN:
+<span class="fc" id="L900">                    stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() | operand2.booleanVal()));</span>
+<span class="fc" id="L901">                    break;</span>
+                case INTEGER:
+<span class="fc" id="L903">                    stack.push(new Operand(Type.INTEGER, operand1.intVal() | operand2.intVal()));</span>
+<span class="fc" id="L904">                    break;</span>
+                default:
+<span class="nc" id="L906">                    binaryOpError(op, Type.INTEGER, Type.BOOLEAN);</span>
+<span class="nc" id="L907">                    break;</span>
+                }
+                break;
+            case EQUAL:
+<span class="pc bpc" id="L911" title="2 of 5 branches missed.">                switch (type) {</span>
+                case BOOLEAN:
+<span class="fc bfc" id="L913" title="All 2 branches covered.">                    stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() == operand2.booleanVal()));</span>
+<span class="fc" id="L914">                    break;</span>
+                case INTEGER:
+<span class="fc bfc" id="L916" title="All 2 branches covered.">                    stack.push(new Operand(Type.BOOLEAN, operand1.intVal() == operand2.intVal()));</span>
+<span class="fc" id="L917">                    break;</span>
+                case REAL:
+<span class="nc bnc" id="L919" title="All 2 branches missed.">                    stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() == operand2.doubleVal()));</span>
+<span class="nc" id="L920">                    break;</span>
+                case STRING:
+<span class="fc" id="L922">                    stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().equals(operand2.stringVal())));</span>
+<span class="fc" id="L923">                    break;</span>
+                default:
+<span class="nc" id="L925">                    binaryOpError(op, Type.BOOLEAN, Type.INTEGER, Type.REAL, Type.STRING);</span>
+<span class="nc" id="L926">                    break;</span>
+                }
+                break;
+            case NOT_EQUAL:
+<span class="pc bpc" id="L930" title="1 of 5 branches missed.">                switch (type) {</span>
+                case BOOLEAN:
+<span class="fc bfc" id="L932" title="All 2 branches covered.">                    stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() != operand2.booleanVal()));</span>
+<span class="fc" id="L933">                    break;</span>
+                case INTEGER:
+<span class="pc bpc" id="L935" title="1 of 2 branches missed.">                    stack.push(new Operand(Type.BOOLEAN, operand1.intVal() != operand2.intVal()));</span>
+<span class="fc" id="L936">                    break;</span>
+                case REAL:
+<span class="pc bpc" id="L938" title="1 of 2 branches missed.">                    stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() != operand2.doubleVal()));</span>
+<span class="fc" id="L939">                    break;</span>
+                case STRING:
+<span class="pc bpc" id="L941" title="1 of 2 branches missed.">                    stack.push(new Operand(Type.BOOLEAN, !operand1.stringVal().equals(operand2.stringVal())));</span>
+<span class="fc" id="L942">                    break;</span>
+                default:
+<span class="nc" id="L944">                    binaryOpError(op, Type.BOOLEAN, Type.INTEGER, Type.REAL, Type.STRING);</span>
+<span class="nc" id="L945">                    break;</span>
+                }
+                break;
+            case GREATER_THAN:
+<span class="pc bpc" id="L949" title="2 of 4 branches missed.">                switch (type) {</span>
+                case INTEGER:
+<span class="fc bfc" id="L951" title="All 2 branches covered.">                    stack.push(new Operand(Type.BOOLEAN, operand1.intVal() &gt; operand2.intVal()));</span>
+<span class="fc" id="L952">                    break;</span>
+                case REAL:
+<span class="fc bfc" id="L954" title="All 2 branches covered.">                    stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() &gt; operand2.doubleVal()));</span>
+<span class="fc" id="L955">                    break;</span>
+                case STRING:
+<span class="nc bnc" id="L957" title="All 2 branches missed.">                    stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(operand2.stringVal()) &gt; 0));</span>
+<span class="nc" id="L958">                    break;</span>
+                default:
+<span class="nc" id="L960">                    binaryOpError(op, Type.INTEGER, Type.REAL, Type.STRING);</span>
+<span class="nc" id="L961">                    break;</span>
+                }
+                break;
+            case LESS_THAN:
+<span class="pc bpc" id="L965" title="2 of 4 branches missed.">                switch (type) {</span>
+                case INTEGER:
+<span class="fc bfc" id="L967" title="All 2 branches covered.">                    stack.push(new Operand(Type.BOOLEAN, operand1.intVal() &lt; operand2.intVal()));</span>
+<span class="fc" id="L968">                    break;</span>
+                case REAL:
+<span class="fc bfc" id="L970" title="All 2 branches covered.">                    stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() &lt; operand2.doubleVal()));</span>
+<span class="fc" id="L971">                    break;</span>
+                case STRING:
+<span class="nc bnc" id="L973" title="All 2 branches missed.">                    stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(operand2.stringVal()) &lt; 0));</span>
+<span class="nc" id="L974">                    break;</span>
+                default:
+<span class="nc" id="L976">                    binaryOpError(op, Type.INTEGER, Type.REAL, Type.STRING);</span>
+<span class="nc" id="L977">                    break;</span>
+                }
+                break;
+            case GREATER_THAN_OR_EQUAL:
+<span class="pc bpc" id="L981" title="2 of 4 branches missed.">                switch (type) {</span>
+                case INTEGER:
+<span class="pc bpc" id="L983" title="1 of 2 branches missed.">                    stack.push(new Operand(Type.BOOLEAN, operand1.intVal() &gt;= operand2.intVal()));</span>
+<span class="fc" id="L984">                    break;</span>
+                case REAL:
+<span class="fc bfc" id="L986" title="All 2 branches covered.">                    stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() &gt;= operand2.doubleVal()));</span>
+<span class="fc" id="L987">                    break;</span>
+                case STRING:
+<span class="nc bnc" id="L989" title="All 2 branches missed.">                    stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(operand2.stringVal()) &gt;= 0));</span>
+<span class="nc" id="L990">                    break;</span>
+                default:
+<span class="nc" id="L992">                    binaryOpError(op, Type.INTEGER, Type.REAL, Type.STRING);</span>
+<span class="nc" id="L993">                    break;</span>
+                }
+                break;
+            case LESS_THAN_OR_EQUAL:
+<span class="pc bpc" id="L997" title="2 of 4 branches missed.">                switch (type) {</span>
+                case INTEGER:
+<span class="fc bfc" id="L999" title="All 2 branches covered.">                    stack.push(new Operand(Type.BOOLEAN, operand1.intVal() &lt;= operand2.intVal()));</span>
+<span class="fc" id="L1000">                    break;</span>
+                case REAL:
+<span class="fc bfc" id="L1002" title="All 2 branches covered.">                    stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() &lt;= operand2.doubleVal()));</span>
+<span class="fc" id="L1003">                    break;</span>
+                case STRING:
+<span class="nc bnc" id="L1005" title="All 2 branches missed.">                    stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(operand2.stringVal()) &lt;= 0));</span>
+<span class="nc" id="L1006">                    break;</span>
+                default:
+<span class="nc" id="L1008">                    binaryOpError(op, Type.INTEGER, Type.REAL, Type.STRING);</span>
+<span class="nc" id="L1009">                    break;</span>
+                }
+                break;
+            case APPROXIMATELY_EQUAL:
+<span class="pc bpc" id="L1013" title="1 of 2 branches missed.">                if (type == Type.STRING) {</span>
+                    Pattern pattern;
+<span class="fc" id="L1015">                    String regex = operand2.stringVal();</span>
+<span class="fc bfc" id="L1016" title="All 2 branches covered.">                    if (!regexPatterns.containsKey(regex)) {</span>
+<span class="fc" id="L1017">                        pattern = Pattern.compile(regex);</span>
+<span class="fc" id="L1018">                        regexPatterns.put(regex, pattern);</span>
+                    }
+<span class="fc" id="L1020">                    pattern = regexPatterns.get(regex);</span>
+<span class="fc" id="L1021">                    stack.push(new Operand(Type.BOOLEAN, pattern.matcher(operand1.stringVal()).matches()));</span>
+<span class="fc" id="L1022">                } else {</span>
+<span class="nc" id="L1023">                    binaryOpError(op, Type.STRING);</span>
+<span class="nc" id="L1024">                    break;</span>
+                }
+                break;
+            case IN:
+<span class="pc bpc" id="L1028" title="1 of 2 branches missed.">                if (type == Type.STRING) {</span>
+                    // Is one string contained within another?
+<span class="fc" id="L1030">                    stack.push(new Operand(Type.BOOLEAN, operand2.stringVal().contains(operand1.stringVal())));</span>
+                } else {
+<span class="nc" id="L1032">                    binaryOpError(op, Type.STRING);</span>
+                }
+<span class="nc" id="L1034">                break;</span>
+            case SHL:
+<span class="pc bpc" id="L1036" title="1 of 2 branches missed.">                switch (type) {</span>
+                case INTEGER:
+<span class="fc" id="L1038">                    stack.push(new Operand(Type.INTEGER, operand1.intVal() &lt;&lt; operand2.intVal()));</span>
+<span class="fc" id="L1039">                    break;</span>
+                default:
+<span class="nc" id="L1041">                    binaryOpError(op, Type.INTEGER);</span>
+<span class="nc" id="L1042">                    break;</span>
+                }
+                break;
+            case SHR:
+<span class="pc bpc" id="L1046" title="1 of 2 branches missed.">                switch (type) {</span>
+                case INTEGER:
+<span class="fc" id="L1048">                    stack.push(new Operand(Type.INTEGER, operand1.intVal() &gt;&gt; operand2.intVal()));</span>
+<span class="fc" id="L1049">                    break;</span>
+                default:
+<span class="nc" id="L1051">                    binaryOpError(op, Type.INTEGER);</span>
+<span class="nc" id="L1052">                    break;</span>
+                }
+                break;
+            default:
+                break;
+            }
+        }
+<span class="fc" id="L1059">    }</span>
+
+    /**
+     * Apply a binary operation to the operands, one of which is a list, leaving a
+     * result on the stack.
+     * 
+     * @param op       The operation to be applied.
+     * @param operand1 The first operand.
+     * @param operand2 The second operand.
+     */
+    private void applyBinaryListOperation(Operation op, Operand operand1, Operand operand2) {
+<span class="fc bfc" id="L1070" title="All 2 branches covered.">        switch (op) {</span>
+        case IN:
+<span class="fc" id="L1072">            Pair&lt;Operand, Operand&gt; operands = unifyTypes(operand1, operand2);</span>
+<span class="fc" id="L1073">            operand1 = operands.first;</span>
+<span class="fc" id="L1074">            operand2 = operands.second;</span>
+
+<span class="pc bpc" id="L1076" title="1 of 2 branches missed.">            if (operand2.getType() == Type.LIST) {</span>
+                // Is a value contained within a list?
+<span class="fc" id="L1078">                stack.push(new Operand(Type.BOOLEAN, operand2.listVal().contains(operand1)));</span>
+<span class="nc bnc" id="L1079" title="All 2 branches missed.">            } else if (operand2.getType() == Type.STRING) {</span>
+                // Is one string contained within another?
+<span class="nc" id="L1081">                stack.push(new Operand(Type.BOOLEAN, operand2.stringVal().contains(operand1.stringVal())));</span>
+            } else {
+<span class="nc" id="L1083">                String msg = String.format(&quot;The second operand must be of type list or string for 'IN' operation&quot;, op);</span>
+<span class="nc" id="L1084">                throw new VeLaEvalError(msg);</span>
+            }
+            break;
+
+        default:
+<span class="fc" id="L1089">            List&lt;Operand&gt; result = new ArrayList&lt;Operand&gt;();</span>
+
+<span class="fc bfc" id="L1091" title="All 4 branches covered.">            if (operand1.getType() == Type.LIST &amp;&amp; operand2.getType() == Type.LIST) {</span>
+<span class="pc bpc" id="L1092" title="1 of 2 branches missed.">                if (operand1.listVal().size() == operand2.listVal().size()) {</span>
+<span class="fc bfc" id="L1093" title="All 2 branches covered.">                    for (int i = 0; i &lt; operand1.listVal().size(); i++) {</span>
+<span class="fc" id="L1094">                        stack.push(operand1.listVal().get(i));</span>
+<span class="fc" id="L1095">                        stack.push(operand2.listVal().get(i));</span>
+<span class="fc" id="L1096">                        applyBinaryOperation(op);</span>
+<span class="fc" id="L1097">                        result.add(stack.pop());</span>
+                    }
+<span class="fc" id="L1099">                    stack.push(new Operand(Type.LIST, result));</span>
+                } else {
+<span class="nc" id="L1101">                    String msg = String.format(&quot;Lists must be of equal length &quot; + &quot;for '%s' operation&quot;, op);</span>
+<span class="nc" id="L1102">                    throw new VeLaEvalError(msg);</span>
+                }
+<span class="fc bfc" id="L1104" title="All 2 branches covered.">            } else if (operand1.getType() != Type.LIST) {</span>
+
+<span class="fc bfc" id="L1106" title="All 2 branches covered.">                for (int i = 0; i &lt; operand2.listVal().size(); i++) {</span>
+<span class="fc" id="L1107">                    stack.push(operand1);</span>
+<span class="fc" id="L1108">                    stack.push(operand2.listVal().get(i));</span>
+<span class="fc" id="L1109">                    applyBinaryOperation(op);</span>
+<span class="fc" id="L1110">                    result.add(stack.pop());</span>
+                }
+<span class="fc" id="L1112">                stack.push(new Operand(Type.LIST, result));</span>
+            } else {
+<span class="fc bfc" id="L1114" title="All 2 branches covered.">                for (int i = 0; i &lt; operand1.listVal().size(); i++) {</span>
+<span class="fc" id="L1115">                    stack.push(operand1.listVal().get(i));</span>
+<span class="fc" id="L1116">                    stack.push(operand2);</span>
+<span class="fc" id="L1117">                    applyBinaryOperation(op);</span>
+<span class="fc" id="L1118">                    result.add(stack.pop());</span>
+                }
+<span class="fc" id="L1120">                stack.push(new Operand(Type.LIST, result));</span>
+            }
+            break;
+        }
+<span class="fc" id="L1124">    }</span>
+
+    /**
+     * Throw a VeLa evaluation error for the given operation and types.
+     * 
+     * @param op    The operator
+     * @param types The expected types
+     */
+    private void binaryOpError(Operation op, Type... types) {
+<span class="nc" id="L1133">        String typeStr = &quot;&quot;;</span>
+<span class="nc bnc" id="L1134" title="All 2 branches missed.">        for (int i = 0; i &lt; types.length; i++) {</span>
+<span class="nc" id="L1135">            typeStr += types[i].name();</span>
+<span class="nc bnc" id="L1136" title="All 2 branches missed.">            if (i &lt; types.length - 1) {</span>
+<span class="nc" id="L1137">                typeStr += &quot; or &quot;;</span>
+            }
+        }
+<span class="nc" id="L1140">        String msg = String.format(&quot;'%s' expects values of type %s&quot;, op.token(), typeStr);</span>
+<span class="nc" id="L1141">        throw new VeLaEvalError(msg);</span>
+    }
+
+    /**
+     * Unify operand types by converting both operands to strings if only one is a
+     * string or both operands to double if only one is an integer. We change
+     * nothing if either type is composite.
+     * 
+     * @param a The first operand.
+     * @param b The second operand.
+     * @return The unified operands.
+     */
+    private Pair&lt;Operand, Operand&gt; unifyTypes(Operand a, Operand b) {
+<span class="fc" id="L1154">        Operand converted_a = a;</span>
+<span class="fc" id="L1155">        Operand converted_b = b;</span>
+
+<span class="fc bfc" id="L1157" title="All 4 branches covered.">        if (!a.getType().isComposite() &amp;&amp; !b.getType().isComposite()) {</span>
+<span class="fc bfc" id="L1158" title="All 4 branches covered.">            if (a.getType() != Type.STRING &amp;&amp; b.getType() == Type.STRING) {</span>
+<span class="fc" id="L1159">                converted_a = a.convertToString();</span>
+<span class="pc bpc" id="L1160" title="1 of 4 branches missed.">            } else if (a.getType() == Type.STRING &amp;&amp; b.getType() != Type.STRING) {</span>
+<span class="nc" id="L1161">                converted_b = b.convertToString();</span>
+<span class="fc bfc" id="L1162" title="All 4 branches covered.">            } else if (a.getType() == Type.INTEGER &amp;&amp; b.getType() == Type.REAL) {</span>
+<span class="fc" id="L1163">                converted_a = new Operand(Type.REAL, (double) a.intVal());</span>
+<span class="fc bfc" id="L1164" title="All 4 branches covered.">            } else if (a.getType() == Type.REAL &amp;&amp; b.getType() == Type.INTEGER) {</span>
+<span class="fc" id="L1165">                converted_b = new Operand(Type.REAL, (double) b.intVal());</span>
+            }
+        }
+
+<span class="fc" id="L1169">        return new Pair&lt;Operand, Operand&gt;(converted_a, converted_b);</span>
+    }
+
+    // ** Variable related methods **
+
+    /**
+     * Given a variable name, search for it in the stack of environments, binding a
+     * value if found and the type of the binding is compatible with the type of the
+     * new value. The search proceeds from the top to the bottom of the stack,
+     * maintaining the natural stack ordering. If the name is not found, a new
+     * binding is created in the top-most scope.
+     * 
+     * @param name       The name to which to bind the value.
+     * @param value      The value to be bound.
+     * @param isConstant Is this a constant binding?
+     */
+    public void bind(String name, Operand value, boolean isConstant) {
+<span class="fc" id="L1186">        boolean bound = false;</span>
+
+<span class="fc bfc" id="L1188" title="All 2 branches covered.">        for (int i = environments.size() - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L1189">            VeLaEnvironment&lt;Operand&gt; env = environments.get(i);</span>
+<span class="pc bpc" id="L1190" title="1 of 2 branches missed.">            if (env.isMutable()) {</span>
+<span class="fc" id="L1191">                Optional&lt;Operand&gt; possibleBinding = env.lookup(name);</span>
+<span class="fc bfc" id="L1192" title="All 2 branches covered.">                if (possibleBinding.isPresent()) {</span>
+<span class="fc" id="L1193">                    Operand existingBinding = possibleBinding.get();</span>
+<span class="fc" id="L1194">                    Operand convertedVal = value.convert(existingBinding.getType());</span>
+<span class="fc bfc" id="L1195" title="All 2 branches covered.">                    if (convertedVal.getType() == existingBinding.getType()) {</span>
+                        // bind value to existing variable...
+<span class="fc" id="L1197">                        environments.get(i).bind(name, convertedVal, isConstant);</span>
+<span class="fc" id="L1198">                        bound = true;</span>
+                    } else {
+<span class="fc" id="L1200">                        throw new VeLaEvalError(</span>
+<span class="fc" id="L1201">                                String.format(&quot;The type of the value (%s) is not compatible with the bound type of %s.&quot;,</span>
+                                        value, name));
+                    }
+                    break;
+                }
+            }
+        }
+
+<span class="fc bfc" id="L1209" title="All 2 branches covered.">        if (!bound) {</span>
+            // If not bound to existing variable, create new binding in
+            // environment on top of stack.
+<span class="fc" id="L1212">            VeLaEnvironment&lt;Operand&gt; env = environments.peek();</span>
+<span class="pc bpc" id="L1213" title="1 of 2 branches missed.">            if (env.isMutable()) {</span>
+                // ...a new binding
+<span class="fc" id="L1215">                environments.peek().bind(name, value, isConstant);</span>
+            } else {
+                // The environment at stack-top should be mutable...
+<span class="nc" id="L1218">                throw new VeLaEvalError(String.format(&quot;The environment in which %s is bound is immutable.&quot;, name));</span>
+            }
+        }
+<span class="fc" id="L1221">    }</span>
+
+    /**
+     * Given a variable name, search for it in the stack of environments, return an
+     * optional Operand instance. The search proceeds from the top to the bottom of
+     * the stack, maintaining the natural stack ordering.
+     * 
+     * @param name The name of the variable to look up.
+     * @return The optional operand.
+     */
+    public Optional&lt;Operand&gt; lookupBinding(String name) {
+<span class="fc" id="L1232">        Optional&lt;Operand&gt; result = Optional.empty();</span>
+
+        // Note: could use recursion or a reversed stream iterator instead
+
+<span class="fc bfc" id="L1236" title="All 2 branches covered.">        for (int i = environments.size() - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L1237">            result = environments.get(i).lookup(name);</span>
+<span class="fc bfc" id="L1238" title="All 2 branches covered.">            if (result.isPresent()) {</span>
+<span class="fc" id="L1239">                break;</span>
+            }
+        }
+
+<span class="fc" id="L1243">        return result;</span>
+    }
+
+    /**
+     * Read and interpret the VeLa standard library code.&lt;br/&gt;
+     * A VeLa error should not bring VStar down.&lt;br/&gt;
+     */
+    private void loadStdLib() {
+        try {
+<span class="fc" id="L1252">            program(ResourceAccessor.getVeLaStdLibStr());</span>
+<span class="nc" id="L1253">        } catch (Throwable t) {</span>
+<span class="nc" id="L1254">            VStar.LOGGER.warning(&quot;Error when sourcing VeLa standard library code: &quot; + t.getLocalizedMessage());</span>
+<span class="fc" id="L1255">        }</span>
+<span class="fc" id="L1256">    }</span>
+
+    /**
+     * Read and interpret user-defined code.&lt;br/&gt;
+     * A VeLa error should not bring VStar down.&lt;br/&gt;
+     * Ignore all but VeLa files (e.g. could be README files) and directories.
+     */
+    private void loadUserCode() {
+<span class="fc bfc" id="L1264" title="All 2 branches covered.">        for (File dir : sourceDirectories) {</span>
+            try {
+<span class="pc bpc" id="L1266" title="1 of 2 branches missed.">                if (dir.isDirectory()) {</span>
+<span class="fc bfc" id="L1267" title="All 2 branches covered.">                    for (File file : dir.listFiles()) {</span>
+<span class="pc bpc" id="L1268" title="2 of 4 branches missed.">                        if (file.getName().endsWith(&quot;.vl&quot;) || file.getName().endsWith(&quot;.vela&quot;)) {</span>
+<span class="fc" id="L1269">                            program(file);</span>
+                        }
+                    }
+                } else {
+
+                }
+<span class="nc" id="L1275">            } catch (Throwable t) {</span>
+<span class="nc" id="L1276">                VStar.LOGGER.warning(&quot;Error when sourcing VeLa code: &quot; + t.getLocalizedMessage());</span>
+<span class="fc" id="L1277">            }</span>
+<span class="fc" id="L1278">        }</span>
+<span class="fc" id="L1279">    }</span>
+
+    // ** Function related methods *
+
+    /**
+     * Given a function name, search for it in the stack of environments, return an
+     * optional list of function executors. The search proceeds from the top to the
+     * bottom of the stack, maintaining the natural stack ordering.
+     * 
+     * @param name The name of the variable to look up.
+     * @return The optional function executor list.
+     */
+    public Optional&lt;List&lt;FunctionExecutor&gt;&gt; lookupFunctions(String name) {
+<span class="fc" id="L1292">        Optional&lt;List&lt;FunctionExecutor&gt;&gt; functions = Optional.empty();</span>
+
+<span class="fc bfc" id="L1294" title="All 2 branches covered.">        for (int i = environments.size() - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L1295">            VeLaEnvironment&lt;Operand&gt; environment = environments.get(i);</span>
+<span class="fc bfc" id="L1296" title="All 2 branches covered.">            if (environment instanceof VeLaScope) {</span>
+<span class="fc" id="L1297">                functions = ((VeLaScope) environment).lookupFunction(name);</span>
+<span class="fc bfc" id="L1298" title="All 2 branches covered.">                if (functions.isPresent()) {</span>
+<span class="fc" id="L1299">                    break;</span>
+                }
+            }
+        }
+
+<span class="fc" id="L1304">        return functions;</span>
+    }
+
+    /**
+     * Apply the function to the supplied parameter list, leaving the result on the
+     * stack.
+     * 
+     * @param funcName The name of the function.
+     * @param params   The parameter list.
+     * @throws VeLaEvalError If a function evaluation error occurs.
+     */
+    private void applyFunction(String funcName, List&lt;Operand&gt; params) throws VeLaEvalError {
+
+<span class="fc" id="L1317">        String canonicalFuncName = funcName.toUpperCase();</span>
+
+        // Iterate over all variations of each potentially overloaded function,
+        // asking whether each conforms.
+
+<span class="fc" id="L1322">        Optional&lt;List&lt;FunctionExecutor&gt;&gt; functions = lookupFunctions(canonicalFuncName);</span>
+
+<span class="fc" id="L1324">        boolean match = false;</span>
+
+<span class="fc bfc" id="L1326" title="All 2 branches covered.">        if (functions.isPresent()) {</span>
+            // First look for the name in the function namespace and try to
+            // apply it.
+<span class="pc bpc" id="L1329" title="1 of 2 branches missed.">            for (FunctionExecutor function : functions.get()) {</span>
+<span class="fc" id="L1330">                match = applyFunction(function, params);</span>
+<span class="fc bfc" id="L1331" title="All 2 branches covered.">                if (match) {</span>
+<span class="fc" id="L1332">                    break;</span>
+                }
+<span class="fc" id="L1334">            }</span>
+
+<span class="pc bpc" id="L1336" title="1 of 2 branches missed.">            if (!match) {</span>
+<span class="nc" id="L1337">                StringBuffer candidateFunStr = new StringBuffer();</span>
+<span class="nc bnc" id="L1338" title="All 2 branches missed.">                for (FunctionExecutor candidateFun : functions.get()) {</span>
+<span class="nc" id="L1339">                    candidateFunStr.append(&quot; &quot;);</span>
+<span class="nc" id="L1340">                    candidateFunStr.append(candidateFun.toString());</span>
+<span class="nc" id="L1341">                    candidateFunStr.append(&quot;\n&quot;);</span>
+<span class="nc" id="L1342">                }</span>
+<span class="nc" id="L1343">                throw new VeLaEvalError(&quot;Invalid parameters for function \&quot;&quot; + funcName + &quot;\&quot;:\n&quot; + candidateFunStr);</span>
+            }
+        } else {
+            // Instead of being a named function, it may be a function that's
+            // been bound to a symbol, so try that next.
+<span class="fc" id="L1348">            Optional&lt;Operand&gt; value = lookupBinding(canonicalFuncName);</span>
+
+<span class="pc bpc" id="L1350" title="1 of 2 branches missed.">            if (value.isPresent()) {</span>
+<span class="pc bpc" id="L1351" title="1 of 2 branches missed.">                if (value.get().getType() == Type.FUNCTION) {</span>
+<span class="fc" id="L1352">                    applyFunction(value.get().functionVal(), params);</span>
+                }
+            } else {
+<span class="nc" id="L1355">                throw new VeLaEvalError(&quot;Unknown function \&quot;&quot; + funcName + &quot;\&quot;&quot;);</span>
+            }
+        }
+<span class="fc" id="L1358">    }</span>
+
+    /**
+     * Apply the function to the supplied parameter list if it conforms to them,
+     * leaving the result on the stack.
+     * 
+     * @param function The function executor to be applied to the supplied
+     *                 parameters.
+     * @param params   The actual parameter list.
+     * @return Does the function conform to the actual parameters?
+     * @throws VeLaEvalError If a function evaluation error occurs.
+     */
+    private boolean applyFunction(FunctionExecutor function, List&lt;Operand&gt; params) throws VeLaEvalError {
+
+<span class="fc" id="L1372">        boolean conforms = function.conforms(params);</span>
+
+<span class="fc bfc" id="L1374" title="All 2 branches covered.">        if (conforms) {</span>
+            // Apply the function to the actual parameters.
+<span class="fc" id="L1376">            Optional&lt;Operand&gt; result = function.apply(params);</span>
+
+<span class="fc" id="L1378">            String funcRepr = function.toString();</span>
+
+<span class="fc bfc" id="L1380" title="All 2 branches covered.">            if (result.isPresent()) {</span>
+                // The function returned a result.
+                // Does the function have a return type defined?
+<span class="pc bpc" id="L1383" title="1 of 2 branches missed.">                if (function.returnType.isPresent()) {</span>
+                    // Attempt to convert to return type if necessary.
+
+<span class="fc" id="L1386">                    Operand convertedResult = result.get().convert(function.getReturnType().get());</span>
+<span class="pc bpc" id="L1387" title="1 of 2 branches missed.">                    if (convertedResult.getType() == function.returnType.get()) {</span>
+                        // The returned result was of the expected type or was converted to it.
+<span class="fc" id="L1389">                        stack.push(convertedResult);</span>
+                    } else {
+                        // The returned result was not of the expected type.
+<span class="nc" id="L1392">                        throw new VeLaEvalError(String.format(</span>
+                                &quot;The expected return type of %s does not match &quot; + &quot;the actual return type of %s.&quot;,
+<span class="nc" id="L1394">                                funcRepr, result.get().getType()));</span>
+                    }
+<span class="fc" id="L1396">                } else {</span>
+<span class="nc" id="L1397">                    throw new VeLaEvalError(</span>
+<span class="nc" id="L1398">                            String.format(&quot;%s has no return type but a value &quot; + &quot;of type %s was returned.&quot;, funcRepr,</span>
+<span class="nc" id="L1399">                                    result.get().getType()));</span>
+                }
+            } else {
+<span class="pc bpc" id="L1402" title="1 of 2 branches missed.">                if (function.returnType.isPresent()) {</span>
+                    // No result was returned but one was expected.
+<span class="nc" id="L1404">                    throw new VeLaEvalError(String.format(&quot;No value was returned by %s.&quot;, funcRepr));</span>
+                }
+            }
+        }
+
+<span class="fc" id="L1409">        return conforms;</span>
+    }
+
+    /**
+     * Add a function executor to the current scope.
+     * 
+     * @param executor The function executor to be added.
+     */
+    public void addFunctionExecutor(FunctionExecutor executor) {
+        // It's possible that the top-most environment is not a scope, so find
+        // the top-most scope and add the function executor to it.
+<span class="fc bfc" id="L1420" title="All 2 branches covered.">        for (int i = environments.size() - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L1421">            VeLaEnvironment&lt;Operand&gt; environment = environments.get(i);</span>
+<span class="fc bfc" id="L1422" title="All 2 branches covered.">            if (environment instanceof VeLaScope) {</span>
+<span class="fc" id="L1423">                VeLaScope scope = (VeLaScope) environment;</span>
+<span class="fc" id="L1424">                scope.addFunctionExecutor(executor);</span>
+            }
+        }
+<span class="fc" id="L1427">    }</span>
+
+    /**
+     * Add useful/important bindings
+     */
+    private void initBindings() {
+<span class="fc" id="L1433">        bind(&quot;Π&quot;, new Operand(Type.REAL, Math.PI), true);</span>
+<span class="fc" id="L1434">        bind(&quot;PI&quot;, new Operand(Type.REAL, Math.PI), true);</span>
+<span class="fc" id="L1435">        bind(&quot;E&quot;, new Operand(Type.REAL, Math.E), true);</span>
+<span class="fc" id="L1436">    }</span>
+
+    /**
+     * Initialise function executors
+     */
+    private void initFunctionExecutors() {
+
+        // Special functions
+<span class="fc" id="L1444">        addEval();</span>
+<span class="fc" id="L1445">        addExit();</span>
+<span class="fc" id="L1446">        addHelp();</span>
+<span class="fc" id="L1447">        addZeroArityFunctions();</span>
+
+        // I/O
+<span class="fc" id="L1450">        addIOProcedures();</span>
+
+        // String functions
+<span class="fc" id="L1453">        addFormatFunction();</span>
+<span class="fc" id="L1454">        addChrFunction();</span>
+<span class="fc" id="L1455">        addOrdFunction();</span>
+
+        // List functions
+<span class="fc" id="L1458">        addListHeadFunction();</span>
+<span class="fc" id="L1459">        addListTailFunction();</span>
+<span class="fc" id="L1460">        addListNthFunction();</span>
+<span class="fc" id="L1461">        addListLengthFunction();</span>
+<span class="fc" id="L1462">        addListConcatFunction();</span>
+<span class="fc" id="L1463">        addIntegerSeqFunction();</span>
+<span class="fc" id="L1464">        addRealSeqFunction();</span>
+<span class="fc" id="L1465">        addListMapFunction();</span>
+<span class="fc" id="L1466">        addListFilterFunction();</span>
+<span class="fc" id="L1467">        addListFindFunction();</span>
+<span class="fc" id="L1468">        addListPairwiseFindFunction();</span>
+<span class="fc" id="L1469">        addListForFunction();</span>
+
+<span class="fc bfc" id="L1471" title="All 2 branches covered.">        for (Type type : Type.values()) {</span>
+<span class="fc bfc" id="L1472" title="All 4 branches covered.">            if (!type.equals(Type.OBJECT) &amp;&amp; !type.equals(Type.NONE)) {</span>
+<span class="fc" id="L1473">                addListAppendFunction(type);</span>
+<span class="fc" id="L1474">                addListReduceFunction(type);</span>
+            }
+        }
+
+        // Collect functions from reflection over Java classes
+<span class="fc bfc" id="L1479" title="All 2 branches covered.">        for (FunctionExecutor function : javaClassFunctionExecutors) {</span>
+<span class="fc" id="L1480">            addFunctionExecutor(function);</span>
+<span class="pc bpc" id="L1481" title="3 of 4 branches missed.">            if (verbose &amp;&amp; function != null) {</span>
+<span class="nc" id="L1482">                System.out.println(function.toString());</span>
+            }
+<span class="fc" id="L1484">        }</span>
+<span class="fc" id="L1485">    }</span>
+
+    private void addEval() {
+<span class="fc" id="L1488">        String help = &quot;Compiles and evaluates a VeLa program given\n&quot;</span>
+                + &quot;in the supplied string, returning the empty list if\n&quot;
+                + &quot;there is no result, or a single element list if\n&quot; + &quot;there is a result.&quot;;
+
+<span class="fc" id="L1492">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;EVAL&quot;), Arrays.asList(&quot;code&quot;), Arrays.asList(Type.STRING),</span>
+<span class="fc" id="L1493">                Optional.of(Type.LIST), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+                // Compile and evaluate code.
+<span class="fc" id="L1497">                program(operands.get(0).stringVal());</span>
+<span class="fc" id="L1498">                Optional&lt;Operand&gt; result = program(operands.get(0).stringVal());</span>
+
+                // Return a list containing the result or the empty list.
+                Optional&lt;Operand&gt; resultList;
+<span class="pc bpc" id="L1502" title="1 of 2 branches missed.">                if (result.isPresent()) {</span>
+<span class="fc" id="L1503">                    resultList = Optional.of(new Operand(Type.LIST, Arrays.asList(result.get())));</span>
+                } else {
+<span class="nc" id="L1505">                    resultList = Optional.of(Operand.EMPTY_LIST);</span>
+                }
+
+<span class="fc" id="L1508">                return resultList;</span>
+            }
+        });
+<span class="fc" id="L1511">    }</span>
+
+    private void addZeroArityFunctions() {
+<span class="fc" id="L1514">        String todayHelp = &quot;Yields the Julian Day corresponding to the current year, month and day.&quot;;</span>
+
+<span class="fc" id="L1516">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;TODAY&quot;), Optional.of(Type.REAL), Optional.of(todayHelp)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1519">                Calendar cal = Calendar.getInstance();</span>
+<span class="fc" id="L1520">                int year = cal.get(Calendar.YEAR);</span>
+<span class="fc" id="L1521">                int month = cal.get(Calendar.MONTH) + 1; // 0..11 -&gt; 1..12</span>
+<span class="fc" id="L1522">                int day = cal.get(Calendar.DAY_OF_MONTH);</span>
+<span class="fc" id="L1523">                double jd = AbstractDateUtil.getInstance().calendarToJD(year, month, day);</span>
+<span class="fc" id="L1524">                return Optional.of(new Operand(Type.REAL, jd));</span>
+            }
+        });
+
+<span class="fc" id="L1528">        String intrinsicsHelp = &quot;Returns a list of intrinsic functions.&quot;;</span>
+
+<span class="fc" id="L1530">        addFunctionExecutor(</span>
+<span class="fc" id="L1531">                new FunctionExecutor(Optional.of(&quot;INTRINSICS&quot;), Optional.of(Type.LIST), Optional.of(intrinsicsHelp)) {</span>
+                    @Override
+                    public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) throws VeLaEvalError {
+<span class="fc" id="L1534">                        List&lt;Operand&gt; funcInfoList = new ArrayList&lt;Operand&gt;();</span>
+<span class="fc" id="L1535">                        VeLaScope environment = (VeLaScope) environments.get(0);</span>
+<span class="fc" id="L1536">                        Map&lt;String, List&lt;FunctionExecutor&gt;&gt; functionMap = new TreeMap&lt;String, List&lt;FunctionExecutor&gt;&gt;(</span>
+<span class="fc" id="L1537">                                environment.getFunctions());</span>
+<span class="fc bfc" id="L1538" title="All 2 branches covered.">                        for (String name : functionMap.keySet()) {</span>
+<span class="fc bfc" id="L1539" title="All 2 branches covered.">                            for (FunctionExecutor function : functionMap.get(name)) {</span>
+<span class="fc bfc" id="L1540" title="All 2 branches covered.">                                if (!(function instanceof UserDefinedFunctionExecutor)) {</span>
+<span class="fc" id="L1541">                                    Operand funcInfo = new Operand(Type.FUNCTION, function);</span>
+<span class="fc" id="L1542">                                    funcInfoList.add(funcInfo);</span>
+                                }
+<span class="fc" id="L1544">                            }</span>
+<span class="fc" id="L1545">                        }</span>
+<span class="fc" id="L1546">                        return Optional.of(new Operand(Type.LIST, funcInfoList));</span>
+                    }
+                });
+
+<span class="fc" id="L1550">        String millisecsHelp = &quot;Returns the number of milliseconds between the current time and midnight, January 1, 1970 UTC&quot;;</span>
+
+<span class="fc" id="L1552">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;MILLISECONDS&quot;), Optional.of(Type.INTEGER),</span>
+<span class="fc" id="L1553">                Optional.of(millisecsHelp)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="nc" id="L1556">                long milliseconds = System.currentTimeMillis();</span>
+<span class="nc" id="L1557">                return Optional.of(new Operand(Type.INTEGER, milliseconds));</span>
+            }
+        });
+
+<span class="fc" id="L1561">    }</span>
+
+    private void addExit() {
+<span class="fc" id="L1564">        String help = &quot;Exits the current program with the specified exit code.&quot;;</span>
+
+<span class="fc" id="L1566">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;EXIT&quot;), Arrays.asList(&quot;exitCode&quot;),</span>
+<span class="fc" id="L1567">                Arrays.asList(Type.INTEGER), Optional.empty(), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="nc" id="L1570">                System.exit((int) operands.get(0).intVal());</span>
+<span class="nc" id="L1571">                return Optional.empty();</span>
+            }
+        });
+<span class="fc" id="L1574">    }</span>
+
+    private void addHelp() {
+<span class="fc" id="L1577">        String help = &quot;Returns a help string given an arbitrary parameter.&quot;;</span>
+
+<span class="fc" id="L1579">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;HELP&quot;), FunctionExecutor.ANY_FORMAL_NAMES,</span>
+<span class="fc" id="L1580">                FunctionExecutor.ANY_FORMAL_TYPES, Optional.of(Type.STRING), Optional.of(help)) {</span>
+
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1584">                String helpMessage = null;</span>
+<span class="pc bpc" id="L1585" title="1 of 2 branches missed.">                if (operands.size() &gt;= 1) {</span>
+<span class="fc" id="L1586">                    StringBuffer buf = new StringBuffer();</span>
+<span class="fc bfc" id="L1587" title="All 2 branches covered.">                    for (Operand operand : operands) {</span>
+<span class="fc" id="L1588">                        String humanStr = operand.toHumanReadableString();</span>
+
+<span class="fc bfc" id="L1590" title="All 2 branches covered.">                        if (operand.getType() != Type.FUNCTION) {</span>
+<span class="fc" id="L1591">                            buf.append(operand.getType());</span>
+<span class="fc" id="L1592">                            buf.append(&quot; : &quot;);</span>
+<span class="fc" id="L1593">                            buf.append(humanStr);</span>
+<span class="fc" id="L1594">                            buf.append(&quot;\n&quot;);</span>
+                        } else {
+<span class="fc" id="L1596">                            buf.append(humanStr);</span>
+<span class="fc" id="L1597">                            buf.append(&quot;\n&quot;);</span>
+<span class="fc" id="L1598">                            Optional&lt;String&gt; helpStrOpt = operand.functionVal().helpString;</span>
+<span class="fc bfc" id="L1599" title="All 2 branches covered.">                            if (helpStrOpt.isPresent()) {</span>
+<span class="fc" id="L1600">                                buf.append(helpStrOpt.get());</span>
+<span class="fc" id="L1601">                                buf.append(&quot;\n&quot;);</span>
+                            }
+                        }
+
+<span class="fc" id="L1605">                        buf.append(&quot;\n&quot;);</span>
+<span class="fc" id="L1606">                    }</span>
+<span class="fc" id="L1607">                    helpMessage = buf.toString();</span>
+<span class="fc" id="L1608">                } else {</span>
+<span class="nc" id="L1609">                    throw new VeLaEvalError(&quot;One or more expression expected.&quot;);</span>
+                }
+
+<span class="fc" id="L1612">                return Optional.of(new Operand(Type.STRING, helpMessage));</span>
+            }
+        });
+<span class="fc" id="L1615">    }</span>
+
+    private void addIOProcedures() {
+        // Any number or type of parameters will do.
+<span class="fc" id="L1619">        String printHelp = &quot;Prints an arbitrary number of parameters (or none) to standard output.&quot;;</span>
+
+<span class="fc" id="L1621">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;PRINT&quot;), FunctionExecutor.ANY_FORMAL_NAMES,</span>
+<span class="fc" id="L1622">                FunctionExecutor.ANY_FORMAL_TYPES, Optional.empty(), Optional.of(printHelp)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1625">                return commonPrintProcedure(operands, false);</span>
+            }
+        });
+
+        // Note: shouldn't need this but on command-line, the LF character
+        // prints literally. Why?
+<span class="fc" id="L1631">        String printlnHelp = &quot;Prints an arbitrary number of parameters (or none) to standard output, followed by a newline sequence.&quot;;</span>
+
+<span class="fc" id="L1633">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;PRINTLN&quot;), FunctionExecutor.ANY_FORMAL_NAMES,</span>
+<span class="fc" id="L1634">                FunctionExecutor.ANY_FORMAL_TYPES, Optional.empty(), Optional.of(printlnHelp)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1637">                return commonPrintProcedure(operands, true);</span>
+            }
+        });
+
+<span class="fc" id="L1641">        String nextchHelp = &quot;Gets and returns the next character from standard input.&quot;;</span>
+
+<span class="fc" id="L1643">        addFunctionExecutor(</span>
+<span class="fc" id="L1644">                new FunctionExecutor(Optional.of(&quot;NEXTCHAR&quot;), Optional.of(Type.STRING), Optional.of(nextchHelp)) {</span>
+                    @Override
+                    public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="nc" id="L1647">                        Operand ch = null;</span>
+                        try {
+<span class="nc" id="L1649">                            ch = new Operand(Type.STRING, Character.toString((char) System.in.read()));</span>
+<span class="nc" id="L1650">                        } catch (IOException e) {</span>
+<span class="nc" id="L1651">                            ch = new Operand(Type.STRING, &quot;&quot;);</span>
+<span class="nc" id="L1652">                        }</span>
+<span class="nc" id="L1653">                        return Optional.of(ch);</span>
+                    }
+                });
+<span class="fc" id="L1656">    }</span>
+
+    private Optional&lt;Operand&gt; commonPrintProcedure(List&lt;Operand&gt; operands, boolean eoln) {
+<span class="fc bfc" id="L1659" title="All 2 branches covered.">        for (Operand operand : operands) {</span>
+<span class="fc" id="L1660">            System.out.print(operand.toHumanReadableString());</span>
+<span class="fc" id="L1661">        }</span>
+<span class="fc bfc" id="L1662" title="All 2 branches covered.">        if (eoln) {</span>
+<span class="fc" id="L1663">            System.out.println();</span>
+        }
+<span class="fc" id="L1665">        return Optional.empty();</span>
+    }
+
+    private void addFormatFunction() {
+<span class="fc" id="L1669">        String help = &quot;Given a format string and a list of expressions, yields a formatted string.&quot;;</span>
+
+<span class="fc" id="L1671">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;FORMAT&quot;), Arrays.asList(&quot;formatString&quot;, &quot;valueList&quot;),</span>
+<span class="fc" id="L1672">                Arrays.asList(Type.STRING, Type.LIST), Optional.of(Type.STRING), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1675">                List&lt;Object&gt; args = new ArrayList&lt;Object&gt;();</span>
+<span class="fc bfc" id="L1676" title="All 2 branches covered.">                for (Operand operand : operands.get(1).listVal()) {</span>
+<span class="pc bpc" id="L1677" title="6 of 7 branches missed.">                    switch (operand.getType()) {</span>
+                    case INTEGER:
+<span class="fc" id="L1679">                        args.add(operand.intVal());</span>
+<span class="fc" id="L1680">                        break;</span>
+                    case REAL:
+<span class="nc" id="L1682">                        args.add(operand.doubleVal());</span>
+<span class="nc" id="L1683">                        break;</span>
+                    case STRING:
+<span class="nc" id="L1685">                        args.add(operand.stringVal());</span>
+<span class="nc" id="L1686">                        break;</span>
+                    case BOOLEAN:
+<span class="nc" id="L1688">                        args.add(operand.booleanVal());</span>
+<span class="nc" id="L1689">                        break;</span>
+                    case LIST:
+<span class="nc" id="L1691">                        args.add(operand.listVal());</span>
+<span class="nc" id="L1692">                        break;</span>
+                    case FUNCTION:
+<span class="nc" id="L1694">                        args.add(operand.functionVal());</span>
+                        break;
+                    }
+<span class="fc" id="L1697">                }</span>
+<span class="fc" id="L1698">                Operand result = new Operand(Type.STRING,</span>
+<span class="fc" id="L1699">                        String.format(operands.get(0).stringVal(), args.toArray(new Object[0])));</span>
+<span class="fc" id="L1700">                return Optional.of(result);</span>
+            }
+        });
+<span class="fc" id="L1703">    }</span>
+
+    private void addChrFunction() {
+<span class="fc" id="L1706">        String help = &quot;Returns a single character string given an ordinal value.&quot;;</span>
+
+<span class="fc" id="L1708">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;CHR&quot;), Arrays.asList(&quot;ordinalValue&quot;),</span>
+<span class="fc" id="L1709">                Arrays.asList(Type.INTEGER), Optional.of(Type.STRING), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1712">                long ordVal = operands.get(0).intVal();</span>
+<span class="fc bfc" id="L1713" title="All 2 branches covered.">                String str = ordVal &gt; -1 ? Character.toString((char) ordVal) : &quot;&quot;;</span>
+<span class="fc" id="L1714">                return Optional.of(new Operand(Type.STRING, str));</span>
+            }
+        });
+<span class="fc" id="L1717">    }</span>
+
+    private void addOrdFunction() {
+<span class="fc" id="L1720">        String help = &quot;Returns an ordinal value given a single character string.&quot;;</span>
+
+<span class="fc" id="L1722">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;ORD&quot;), Arrays.asList(&quot;character&quot;),</span>
+<span class="fc" id="L1723">                Arrays.asList(Type.STRING), Optional.of(Type.INTEGER), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1726">                char chrVal = operands.get(0).stringVal().charAt(0);</span>
+<span class="fc" id="L1727">                return Optional.of(new Operand(Type.INTEGER, (int) chrVal));</span>
+            }
+        });
+<span class="fc" id="L1730">    }</span>
+
+    private void addListHeadFunction() {
+<span class="fc" id="L1733">        String help = &quot;Returns the head of a list or the empty list if the list is empty.&quot;;</span>
+
+        // Return type will change with invocation.
+<span class="fc" id="L1736">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;HEAD&quot;), Arrays.asList(&quot;aList&quot;), Arrays.asList(Type.LIST),</span>
+<span class="fc" id="L1737">                Optional.of(Type.LIST), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1740">                List&lt;Operand&gt; list = operands.get(0).listVal();</span>
+                Operand result;
+<span class="fc bfc" id="L1742" title="All 2 branches covered.">                if (!list.isEmpty()) {</span>
+<span class="fc" id="L1743">                    result = list.get(0);</span>
+                } else {
+<span class="fc" id="L1745">                    result = Operand.EMPTY_LIST;</span>
+                }
+<span class="fc" id="L1747">                setReturnType(Optional.of(result.getType()));</span>
+<span class="fc" id="L1748">                return Optional.of(result);</span>
+            }
+        });
+<span class="fc" id="L1751">    }</span>
+
+    private void addListTailFunction() {
+<span class="fc" id="L1754">        String help = &quot;Returns the tail of a list or the empty list if the list is empty.&quot;;</span>
+
+        // Return type will always be a list.
+<span class="fc" id="L1757">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;TAIL&quot;), Arrays.asList(&quot;aList&quot;), Arrays.asList(Type.LIST),</span>
+<span class="fc" id="L1758">                Optional.of(Type.LIST), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1761">                List&lt;Operand&gt; list = operands.get(0).listVal();</span>
+                Operand result;
+<span class="fc bfc" id="L1763" title="All 2 branches covered.">                if (!list.isEmpty()) {</span>
+<span class="fc" id="L1764">                    List&lt;Operand&gt; tail = new ArrayList&lt;Operand&gt;(list);</span>
+<span class="fc" id="L1765">                    tail.remove(0);</span>
+<span class="fc" id="L1766">                    result = new Operand(Type.LIST, tail);</span>
+<span class="fc" id="L1767">                } else {</span>
+<span class="fc" id="L1768">                    result = Operand.EMPTY_LIST;</span>
+                }
+<span class="fc" id="L1770">                return Optional.of(result);</span>
+            }
+        });
+<span class="fc" id="L1773">    }</span>
+
+    private void addListNthFunction() {
+<span class="fc" id="L1776">        String help = &quot;Returns the nth element of a list or the empty list if the list is empty.&quot;;</span>
+
+        // Return type will change with invocation; need a union type!
+<span class="fc" id="L1779">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;NTH&quot;), Arrays.asList(&quot;aList&quot;, &quot;index&quot;),</span>
+<span class="fc" id="L1780">                Arrays.asList(Type.LIST, Type.INTEGER), Optional.empty(), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1783">                List&lt;Operand&gt; list = operands.get(0).listVal();</span>
+                Operand result;
+<span class="fc bfc" id="L1785" title="All 2 branches covered.">                if (!list.isEmpty()) {</span>
+<span class="fc" id="L1786">                    result = list.get((int) operands.get(1).intVal());</span>
+                } else {
+<span class="fc" id="L1788">                    result = Operand.EMPTY_LIST;</span>
+                }
+<span class="fc" id="L1790">                setReturnType(Optional.of(result.getType()));</span>
+<span class="fc" id="L1791">                return Optional.of(result);</span>
+            }
+        });
+<span class="fc" id="L1794">    }</span>
+
+    private void addListLengthFunction() {
+<span class="fc" id="L1797">        String help = &quot;Returns the length of a list.&quot;;</span>
+
+        // Return type will always be integer.
+<span class="fc" id="L1800">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;LENGTH&quot;), Arrays.asList(&quot;aList&quot;),</span>
+<span class="fc" id="L1801">                Arrays.asList(Type.LIST), Optional.of(Type.INTEGER), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1804">                return Optional.of(new Operand(Type.INTEGER, operands.get(0).listVal().size()));</span>
+            }
+        });
+<span class="fc" id="L1807">    }</span>
+
+    private void addListConcatFunction() {
+<span class="fc" id="L1810">        String help = &quot;Returns the concatenation of two lists.&quot;;</span>
+
+        // Return type will always be LIST here.
+<span class="fc" id="L1813">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;CONCAT&quot;), Arrays.asList(&quot;aList&quot;, &quot;anotherList&quot;),</span>
+<span class="fc" id="L1814">                Arrays.asList(Type.LIST, Type.LIST), Optional.of(Type.LIST), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1817">                List&lt;Operand&gt; list1 = operands.get(0).listVal();</span>
+<span class="fc" id="L1818">                List&lt;Operand&gt; list2 = operands.get(1).listVal();</span>
+<span class="fc" id="L1819">                List&lt;Operand&gt; newList = new ArrayList&lt;Operand&gt;();</span>
+<span class="fc" id="L1820">                newList.addAll(list1);</span>
+<span class="fc" id="L1821">                newList.addAll(list2);</span>
+<span class="fc" id="L1822">                return Optional.of(new Operand(Type.LIST, newList));</span>
+            }
+        });
+<span class="fc" id="L1825">    }</span>
+
+    private void addListAppendFunction(Type secondParameterType) {
+<span class="fc" id="L1828">        String help = &quot;Returns the result of appending an expression to a list.&quot;;</span>
+
+        // Return type will always be LIST here.
+<span class="fc" id="L1831">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;APPEND&quot;), Arrays.asList(&quot;aList&quot;, &quot;newElement&quot;),</span>
+<span class="fc" id="L1832">                Arrays.asList(Type.LIST, secondParameterType), Optional.of(Type.LIST), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1835">                List&lt;Operand&gt; newList = new ArrayList&lt;Operand&gt;();</span>
+<span class="fc" id="L1836">                newList.addAll(operands.get(0).listVal());</span>
+<span class="fc" id="L1837">                newList.add(operands.get(1));</span>
+<span class="fc" id="L1838">                return Optional.of(new Operand(Type.LIST, newList));</span>
+            }
+        });
+<span class="fc" id="L1841">    }</span>
+
+    private void addIntegerSeqFunction() {
+<span class="fc" id="L1844">        String help = &quot;Returns a list which is the sequence of the (inclusive) range\n&quot;</span>
+                + &quot;specified by the first and second parameters,\n&quot;
+                + &quot;combined with the step, specified by the third parameter.&quot;;
+
+        // Return type will always be LIST here..
+<span class="fc" id="L1849">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;SEQ&quot;), Arrays.asList(&quot;first&quot;, &quot;last&quot;, &quot;step&quot;),</span>
+<span class="fc" id="L1850">                Arrays.asList(Type.INTEGER, Type.INTEGER, Type.INTEGER), Optional.of(Type.LIST), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1853">                Long first = operands.get(0).intVal();</span>
+<span class="fc" id="L1854">                Long last = operands.get(1).intVal();</span>
+<span class="fc" id="L1855">                Long step = operands.get(2).intVal();</span>
+<span class="fc" id="L1856">                List&lt;Operand&gt; resultList = new ArrayList&lt;Operand&gt;();</span>
+<span class="fc bfc" id="L1857" title="All 2 branches covered.">                for (long i = first; i &lt;= last; i += step) {</span>
+<span class="fc" id="L1858">                    resultList.add(new Operand(Type.INTEGER, i));</span>
+                }
+<span class="fc" id="L1860">                return Optional.of(new Operand(Type.LIST, resultList));</span>
+            }
+        });
+<span class="fc" id="L1863">    }</span>
+
+    private void addRealSeqFunction() {
+<span class="fc" id="L1866">        String help = &quot;Returns a list which is the sequence of the range\n&quot;</span>
+                + &quot;specified by the first and second parameters,\n&quot;
+                + &quot;combined with the step, specified by the third parameter.&quot;;
+
+        // Return type will always be LIST here..
+<span class="fc" id="L1871">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;SEQ&quot;), Arrays.asList(&quot;firstIndex&quot;, &quot;lastIndex&quot;, &quot;step&quot;),</span>
+<span class="fc" id="L1872">                Arrays.asList(Type.REAL, Type.REAL, Type.REAL), Optional.of(Type.LIST), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1875">                Double first = operands.get(0).doubleVal();</span>
+<span class="fc" id="L1876">                Double last = operands.get(1).doubleVal();</span>
+<span class="fc" id="L1877">                Double step = operands.get(2).doubleVal();</span>
+<span class="fc" id="L1878">                List&lt;Operand&gt; resultList = new ArrayList&lt;Operand&gt;();</span>
+<span class="fc bfc" id="L1879" title="All 2 branches covered.">                for (double i = first; i &lt;= last; i += step) {</span>
+<span class="fc" id="L1880">                    resultList.add(new Operand(Type.REAL, i));</span>
+                }
+<span class="fc" id="L1882">                return Optional.of(new Operand(Type.LIST, resultList));</span>
+            }
+        });
+<span class="fc" id="L1885">    }</span>
+
+    private void addListMapFunction() {
+<span class="fc" id="L1888">        String help = &quot;Applies a function to each element of a list and returns a corresponding list.&quot;;</span>
+
+        // Return type will always be LIST here.
+<span class="fc" id="L1891">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;MAP&quot;), Arrays.asList(&quot;unaryFunction&quot;, &quot;aList&quot;),</span>
+<span class="fc" id="L1892">                Arrays.asList(Type.FUNCTION, Type.LIST), Optional.of(Type.LIST), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1895">                FunctionExecutor fun = operands.get(0).functionVal();</span>
+<span class="fc" id="L1896">                List&lt;Operand&gt; list = operands.get(1).listVal();</span>
+<span class="fc" id="L1897">                List&lt;Operand&gt; resultList = new ArrayList&lt;Operand&gt;();</span>
+<span class="fc bfc" id="L1898" title="All 2 branches covered.">                for (Operand item : list) {</span>
+<span class="fc" id="L1899">                    List&lt;Operand&gt; params = Arrays.asList(item);</span>
+<span class="fc" id="L1900">                    applyFunction(fun, params);</span>
+
+<span class="pc bpc" id="L1902" title="1 of 2 branches missed.">                    if (!stack.isEmpty()) {</span>
+<span class="fc" id="L1903">                        resultList.add(stack.pop());</span>
+                    } else {
+<span class="nc" id="L1905">                        throw new VeLaEvalError(&quot;Expected function result&quot;);</span>
+                    }
+<span class="fc" id="L1907">                }</span>
+<span class="fc" id="L1908">                return Optional.of(new Operand(Type.LIST, resultList));</span>
+            }
+        });
+<span class="fc" id="L1911">    }</span>
+
+    private void addListFilterFunction() {
+<span class="fc" id="L1914">        String help = &quot;Applies a function (predicate) to each element of a list and returns\n&quot;</span>
+                + &quot;the subset of those elements that satisfy the predicate.&quot;;
+
+        // Return type will always be LIST here.
+<span class="fc" id="L1918">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;FILTER&quot;), Arrays.asList(&quot;predicate&quot;, &quot;aList&quot;),</span>
+<span class="fc" id="L1919">                Arrays.asList(Type.FUNCTION, Type.LIST), Optional.of(Type.LIST), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1922">                FunctionExecutor fun = operands.get(0).functionVal();</span>
+<span class="fc" id="L1923">                List&lt;Operand&gt; list = operands.get(1).listVal();</span>
+<span class="fc" id="L1924">                List&lt;Operand&gt; resultList = new ArrayList&lt;Operand&gt;();</span>
+<span class="fc bfc" id="L1925" title="All 2 branches covered.">                for (Operand item : list) {</span>
+<span class="fc" id="L1926">                    List&lt;Operand&gt; params = Arrays.asList(item);</span>
+<span class="fc" id="L1927">                    applyFunction(fun, params);</span>
+
+<span class="pc bpc" id="L1929" title="1 of 2 branches missed.">                    if (!stack.isEmpty()) {</span>
+<span class="fc" id="L1930">                        Operand retVal = stack.pop();</span>
+<span class="pc bpc" id="L1931" title="1 of 2 branches missed.">                        if (retVal.getType() == Type.BOOLEAN) {</span>
+<span class="fc bfc" id="L1932" title="All 2 branches covered.">                            if (retVal.booleanVal()) {</span>
+<span class="fc" id="L1933">                                resultList.add(item);</span>
+                            }
+                        } else {
+<span class="nc" id="L1936">                            throw new VeLaEvalError(&quot;Expected boolean value&quot;);</span>
+                        }
+<span class="fc" id="L1938">                    } else {</span>
+<span class="nc" id="L1939">                        throw new VeLaEvalError(&quot;Expected boolean value&quot;);</span>
+                    }
+<span class="fc" id="L1941">                }</span>
+<span class="fc" id="L1942">                return Optional.of(new Operand(Type.LIST, resultList));</span>
+            }
+        });
+<span class="fc" id="L1945">    }</span>
+
+    private void addListFindFunction() {
+        // Return the index of the first element of a list matching a
+        // predicate, else -1.
+
+<span class="fc" id="L1951">        String findHelp = &quot;Return the index of the first element of a list matching a\n&quot;</span>
+                + &quot;predicate applied to a list element, else -1&quot;;
+
+<span class="fc" id="L1954">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;FIND&quot;), Arrays.asList(&quot;unaryFunction&quot;, &quot;aList&quot;),</span>
+<span class="fc" id="L1955">                Arrays.asList(Type.FUNCTION, Type.LIST), Optional.of(Type.INTEGER), Optional.of(findHelp)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L1958">                FunctionExecutor fun = operands.get(0).functionVal();</span>
+<span class="fc" id="L1959">                List&lt;Operand&gt; list = operands.get(1).listVal();</span>
+<span class="fc" id="L1960">                int index = -1;</span>
+<span class="fc bfc" id="L1961" title="All 2 branches covered.">                for (int i = 0; i &lt; list.size(); i++) {</span>
+<span class="fc" id="L1962">                    List&lt;Operand&gt; params = Arrays.asList(list.get(i));</span>
+<span class="fc" id="L1963">                    applyFunction(fun, params);</span>
+
+<span class="pc bpc" id="L1965" title="1 of 2 branches missed.">                    if (!stack.isEmpty()) {</span>
+<span class="fc" id="L1966">                        Operand retVal = stack.pop();</span>
+<span class="pc bpc" id="L1967" title="1 of 2 branches missed.">                        if (retVal.getType() == Type.BOOLEAN) {</span>
+<span class="fc bfc" id="L1968" title="All 2 branches covered.">                            if (retVal.booleanVal()) {</span>
+<span class="fc" id="L1969">                                index = i;</span>
+<span class="fc" id="L1970">                                break;</span>
+                            }
+                        } else {
+<span class="nc" id="L1973">                            throw new VeLaEvalError(&quot;Expected boolean value&quot;);</span>
+                        }
+<span class="fc" id="L1975">                    } else {</span>
+<span class="nc" id="L1976">                        throw new VeLaEvalError(&quot;Expected boolean value&quot;);</span>
+                    }
+                }
+<span class="fc" id="L1979">                return Optional.of(new Operand(Type.INTEGER, index));</span>
+            }
+        });
+<span class="fc" id="L1982">    }</span>
+
+    private void addListPairwiseFindFunction() {
+        // Return the index of the first element of a list matching a
+        // predicate applied to two list elements, else -1. Whereas FIND's predicate
+        // takes a single list element,
+        // PAIRWISEFIND takes two elements separated by a &quot;step&quot; value.
+
+<span class="fc" id="L1990">        String pairwiseFindHelp = &quot;Return the index of the first element of a list matching a\n&quot;</span>
+                + &quot;predicate applied to two list elements, else -1&quot;;
+
+<span class="fc" id="L1993">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;PAIRWISEFIND&quot;),</span>
+<span class="fc" id="L1994">                Arrays.asList(&quot;unaryFunction&quot;, &quot;aList&quot;, &quot;step&quot;), Arrays.asList(Type.FUNCTION, Type.LIST, Type.INTEGER),</span>
+<span class="fc" id="L1995">                Optional.of(Type.INTEGER), Optional.of(pairwiseFindHelp)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="nc" id="L1998">                FunctionExecutor fun = operands.get(0).functionVal();</span>
+<span class="nc" id="L1999">                List&lt;Operand&gt; list = operands.get(1).listVal();</span>
+<span class="nc" id="L2000">                long step = (int) operands.get(2).intVal();</span>
+<span class="nc" id="L2001">                int index = -1;</span>
+<span class="nc bnc" id="L2002" title="All 2 branches missed.">                for (int i = 0; i &lt; list.size() - 1; i += step) {</span>
+<span class="nc" id="L2003">                    List&lt;Operand&gt; params = Arrays.asList(list.get(i), list.get(i + 1));</span>
+<span class="nc" id="L2004">                    applyFunction(fun, params);</span>
+
+<span class="nc bnc" id="L2006" title="All 2 branches missed.">                    if (!stack.isEmpty()) {</span>
+<span class="nc" id="L2007">                        Operand retVal = stack.pop();</span>
+<span class="nc bnc" id="L2008" title="All 2 branches missed.">                        if (retVal.getType() == Type.BOOLEAN) {</span>
+<span class="nc bnc" id="L2009" title="All 2 branches missed.">                            if (retVal.booleanVal()) {</span>
+<span class="nc" id="L2010">                                index = i;</span>
+<span class="nc" id="L2011">                                break;</span>
+                            }
+                        } else {
+<span class="nc" id="L2014">                            throw new VeLaEvalError(&quot;Expected boolean value&quot;);</span>
+                        }
+<span class="nc" id="L2016">                    } else {</span>
+<span class="nc" id="L2017">                        throw new VeLaEvalError(&quot;Expected boolean value&quot;);</span>
+                    }
+                }
+<span class="nc" id="L2020">                return Optional.of(new Operand(Type.INTEGER, index));</span>
+            }
+        });
+<span class="fc" id="L2023">    }</span>
+
+    private void addListReduceFunction(Type reductionType) {
+<span class="fc" id="L2026">        String help = &quot;Applies a function to each element of a list, returning\n&quot;</span>
+                + &quot;a single value. An initial value must be provided.&quot;;
+
+        // Return type will be same as function the parameter's type.
+<span class="fc" id="L2030">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;REDUCE&quot;),</span>
+<span class="fc" id="L2031">                Arrays.asList(&quot;unaryFunction&quot;, &quot;aList&quot;, &quot;initialValue&quot;),</span>
+<span class="fc" id="L2032">                Arrays.asList(Type.FUNCTION, Type.LIST, reductionType), Optional.of(reductionType), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L2035">                FunctionExecutor fun = operands.get(0).functionVal();</span>
+                // Set return type on reduce dynamically each time.
+<span class="fc" id="L2037">                setReturnType(fun.getReturnType());</span>
+<span class="fc" id="L2038">                List&lt;Operand&gt; list = operands.get(1).listVal();</span>
+<span class="fc" id="L2039">                Operand retVal = operands.get(2); // base value</span>
+<span class="fc bfc" id="L2040" title="All 2 branches covered.">                for (Operand item : list) {</span>
+<span class="fc" id="L2041">                    List&lt;Operand&gt; params = Arrays.asList(retVal, item);</span>
+<span class="fc" id="L2042">                    applyFunction(fun, params);</span>
+
+<span class="pc bpc" id="L2044" title="1 of 2 branches missed.">                    if (!stack.isEmpty()) {</span>
+<span class="fc" id="L2045">                        retVal = stack.pop();</span>
+                    }
+<span class="fc" id="L2047">                }</span>
+<span class="fc" id="L2048">                return Optional.of(retVal);</span>
+            }
+        });
+<span class="fc" id="L2051">    }</span>
+
+    private void addListForFunction() {
+<span class="fc" id="L2054">        String help = &quot;Invokes a function on each element of a list.&quot;;</span>
+
+        // FOR should not return anything.
+<span class="fc" id="L2057">        addFunctionExecutor(new FunctionExecutor(Optional.of(&quot;FOR&quot;), Arrays.asList(&quot;unaryFunction&quot;, &quot;aList&quot;),</span>
+<span class="fc" id="L2058">                Arrays.asList(Type.FUNCTION, Type.LIST), Optional.empty(), Optional.of(help)) {</span>
+            @Override
+            public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) {
+<span class="fc" id="L2061">                FunctionExecutor fun = operands.get(0).functionVal();</span>
+<span class="fc" id="L2062">                List&lt;Operand&gt; list = operands.get(1).listVal();</span>
+<span class="fc bfc" id="L2063" title="All 2 branches covered.">                for (Operand item : list) {</span>
+<span class="fc" id="L2064">                    List&lt;Operand&gt; params = new ArrayList&lt;Operand&gt;();</span>
+<span class="fc" id="L2065">                    params.add(item);</span>
+
+<span class="fc" id="L2067">                    applyFunction(fun, params);</span>
+<span class="fc" id="L2068">                }</span>
+<span class="fc" id="L2069">                return Optional.empty();</span>
+            }
+        });
+<span class="fc" id="L2072">    }</span>
+
+    /**
+     * Given a class, add non zero-arity VeLa type-compatible functions to the
+     * functions map.
+     * 
+     * @param clazz          The class from which to add function executors.
+     * @param instance       The instance of this class on which to invoke the
+     *                       function.
+     * @param permittedTypes The set of Java types that are compatible with VeLa.
+     * @param exclusions     Names of functions to exclude.
+     */
+    public void addFunctionExecutorsFromClass(Class&lt;?&gt; clazz, Object instance, Set&lt;Class&lt;?&gt;&gt; permittedTypes,
+            Set&lt;String&gt; exclusions) {
+<span class="fc" id="L2086">        Method[] declaredMethods = clazz.getDeclaredMethods();</span>
+
+<span class="fc bfc" id="L2088" title="All 2 branches covered.">        for (Method declaredMethod : declaredMethods) {</span>
+<span class="fc" id="L2089">            String funcName = declaredMethod.getName().toUpperCase();</span>
+<span class="fc" id="L2090">            List&lt;Class&lt;?&gt;&gt; paramTypes = getJavaParameterTypes(declaredMethod, permittedTypes);</span>
+<span class="fc" id="L2091">            Class&lt;?&gt; returnType = declaredMethod.getReturnType();</span>
+
+            // If the method is non-static, we need to include a parameter
+            // type for the object on which the method will be invoked.
+<span class="pc bpc" id="L2095" title="1 of 4 branches missed.">            if (!Modifier.isStatic(declaredMethod.getModifiers()) &amp;&amp; instance == null) {</span>
+<span class="fc" id="L2096">                List&lt;Class&lt;?&gt;&gt; newParamTypes = new ArrayList&lt;Class&lt;?&gt;&gt;();</span>
+<span class="fc" id="L2097">                newParamTypes.add(clazz);</span>
+<span class="fc" id="L2098">                newParamTypes.addAll(paramTypes);</span>
+<span class="fc" id="L2099">                paramTypes = newParamTypes;</span>
+            }
+
+<span class="fc" id="L2102">            FunctionExecutor function = null;</span>
+
+<span class="fc bfc" id="L2104" title="All 4 branches covered.">            if (!exclusions.contains(funcName) &amp;&amp; permittedTypes.contains(returnType)) {</span>
+<span class="fc" id="L2105">                List&lt;String&gt; names = getJavaParameterNames(declaredMethod, permittedTypes);</span>
+<span class="fc" id="L2106">                List&lt;Type&gt; types = paramTypes.stream().map(t -&gt; Type.java2Vela(t)).collect(Collectors.toList());</span>
+
+<span class="fc" id="L2108">                Optional&lt;String&gt; helpString = Optional.empty();</span>
+
+<span class="fc" id="L2110">                function = new JavaMethodExecutor(instance, declaredMethod, Optional.of(funcName), names, types,</span>
+<span class="fc" id="L2111">                        Optional.of(Type.java2Vela(returnType)), helpString);</span>
+
+<span class="fc" id="L2113">                javaClassFunctionExecutors.add(function);</span>
+            }
+        }
+<span class="fc" id="L2116">    }</span>
+
+    // TODO
+    // unify these two methods, e.g. via a Parameter class
+
+    private static List&lt;String&gt; getJavaParameterNames(Method method, Set&lt;Class&lt;?&gt;&gt; targetTypes) {
+<span class="fc" id="L2122">        Parameter[] parameters = method.getParameters();</span>
+<span class="fc" id="L2123">        List&lt;String&gt; parameterNames = new ArrayList&lt;String&gt;();</span>
+
+<span class="fc bfc" id="L2125" title="All 2 branches covered.">        for (Parameter parameter : parameters) {</span>
+<span class="fc" id="L2126">            String name = parameter.getName();</span>
+<span class="fc bfc" id="L2127" title="All 2 branches covered.">            if (targetTypes.contains(parameter.getType())) {</span>
+<span class="fc" id="L2128">                parameterNames.add(name);</span>
+            }
+        }
+
+<span class="fc" id="L2132">        return parameterNames;</span>
+    }
+
+    private static List&lt;Class&lt;?&gt;&gt; getJavaParameterTypes(Method method, Set&lt;Class&lt;?&gt;&gt; targetTypes) {
+<span class="fc" id="L2136">        Parameter[] parameters = method.getParameters();</span>
+<span class="fc" id="L2137">        List&lt;Class&lt;?&gt;&gt; parameterTypes = new ArrayList&lt;Class&lt;?&gt;&gt;();</span>
+
+<span class="fc bfc" id="L2139" title="All 2 branches covered.">        for (Parameter parameter : parameters) {</span>
+<span class="fc" id="L2140">            Class&lt;?&gt; type = parameter.getType();</span>
+<span class="fc bfc" id="L2141" title="All 2 branches covered.">            if (targetTypes.contains(type)) {</span>
+<span class="fc" id="L2142">                parameterTypes.add(type);</span>
+            }
+        }
+
+<span class="fc" id="L2146">        return parameterTypes;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

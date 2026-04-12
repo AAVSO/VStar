@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoadChooser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog</a> &gt; <span class="el_source">LoadChooser.java</span></div><h1>LoadChooser.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed inputStream the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+
+package org.aavso.tools.vstar.ui.dialog;
+
+import java.awt.Component;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.aavso.tools.vstar.util.Pair;
+
+public class LoadChooser {
+	
+<span class="fc" id="L39">	private JFileChooser loadFileChooser = null;</span>
+	
+	
+	/**
+	 * Constructor: open file dialog
+	 * 
+	 * @param extensionFilterOpen
+	 *          file filters for 'Open' dialog
+	 *          
+	 * @param titleOpen
+	 * 
+	 */
+<span class="fc" id="L51">	public LoadChooser(FileNameExtensionFilter[] extensionFilterOpen, String titleOpen) {</span>
+<span class="fc" id="L52">		loadFileChooser = new JFileChooser();</span>
+		
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">		if (titleOpen != null) {</span>
+<span class="fc" id="L55">			loadFileChooser.setDialogTitle(titleOpen);</span>
+		}
+
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">		if (extensionFilterOpen != null) {</span>
+<span class="fc" id="L59">			FileNameExtensionFilter flt0 = null;</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">			for (FileNameExtensionFilter flt : extensionFilterOpen) {</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">				if (flt != null) {</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">					if (flt0 == null) {</span>
+<span class="fc" id="L63">						flt0 = flt;</span>
+					}
+<span class="fc" id="L65">					loadFileChooser.addChoosableFileFilter(flt);</span>
+				}
+			}
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">			if (flt0 != null) {</span>
+<span class="fc" id="L69">				loadFileChooser.setFileFilter(flt0);</span>
+			}
+		}
+<span class="fc" id="L72">	}</span>
+	
+	/**
+	 * Show the file dialog.
+	 * 
+	 * @param parent
+	 *            The parent component to which this dialog should be positioned
+	 *            relative.
+	 * @return Whether the dialog was &quot;approved&quot;.
+	 * @throws Exception 
+	 */
+	public boolean showDialog(Component parent) {
+<span class="nc bnc" id="L84" title="All 2 branches missed.">		return loadFileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION;</span>
+	}
+	
+	/**
+	 * Returns the selected file
+	 * 
+	 * @return The selected file.
+	 */
+	public File getOpenDialogSelectedFile() {
+<span class="nc" id="L93">		return loadFileChooser.getSelectedFile();</span>
+	}
+	
+	/**
+	 * Read the content of a file to a String
+	 * 
+	 * @param path
+	 *          Path to a file
+	 *          
+	 * @param charset
+	 *          Charset, if null, the default charset is used. 
+	 * 
+	 * @return Content as String
+	 * 
+	 * @throws IOException 
+	 */
+	public String readFileAsString(String path, Charset charset) throws IOException {
+<span class="nc bnc" id="L110" title="All 2 branches missed.">		if (charset == null) {</span>
+<span class="nc" id="L111">			charset = Charset.defaultCharset();</span>
+		}
+<span class="nc" id="L113">		StringBuffer content = new StringBuffer();</span>
+		String line;
+<span class="nc" id="L115">		try (FileInputStream fis = new FileInputStream(path);</span>
+<span class="nc" id="L116">			 InputStreamReader isr = new InputStreamReader(fis, charset);</span>
+<span class="nc" id="L117">			 BufferedReader reader = new BufferedReader(isr)</span>
+			) {
+<span class="nc bnc" id="L119" title="All 2 branches missed.">			while ((line = reader.readLine()) != null) {</span>
+<span class="nc" id="L120">				content.append(line);</span>
+<span class="nc" id="L121">				content.append(&quot;\n&quot;);</span>
+			}
+		}
+<span class="nc" id="L124">		return content.toString();</span>
+	}
+
+	/**
+	 * Invoke Open Dialog (chooser) and read the content of the selected file to a String
+	 * 
+	 * @param parent
+	 *            The parent component to which the dialog should be positioned
+	 *            relative.
+	 *            
+	 * @param charset
+	 *          Charset, if null, the default charset is used. 
+	 * 
+	 * @return a Pair object: file content as the first member, file extension as the second one
+	 *            or null if no files selected (dialog cancelled)
+	 * 
+	 * @throws IOException 
+	 */
+	@SuppressWarnings(&quot;unchecked&quot;)	
+	public Pair&lt;String, String&gt; readFileAsString(Component parent, Charset charset) throws IOException {
+<span class="nc" id="L144">		return (Pair&lt;String, String&gt;)readFile(parent, charset, false);</span>
+	}
+	
+	/**
+	 * Invoke Open Dialog (chooser) and read the content of the selected file to an array of bytes
+	 * 
+	 * @param parent
+	 *            The parent component to which the dialog should be positioned
+	 *            relative.
+	 * 
+	 * @return a Pair object: file content as the first member, file extension as the second one
+	 *            or null if no files selected (dialog cancelled)
+	 * 
+	 * @throws IOException 
+	 */
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public Pair&lt;byte[], String&gt; readFileAsBytes(Component parent) throws IOException {
+<span class="nc" id="L161">		return (Pair&lt;byte[], String&gt;)readFile(parent, null, true);</span>
+	}
+
+	/**
+	 * Read the content of a file to a byte array
+	 * 
+	 * @param path
+	 *          Path to a file
+	 * 
+	 * @return Content as array of bytes
+	 * 
+	 * @throws IOException 
+	 */
+	public byte[] readFileAsBytes(String path) throws IOException {
+<span class="nc" id="L175">		Path p = Paths.get(path);</span>
+<span class="nc" id="L176">		return Files.readAllBytes(p);</span>
+	}
+	
+	private Pair&lt;?, String&gt; readFile(Component parent, Charset charset, boolean raw) throws IOException {
+<span class="nc bnc" id="L180" title="All 2 branches missed.">		if (showDialog(parent)) {</span>
+<span class="nc" id="L181">			File file = getOpenDialogSelectedFile();</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">			if (file != null) {</span>
+<span class="nc" id="L183">				String filename = file.getName();</span>
+<span class="nc" id="L184">				String extension = &quot;&quot;;</span>
+<span class="nc" id="L185">				int index = filename.lastIndexOf('.');</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">				if (index &gt; 0) {</span>
+<span class="nc" id="L187">					extension = filename.substring(index + 1);</span>
+				}
+<span class="nc bnc" id="L189" title="All 2 branches missed.">				if (raw) {</span>
+<span class="nc" id="L190">					return new Pair&lt;byte[], String&gt;(readFileAsBytes(file.getAbsolutePath()), extension);</span>
+				} else {
+<span class="nc" id="L192">					return new Pair&lt;String, String&gt;(readFileAsString(file.getAbsolutePath(), charset), extension);</span>
+				}
+			} else {
+<span class="nc" id="L195">				return null;</span>
+			}
+		}
+<span class="nc" id="L198">		return null;</span>
+	}
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

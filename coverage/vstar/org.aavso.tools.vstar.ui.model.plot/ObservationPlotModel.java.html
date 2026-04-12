@@ -1,0 +1,782 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ObservationPlotModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.model.plot</a> &gt; <span class="el_source">ObservationPlotModel.java</span></div><h1>ObservationPlotModel.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.model.plot;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.NewStarType;
+import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesCreationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
+import org.aavso.tools.vstar.util.notification.Listener;
+import org.jfree.data.DomainOrder;
+import org.jfree.data.xy.AbstractIntervalXYDataset;
+
+/**
+ * This is the abstract base class for models that represent a series of valid
+ * variable star observations, e.g. for different bands (or from different
+ * sources). In practice, this class is only intended to be used as a the base
+ * class for ObservationAndMeanPlot. The two could be merged with the latter
+ * assuming the current class's name.
+ */
+<span class="nc" id="L53">@SuppressWarnings(&quot;serial&quot;)</span>
+abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
+		implements ISeriesInfoProvider {
+
+	protected static final int NO_SERIES = -1;
+
+	/**
+	 * Coordinate and error source.
+	 */
+	protected ICoordSource coordSrc;
+
+	/**
+	 * An observation comparator (e.g. to provide an ordering over time: JD or
+	 * phase).
+	 */
+	protected Comparator&lt;ValidObservation&gt; obComparator;
+
+	/**
+	 * A unique next series number for this model.
+	 */
+	protected int seriesNum;
+
+	/**
+	 * A mapping from series number to a list of observations where each such
+	 * list is a data series.
+	 */
+	protected Map&lt;Integer, List&lt;ValidObservation&gt;&gt; seriesNumToObSrcListMap;
+
+	/**
+	 * A mapping from series number to source type.
+	 */
+	protected Map&lt;Integer, SeriesType&gt; seriesNumToSrcTypeMap;
+
+	/**
+	 * A mapping from source type to series number.
+	 */
+	protected Map&lt;SeriesType, Integer&gt; srcTypeToSeriesNumMap;
+
+	/**
+	 * A mapping from series numbers to whether or not they visible.
+	 */
+	protected Map&lt;SeriesType, Boolean&gt; seriesVisibilityMap;
+
+	/**
+	 * Is at least one visual band observation present?
+	 */
+	protected boolean atLeastOneVisualBandPresent;
+
+	/**
+	 * A collection of series to be joined visually.
+	 */
+	protected Set&lt;Integer&gt; seriesToBeJoinedVisually;
+
+	/**
+	 * Discrepant observation listener.
+	 */
+	protected Listener&lt;DiscrepantObservationMessage&gt; discrepantListener;
+
+	/**
+	 * Excluded observation listener.
+	 */
+	protected Listener&lt;ExcludedObservationMessage&gt; excludedListener;
+
+	/**
+	 * What was the most recently singly selected series (e.g. via a dialog).
+	 */
+	protected SeriesType lastSinglySelectedSeries;
+
+	// Particular series numbers to be used by listener code.
+<span class="nc" id="L122">	protected int modelSeriesNum = NO_SERIES;</span>
+<span class="nc" id="L123">	protected int modelFunctionSeriesNum = NO_SERIES;</span>
+<span class="nc" id="L124">	protected int residualsSeriesNum = NO_SERIES;</span>
+<span class="nc" id="L125">	protected int filterSeriesNum = NO_SERIES;</span>
+
+	/**
+	 * Common constructor.
+	 * 
+	 * @param coordSrc
+	 *            A coordinate and error source.
+	 */
+	private ObservationPlotModel(ICoordSource coordSrc) {
+<span class="nc" id="L134">		super();</span>
+<span class="nc" id="L135">		this.coordSrc = coordSrc;</span>
+<span class="nc" id="L136">		this.seriesNum = 0;</span>
+<span class="nc" id="L137">		this.seriesNumToSrcTypeMap = new HashMap&lt;Integer, SeriesType&gt;();</span>
+<span class="nc" id="L138">		this.srcTypeToSeriesNumMap = new TreeMap&lt;SeriesType, Integer&gt;();</span>
+<span class="nc" id="L139">		this.seriesVisibilityMap = new HashMap&lt;SeriesType, Boolean&gt;();</span>
+<span class="nc" id="L140">		this.seriesNumToObSrcListMap = new HashMap&lt;Integer, List&lt;ValidObservation&gt;&gt;();</span>
+<span class="nc" id="L141">		this.atLeastOneVisualBandPresent = false;</span>
+<span class="nc" id="L142">		this.seriesToBeJoinedVisually = new HashSet&lt;Integer&gt;();</span>
+<span class="nc" id="L143">		this.lastSinglySelectedSeries = null;</span>
+
+<span class="nc" id="L145">		Mediator.getInstance().getSeriesCreationNotifier()</span>
+<span class="nc" id="L146">				.addListener(createSeriesCreationListener());</span>
+<span class="nc" id="L147">	}</span>
+
+	/**
+	 * Constructor (for light curve plots).
+	 * 
+	 * We add named observation source lists to unique series numbers.
+	 * 
+	 * @param obsSourceListMap
+	 *            A mapping from source series to lists of observation sources.
+	 * @param coordSrc
+	 *            A coordinate and error source.
+	 * @param obComparator
+	 *            A valid observation comparator (e.g. by JD or phase).
+	 */
+	private ObservationPlotModel(
+			Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; obsSourceListMap,
+			ICoordSource coordSrc, Comparator&lt;ValidObservation&gt; obComparator) {
+
+<span class="nc" id="L165">		this(coordSrc);</span>
+
+<span class="nc" id="L167">		this.obComparator = obComparator;</span>
+
+<span class="nc bnc" id="L169" title="All 2 branches missed.">		for (SeriesType type : obsSourceListMap.keySet()) {</span>
+<span class="nc" id="L170">			addObservationSeries(type, obsSourceListMap.get(type));</span>
+<span class="nc" id="L171">		}</span>
+
+		// We should only make &quot;unspecified&quot; band-based observations visible
+		// by default only if one of the visual bands is *not* present.
+		// See
+		// https://sourceforge.net/tracker/?func=detail&amp;aid=2837957&amp;group_id=263306&amp;atid=1152052
+		//
+		// What if there are no visual bands or &quot;Unspecified&quot; observations? Then
+		// we make all series from the dataset visible.
+		// See
+		// https://sourceforge.net/tracker/?func=detail&amp;aid=3188139&amp;group_id=263306&amp;atid=1152052
+<span class="nc bnc" id="L182" title="All 2 branches missed.">		if (atLeastOneVisualBandPresent) {</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">			if (srcTypeToSeriesNumMap.containsKey(SeriesType.Unspecified)) {</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">				if (seriesVisibilityMap.get(SeriesType.Unspecified) == true) {</span>
+<span class="nc" id="L185">					seriesVisibilityMap.put(SeriesType.Unspecified, false);</span>
+				}
+			}
+		} else {
+			// Make all series visible.
+<span class="nc bnc" id="L190" title="All 2 branches missed.">			for (SeriesType type : obsSourceListMap.keySet()) {</span>
+<span class="nc" id="L191">				seriesVisibilityMap.put(type, true);</span>
+<span class="nc" id="L192">			}</span>
+		}
+
+		// If any series is empty initially (e.g. discrepant or excluded), make
+		// the series not visible.
+<span class="nc bnc" id="L197" title="All 2 branches missed.">		for (SeriesType type : obsSourceListMap.keySet()) {</span>
+<span class="nc" id="L198">			int num = srcTypeToSeriesNumMap.get(type);</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">			if (seriesNumToObSrcListMap.get(num).isEmpty()) {</span>
+<span class="nc" id="L200">				seriesVisibilityMap.put(type, false);</span>
+			}
+<span class="nc" id="L202">		}</span>
+
+<span class="nc" id="L204">		fireDatasetChanged();</span>
+<span class="nc" id="L205">	}</span>
+
+	/**
+	 * Constructor (for phase plots).
+	 * 
+	 * We add named observation source lists to unique series numbers, and if
+	 * the visibility map is non-null, potentially change the set of visible
+	 * series.
+	 * 
+	 * @param obsSourceListMap
+	 *            A mapping from source series to lists of observation sources.
+	 * @param coordSrc
+	 *            A coordinate and error source.
+	 * @param obComparator
+	 *            A valid observation comparator (e.g. by JD or phase).
+	 * @param seriesVisibilityMap
+	 *            A mapping from series number to visibility status.
+	 */
+	protected ObservationPlotModel(
+			Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; obsSourceListMap,
+			ICoordSource coordSrc, Comparator&lt;ValidObservation&gt; obComparator,
+			Map&lt;SeriesType, Boolean&gt; seriesVisibilityMap) {
+
+<span class="nc" id="L228">		this(obsSourceListMap, coordSrc, obComparator);</span>
+
+<span class="nc bnc" id="L230" title="All 2 branches missed.">		if (seriesVisibilityMap != null) {</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">			for (SeriesType seriesType : seriesVisibilityMap.keySet()) {</span>
+<span class="nc" id="L232">				Integer seriesNum = srcTypeToSeriesNumMap.get(seriesType);</span>
+				// A series number may not be available yet, specifically for
+				// means series; can't handle that yet.
+<span class="nc bnc" id="L235" title="All 2 branches missed.">				if (seriesNum != null) {</span>
+<span class="nc" id="L236">					changeSeriesVisibility(seriesNum,</span>
+<span class="nc" id="L237">							seriesVisibilityMap.get(seriesType));</span>
+				}
+<span class="nc" id="L239">			}</span>
+		}
+<span class="nc" id="L241">	}</span>
+
+	/**
+	 * Add an observation series.
+	 * 
+	 * @param type
+	 *            The series type to be associated with the series.
+	 * @param obs
+	 *            A series (list) of observations, in particular, magnitude and
+	 *            Julian Day.
+	 * @return The number of the series added.
+	 * @precondition The series has not yet been added to the plot.
+	 * @postcondition Both seriesNumToObSrcListMap and seriesNumToSrcTypeMap
+	 *                must be the same length.
+	 */
+	public int addObservationSeries(SeriesType type, List&lt;ValidObservation&gt; obs) {
+
+<span class="nc bnc" id="L258" title="All 2 branches missed.">		assert this.srcTypeToSeriesNumMap.get(type) == null;</span>
+
+<span class="nc" id="L260">		int seriesNum = this.getNextSeriesNum();</span>
+
+<span class="nc" id="L262">		this.srcTypeToSeriesNumMap.put(type, seriesNum);</span>
+<span class="nc" id="L263">		this.seriesNumToObSrcListMap.put(seriesNum, obs);</span>
+<span class="nc" id="L264">		this.seriesNumToSrcTypeMap.put(seriesNum, type);</span>
+<span class="nc" id="L265">		this.seriesVisibilityMap.put(type, isSeriesVisibleByDefault(type));</span>
+
+<span class="nc" id="L267">		assert (this.seriesNumToObSrcListMap.size() == this.seriesNumToSrcTypeMap</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">				.size());</span>
+
+<span class="nc" id="L270">		return seriesNum;</span>
+	}
+
+	/**
+	 * Add a single observation to a series list, creating the series first if
+	 * necessary.
+	 * 
+	 * @param ob
+	 *            A valid observation.
+	 * @param series
+	 *            A series.
+	 */
+	public void addObservationToSeries(ValidObservation ob, SeriesType series) {
+<span class="nc" id="L283">		Integer seriesNum = this.srcTypeToSeriesNumMap.get(series);</span>
+
+<span class="nc bnc" id="L285" title="All 2 branches missed.">		if (seriesNum != null) {</span>
+<span class="nc" id="L286">			List&lt;ValidObservation&gt; obList = this.seriesNumToObSrcListMap</span>
+<span class="nc" id="L287">					.get(seriesNum);</span>
+<span class="nc" id="L288">			obList.add(ob);</span>
+			// TODO: this is an expensive operation for the addition of a
+			// single observation! Perhaps we should mandate these lists as
+			// having to be SortedSet. Traversal is no more expensive and
+			// insertion is Log2(n).
+			// SortedSet&lt;E&gt; l = null;
+<span class="nc" id="L294">			Collections.sort(obList, obComparator);</span>
+<span class="nc" id="L295">		} else {</span>
+			// The series does not yet exist, so create it with
+			// a single datapoint.
+<span class="nc" id="L298">			List&lt;ValidObservation&gt; obsList = new ArrayList&lt;ValidObservation&gt;();</span>
+<span class="nc" id="L299">			obsList.add(ob);</span>
+<span class="nc" id="L300">			addObservationSeries(series, obsList);</span>
+		}
+<span class="nc" id="L302">	}</span>
+
+	/**
+	 * Add a list of observations to a series list, creating the series first if
+	 * necessary.
+	 * 
+	 * @param obs
+	 *            The list of observations to be added.
+	 * @param series
+	 *            The series to which to add the list.
+	 */
+	public void addObservationsToSeries(List&lt;ValidObservation&gt; obs,
+			SeriesType series) {
+<span class="nc" id="L315">		Integer seriesNum = this.srcTypeToSeriesNumMap.get(series);</span>
+
+<span class="nc bnc" id="L317" title="All 2 branches missed.">		if (seriesNum != null) {</span>
+<span class="nc" id="L318">			List&lt;ValidObservation&gt; obList = this.seriesNumToObSrcListMap</span>
+<span class="nc" id="L319">					.get(seriesNum);</span>
+<span class="nc" id="L320">			obList.addAll(obs);</span>
+			// TODO: use sorted set instead, as above.
+<span class="nc" id="L322">			Collections.sort(obList, obComparator);</span>
+<span class="nc" id="L323">		} else {</span>
+			// The series does not yet exist, so create it with the observation
+			// list.
+<span class="nc" id="L326">			addObservationSeries(series, obs);</span>
+		}
+<span class="nc" id="L328">	}</span>
+
+	/**
+	 * Replace an existing series
+	 * 
+	 * @param type
+	 *            The series type to be associated with the series.
+	 * @param obs
+	 *            A series (list) of observations, in particular, magnitude and
+	 *            Julian Day.
+	 * @return The number of the series replaced.
+	 * @precondition The series has already been added to the plot.
+	 */
+	public int replaceObservationSeries(SeriesType type,
+			List&lt;ValidObservation&gt; obs) {
+<span class="nc" id="L343">		Integer seriesNum = this.srcTypeToSeriesNumMap.get(type);</span>
+<span class="nc bnc" id="L344" title="All 2 branches missed.">		assert seriesNum != null;</span>
+<span class="nc" id="L345">		this.seriesNumToObSrcListMap.put(seriesNum, obs);</span>
+<span class="nc" id="L346">		this.fireDatasetChanged();</span>
+<span class="nc" id="L347">		return seriesNum;</span>
+	}
+
+	/**
+	 * Remove a single observation from a series list.
+	 * 
+	 * @param ob
+	 *            A valid observation.
+	 * @param series
+	 *            A series.
+	 * @return Whether or not the observation was removed.
+	 */
+	public boolean removeObservationFromSeries(ValidObservation ob,
+			SeriesType series) {
+<span class="nc" id="L361">		boolean removed = false;</span>
+
+<span class="nc" id="L363">		Integer seriesNum = this.srcTypeToSeriesNumMap.get(series);</span>
+
+<span class="nc bnc" id="L365" title="All 2 branches missed.">		if (seriesNum != null) {</span>
+<span class="nc" id="L366">			removed = this.seriesNumToObSrcListMap.get(seriesNum).remove(ob);</span>
+		}
+
+<span class="nc" id="L369">		return removed;</span>
+	}
+
+	/**
+	 * Remove a single observation from a series list.
+	 * 
+	 * @param obs
+	 *            The list of valid observations to be removed.
+	 * @param series
+	 *            The series from which the list is to be removed.
+	 * @return Whether or not the observations were removed.
+	 */
+	public boolean removeObservationsFromSeries(List&lt;ValidObservation&gt; obs,
+			SeriesType series) {
+<span class="nc" id="L383">		boolean removed = false;</span>
+
+<span class="nc" id="L385">		Integer seriesNum = this.srcTypeToSeriesNumMap.get(series);</span>
+
+<span class="nc bnc" id="L387" title="All 2 branches missed.">		if (seriesNum != null) {</span>
+<span class="nc" id="L388">			removed = this.seriesNumToObSrcListMap.get(seriesNum)</span>
+<span class="nc" id="L389">					.removeAll(obs);</span>
+		}
+
+<span class="nc" id="L392">		return removed;</span>
+	}
+
+	/**
+	 * Remove all observations from the specified series, but not the series
+	 * itself.
+	 * 
+	 * @param type
+	 *            The series type.
+	 * @return Whether or not the series observations were removed.
+	 */
+	public boolean removeAllObservationFromSeries(SeriesType type) {
+<span class="nc" id="L404">		boolean removed = false;</span>
+
+<span class="nc" id="L406">		Integer seriesNum = this.srcTypeToSeriesNumMap.get(type);</span>
+
+<span class="nc bnc" id="L408" title="All 2 branches missed.">		if (seriesNum != null) {</span>
+<span class="nc" id="L409">			List&lt;ValidObservation&gt; obs = this.seriesNumToObSrcListMap</span>
+<span class="nc" id="L410">					.get(seriesNum);</span>
+<span class="nc" id="L411">			removed = removeObservationsFromSeries(obs, type);</span>
+		}
+
+<span class="nc bnc" id="L414" title="All 2 branches missed.">		if (removed) {</span>
+<span class="nc" id="L415">			Mediator.getInstance().getValidObservationCategoryMap().get(type)</span>
+<span class="nc" id="L416">					.clear();</span>
+
+<span class="nc" id="L418">			 srcTypeToSeriesNumMap.remove(type);</span>
+<span class="nc" id="L419">			 seriesNumToSrcTypeMap.remove(seriesNum);</span>
+<span class="nc" id="L420">			 seriesNumToObSrcListMap.remove(seriesNum);</span>
+<span class="nc" id="L421">			 seriesVisibilityMap.remove(type);</span>
+//
+//			fireDatasetChanged();
+		}
+
+<span class="nc" id="L426">		return removed;</span>
+	}
+
+	/**
+	 * Attempt to change the specified series' visibility.
+	 * 
+	 * @param seriesNum
+	 *            The series number of interest.
+	 * @param visibility
+	 *            Whether this series should be visible.
+	 * @return Whether or not the visibility of the object changed.
+	 */
+	public boolean changeSeriesVisibility(int seriesNum, boolean visibility) {
+<span class="nc" id="L439">		SeriesType seriesType = seriesNumToSrcTypeMap.get(seriesNum);</span>
+<span class="nc" id="L440">		Boolean currVis = this.seriesVisibilityMap.get(seriesType);</span>
+
+<span class="nc bnc" id="L442" title="All 4 branches missed.">		boolean changed = currVis != null &amp;&amp; currVis != visibility;</span>
+
+<span class="nc bnc" id="L444" title="All 2 branches missed.">		if (changed) {</span>
+			// Update the map and views.
+<span class="nc" id="L446">			this.seriesVisibilityMap.put(seriesType, visibility);</span>
+<span class="nc" id="L447">			this.fireDatasetChanged();</span>
+
+			// Generate a series visibility message.
+<span class="nc" id="L450">			SeriesVisibilityChangeMessage message = new SeriesVisibilityChangeMessage(</span>
+<span class="nc" id="L451">					this, getVisibleSeries());</span>
+<span class="nc" id="L452">			Mediator.getInstance().getSeriesVisibilityChangeNotifier()</span>
+<span class="nc" id="L453">					.notifyListeners(message);</span>
+		}
+
+<span class="nc" id="L456">		return changed;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#getVisibleSeries
+	 *      ()
+	 */
+	public Set&lt;SeriesType&gt; getVisibleSeries() {
+<span class="nc" id="L464">		Set&lt;SeriesType&gt; visibleSeries = new HashSet&lt;SeriesType&gt;();</span>
+
+<span class="nc bnc" id="L466" title="All 2 branches missed.">		for (SeriesType series : seriesVisibilityMap.keySet()) {</span>
+<span class="nc" id="L467">			boolean visible = seriesVisibilityMap.get(series);</span>
+<span class="nc bnc" id="L468" title="All 2 branches missed.">			if (visible) {</span>
+<span class="nc" id="L469">				visibleSeries.add(series);</span>
+			}
+<span class="nc" id="L471">		}</span>
+
+<span class="nc" id="L473">		return visibleSeries;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#getSeriesCount()
+	 */
+	public int getSeriesCount() {
+<span class="nc" id="L480">		return this.seriesNumToObSrcListMap.size();</span>
+	}
+
+	/**
+	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesKey(int)
+	 */
+	public Comparable getSeriesKey(int series) {
+<span class="nc bnc" id="L487" title="All 2 branches missed.">		if (!seriesNumToObSrcListMap.containsKey(series)) {</span>
+<span class="nc" id="L488">			throw new IllegalArgumentException(&quot;Series number '&quot; + series</span>
+					+ &quot;' out of range.&quot;);
+		}
+
+<span class="nc" id="L492">		return this.seriesNumToSrcTypeMap.get(series);</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#getSeriesKeys()
+	 */
+	public Set&lt;SeriesType&gt; getSeriesKeys() {
+<span class="nc" id="L499">		return srcTypeToSeriesNumMap.keySet();</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#seriesExists(org.aavso.tools.vstar.data.SeriesType)
+	 */
+	public boolean seriesExists(SeriesType type) {
+<span class="nc" id="L506">		return this.srcTypeToSeriesNumMap.containsKey(type);</span>
+	}
+
+	@Override
+	public List&lt;ValidObservation&gt; getObservations(SeriesType type) {
+<span class="nc" id="L511">		int num = getSrcTypeToSeriesNumMap().get(type);</span>
+<span class="nc" id="L512">		return getSeriesNumToObSrcListMap().get(num);</span>
+	}
+
+	/**
+	 * @see org.jfree.data.xy.XYDataset#getItemCount(int)
+	 * @return The number of observations (items) in the requested series.
+	 */
+	public int getItemCount(int series) {
+<span class="nc" id="L520">		return coordSrc.getItemCount(series, seriesNumToObSrcListMap);</span>
+	}
+
+	/**
+	 * @see org.jfree.data.xy.XYDataset#getX(int, int)
+	 */
+	public Number getX(int series, int item) {
+<span class="nc" id="L527">		return coordSrc.getXCoord(series, item, this.seriesNumToObSrcListMap);</span>
+	}
+
+	/**
+	 * @see org.jfree.data.xy.XYDataset#getY(int, int)
+	 */
+	public Number getY(int series, int item) {
+<span class="nc" id="L534">		return getMagAsYCoord(series, coordSrc.getActualYItemNum(series, item,</span>
+				seriesNumToObSrcListMap));
+	}
+
+	/**
+	 * @see org.jfree.data.xy.AbstractXYDataset#getDomainOrder()
+	 */
+	public DomainOrder getDomainOrder() {
+<span class="nc" id="L542">		return DomainOrder.ASCENDING;</span>
+	}
+
+	// TODO: in future, I think we want to get rid of this approach and just
+	// leave all series join logic in the view classes.
+	// In addition, it ought to be possible for *any* series to joined, so we
+	// need to unify this at the series change dialog level (for example).
+
+	/**
+	 * Which series' elements should be joined visually (e.g. with lines)?
+	 * 
+	 * @return A collection of series numbers for series whose elements should
+	 *         be joined visually.
+	 */
+	public Collection&lt;Integer&gt; getSeriesWhoseElementsShouldBeJoinedVisually() {
+<span class="nc" id="L557">		return seriesToBeJoinedVisually;</span>
+	}
+
+	// AbstractIntervalXYDataSet methods.
+	// To be used for error bar handling.
+
+	public Number getStartX(int series, int item) {
+<span class="nc" id="L564">		return coordSrc.getXCoord(series, item, this.seriesNumToObSrcListMap);</span>
+	}
+
+	public Number getEndX(int series, int item) {
+<span class="nc" id="L568">		return coordSrc.getXCoord(series, item, this.seriesNumToObSrcListMap);</span>
+	}
+
+	public Number getStartY(int series, int item) {
+<span class="nc" id="L572">		int actualItem = coordSrc.getActualYItemNum(series, item,</span>
+				seriesNumToObSrcListMap);
+<span class="nc" id="L574">		return getMagAsYCoord(series, actualItem)</span>
+<span class="nc" id="L575">				- getMagError(series, actualItem);</span>
+	}
+
+	public Number getEndY(int series, int item) {
+<span class="nc" id="L579">		int actualItem = coordSrc.getActualYItemNum(series, item,</span>
+				seriesNumToObSrcListMap);
+<span class="nc" id="L581">		return getMagAsYCoord(series, actualItem)</span>
+<span class="nc" id="L582">				+ getMagError(series, actualItem);</span>
+	}
+
+	// Helpers
+
+	protected int getNextSeriesNum() {
+<span class="nc" id="L588">		return seriesNum++;</span>
+	}
+
+	/**
+	 * Return the magnitude as the Y coordinate.
+	 * 
+	 * @param series
+	 *            The series number.
+	 * @param item
+	 *            The item number within the series.
+	 * @return The magnitude value.
+	 */
+	public double getMagAsYCoord(int series, int item) {
+<span class="nc" id="L601">		return this.seriesNumToObSrcListMap.get(series).get(item)</span>
+<span class="nc" id="L602">				.getMagnitude().getMagValue();</span>
+	}
+
+	/**
+	 * Return the error associated with the magnitude. We skip the series and
+	 * item legality check to improve performance on the assumption that this
+	 * has been checked already when calling getMagAsYCoord(). So this is a
+	 * precondition of calling the current function.
+	 * 
+	 * @param series
+	 *            The series number.
+	 * @param item
+	 *            The item number within the series.
+	 * @return The error value associated with the mean.
+	 */
+	public double getMagError(int series, int item) {
+<span class="nc" id="L618">		double error = 0;</span>
+
+		// If the HQ uncertainty field is non-null, use that, otherwise
+		// use the uncertainty value, which may be zero, in which case
+		// the error will be zero.
+
+<span class="nc" id="L624">		Double hqUncertainty = this.seriesNumToObSrcListMap.get(series)</span>
+<span class="nc" id="L625">				.get(item).getHqUncertainty();</span>
+
+<span class="nc bnc" id="L627" title="All 4 branches missed.">		if (hqUncertainty != null &amp;&amp; hqUncertainty != 0) {</span>
+<span class="nc" id="L628">			error = hqUncertainty;</span>
+		} else {
+<span class="nc" id="L630">			error = this.seriesNumToObSrcListMap.get(series).get(item)</span>
+<span class="nc" id="L631">					.getMagnitude().getUncertainty();</span>
+		}
+
+<span class="nc" id="L634">		return error;</span>
+	}
+
+	/**
+	 * Given a series and item number, return the corresponding observation.
+	 * 
+	 * @param series
+	 *            The series number.
+	 * @param item
+	 *            The item within the series.
+	 * @return The valid observation.
+	 * @throws IllegalArgumentException
+	 *             if series or item are out of range.
+	 */
+	public ValidObservation getValidObservation(int series, int item) {
+<span class="nc" id="L649">		return coordSrc.getValidObservation(series, item,</span>
+				seriesNumToObSrcListMap);
+	}
+
+	/**
+	 * @return the seriesNumToObSrcListMap
+	 */
+	public Map&lt;Integer, List&lt;ValidObservation&gt;&gt; getSeriesNumToObSrcListMap() {
+<span class="nc" id="L657">		return seriesNumToObSrcListMap;</span>
+	}
+
+	/**
+	 * @return the srcTypeToSeriesNumMap
+	 */
+	public Map&lt;SeriesType, Integer&gt; getSrcTypeToSeriesNumMap() {
+<span class="nc" id="L664">		return srcTypeToSeriesNumMap;</span>
+	}
+
+	/**
+	 * @return the seriesNumToSrcTypeMap
+	 */
+	public Map&lt;Integer, SeriesType&gt; getSeriesNumToSrcTypeMap() {
+<span class="nc" id="L671">		return seriesNumToSrcTypeMap;</span>
+	}
+
+	/**
+	 * @return the seriesVisibilityMap
+	 */
+	public Map&lt;SeriesType, Boolean&gt; getSeriesVisibilityMap() {
+<span class="nc" id="L678">		return seriesVisibilityMap;</span>
+	}
+
+	/**
+	 * @param lastSinglySelectedSeries
+	 *            the lastSinglySelectedSeries to set
+	 */
+	public void setLastSinglySelectedSeries(SeriesType series) {
+<span class="nc" id="L686">		this.lastSinglySelectedSeries = series;</span>
+<span class="nc" id="L687">	}</span>
+
+	/**
+	 * @return the lastSinglySelectedSeries
+	 */
+	public SeriesType getLastSinglySelectedSeries() {
+<span class="nc" id="L693">		return lastSinglySelectedSeries;</span>
+	}
+
+	// Helper methods.
+
+	/**
+	 * Should the specified series be visible by default?
+	 * 
+	 * @param series
+	 *            The series name.
+	 * @return Whether or not the series should be visible by default.
+	 */
+	public boolean isSeriesVisibleByDefault(SeriesType series) {
+<span class="nc" id="L706">		boolean visible = false;</span>
+
+		// TODO: We could delegate &quot;is visible&quot; to SeriesType which
+		// could also be used by means plot model code.
+
+<span class="nc bnc" id="L711" title="All 2 branches missed.">		if (series != SeriesType.Excluded) {</span>
+			// Visual bands.
+<span class="nc bnc" id="L713" title="All 2 branches missed.">			visible |= series == SeriesType.Visual;</span>
+<span class="nc bnc" id="L714" title="All 2 branches missed.">			visible |= series == SeriesType.Johnson_V;</span>
+
+<span class="nc bnc" id="L716" title="All 4 branches missed.">			if (!atLeastOneVisualBandPresent &amp;&amp; visible) {</span>
+<span class="nc" id="L717">				atLeastOneVisualBandPresent = true;</span>
+			}
+
+			// We also allow for unspecified series type, e.g. since the
+			// source could be from a simple observation file where no band
+			// is specified.
+<span class="nc bnc" id="L723" title="All 2 branches missed.">			visible |= series == SeriesType.Unspecified;</span>
+
+			// Finally, if observations come from an external source (via a
+			// plugin), make a series visible by default.
+<span class="nc" id="L727">			NewStarMessage msg = Mediator.getInstance()</span>
+<span class="nc" id="L728">					.getLatestNewStarMessage();</span>
+<span class="nc bnc" id="L729" title="All 2 branches missed.">			visible |= msg.getNewStarType() == NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;</span>
+		}
+
+<span class="nc" id="L732">		return visible;</span>
+	}
+	
+	// Returns a series creation listener, adding a new observation series to
+	// the plot, and making it visible.
+	protected Listener&lt;SeriesCreationMessage&gt; createSeriesCreationListener() {
+<span class="nc" id="L738">		return new Listener&lt;SeriesCreationMessage&gt;() {</span>
+
+			@Override
+			public void update(SeriesCreationMessage info) {
+<span class="nc" id="L742">				int seriesNum = NO_SERIES;</span>
+
+<span class="nc bnc" id="L744" title="All 2 branches missed.">				if (seriesExists(info.getType())) {</span>
+<span class="nc" id="L745">					seriesNum = replaceObservationSeries(info.getType(),</span>
+<span class="nc" id="L746">							info.getObs());</span>
+				} else {
+<span class="nc" id="L748">					seriesNum = addObservationSeries(info.getType(),</span>
+<span class="nc" id="L749">							info.getObs());</span>
+				}
+
+				// Make sure the new series is initially not visible, before
+				// making it visible.
+<span class="nc" id="L754">				seriesVisibilityMap.put(info.getType(), false);</span>
+<span class="nc" id="L755">				changeSeriesVisibility(seriesNum, true);</span>
+<span class="nc" id="L756">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L760">				return true;</span>
+			}
+		};
+	}
+
+	/**
+	 * Listen for a model series selection and add/remove its fit and residual
+	 * observations from the relevant collections. We need to re-calculate the
+	 * means series if any of the model observations' series type is the same as
+	 * the mean source series type.
+	 */
+	abstract protected Listener&lt;ModelSelectionMessage&gt; createModelSelectionListener();
+
+	/**
+	 * Listen for a filtered observation and add/remove its observations from
+	 * the relevant collections. We need to re-calculate the means series if any
+	 * of the model observations' series type is the same as the mean source
+	 * series type.
+	 */
+	abstract protected Listener&lt;FilteredObservationMessage&gt; createFilteredObservationListener();
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

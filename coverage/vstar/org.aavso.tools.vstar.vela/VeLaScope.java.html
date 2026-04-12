@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VeLaScope.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.vela</a> &gt; <span class="el_source">VeLaScope.java</span></div><h1>VeLaScope.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.vela;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+/**
+ * This class represents a VeLa scope assumed to exist within a stack of scopes,
+ * with a global scope at the bottom and function scopes thereafter. Symbols in
+ * each correspond to variable or function bindings.
+ */
+public class VeLaScope extends VeLaEnvironment&lt;Operand&gt; {
+
+	// A multi-map of names to potentially overloaded functions.
+	private Map&lt;String, List&lt;FunctionExecutor&gt;&gt; functions;
+
+	public VeLaScope() {
+<span class="fc" id="L37">		super();</span>
+<span class="fc" id="L38">		functions = new HashMap&lt;String, List&lt;FunctionExecutor&gt;&gt;();</span>
+<span class="fc" id="L39">	}</span>
+
+	/**
+	 * @return the functions
+	 */
+	public Map&lt;String, List&lt;FunctionExecutor&gt;&gt; getFunctions() {
+<span class="fc" id="L45">		return functions;</span>
+	}
+
+	@Override
+    public boolean isMutable() {
+<span class="fc" id="L50">        return true;</span>
+    }
+
+    /**
+	 * Add a function executor to the multi-map.&lt;br/&gt;
+	 * If the new executor has the same signature as one already in existence,
+	 * it will be replaced.
+	 * 
+	 * @param executor
+	 *            The function executor to be added.
+	 */
+	public void addFunctionExecutor(FunctionExecutor executor) {
+<span class="fc" id="L62">		List&lt;FunctionExecutor&gt; executors = functions.get(executor.getFuncName()</span>
+<span class="fc" id="L63">				.get());</span>
+
+<span class="fc bfc" id="L65" title="All 2 branches covered.">		if (executors == null) {</span>
+<span class="fc" id="L66">			executors = new ArrayList&lt;FunctionExecutor&gt;();</span>
+<span class="fc" id="L67">			functions.put(executor.getFuncName().get(), executors);</span>
+<span class="fc" id="L68">			executors.add(executor);</span>
+		} else {
+
+<span class="fc" id="L71">			int index = -1;</span>
+
+<span class="fc bfc" id="L73" title="All 2 branches covered.">			for (int i = 0; i &lt; executors.size(); i++) {</span>
+<span class="fc" id="L74">				FunctionExecutor func = executors.get(i);</span>
+				// Two functions are equivalent if they have the same
+				// parameters.
+<span class="fc bfc" id="L77" title="All 2 branches covered.">				if (func.parameterTypes.equals(executor.parameterTypes)) {</span>
+<span class="fc" id="L78">					index = i;</span>
+				}
+			}
+
+<span class="fc bfc" id="L82" title="All 2 branches covered.">			if (index == -1) {</span>
+				// The common case is a new function...
+<span class="fc" id="L84">				executors.add(executor);</span>
+			} else {
+				// ...but sometimes we will replace an existing function
+				// (last one defined wins).
+<span class="fc" id="L88">				executors.set(index, executor);</span>
+			}
+		}
+<span class="fc" id="L91">	}</span>
+
+	/**
+     * Add all symbol bindings and functions from another scope to this one.
+     *
+     * @param other
+     *            The scope to be added to this one.
+     */
+    public void addAll(VeLaScope other) {
+<span class="fc" id="L100">        super.addAll(other);</span>
+<span class="fc" id="L101">        functions.putAll(other.functions);</span>
+<span class="fc" id="L102">    }</span>
+
+	/**
+	 * Lookup the named function, returning an optional list of functions.
+	 * 
+	 * @param name
+	 *            The desired function name.
+	 * @return An optional list of function executors.
+	 */
+	public Optional&lt;List&lt;FunctionExecutor&gt;&gt; lookupFunction(String name) {
+<span class="fc" id="L112">		Optional&lt;List&lt;FunctionExecutor&gt;&gt; funList = Optional.empty();</span>
+
+<span class="fc bfc" id="L114" title="All 2 branches covered.">		if (functions.containsKey(name)) {</span>
+<span class="fc" id="L115">			funList = Optional.of(functions.get(name));</span>
+		}
+
+<span class="fc" id="L118">		return funList;</span>
+	}
+
+	/**
+	 * Is this scope empty?
+	 */
+	@Override
+	public boolean isEmpty() {
+<span class="pc bpc" id="L126" title="1 of 4 branches missed.">		return super.isEmpty() &amp;&amp; functions.isEmpty();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

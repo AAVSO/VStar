@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommentCodes.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.data</a> &gt; <span class="el_source">CommentCodes.java</span></div><h1>CommentCodes.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.data;
+
+import java.util.Collection;
+import java.util.HashSet;
+
+/**
+ * This class stores the possible array of comment codes
+ */
+public class CommentCodes {
+
+	private Collection&lt;CommentType&gt; commentcodes;
+	private String origString;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param commentcodes
+	 *            comment code string from the data
+	 */
+<span class="fc" id="L37">	public CommentCodes(String cc) {</span>
+		// parse the string and bust it up and fill the array with the values
+		// returned from the enum
+<span class="fc" id="L40">		commentcodes = new HashSet&lt;CommentType&gt;();</span>
+
+<span class="fc bfc" id="L42" title="All 2 branches covered.">		if (cc != null) {</span>
+<span class="fc" id="L43">			origString = cc;</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">			for (char c : cc.toCharArray()) {</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">				if (c != ' ') {</span>
+<span class="fc" id="L46">					CommentType commentCode = CommentType</span>
+<span class="fc" id="L47">							.getTypeFromFlag(String.valueOf(c));</span>
+
+<span class="fc bfc" id="L49" title="All 2 branches covered.">					if (commentCode != CommentType.OTHER) {</span>
+<span class="fc" id="L50">						commentcodes.add(commentCode);</span>
+					} else {
+						// If we encounter an &quot;other&quot; comment,
+						// stop processing and just use &quot;other&quot;.
+						// See tracker 2909469.
+<span class="fc" id="L55">						commentcodes.clear();</span>
+<span class="fc" id="L56">						commentcodes.add(CommentType.OTHER);</span>
+<span class="fc" id="L57">						break;</span>
+					}
+				}
+			}
+		} else {
+<span class="fc" id="L62">			origString = new String();</span>
+		}
+
+<span class="fc" id="L65">	}</span>
+
+	/**
+	 * @return the commentcodes
+	 */
+	public Collection&lt;CommentType&gt; getCommentcodes() {
+<span class="fc" id="L71">		return commentcodes;</span>
+	}
+
+	public String toString() {
+<span class="nc" id="L75">		StringBuffer strBuf = new StringBuffer();</span>
+
+<span class="nc bnc" id="L77" title="All 2 branches missed.">		for (CommentType t : commentcodes) {</span>
+<span class="nc" id="L78">			strBuf.append(t); // or t.toString() if necessary</span>
+<span class="nc" id="L79">		}</span>
+
+<span class="nc" id="L81">		return strBuf.toString();</span>
+	}
+
+	public String getOrigString() {
+<span class="fc" id="L85">		return origString;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+<span class="fc" id="L93">		final int prime = 31;</span>
+<span class="fc" id="L94">		int result = 1;</span>
+<span class="fc" id="L95">		result = prime * result</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">				+ ((commentcodes == null) ? 0 : commentcodes.hashCode());</span>
+<span class="fc" id="L97">		result = prime * result</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">				+ ((origString == null) ? 0 : origString.hashCode());</span>
+<span class="fc" id="L99">		return result;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">		if (this == obj) {</span>
+<span class="nc" id="L108">			return true;</span>
+		}
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">		if (obj == null) {</span>
+<span class="nc" id="L111">			return false;</span>
+		}
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">		if (!(obj instanceof CommentCodes)) {</span>
+<span class="nc" id="L114">			return false;</span>
+		}
+<span class="fc" id="L116">		CommentCodes other = (CommentCodes) obj;</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">		if (commentcodes == null) {</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">			if (other.commentcodes != null) {</span>
+<span class="nc" id="L119">				return false;</span>
+			}
+<span class="fc bfc" id="L121" title="All 2 branches covered.">		} else if (!commentcodes.equals(other.commentcodes)) {</span>
+<span class="fc" id="L122">			return false;</span>
+		}
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">		if (origString == null) {</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">			if (other.origString != null) {</span>
+<span class="nc" id="L126">				return false;</span>
+			}
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">		} else if (!origString.equals(other.origString)) {</span>
+<span class="nc" id="L129">			return false;</span>
+		}
+<span class="fc" id="L131">		return true;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

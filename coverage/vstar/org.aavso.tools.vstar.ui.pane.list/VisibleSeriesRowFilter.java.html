@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VisibleSeriesRowFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.pane.list</a> &gt; <span class="el_source">VisibleSeriesRowFilter.java</span></div><h1>VisibleSeriesRowFilter.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.pane.list;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.RowFilter;
+
+import org.aavso.tools.vstar.data.IOrderedObservationSource;
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesCreationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
+import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
+import org.aavso.tools.vstar.util.notification.Listener;
+
+/**
+ * This class filters observations by whether or not they are visible in the
+ * plot, information obtained from the model.
+ */
+public class VisibleSeriesRowFilter extends RowFilter&lt;IOrderedObservationSource, Integer&gt; {
+
+	private ValidObservationTableModel tableModel;
+	private Set&lt;SeriesType&gt; visibleSeries;
+	private Set&lt;ValidObservation&gt; filteredObs;
+	private Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; userDefinedObs;
+	private AnalysisType analysisType;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param visibleSeries The initially visible series.
+	 * @param analysisType  The analysis type (raw, phase) under which this table
+	 *                      was created.
+	 */
+	public VisibleSeriesRowFilter(ValidObservationTableModel tableModel, Set&lt;SeriesType&gt; visibleSeries,
+			AnalysisType analysisType) {
+<span class="nc" id="L62">		super();</span>
+<span class="nc" id="L63">		this.tableModel = tableModel;</span>
+<span class="nc" id="L64">		this.visibleSeries = visibleSeries;</span>
+<span class="nc" id="L65">		this.filteredObs = null;</span>
+<span class="nc" id="L66">		this.userDefinedObs = new HashMap&lt;SeriesType, List&lt;ValidObservation&gt;&gt;();</span>
+<span class="nc" id="L67">		this.userDefinedObs.putAll(tableModel.getObsSourceListMap());</span>
+<span class="nc" id="L68">		this.analysisType = analysisType;</span>
+
+<span class="nc" id="L70">		Mediator.getInstance().getSeriesVisibilityChangeNotifier().addListener(createSeriesVisibilityChangeListener());</span>
+<span class="nc" id="L71">		Mediator.getInstance().getFilteredObservationNotifier().addListener(createFilteredObservationListener());</span>
+<span class="nc" id="L72">		Mediator.getInstance().getExcludedObservationNotifier().addListener(createExcludedObservationListener());</span>
+<span class="nc" id="L73">		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(createDiscrepantObservationListener());</span>
+<span class="nc" id="L74">		Mediator.getInstance().getSeriesCreationNotifier().addListener(createSeriesCreationListener());</span>
+<span class="nc" id="L75">	}</span>
+
+	@Override
+	public boolean include(javax.swing.RowFilter.Entry&lt;? extends IOrderedObservationSource, ? extends Integer&gt; entry) {
+
+<span class="nc" id="L80">		boolean visible = false;</span>
+
+<span class="nc" id="L82">		int id = entry.getIdentifier();</span>
+<span class="nc" id="L83">		IOrderedObservationSource model = entry.getModel();</span>
+<span class="nc" id="L84">		ValidObservation ob = model.getObservations().get(id);</span>
+
+		SeriesType series;
+
+<span class="nc bnc" id="L88" title="All 2 branches missed.">		if (ob.isDiscrepant()) {</span>
+<span class="nc" id="L89">			series = SeriesType.DISCREPANT;</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">		} else if (ob.isExcluded()) {</span>
+<span class="nc" id="L91">			series = SeriesType.Excluded;</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		} else if (ob.getMagnitude().isFainterThan()) {</span>
+<span class="nc" id="L93">			series = SeriesType.FAINTER_THAN;</span>
+		} else {
+<span class="nc" id="L95">			series = ob.getBand();</span>
+		}
+
+<span class="nc bnc" id="L98" title="All 2 branches missed.">		if (ob.getSeries() == ob.getBand()) {</span>
+<span class="nc" id="L99">			visible = visibleSeries.contains(series);</span>
+		} else {
+<span class="nc" id="L101">			series = ob.getSeries();</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">			if (userDefinedObs.containsKey(series)) {</span>
+<span class="nc" id="L103">				visible = visibleSeries.contains(series);</span>
+			}
+		}
+
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		if (!visible) {</span>
+<span class="nc bnc" id="L108" title="All 4 branches missed.">			if (visibleSeries.contains(SeriesType.Filtered) &amp;&amp; filteredObs != null) {</span>
+				// The observation is not visible because the series to which it belongs
+				// in the plot is not visible currently. It may be filtered however, so check
+				// whether the filtered series is in the set of visible series and whether the
+				// observation is in the set of filtered observations.
+<span class="nc" id="L113">				visible = filteredObs.contains(ob);</span>
+			}
+		}
+
+<span class="nc" id="L117">		return visible;</span>
+	}
+
+	// Returns a filtered observation listener to update the set of filtered
+	// observations.
+	private Listener&lt;FilteredObservationMessage&gt; createFilteredObservationListener() {
+<span class="nc" id="L123">		return new Listener&lt;FilteredObservationMessage&gt;() {</span>
+			public void update(FilteredObservationMessage info) {
+<span class="nc bnc" id="L125" title="All 2 branches missed.">				if (Mediator.getInstance().getAnalysisType() == analysisType) {</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">					if (info == FilteredObservationMessage.NO_FILTER) {</span>
+						// Do nothing. We want to keep the filtered observations
+						// in case the Filter series is selected again.
+					} else {
+<span class="nc" id="L130">						filteredObs = info.getFilteredObs();</span>
+					}
+<span class="nc" id="L132">					tableModel.fireTableDataChanged();</span>
+				}
+<span class="nc" id="L134">			}</span>
+
+			public boolean canBeRemoved() {
+<span class="nc" id="L137">				return true;</span>
+			}
+		};
+	}
+
+	// Returns a series visibility change listener to update the visible
+	// series.
+	private Listener&lt;SeriesVisibilityChangeMessage&gt; createSeriesVisibilityChangeListener() {
+<span class="nc" id="L145">		return new Listener&lt;SeriesVisibilityChangeMessage&gt;() {</span>
+			public void update(SeriesVisibilityChangeMessage info) {
+<span class="nc bnc" id="L147" title="All 2 branches missed.">				if (Mediator.getInstance().getAnalysisType() == analysisType) {</span>
+<span class="nc" id="L148">					visibleSeries = info.getVisibleSeries();</span>
+<span class="nc" id="L149">					tableModel.fireTableDataChanged();</span>
+				}
+<span class="nc" id="L151">			}</span>
+
+			public boolean canBeRemoved() {
+<span class="nc" id="L154">				return true;</span>
+			}
+		};
+	}
+
+	// Returns a series creation listener to trigger a row filtering
+	// operation.
+	protected Listener&lt;SeriesCreationMessage&gt; createSeriesCreationListener() {
+<span class="nc" id="L162">		return new Listener&lt;SeriesCreationMessage&gt;() {</span>
+			@Override
+			public void update(SeriesCreationMessage info) {
+<span class="nc bnc" id="L165" title="All 2 branches missed.">				if (Mediator.getInstance().getAnalysisType() == analysisType) {</span>
+<span class="nc" id="L166">					userDefinedObs.put(info.getType(), info.getObs());</span>
+<span class="nc" id="L167">					tableModel.fireTableDataChanged();</span>
+				}
+<span class="nc" id="L169">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L173">				return true;</span>
+			}
+		};
+	}
+
+	// Returns an excluded observation listener to trigger a row filtering
+	// operation.
+	private Listener&lt;ExcludedObservationMessage&gt; createExcludedObservationListener() {
+<span class="nc" id="L181">		return new Listener&lt;ExcludedObservationMessage&gt;() {</span>
+			@Override
+			public void update(ExcludedObservationMessage info) {
+<span class="nc bnc" id="L184" title="All 2 branches missed.">				if (Mediator.getInstance().getAnalysisType() == analysisType) {</span>
+<span class="nc" id="L185">					tableModel.fireTableDataChanged();</span>
+				}
+<span class="nc" id="L187">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L191">				return true;</span>
+			}
+		};
+	}
+
+	// Returns a discrepant observation listener to trigger a row filtering
+	// operation.
+	private Listener&lt;DiscrepantObservationMessage&gt; createDiscrepantObservationListener() {
+<span class="nc" id="L199">		return new Listener&lt;DiscrepantObservationMessage&gt;() {</span>
+			@Override
+			public void update(DiscrepantObservationMessage info) {
+<span class="nc bnc" id="L202" title="All 2 branches missed.">				if (Mediator.getInstance().getAnalysisType() == analysisType) {</span>
+<span class="nc" id="L203">					tableModel.fireTableDataChanged();</span>
+				}
+<span class="nc" id="L205">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L209">				return true;</span>
+			}
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

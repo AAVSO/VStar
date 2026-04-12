@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OptionalityFieldValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.data.validation</a> &gt; <span class="el_source">OptionalityFieldValidator.java</span></div><h1>OptionalityFieldValidator.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.data.validation;
+
+import org.aavso.tools.vstar.exception.ObservationValidationError;
+
+/**
+ * This class validates fields as optional or non-optional, returning 
+ * the field or null.
+ */
+public class OptionalityFieldValidator extends AbstractStringValidator&lt;String&gt; {
+
+	public static final boolean CAN_BE_EMPTY = true;
+	public static final boolean CANNOT_BE_EMPTY = false;
+
+	private boolean canBeEmpty;
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param kind
+	 *            The kind of entity (e.g. field name) we are validating.
+	 * 
+	 * @param canBeEmpty Can fields validated by this class be empty?  
+	 */
+	public OptionalityFieldValidator(String kind, boolean canBeEmpty) {
+<span class="fc" id="L42">		super(kind);</span>
+<span class="fc" id="L43">		this.canBeEmpty = canBeEmpty;</span>
+<span class="fc" id="L44">	}</span>
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param canBeEmpty Can fields validated by this class be empty?  
+	 */
+<span class="fc" id="L51">	public OptionalityFieldValidator(boolean canBeEmpty) {</span>
+<span class="fc" id="L52">		this.canBeEmpty = canBeEmpty;</span>
+<span class="fc" id="L53">	}</span>
+
+	public String validate(String str)
+			throws ObservationValidationError {
+<span class="fc bfc" id="L57" title="All 2 branches covered.">		if (this.isLegallyEmpty(str)) return null;</span>
+
+<span class="fc" id="L59">		return str;</span>
+	}
+
+	protected boolean canBeEmpty() {
+<span class="fc" id="L63">		return this.canBeEmpty;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

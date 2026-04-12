@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ObservationSelectionMessage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.mediator.message</a> &gt; <span class="el_source">ObservationSelectionMessage.java</span></div><h1>ObservationSelectionMessage.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.mediator.message;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+
+/**
+ * This message is sent to denote the selection of a valid observation 
+ * from a specific source.
+ */
+public class ObservationSelectionMessage extends MessageBase {
+
+	private ValidObservation observation;
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param observation
+	 *            The observation.
+	 * @param source
+	 *            The source of the message.
+	 */
+	public ObservationSelectionMessage(ValidObservation observation,
+			Object source) {
+<span class="nc" id="L40">		super(source);</span>
+<span class="nc" id="L41">		this.observation = observation;</span>
+<span class="nc" id="L42">	}</span>
+
+	/**
+	 * @return the observation
+	 */
+	public ValidObservation getObservation() {
+<span class="nc" id="L48">		return observation;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NumericPrecisionSelectionPane.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.prefs</a> &gt; <span class="el_source">NumericPrecisionSelectionPane.java</span></div><h1>NumericPrecisionSelectionPane.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.prefs;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
+/**
+ * This preferences pane permits the selection of numeric precision (primarily
+ * as it relates to the number of decimal places in output, and in some cases,
+ * input).
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class NumericPrecisionSelectionPane extends JPanel implements
+		IPreferenceComponent {
+
+	private JSpinner timeDecimalPlacesSpinner;
+	private JSpinner magDecimalPlacesSpinner;
+	private JSpinner otherDecimalPlacesSpinner;
+
+<span class="nc" id="L53">	private Integer changedTimeDecimalPlacesValue = null;</span>
+<span class="nc" id="L54">	private Integer changedMagDecimalPlacesValue = null;</span>
+<span class="nc" id="L55">	private Integer changedOtherDecimalPlacesValue = null;</span>
+
+	/**
+	 * Constructor.
+	 */
+	public NumericPrecisionSelectionPane() {
+<span class="nc" id="L61">		super();</span>
+
+<span class="nc" id="L63">		JPanel decimalPlacesPane = new JPanel();</span>
+<span class="nc" id="L64">		decimalPlacesPane.setLayout(new BoxLayout(decimalPlacesPane,</span>
+				BoxLayout.PAGE_AXIS));
+<span class="nc" id="L66">		decimalPlacesPane</span>
+<span class="nc" id="L67">				.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L69">		JTextArea infoText = new JTextArea(</span>
+				&quot;Specify numeric precision in terms of decimal\n&quot;
+						+ &quot;places for different categories of data.&quot;);
+<span class="nc" id="L72">		infoText.setEditable(false);</span>
+<span class="nc" id="L73">		infoText.setBorder(BorderFactory.createEtchedBorder());</span>
+<span class="nc" id="L74">		decimalPlacesPane.add(infoText);</span>
+
+<span class="nc" id="L76">		decimalPlacesPane.add(Box.createRigidArea(new Dimension(10, 50)));</span>
+
+		// Add decimal place spinners.
+
+<span class="nc" id="L80">		timeDecimalPlacesSpinner = createDecimalPlacesSpinner(</span>
+<span class="nc" id="L81">				NumericPrecisionPrefs.getTimeDecimalPlaces(),</span>
+				&quot;Time (JD, phase)&quot;);
+<span class="nc" id="L83">		decimalPlacesPane.add(timeDecimalPlacesSpinner);</span>
+<span class="nc" id="L84">		timeDecimalPlacesSpinner.addChangeListener(new ChangeListener() {</span>
+			@Override
+			public void stateChanged(ChangeEvent e) {
+<span class="nc" id="L87">				changedTimeDecimalPlacesValue = (Integer) timeDecimalPlacesSpinner</span>
+<span class="nc" id="L88">						.getValue();</span>
+
+<span class="nc" id="L90">			}</span>
+		});
+
+<span class="nc" id="L93">		decimalPlacesPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+<span class="nc" id="L95">		magDecimalPlacesSpinner = createDecimalPlacesSpinner(</span>
+<span class="nc" id="L96">				NumericPrecisionPrefs.getMagDecimalPlaces(),</span>
+				&quot;Magnitude (including error or uncertainty)&quot;);
+<span class="nc" id="L98">		decimalPlacesPane.add(magDecimalPlacesSpinner);</span>
+<span class="nc" id="L99">		magDecimalPlacesSpinner.addChangeListener(new ChangeListener() {</span>
+			@Override
+			public void stateChanged(ChangeEvent e) {
+<span class="nc" id="L102">				changedMagDecimalPlacesValue = (Integer) magDecimalPlacesSpinner</span>
+<span class="nc" id="L103">						.getValue();</span>
+<span class="nc" id="L104">			}</span>
+		});
+
+<span class="nc" id="L107">		decimalPlacesPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+<span class="nc" id="L109">		otherDecimalPlacesSpinner = createDecimalPlacesSpinner(</span>
+<span class="nc" id="L110">				NumericPrecisionPrefs.getOtherDecimalPlaces(),</span>
+				&quot;All other values (e.g. period)&quot;);
+<span class="nc" id="L112">		decimalPlacesPane.add(otherDecimalPlacesSpinner);</span>
+<span class="nc" id="L113">		otherDecimalPlacesSpinner.addChangeListener(new ChangeListener() {</span>
+			@Override
+			public void stateChanged(ChangeEvent e) {
+<span class="nc" id="L116">				changedOtherDecimalPlacesValue = (Integer) otherDecimalPlacesSpinner</span>
+<span class="nc" id="L117">						.getValue();</span>
+<span class="nc" id="L118">			}</span>
+		});
+
+<span class="nc" id="L121">		decimalPlacesPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+		// Add a local context button pane.
+<span class="nc" id="L124">		decimalPlacesPane.add(createButtonPane());</span>
+
+<span class="nc" id="L126">		this.add(decimalPlacesPane);</span>
+<span class="nc" id="L127">	}</span>
+
+	private JSpinner createDecimalPlacesSpinner(int initial, String title) {
+<span class="nc" id="L130">		SpinnerNumberModel decimalPlacesSpinnerModel = new SpinnerNumberModel(</span>
+				initial, 1, 15, 1);
+<span class="nc" id="L132">		JSpinner spinner = new JSpinner(decimalPlacesSpinnerModel);</span>
+<span class="nc" id="L133">		spinner.setBorder(BorderFactory.createTitledBorder(title));</span>
+<span class="nc" id="L134">		return spinner;</span>
+	}
+
+	protected JPanel createButtonPane() {
+<span class="nc" id="L138">		JPanel panel = new JPanel(new BorderLayout());</span>
+
+<span class="nc" id="L140">		JButton setDefaultsButton = new JButton(&quot;Set Default Precision Values&quot;);</span>
+<span class="nc" id="L141">		setDefaultsButton</span>
+<span class="nc" id="L142">				.addActionListener(createSetDefaultsButtonActionListener());</span>
+<span class="nc" id="L143">		panel.add(setDefaultsButton, BorderLayout.LINE_START);</span>
+
+<span class="nc" id="L145">		JButton applyButton = new JButton(LocaleProps.get(&quot;APPLY_BUTTON&quot;));</span>
+<span class="nc" id="L146">		applyButton.addActionListener(createApplyButtonActionListener());</span>
+<span class="nc" id="L147">		panel.add(applyButton, BorderLayout.LINE_END);</span>
+
+<span class="nc" id="L149">		return panel;</span>
+	}
+
+	// Set defaults action button listener.
+	private ActionListener createSetDefaultsButtonActionListener() {
+<span class="nc" id="L154">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L156">				NumericPrecisionPrefs.setDefaultDecimalPlacePrefs();</span>
+<span class="nc" id="L157">				reset();</span>
+<span class="nc" id="L158">				updateContentPane();</span>
+<span class="nc" id="L159">			}</span>
+		};
+	}
+
+	// Set apply button listener.
+	private ActionListener createApplyButtonActionListener() {
+<span class="nc" id="L165">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L167">				update();</span>
+<span class="nc" id="L168">			}</span>
+		};
+	}
+	
+	private void updateContentPane() {
+		// Make changes visible immediately if a tab with data grid is active.  
+<span class="nc" id="L174">		Mediator.getUI().getContentPane().repaint();</span>
+<span class="nc" id="L175">	}</span>
+
+	/**
+	 * Updates the decimal places preferences with any changed values.
+	 */
+	@Override
+	public void update() {
+<span class="nc" id="L182">		boolean delta = false;</span>
+
+<span class="nc bnc" id="L184" title="All 2 branches missed.">		if (changedTimeDecimalPlacesValue != null) {</span>
+<span class="nc" id="L185">			NumericPrecisionPrefs</span>
+<span class="nc" id="L186">					.setTimeDecimalPlaces(changedTimeDecimalPlacesValue);</span>
+<span class="nc" id="L187">			delta = true;</span>
+<span class="nc" id="L188">			changedTimeDecimalPlacesValue = null;</span>
+		}
+
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		if (changedMagDecimalPlacesValue != null) {</span>
+<span class="nc" id="L192">			NumericPrecisionPrefs</span>
+<span class="nc" id="L193">					.setMagDecimalPlaces(changedMagDecimalPlacesValue);</span>
+<span class="nc" id="L194">			delta = true;</span>
+<span class="nc" id="L195">			changedMagDecimalPlacesValue = null;</span>
+		}
+
+<span class="nc bnc" id="L198" title="All 2 branches missed.">		if (changedOtherDecimalPlacesValue != null) {</span>
+<span class="nc" id="L199">			NumericPrecisionPrefs</span>
+<span class="nc" id="L200">					.setOtherDecimalPlaces(changedOtherDecimalPlacesValue);</span>
+<span class="nc" id="L201">			delta = true;</span>
+<span class="nc" id="L202">			changedOtherDecimalPlacesValue = null;</span>
+		}
+
+<span class="nc bnc" id="L205" title="All 2 branches missed.">		if (delta) {</span>
+<span class="nc" id="L206">			NumericPrecisionPrefs.storeDecimalPlacesPrefs();</span>
+<span class="nc" id="L207">			updateContentPane();</span>
+		}
+<span class="nc" id="L209">	}</span>
+
+	/**
+	 * Prepare this pane for use by resetting whatever needs to be, namely no
+	 * values are to be considered as having changed and the spinners need to be
+	 * updated from the preference values.
+	 */
+	@Override
+	public void reset() {
+<span class="nc" id="L218">		changedTimeDecimalPlacesValue = null;</span>
+<span class="nc" id="L219">		changedMagDecimalPlacesValue = null;</span>
+<span class="nc" id="L220">		changedOtherDecimalPlacesValue = null;</span>
+
+<span class="nc" id="L222">		timeDecimalPlacesSpinner.setValue(NumericPrecisionPrefs</span>
+<span class="nc" id="L223">				.getTimeDecimalPlaces());</span>
+<span class="nc" id="L224">		magDecimalPlacesSpinner.setValue(NumericPrecisionPrefs</span>
+<span class="nc" id="L225">				.getMagDecimalPlaces());</span>
+<span class="nc" id="L226">		otherDecimalPlacesSpinner.setValue(NumericPrecisionPrefs</span>
+<span class="nc" id="L227">				.getOtherDecimalPlaces());</span>
+<span class="nc" id="L228">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

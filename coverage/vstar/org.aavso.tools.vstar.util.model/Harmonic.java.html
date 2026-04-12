@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Harmonic.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.model</a> &gt; <span class="el_source">Harmonic.java</span></div><h1>Harmonic.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2011  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.model;
+
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
+/**
+ * This class represents an Nth harmonic. Conversion between frequency and
+ * period is permitted.
+ */
+public class Harmonic implements Comparable&lt;Harmonic&gt; {
+
+	public final static int FUNDAMENTAL = 1;
+
+	private double frequency;
+	private int harmonic;
+	private String str;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param frequency
+	 *            The particular frequency.
+	 * @param harmonic
+	 *            The harmonic represented by this frequency (1 = fundamental).
+	 */
+<span class="fc" id="L42">	public Harmonic(double frequency, int harmonic) {</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">		if (frequency &lt;= 0) {</span>
+<span class="fc" id="L44">			throw new IllegalArgumentException(&quot;Invalid frequency: &quot;</span>
+					+ frequency);
+		}
+
+<span class="fc bfc" id="L48" title="All 2 branches covered.">		if (harmonic &lt; FUNDAMENTAL) {</span>
+<span class="fc" id="L49">			throw new IllegalArgumentException(&quot;Invalid harmonic: &quot; + harmonic);</span>
+		}
+
+<span class="fc" id="L52">		this.frequency = frequency;</span>
+<span class="fc" id="L53">		this.harmonic = harmonic;</span>
+<span class="fc" id="L54">		str = null;</span>
+<span class="fc" id="L55">	}</span>
+
+	/**
+	 * Construct a Harmonic that represents the fundamental.
+	 * 
+	 * @param frequency
+	 *            The particular frequency.
+	 */
+	public Harmonic(double frequency) {
+<span class="fc" id="L64">		this(frequency, FUNDAMENTAL);</span>
+<span class="fc" id="L65">	}</span>
+
+	/**
+	 * @return the frequency
+	 */
+	public double getFrequency() {
+<span class="fc" id="L71">		return frequency;</span>
+	}
+
+	/**
+	 * @return the harmonic
+	 */
+	public int getHarmonicNumber() {
+<span class="fc" id="L78">		return harmonic;</span>
+	}
+
+	/**
+	 * Does this represent a fundamental frequency?
+	 * 
+	 * @return Is this a fundamental frequency?
+	 */
+	public boolean isFundamental() {
+<span class="fc bfc" id="L87" title="All 2 branches covered.">		return harmonic == FUNDAMENTAL;</span>
+	}
+
+	/**
+	 * @return The period (reciprocal of frequency).
+	 */
+	public double getPeriod() {
+<span class="fc" id="L94">		return 1.0 / frequency;</span>
+	}
+
+	/**
+	 * Return the fundamental frequency. If the harmonic number is 1, this is
+	 * just the frequency itself.
+	 * 
+	 * @return The fundamental frequency.
+	 */
+	public double getFundamentalFrequency() {
+<span class="fc" id="L104">		return frequency / harmonic;</span>
+	}
+
+	/**
+	 * Is the specified harmonic a multiple of this one and the current one is a
+	 * fundamental.
+	 * 
+	 * @param other
+	 *            The other harmonic to check.
+	 * @return Whether the specified harmonic is a multiple of this one.
+	 */
+	public boolean isHarmonic(Harmonic other) {
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">		return isFundamental()</span>
+<span class="fc" id="L117">				&amp;&amp; frequency * other.getHarmonicNumber() == other</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">						.getFrequency();</span>
+	}
+
+	public String toString() {
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">		if (str == null) {</span>
+<span class="fc" id="L123">			str = NumericPrecisionPrefs.formatOther(frequency);</span>
+		}
+
+<span class="fc" id="L126">		return str;</span>
+	}
+
+	@Override
+	public int compareTo(Harmonic other) {
+<span class="fc" id="L131">		int result = 0;</span>
+
+<span class="fc bfc" id="L133" title="All 2 branches covered.">		if (frequency &lt; other.getFrequency()) {</span>
+<span class="fc" id="L134">			result = -1;</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">		} else if (frequency &gt; other.getFrequency()) {</span>
+<span class="fc" id="L136">			result = 1;</span>
+		}
+
+<span class="fc" id="L139">		return result;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

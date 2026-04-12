@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SimpleTextFormatValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.data.validation</a> &gt; <span class="el_source">SimpleTextFormatValidator.java</span></div><h1>SimpleTextFormatValidator.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.data.validation;
+
+import java.io.IOException;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.exception.ObservationValidationWarning;
+
+import com.csvreader.CsvReader;
+
+/**
+ * This class accepts a line of text for tokenising, validation, and
+ * ValidObservation instance creation given a simple text format source:
+ * 
+ * JD MAG [UNCERTAINTY] [OBSCODE] [VALFLAG]
+ * 
+ * REQ_VSTAR_SIMPLE_TEXT_FILE_READ
+ */
+public class SimpleTextFormatValidator extends CommonTextFormatValidator {
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param lineReader
+	 *            The CsvReader that will be used to return fields, created with
+	 *            the appropriate delimiter and data source.
+	 * @param minFields
+	 *            The minimum number of fields permitted in an observation line.
+	 * @param maxFields
+	 *            The maximum number of fields permitted in an observation line.
+	 * @param fieldInfoSource
+	 *            A mapping from field name to field index that makes sense for
+	 *            the source.
+	 */
+	public SimpleTextFormatValidator(CsvReader lineReader, int minFields,
+			int maxFields, IFieldInfoSource fieldInfoSource) throws IOException {
+<span class="fc" id="L54">		super(&quot;simple text format observation line&quot;, lineReader, minFields,</span>
+				maxFields, COMMON_VALFLAG_PATTERN, fieldInfoSource);
+<span class="fc" id="L56">	}</span>
+
+	/**
+	 * Validate an observation line and either return a ValidObservation
+	 * instance, or throw an exception indicating the error.
+	 * 
+	 * @param line
+	 *            The line of text to be tokenised and validated.
+	 * @return The validated ValidObservation object.
+	 * @throws ObservationValidationError
+	 */
+	public ValidObservation validate(String line)
+			throws IOException, ObservationValidationError, ObservationValidationWarning {
+
+<span class="nc" id="L70">		ValidObservation observation = super.validate();</span>
+		
+		// TODO: assert which fields should not be null
+
+<span class="nc" id="L74">		return observation;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VStar.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui</a> &gt; <span class="el_source">VStar.java</span></div><h1>VStar.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui;
+
+import java.io.File;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+
+import javax.swing.UIManager;
+
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.scripting.ScriptRunner;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.ui.vela.VeLaDialog;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.property.ApplicationProperties;
+
+/**
+ * The VStar GUI.
+ */
+<span class="nc" id="L42">public class VStar {</span>
+
+<span class="nc" id="L44">    public static final String LOG_DIR = System.getProperty(&quot;user.home&quot;) + File.separator + &quot;vstar_log&quot;;</span>
+
+<span class="nc" id="L46">    public static final String LOG_PATH = LOG_DIR + File.separator + &quot;vstar.log&quot;;</span>
+
+    public static Logger LOGGER;
+
+    static {
+        try {
+<span class="nc" id="L52">            File logDir = new File(LOG_DIR);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">            if (!logDir.isDirectory()) {</span>
+<span class="nc" id="L54">                logDir.mkdir();</span>
+            }
+<span class="nc" id="L56">            Handler fh = new FileHandler(LOG_PATH);</span>
+<span class="nc" id="L57">            fh.setFormatter(new SimpleFormatter());</span>
+<span class="nc" id="L58">            LOGGER = Logger.getLogger(&quot;VStar Logger&quot;);</span>
+<span class="nc" id="L59">            LOGGER.setUseParentHandlers(false);</span>
+<span class="nc" id="L60">            LOGGER.addHandler(fh);</span>
+
+<span class="nc" id="L62">        } catch (Exception e) {</span>
+            // Default to console?
+<span class="nc" id="L64">        }</span>
+    }
+
+<span class="nc" id="L67">    private static boolean setNativeLookAndFeel = true;</span>
+
+<span class="nc" id="L69">    private static boolean loadPlugins = true;</span>
+
+<span class="nc" id="L71">    private static boolean runScript = false;</span>
+
+<span class="nc" id="L73">    private static String scriptPath = null;</span>
+
+<span class="nc" id="L75">    private static boolean openVeLaDialog = false;</span>
+
+    public static void main(String[] args) {
+
+<span class="nc" id="L79">        String os_name = &quot;&quot;;</span>
+        // For Mac OS X, make it look more native by using the screen
+        // menu bar. Suggested by Adam Weber.
+        try {
+<span class="nc" id="L83">            os_name = System.getProperty(&quot;os.name&quot;);</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">            if (os_name.startsWith(&quot;Mac OS X&quot;)) {</span>
+<span class="nc" id="L85">                System.setProperty(&quot;apple.laf.useScreenMenuBar&quot;, &quot;true&quot;);</span>
+<span class="nc" id="L86">                System.setProperty(&quot;com.apple.mrj.application.apple.menu.about.name&quot;, &quot;VStar&quot;);</span>
+            }
+<span class="nc" id="L88">        } catch (Exception e) {</span>
+<span class="nc" id="L89">            System.err.println(&quot;Unable to detect operating system. Exiting.&quot;);</span>
+<span class="nc" id="L90">            System.exit(1);</span>
+<span class="nc" id="L91">        }</span>
+
+<span class="nc" id="L93">        processCmdLineArgs(args);</span>
+
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (setNativeLookAndFeel) {</span>
+            // Set the Look &amp; Feel of the application to be native.
+            try {
+<span class="nc" id="L98">                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());</span>
+                // Under Windows, the default TextArea font is too small.
+                // Making TextArea the same as TextField fixes this.
+                // We should make this fix AFTER setting native Look &amp; Feel!
+<span class="nc bnc" id="L102" title="All 2 branches missed.">                if (os_name.startsWith(&quot;Windows&quot;)) {</span>
+                    // [https://stackoverflow.com/questions/6461506/jtextarea-default-font-very-small-in-windows]
+<span class="nc" id="L104">                    UIManager.getDefaults().put(&quot;TextArea.font&quot;, UIManager.getFont(&quot;TextField.font&quot;));</span>
+                }
+<span class="nc" id="L106">            } catch (Exception e) {</span>
+<span class="nc" id="L107">                System.err.println(&quot;Unable to set native look &amp; feel. Exiting.&quot;);</span>
+<span class="nc" id="L108">                System.exit(1);</span>
+<span class="nc" id="L109">            }</span>
+        }
+
+        // Classes SeriesType and LocaleProps have static prefs members of Preferences
+        // type; those members cannot be created from within plug-ins in WebStart mode due to
+        // security restrictions.
+        //
+        // As far as 'prefs' in both classes are created with a 'static' block of code,
+        // any reference to the class
+        // initializes 'prefs'. This is ensured by a call of the empty initClass()
+        // method.
+        //
+        // After initialization, 'prefs' can be accessed from within plug-ins.
+<span class="nc" id="L122">        SeriesType.initClass();</span>
+<span class="nc" id="L123">        LocaleProps.initClass();</span>
+
+        // If there's no command-line option that says we shouldn't load
+        // plug-ins and the plug-in manager says it's okay to load them, then go
+        // ahead.
+<span class="nc bnc" id="L128" title="All 4 branches missed.">        if (loadPlugins &amp;&amp; PluginManager.shouldLoadPlugins()) {</span>
+            // Load plug-ins, if any exist and plug-in loading is enabled.
+<span class="nc" id="L130">            PluginLoader.loadPlugins();</span>
+        }
+
+        // Create an uncaught exception handler.
+<span class="nc" id="L134">        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {</span>
+            public void uncaughtException(Thread th, Throwable ex) {
+                // LOGGER.log(Level.SEVERE, &quot;Uncaught Exception&quot;, ex);
+<span class="nc" id="L137">                MessageBox.showErrorDialog(&quot;Error&quot;, ex);</span>
+<span class="nc" id="L138">            }</span>
+        });
+
+        // Schedule a job for the event-dispatching thread:
+        // creating and showing this application's GUI.
+<span class="nc" id="L143">        javax.swing.SwingUtilities.invokeLater(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L145">                createAndShowGUI();</span>
+<span class="nc" id="L146">            }</span>
+        });
+
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (openVeLaDialog) {</span>
+<span class="nc" id="L150">            showVeLaDialog();</span>
+        }
+<span class="nc" id="L152">    }</span>
+
+    /**
+     * Create and display the main window.
+     */
+    private static void createAndShowGUI() {
+        try {
+<span class="nc" id="L159">            MainFrame frame = new MainFrame();</span>
+<span class="nc" id="L160">            final ApplicationProperties appProps = new ApplicationProperties(frame);</span>
+
+<span class="nc" id="L162">            frame.setSize(appProps.getMainWdwWidth(), appProps.getMainWdwHeight());</span>
+<span class="nc" id="L163">            frame.setLocation(appProps.getMainWdwUpperLeftX(), appProps.getMainWdwUpperLeftY());</span>
+
+            // We need all the underlying main frame apparatus, but we may just want the
+            // VeLa dialog.
+<span class="nc bnc" id="L167" title="All 2 branches missed.">            frame.setVisible(!openVeLaDialog);</span>
+
+            // We create a shutdown task rather than a window listener
+            // to store application properties, otherwise on the Mac, we
+            // would also have to trap the VStar (vs File) menu Quit item.
+            // This shutdown task should work uniformly across operating
+            // systems. The frame stored within appProps cannot be GC'd
+            // until appProps is, so its state will still be valid at the
+            // time run() is invoked.
+<span class="nc" id="L176">            Runnable shutdownTask = new Runnable() {</span>
+                public void run() {
+<span class="nc" id="L178">                    appProps.update();</span>
+<span class="nc" id="L179">                }</span>
+            };
+
+<span class="nc" id="L182">            Runtime.getRuntime().addShutdownHook(new Thread(shutdownTask, &quot;Application shutdown task&quot;));</span>
+
+<span class="nc bnc" id="L184" title="All 2 branches missed.">            if (scriptPath != null) {</span>
+<span class="nc" id="L185">                new ScriptRunner(false).runScript(new File(scriptPath));</span>
+            }
+<span class="nc" id="L187">        } catch (Throwable t) {</span>
+<span class="nc" id="L188">            MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;Error&quot;, t.getLocalizedMessage());</span>
+<span class="nc" id="L189">        }</span>
+<span class="nc" id="L190">    }</span>
+
+    /**
+     * Open the VeLa dialog.
+     */
+    private static void showVeLaDialog() {
+<span class="nc" id="L196">        javax.swing.SwingUtilities.invokeLater(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L198">                new VeLaDialog();</span>
+<span class="nc" id="L199">                System.exit(0);</span>
+<span class="nc" id="L200">            }</span>
+        });
+<span class="nc" id="L202">    }</span>
+
+    /**
+     * Process the command-line arguments. Note: If we do anything more complex than
+     * this, consideration should be given to using a library such as:
+     * http://commons.apache.org/cli/
+     * 
+     * @param args The command-line arguments; may be empty.
+     */
+    private static void processCmdLineArgs(String[] args) {
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        for (String arg : args) {</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">            if (&quot;--help&quot;.equals(arg)) {</span>
+<span class="nc" id="L214">                System.out.println(</span>
+                        &quot;usage: vstar [--default-look-and-feel] [--noplugins] [--script path] [--VeLa-dialog]&quot;);
+<span class="nc" id="L216">                System.exit(0);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">            } else if (&quot;--default-look-and-feel&quot;.equals(arg)) {</span>
+<span class="nc" id="L218">                setNativeLookAndFeel = false;</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">            } else if (&quot;--noplugins&quot;.equals(arg)) {</span>
+<span class="nc" id="L220">                loadPlugins = false;</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">            } else if (&quot;--script&quot;.equals(arg)) {</span>
+<span class="nc" id="L222">                runScript = true;</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">            } else if (runScript) {</span>
+<span class="nc" id="L224">                scriptPath = arg;</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">            } else if (&quot;--VeLa-dialog&quot;.equalsIgnoreCase(arg)) {</span>
+<span class="nc" id="L226">                openVeLaDialog = true;</span>
+            }
+        }
+<span class="nc" id="L229">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
