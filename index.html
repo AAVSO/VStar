@@ -181,6 +181,11 @@
 
   .loading { color: var(--text-muted); font-style: italic; font-size: 0.85rem; }
 
+  .links ul { list-style: none; padding: 0; }
+  .links li { padding: 0.4rem 0; }
+  .links a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .links a:hover { text-decoration: underline; }
+
   @media (max-width: 600px) {
     .header-content { flex-direction: column; gap: 0.75rem; }
     .grid { grid-template-columns: 1fr; }
@@ -297,6 +302,17 @@
       </div>
     </div>
 
+  </div>
+
+  <div class="card wide">
+    <div class="card-header">
+      <h2>Links</h2>
+    </div>
+    <div class="card-body links">
+      <ul>
+        <li><a href="https://www.aavso.org/vstar">VStar Home &mdash; AAVSO</a></li>
+      </ul>
+    </div>
   </div>
 </main>
 
