@@ -72,6 +72,28 @@
     font-size: 0.95rem;
   }
 
+  .header-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .header-links a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .header-links a:hover {
+    border-color: var(--accent);
+    background: rgba(88, 166, 255, 0.1);
+  }
+
   main {
     max-width: 1100px;
     margin: 0 auto;
@@ -181,13 +203,9 @@
 
   .loading { color: var(--text-muted); font-style: italic; font-size: 0.85rem; }
 
-  .links ul { list-style: none; padding: 0; }
-  .links li { padding: 0.4rem 0; }
-  .links a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
-  .links a:hover { text-decoration: underline; }
-
   @media (max-width: 600px) {
     .header-content { flex-direction: column; gap: 0.75rem; }
+    .header-links { margin-left: 0; justify-content: center; }
     .grid { grid-template-columns: 1fr; }
     main { padding: 1rem 0.5rem; }
   }
@@ -202,6 +220,10 @@
       <h1>VStar Project Health</h1>
       <p>Variable star analysis and observation tool &mdash; AAVSO</p>
     </div>
+    <nav class="header-links">
+      <a href="https://www.aavso.org/vstar">VStar Home</a>
+      <a href="https://github.com/AAVSO/VStar">GitHub</a>
+    </nav>
   </div>
 </header>
 
@@ -304,16 +326,7 @@
 
   </div>
 
-  <div class="card wide">
-    <div class="card-header">
-      <h2>Links</h2>
-    </div>
-    <div class="card-body links">
-      <ul>
-        <li><a href="https://www.aavso.org/vstar">VStar Home &mdash; AAVSO</a></li>
-      </ul>
-    </div>
-  </div>
+
 </main>
 
 <footer>
