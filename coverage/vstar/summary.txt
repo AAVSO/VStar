@@ -21,7 +21,7 @@ Package                                             Lines  Line% Branch  Brch% M
 ...input.database                                     113  39.8%     26  23.1%     17  29.4%
 ...ui.dialog.period.wwz                               344   0.0%     60   0.0%     46   0.0%
 ...ui.dialog.period.refinement                         97   0.0%      8   0.0%     21   0.0%
-...util.period.wwz                                    478  70.5%    228  57.0%     56  57.1%
+...util.period.wwz                                    478  70.7%    228  57.5%     56  57.1%
 ...util.coords                                         36  83.3%    NaN    n/a     13  69.2%
 ...scripting                                          350   0.0%     97   0.0%     69   0.0%
 ...ui.pane.list                                       484   0.0%    104   0.0%     87   0.0%
@@ -60,5 +60,5 @@ Package                                             Lines  Line% Branch  Brch% M
 ...ui.model.list                                      705   0.0%    305   0.0%    141   0.0%
 ...ui.dialog.filter                                   350   0.0%     74   0.0%     62   0.0%
 -------------------------------------------------- ------ ------ ------ ------ ------ ------
-TOTAL                                               23447  28.9%   7235  29.3%   4588  24.4%
+TOTAL                                               23447  29.0%   7235  29.3%   4588  24.4%
 
