@@ -233,7 +233,6 @@
     <a href="https://github.com/AAVSO/VStar/actions/workflows/plugin-UT.yml"><img src="https://github.com/AAVSO/VStar/actions/workflows/plugin-UT.yml/badge.svg" alt="Plugin UTs"></a>
     <a href="https://github.com/AAVSO/VStar/actions/workflows/spotbugs.yml"><img src="https://github.com/AAVSO/VStar/actions/workflows/spotbugs.yml/badge.svg" alt="SpotBugs"></a>
     <a href="https://github.com/AAVSO/VStar/actions/workflows/checkerframework.yml"><img src="https://github.com/AAVSO/VStar/actions/workflows/checkerframework.yml/badge.svg" alt="Checker Framework"></a>
-    <a href="https://github.com/AAVSO/VStar/actions/workflows/pit.yml"><img src="https://github.com/AAVSO/VStar/actions/workflows/pit.yml/badge.svg" alt="PIT"></a>
   </div>
 
   <div class="grid">
@@ -308,21 +307,6 @@
       </div>
     </div>
 
-    <!-- PIT Mutation Testing -->
-    <div class="card" id="card-pit">
-      <div class="card-header">
-        <h2>PIT Mutation Testing</h2>
-        <span class="updated" id="pit-updated"></span>
-      </div>
-      <div class="card-body">
-        <table>
-          <thead><tr><th>Metric</th><th>Value</th></tr></thead>
-          <tbody id="pit-body">
-            <tr><td colspan="2" class="loading">Loading...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
 
   </div>
 
@@ -394,20 +378,10 @@ function renderChecker(d) {
     row('Initialization', d.init);
 }
 
-function renderPIT(d) {
-  const sp = pctNum(d.score);
-  return row('Mutation Score', d.score, statusClass(sp, [60, 40])) +
-    row('Total Mutants', d.total) +
-    row('Killed', d.killed, 'status-ok') +
-    row('Survived', d.survived, d.survived > 0 ? 'status-warn' : 'status-ok') +
-    row('No Coverage', d.no_coverage, d.no_coverage > 0 ? 'status-err' : '');
-}
-
 loadCard('data/coverage.json', 'coverage', renderCoverage);
 loadCard('data/plugin-coverage.json', 'plugin-coverage', renderCoverage);
 loadCard('data/spotbugs.json', 'spotbugs', renderSpotBugs);
 loadCard('data/checker.json', 'checker', renderChecker);
-loadCard('data/pit.json', 'pit', renderPIT);
 </script>
 
 </body>
