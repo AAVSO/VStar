@@ -178,167 +178,183 @@ public class VeLaDialog extends TextDialog {
 
     @Override
     protected void okAction() {
-<span class="nc" id="L181">        VeLaDialog.code = VeLaDialog.codeTextArea.getValue();</span>
-<span class="nc" id="L182">        super.okAction();</span>
-<span class="nc" id="L183">    }</span>
+<span class="nc" id="L181">        super.okAction();</span>
+<span class="nc" id="L182">    }</span>
+
+    /**
+     * Retain VeLa source across dialog invocations whenever the window is closed
+     * (OK, Cancel, or window close), not only when the dismiss button runs
+     * {@link #okAction()}.
+     */
+    @Override
+    public void dispose() {
+<span class="nc" id="L191">        persistCodeFromEditor();</span>
+<span class="nc" id="L192">        super.dispose();</span>
+<span class="nc" id="L193">    }</span>
+
+    private static void persistCodeFromEditor() {
+<span class="nc bnc" id="L196" title="All 2 branches missed.">        if (codeTextArea != null) {</span>
+<span class="nc" id="L197">            code = codeTextArea.getValue();</span>
+        }
+<span class="nc" id="L199">    }</span>
 
     private static void addKeyListener() {
-<span class="nc" id="L186">        JTextArea area = (JTextArea) (codeTextArea.getUIComponent());</span>
-<span class="nc" id="L187">        area.addKeyListener(new KeyAdapter() {</span>
-<span class="nc" id="L188">            boolean escapeMode = false;</span>
+<span class="nc" id="L202">        JTextArea area = (JTextArea) (codeTextArea.getUIComponent());</span>
+<span class="nc" id="L203">        area.addKeyListener(new KeyAdapter() {</span>
+<span class="nc" id="L204">            boolean escapeMode = false;</span>
 
             @Override
             public void keyTyped(KeyEvent e) {
-<span class="nc" id="L192">                char ch = e.getKeyChar();</span>
-<span class="nc" id="L193">                String newCh = null;</span>
+<span class="nc" id="L208">                char ch = e.getKeyChar();</span>
+<span class="nc" id="L209">                String newCh = null;</span>
 
-<span class="nc bnc" id="L195" title="All 2 branches missed.">                if (escapeMode) {</span>
-<span class="nc bnc" id="L196" title="All 7 branches missed.">                    switch (ch) {</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">                if (escapeMode) {</span>
+<span class="nc bnc" id="L212" title="All 7 branches missed.">                    switch (ch) {</span>
                     case 'b':
                     case 'B':
                         // Boolean set
-<span class="nc" id="L200">                        newCh = &quot;\uD835\uDD39&quot;;</span>
-<span class="nc" id="L201">                        break;</span>
+<span class="nc" id="L216">                        newCh = &quot;\uD835\uDD39&quot;;</span>
+<span class="nc" id="L217">                        break;</span>
                     case 'l':
                     case 'L':
                         // lambda
-<span class="nc" id="L205">                        newCh = &quot;\u03BB&quot;;</span>
-<span class="nc" id="L206">                        break;</span>
+<span class="nc" id="L221">                        newCh = &quot;\u03BB&quot;;</span>
+<span class="nc" id="L222">                        break;</span>
                     case 'p':
                     case 'P':
                         // pi
-<span class="nc" id="L210">                        newCh = &quot;\u03C0&quot;;</span>
-<span class="nc" id="L211">                        break;</span>
+<span class="nc" id="L226">                        newCh = &quot;\u03C0&quot;;</span>
+<span class="nc" id="L227">                        break;</span>
                     case 'r':
                     case 'R':
                         // real number set
-<span class="nc" id="L215">                        newCh = &quot;\u211D&quot;;</span>
-<span class="nc" id="L216">                        break;</span>
+<span class="nc" id="L231">                        newCh = &quot;\u211D&quot;;</span>
+<span class="nc" id="L232">                        break;</span>
                     case 'z':
                     case 'Z':
                         // integer number set
-<span class="nc" id="L220">                        newCh = &quot;\u2124&quot;;</span>
-<span class="nc" id="L221">                        break;</span>
+<span class="nc" id="L236">                        newCh = &quot;\u2124&quot;;</span>
+<span class="nc" id="L237">                        break;</span>
                     case '\\':
                         // backslash
-<span class="nc" id="L224">                        newCh = &quot;\\&quot;;</span>
+<span class="nc" id="L240">                        newCh = &quot;\\&quot;;</span>
                         break;
                     }
 
-<span class="nc" id="L228">                    e.consume();</span>
+<span class="nc" id="L244">                    e.consume();</span>
 
-<span class="nc" id="L230">                    int pos = area.getCaretPosition();</span>
-<span class="nc" id="L231">                    area.insert(newCh, pos);</span>
-<span class="nc" id="L232">                    escapeMode = false;</span>
+<span class="nc" id="L246">                    int pos = area.getCaretPosition();</span>
+<span class="nc" id="L247">                    area.insert(newCh, pos);</span>
+<span class="nc" id="L248">                    escapeMode = false;</span>
 
-<span class="nc bnc" id="L234" title="All 2 branches missed.">                } else if (ch == '\\') {</span>
-<span class="nc" id="L235">                    escapeMode = true;</span>
-<span class="nc" id="L236">                    e.consume();</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">                } else if (ch == '\\') {</span>
+<span class="nc" id="L251">                    escapeMode = true;</span>
+<span class="nc" id="L252">                    e.consume();</span>
                 }
-<span class="nc" id="L238">            }</span>
+<span class="nc" id="L254">            }</span>
         });
-<span class="nc" id="L240">    }</span>
+<span class="nc" id="L256">    }</span>
 
     private void execute() {
-<span class="nc" id="L243">        boolean diagnostic = VeLaPrefs.getDiagnosticMode();</span>
+<span class="nc" id="L259">        boolean diagnostic = VeLaPrefs.getDiagnosticMode();</span>
 
-<span class="nc" id="L245">        String text = codeTextArea.getValue();</span>
+<span class="nc" id="L261">        String text = codeTextArea.getValue();</span>
 
-<span class="nc" id="L247">        String output = &quot;&quot;;</span>
-<span class="nc" id="L248">        String error = &quot;&quot;;</span>
-<span class="nc" id="L249">        String lispAST = &quot;&quot;;</span>
-<span class="nc" id="L250">        String dotAST = &quot;&quot;;</span>
+<span class="nc" id="L263">        String output = &quot;&quot;;</span>
+<span class="nc" id="L264">        String error = &quot;&quot;;</span>
+<span class="nc" id="L265">        String lispAST = &quot;&quot;;</span>
+<span class="nc" id="L266">        String dotAST = &quot;&quot;;</span>
 
         // Capture standard output and error
-<span class="nc" id="L253">        ByteArrayOutputStream outStream = new ByteArrayOutputStream();</span>
-<span class="nc" id="L254">        System.setOut(new PrintStream(outStream));</span>
+<span class="nc" id="L269">        ByteArrayOutputStream outStream = new ByteArrayOutputStream();</span>
+<span class="nc" id="L270">        System.setOut(new PrintStream(outStream));</span>
 
-<span class="nc" id="L256">        ByteArrayOutputStream errStream = new ByteArrayOutputStream();</span>
-<span class="nc" id="L257">        System.setErr(new PrintStream(errStream));</span>
+<span class="nc" id="L272">        ByteArrayOutputStream errStream = new ByteArrayOutputStream();</span>
+<span class="nc" id="L273">        System.setErr(new PrintStream(errStream));</span>
 
         try {
-<span class="nc" id="L260">            Mediator.getUI().setScriptingStatus(true);</span>
+<span class="nc" id="L276">            Mediator.getUI().setScriptingStatus(true);</span>
 
             // Compile and execute the code.
-<span class="nc" id="L263">            vela = new VeLaInterpreter(VeLaPrefs.getVerboseMode(), true, VeLaPrefs.getCodeDirsList());</span>
+<span class="nc" id="L279">            vela = new VeLaInterpreter(VeLaPrefs.getVerboseMode(), true, VeLaPrefs.getCodeDirsList());</span>
 
-<span class="nc" id="L265">            Pair&lt;Optional&lt;Operand&gt;, AST&gt; pair = vela.veLaToResultASTPair(text);</span>
+<span class="nc" id="L281">            Pair&lt;Optional&lt;Operand&gt;, AST&gt; pair = vela.veLaToResultASTPair(text);</span>
 
-<span class="nc" id="L267">            Optional&lt;Operand&gt; result = pair.first;</span>
+<span class="nc" id="L283">            Optional&lt;Operand&gt; result = pair.first;</span>
 
-<span class="nc bnc" id="L269" title="All 2 branches missed.">            if (result.isPresent()) {</span>
-<span class="nc" id="L270">                AST ast = pair.second;</span>
-<span class="nc bnc" id="L271" title="All 4 branches missed.">                if (diagnostic &amp;&amp; ast != null) {</span>
-<span class="nc" id="L272">                    lispAST = ast.toString();</span>
-<span class="nc" id="L273">                    dotAST = ast.toFullDOT();</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">            if (result.isPresent()) {</span>
+<span class="nc" id="L286">                AST ast = pair.second;</span>
+<span class="nc bnc" id="L287" title="All 4 branches missed.">                if (diagnostic &amp;&amp; ast != null) {</span>
+<span class="nc" id="L288">                    lispAST = ast.toString();</span>
+<span class="nc" id="L289">                    dotAST = ast.toFullDOT();</span>
                 }
             }
 
             // Any standard error or output to show?
-<span class="nc" id="L278">            error = showOutput(errStream);</span>
-<span class="nc" id="L279">            output = showOutput(outStream);</span>
+<span class="nc" id="L294">            error = showOutput(errStream);</span>
+<span class="nc" id="L295">            output = showOutput(outStream);</span>
 
             // Is there a result to show and no error?
-<span class="nc bnc" id="L282" title="All 4 branches missed.">            if (result.isPresent() &amp;&amp; &quot;&quot;.equals(error)) {</span>
-<span class="nc" id="L283">                output += result.get().toHumanReadableString();</span>
+<span class="nc bnc" id="L298" title="All 4 branches missed.">            if (result.isPresent() &amp;&amp; &quot;&quot;.equals(error)) {</span>
+<span class="nc" id="L299">                output += result.get().toHumanReadableString();</span>
             }
-<span class="nc" id="L285">        } catch (Exception e) {</span>
+<span class="nc" id="L301">        } catch (Exception e) {</span>
             // e.printStackTrace();
 
             // Show error in text area.
-<span class="nc" id="L289">            String msg = e.getLocalizedMessage();</span>
-<span class="nc bnc" id="L290" title="All 2 branches missed.">            if (msg != null) {</span>
-<span class="nc" id="L291">                error = msg;</span>
+<span class="nc" id="L305">            String msg = e.getLocalizedMessage();</span>
+<span class="nc bnc" id="L306" title="All 2 branches missed.">            if (msg != null) {</span>
+<span class="nc" id="L307">                error = msg;</span>
             } else {
-<span class="nc" id="L293">                error = &quot;Error&quot;;</span>
+<span class="nc" id="L309">                error = &quot;Error&quot;;</span>
             }
 
-<span class="nc bnc" id="L296" title="All 4 branches missed.">            if (msg != null &amp;&amp; !msg.equals(errStream.toString())) {</span>
+<span class="nc bnc" id="L312" title="All 4 branches missed.">            if (msg != null &amp;&amp; !msg.equals(errStream.toString())) {</span>
                 // Any standard error to show in relation to this exception?
                 // Don't repeat msg.
-<span class="nc" id="L299">                error += showOutput(errStream);</span>
+<span class="nc" id="L315">                error += showOutput(errStream);</span>
             }
         } finally {
             // Reset standard output and error to console.
-<span class="nc" id="L303">            System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));</span>
+<span class="nc" id="L319">            System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));</span>
 
-<span class="nc" id="L305">            System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));</span>
+<span class="nc" id="L321">            System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));</span>
 
-<span class="nc" id="L307">            Mediator.getUI().setScriptingStatus(false);</span>
+<span class="nc" id="L323">            Mediator.getUI().setScriptingStatus(false);</span>
         }
 
-<span class="nc" id="L310">        String result = output;</span>
-<span class="nc bnc" id="L311" title="All 2 branches missed.">        if (!error.isEmpty()) {</span>
-<span class="nc" id="L312">            result += &quot;\n&quot;;</span>
-<span class="nc" id="L313">            result += error;</span>
+<span class="nc" id="L326">        String result = output;</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">        if (!error.isEmpty()) {</span>
+<span class="nc" id="L328">            result += &quot;\n&quot;;</span>
+<span class="nc" id="L329">            result += error;</span>
         }
 
-<span class="nc" id="L316">        resultTextArea.setValue(areaTabsPayload(VeLaPrefs.getDiagnosticMode(), result, lispAST, dotAST));</span>
-<span class="nc" id="L317">    }</span>
+<span class="nc" id="L332">        resultTextArea.setValue(areaTabsPayload(VeLaPrefs.getDiagnosticMode(), result, lispAST, dotAST));</span>
+<span class="nc" id="L333">    }</span>
 
     private String areaTabsPayload(boolean verbose, String... strings) {
-<span class="nc" id="L320">        StringBuffer buf = new StringBuffer();</span>
+<span class="nc" id="L336">        StringBuffer buf = new StringBuffer();</span>
 
-<span class="nc bnc" id="L322" title="All 2 branches missed.">        for (String str : strings) {</span>
-<span class="nc" id="L323">            buf.append(str);</span>
-<span class="nc bnc" id="L324" title="All 2 branches missed.">            if (verbose) {</span>
-<span class="nc" id="L325">                buf.append(tabTextSeparator);</span>
+<span class="nc bnc" id="L338" title="All 2 branches missed.">        for (String str : strings) {</span>
+<span class="nc" id="L339">            buf.append(str);</span>
+<span class="nc bnc" id="L340" title="All 2 branches missed.">            if (verbose) {</span>
+<span class="nc" id="L341">                buf.append(tabTextSeparator);</span>
             } else {
-<span class="nc" id="L327">                buf.append(&quot;\n&quot;);</span>
+<span class="nc" id="L343">                buf.append(&quot;\n&quot;);</span>
             }
         }
 
-<span class="nc" id="L331">        return buf.toString().trim();</span>
+<span class="nc" id="L347">        return buf.toString().trim();</span>
     }
 
     private String showOutput(ByteArrayOutputStream stream) {
-<span class="nc" id="L335">        String str = &quot;&quot;;</span>
+<span class="nc" id="L351">        String str = &quot;&quot;;</span>
 
-<span class="nc bnc" id="L337" title="All 2 branches missed.">        if (stream.size() != 0) {</span>
-<span class="nc" id="L338">            str = stream.toString() + &quot;\n&quot;;</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">        if (stream.size() != 0) {</span>
+<span class="nc" id="L354">            str = stream.toString() + &quot;\n&quot;;</span>
         }
 
-<span class="nc" id="L341">        return str;</span>
+<span class="nc" id="L357">        return str;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
