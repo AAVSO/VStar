@@ -356,7 +356,7 @@ VStar,org.aavso.tools.vstar.ui.dialog.period.refinement,PeriodGatheringPane,176,
 VStar,org.aavso.tools.vstar.ui.dialog.period.refinement,RefinementParameterDialog,160,0,2,0,42,0,8,0,7,0
 VStar,org.aavso.tools.vstar.util.period.wwz,WWZCoordinateType,160,0,26,0,55,0,28,0,6,0
 VStar,org.aavso.tools.vstar.util.period.wwz,WeightedWaveletZTransform.new Callable() {...},0,31,0,0,0,3,0,2,0,2
-VStar,org.aavso.tools.vstar.util.period.wwz,WeightedWaveletZTransform,199,1782,41,131,49,321,46,74,12,22
+VStar,org.aavso.tools.vstar.util.period.wwz,WeightedWaveletZTransform,203,1778,42,130,50,320,47,73,12,22
 VStar,org.aavso.tools.vstar.util.period.wwz,WWZStatistic,202,44,30,0,36,15,24,8,6,8
 VStar,org.aavso.tools.vstar.util.coords,DecInfo,19,73,0,0,3,15,2,4,2,4
 VStar,org.aavso.tools.vstar.util.coords,EpochType,0,15,0,0,0,2,0,1,0,1
