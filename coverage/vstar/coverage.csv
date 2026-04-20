@@ -21,7 +21,7 @@ VStar,org.aavso.tools.vstar.util.model,TSPolynomialFitter,61,600,12,28,15,112,20
 VStar,org.aavso.tools.vstar.util.model,RelativeAmplitudeAndPhaseCreator,365,0,26,0,78,0,22,0,9,0
 VStar,org.aavso.tools.vstar.util.model,Harmonic,0,111,2,14,0,28,2,16,0,10
 VStar,org.aavso.tools.vstar.util.model,WWZMultiperiodicModel,223,0,16,0,56,0,20,0,12,0
-VStar,org.aavso.tools.vstar.util.model,PeriodAnalysisDerivedMultiPeriodicModel,413,324,28,14,90,51,26,15,10,10
+VStar,org.aavso.tools.vstar.util.model,PeriodAnalysisDerivedMultiPeriodicModel,424,367,33,21,92,62,31,17,10,11
 VStar,org.aavso.tools.vstar.util.model,AbstractModel,311,0,19,0,73,0,26,0,16,0
 VStar,org.aavso.tools.vstar.util.model,PeriodAnalysisDerivedMultiPeriodicModel.new UnivariateRealFunction() {...},39,0,2,0,6,0,3,0,2,0
 VStar,org.aavso.tools.vstar.util.model,PeriodFitParameters,12,436,6,10,1,91,6,23,0,21
@@ -125,7 +125,7 @@ VStar,org.aavso.tools.vstar.ui,NamedComponent,33,0,0,0,13,0,5,0,5,0
 VStar,org.aavso.tools.vstar.ui,ToolBar,994,0,42,0,233,0,29,0,8,0
 VStar,org.aavso.tools.vstar.ui,NumberSelectionPane,139,0,8,0,21,0,6,0,2,0
 VStar,org.aavso.tools.vstar.ui.vela,VeLaDialog.new KeyAdapter() {...},60,0,11,0,25,0,10,0,2,0
-VStar,org.aavso.tools.vstar.ui.vela,VeLaDialog,518,0,30,0,123,0,35,0,20,0
+VStar,org.aavso.tools.vstar.ui.vela,VeLaDialog,529,0,32,0,126,0,36,0,20,0
 VStar,org.aavso.tools.vstar.util.stats.epoch,AlphaOmegaMeanJDEpochStrategy,2,20,0,0,1,2,1,2,1,2
 VStar,org.aavso.tools.vstar.util.stats.epoch,MinMagEpochStrategy,6,37,1,5,1,10,2,5,1,3
 VStar,org.aavso.tools.vstar.util.stats.epoch,MaxMagEpochStrategy,6,37,1,5,1,10,2,5,1,3
@@ -407,7 +407,7 @@ VStar,org.aavso.tools.vstar.util.prefs,NumericPrecisionPrefs,165,198,11,9,56,55,
 VStar,org.aavso.tools.vstar.util,AbstractExtremaFinder,361,0,36,0,76,0,30,0,12,0
 VStar,org.aavso.tools.vstar.util,Pair,12,80,6,16,4,23,6,8,0,3
 VStar,org.aavso.tools.vstar.util,EmailUtils,59,0,2,0,16,0,4,0,3,0
-VStar,org.aavso.tools.vstar.util,TSBase,409,1732,62,114,71,257,47,49,0,8
+VStar,org.aavso.tools.vstar.util,TSBase,409,1735,62,114,71,258,47,50,0,9
 VStar,org.aavso.tools.vstar.util,ObservationInserter,34,0,0,0,11,0,7,0,7,0
 VStar,org.aavso.tools.vstar.util,ClipboardUtils,16,0,0,0,5,0,2,0,2,0
 VStar,org.aavso.tools.vstar.util,ApacheCommonsDerivativeBasedExtremaFinder,172,0,16,0,42,0,12,0,4,0
@@ -505,7 +505,7 @@ VStar,org.aavso.tools.vstar.ui.dialog.model,HarmonicInfoDialog.new ActionListene
 VStar,org.aavso.tools.vstar.ui.dialog.model,HarmonicInfoDialog.new ActionListener() {...},38,0,2,0,7,0,3,0,2,0
 VStar,org.aavso.tools.vstar.ui.dialog.model,HarmonicInfoDialog.new WindowAdapter() {...},10,0,0,0,3,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui.dialog.model,HarmonicPeriodPane,186,0,12,0,40,0,12,0,6,0
-VStar,org.aavso.tools.vstar.ui.dialog.model,ModelDialog.new Listener() {...},35,0,2,0,8,0,4,0,3,0
+VStar,org.aavso.tools.vstar.ui.dialog.model,ModelDialog.new Listener() {...},37,0,2,0,9,0,4,0,3,0
 VStar,org.aavso.tools.vstar.ui.dialog.model,ModelDialog.new Listener() {...},30,0,0,0,8,0,3,0,3,0
 VStar,org.aavso.tools.vstar.ui.dialog.model,ModelDialog.new ActionListener() {...},36,0,0,0,6,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui.dialog.model,ModelDialog.new ActionListener() {...},28,0,0,0,7,0,2,0,2,0
@@ -654,7 +654,7 @@ VStar,org.aavso.tools.vstar.ui.mediator,Mediator.new Listener() {...},40,6,4,0,9
 VStar,org.aavso.tools.vstar.ui.mediator,ViewModeType,89,48,26,0,30,12,18,1,3,1
 VStar,org.aavso.tools.vstar.ui.mediator,Mediator,2752,325,249,3,694,67,232,13,99,12
 VStar,org.aavso.tools.vstar.ui.mediator,AnalysisType,0,15,0,0,0,2,0,1,0,1
-VStar,org.aavso.tools.vstar.ui.mediator,DocumentManager,591,0,48,0,136,0,58,0,33,0
+VStar,org.aavso.tools.vstar.ui.mediator,DocumentManager,734,0,68,0,160,0,72,0,37,0
 VStar,org.aavso.tools.vstar.ui.mediator,DocumentManager.new Listener() {...},23,0,0,0,6,0,3,0,3,0
 VStar,org.aavso.tools.vstar.ui.mediator,DocumentManager.new Listener() {...},13,0,0,0,4,0,3,0,3,0
 VStar,org.aavso.tools.vstar.ui.mediator,StarInfo,94,97,2,2,35,31,24,5,22,5

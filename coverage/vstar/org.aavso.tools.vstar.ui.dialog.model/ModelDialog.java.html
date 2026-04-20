@@ -210,19 +210,20 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 <span class="nc" id="L210">		return new Listener&lt;ModelCreationMessage&gt;() {</span>
 			@Override
 			public void update(ModelCreationMessage info) {
-<span class="nc" id="L213">				String desc = info.getModel().getDescription();</span>
+<span class="nc" id="L213">				String desc = Mediator.getInstance().getDocumentManager()</span>
+<span class="nc" id="L214">						.getModelDisplayLabel(info.getModel());</span>
 
-<span class="nc bnc" id="L215" title="All 2 branches missed.">				if (!modelMap.containsKey(desc)) {</span>
-<span class="nc" id="L216">					modelMap.put(desc, info.getModel());</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">				if (!modelMap.containsKey(desc)) {</span>
+<span class="nc" id="L217">					modelMap.put(desc, info.getModel());</span>
 
-<span class="nc" id="L218">					modelListModel.addElement(desc);</span>
-<span class="nc" id="L219">					pack();</span>
+<span class="nc" id="L219">					modelListModel.addElement(desc);</span>
+<span class="nc" id="L220">					pack();</span>
 				}
-<span class="nc" id="L221">			}</span>
+<span class="nc" id="L222">			}</span>
 
 			@Override
 			public boolean canBeRemoved() {
-<span class="nc" id="L225">				return false;</span>
+<span class="nc" id="L226">				return false;</span>
 			}
 		};
 	}
@@ -232,19 +233,19 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 	 * collections and disable the buttons.
 	 */
 	public Listener&lt;NewStarMessage&gt; createNewStarListener() {
-<span class="nc" id="L235">		return new Listener&lt;NewStarMessage&gt;() {</span>
+<span class="nc" id="L236">		return new Listener&lt;NewStarMessage&gt;() {</span>
 			@Override
 			public void update(NewStarMessage info) {
-<span class="nc" id="L238">				modelListModel.clear();</span>
-<span class="nc" id="L239">				pack();</span>
-<span class="nc" id="L240">				modelMap.clear();</span>
-<span class="nc" id="L241">				selectButton.setEnabled(false);</span>
-<span class="nc" id="L242">				deleteButton.setEnabled(false);</span>
-<span class="nc" id="L243">			}</span>
+<span class="nc" id="L239">				modelListModel.clear();</span>
+<span class="nc" id="L240">				pack();</span>
+<span class="nc" id="L241">				modelMap.clear();</span>
+<span class="nc" id="L242">				selectButton.setEnabled(false);</span>
+<span class="nc" id="L243">				deleteButton.setEnabled(false);</span>
+<span class="nc" id="L244">			}</span>
 
 			@Override
 			public boolean canBeRemoved() {
-<span class="nc" id="L247">				return false;</span>
+<span class="nc" id="L248">				return false;</span>
 			}
 		};
 	}
