@@ -223,6 +223,7 @@
     <nav class="header-links">
       <a href="https://www.aavso.org/vstar">VStar Home</a>
       <a href="https://github.com/AAVSO/VStar">GitHub</a>
+      <a href="javadoc/">Javadoc</a>
     </nav>
   </div>
 </header>
@@ -307,6 +308,25 @@
       </div>
     </div>
 
+    <!-- API Documentation (Javadoc) -->
+    <div class="card" id="card-javadoc">
+      <div class="card-header">
+        <h2>API Documentation (Javadoc)</h2>
+        <span class="updated" id="javadoc-updated"></span>
+      </div>
+      <div class="card-body">
+        <table>
+          <thead><tr><th>Version</th><th>Source</th></tr></thead>
+          <tbody id="javadoc-body">
+            <tr><td colspan="2" class="loading">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer">
+        <a href="javadoc/">Browse Javadoc</a>
+      </div>
+    </div>
+
 
   </div>
 
@@ -378,9 +398,29 @@ function renderChecker(d) {
     row('Initialization', d.init);
 }
 
+function renderJavadoc(d) {
+  let html = '';
+  if (d.snapshot) {
+    const s = d.snapshot;
+    const label = 'snapshot @ ' + (s.commit_short || '?');
+    const meta = (s.commit_date || '') + (s.generated ? ' \u00b7 gen ' + s.generated : '');
+    html += `<tr><td><a href="${s.path || 'javadoc/vstar/snapshot/'}">Snapshot</a></td><td class="metric-value">${label}</td></tr>`;
+    if (meta.trim()) html += `<tr><td colspan="2" class="status-na" style="font-size:0.78rem;">${meta}</td></tr>`;
+  }
+  if (d.release) {
+    const r = d.release;
+    const label = (r.tag || 'release') + (r.commit_short ? ' @ ' + r.commit_short : '');
+    const meta = (r.commit_date || '') + (r.generated ? ' \u00b7 gen ' + r.generated : '');
+    html += `<tr><td><a href="${r.path || 'javadoc/vstar/release/'}">Release</a></td><td class="metric-value">${label}</td></tr>`;
+    if (meta.trim()) html += `<tr><td colspan="2" class="status-na" style="font-size:0.78rem;">${meta}</td></tr>`;
+  }
+  return html || '<tr><td colspan="2" class="status-na">No data yet</td></tr>';
+}
+
 loadCard('data/coverage.json', 'coverage', renderCoverage);
 loadCard('data/plugin-coverage.json', 'plugin-coverage', renderCoverage);
 loadCard('data/spotbugs.json', 'spotbugs', renderSpotBugs);
+loadCard('data/javadoc.json', 'javadoc', renderJavadoc);
 loadCard('data/checker.json', 'checker', renderChecker);
 </script>
 
