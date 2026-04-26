@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CustomFilterPluginBase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.plugin</a> &gt; <span class="el_source">CustomFilterPluginBase.java</span></div><h1>CustomFilterPluginBase.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.plugin;
+
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.filter.IFilterDescription;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.resources.LoginInfo;
+import org.aavso.tools.vstar.util.Pair;
+
+/**
+ * &lt;p&gt;
+ * This is the base class for all custom filter plugins.
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * A Custom Filter plugin will appear in VStar's View menu when its jar file is
+ * placed into the vstar_plugins directory.
+ * &lt;/p&gt;
+ * 
+ * @see org.aavso.tools.vstar.plugin.IPlugin
+ */
+<span class="fc" id="L44">abstract public class CustomFilterPluginBase implements IPlugin {</span>
+
+<span class="fc" id="L46">	protected boolean testMode = false;</span>
+	
+	// Subset of observations.
+	// We use a LinkedHashSet to maintain addition and lookup efficiency
+	// while maintaining insertion order.
+	protected Set&lt;ValidObservation&gt; filteredObs;
+
+	/**
+	 * &lt;p&gt;
+	 * Filter a list of observation returning a filter name and string
+	 * representation.
+	 * &lt;/p&gt;
+	 * 
+	 * @param obs
+	 *            A list of currently loaded observations.
+	 * @return A pair containing a filter name and a string representation of
+	 *         the filter.
+	 */
+	abstract protected Pair&lt;String, String&gt; filter(List&lt;ValidObservation&gt; obs);
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+<span class="nc" id="L71">		return null;</span>
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
+	 */
+	@Override
+	public String getGroup() {
+<span class="nc" id="L79">		return null;</span>
+	}
+
+	/**
+	 * Adds an observation to the filtered subset.
+	 * 
+	 * @param ob
+	 *            The observation to be added.
+	 */
+	final protected void addToSubset(ValidObservation ob) {
+<span class="nc" id="L89">		filteredObs.add(ob);</span>
+<span class="nc" id="L90">	}</span>
+
+	/**
+	 * Applies the filter to the list of observations and sends a filtered
+	 * observation message to be consumed by listeners (plots, tables).
+	 * 
+	 * @param obs
+	 *            A list of currently loaded observations.
+	 */
+	final public void apply(List&lt;ValidObservation&gt; obs) {
+<span class="nc" id="L100">		filteredObs = new LinkedHashSet&lt;ValidObservation&gt;();</span>
+
+<span class="nc" id="L102">		final Pair&lt;String, String&gt; rep = filter(obs);</span>
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		if (filteredObs.size() != 0) {</span>
+
+<span class="nc" id="L106">			IFilterDescription desc = new IFilterDescription() {</span>
+
+				@Override
+				public boolean isParsable() {
+<span class="nc" id="L110">					return filtersAreParsable();</span>
+				}
+
+				@Override
+				public String getFilterName() {
+<span class="nc" id="L115">					return rep.first;</span>
+				}
+
+				@Override
+				public String getFilterDescription() {
+<span class="nc" id="L120">					return rep.second;</span>
+				}
+			};
+
+<span class="nc" id="L124">			FilteredObservationMessage msg = new FilteredObservationMessage(</span>
+					this, desc, filteredObs);
+
+<span class="nc" id="L127">			Mediator.getInstance().getFilteredObservationNotifier()</span>
+<span class="nc" id="L128">					.notifyListeners(msg);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">		} else if (rep != null) {</span>
+<span class="nc" id="L130">			String errMsg = &quot;No observations matched.&quot;;</span>
+<span class="nc" id="L131">			MessageBox.showWarningDialog(Mediator.getUI().getComponent(),</span>
+					&quot;Observation Filter&quot;, errMsg);
+		}
+<span class="nc" id="L134">	}</span>
+
+	/**
+	 * Returns whether or not the filters associated with the concrete subclass
+	 * are parsable.
+	 * 
+	 * @return Whether parsable or not.
+	 */
+	public boolean filtersAreParsable() {
+<span class="nc" id="L143">		return false;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#requiresAuthentication()
+	 */
+	@Override
+	public boolean requiresAuthentication() {
+<span class="nc" id="L151">		return false;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#additionalAuthenticationSatisfied(org.aavso.tools.vstar.ui.resources.LoginInfo)
+	 */
+	@Override
+	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
+<span class="nc" id="L159">		return true;</span>
+	}
+	
+	@Override
+	public Boolean test() {
+<span class="nc" id="L164">		return null;</span>
+	}
+
+	@Override
+	public boolean inTestMode() {
+<span class="nc" id="L169">		return testMode;</span>
+	}
+
+	@Override
+	public void setTestMode(boolean mode) {
+<span class="nc" id="L174">		testMode = mode;	</span>
+<span class="nc" id="L175">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

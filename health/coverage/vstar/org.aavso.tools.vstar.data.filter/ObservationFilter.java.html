@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ObservationFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.data.filter</a> &gt; <span class="el_source">ObservationFilter.java</span></div><h1>ObservationFilter.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.data.filter;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.Logic;
+
+/**
+ * A filter for valid observations.
+ * 
+ * An observation will be passed via this filter if the conjunction of all its
+ * sub-filters (field matchers) match the observation.
+ */
+public class ObservationFilter {
+
+	// Potential matchers for any observation filter.
+	public static final Map&lt;String, IObservationFieldMatcher&gt; MATCHERS;
+
+	static {
+<span class="fc" id="L42">		MATCHERS = new TreeMap&lt;String, IObservationFieldMatcher&gt;();</span>
+
+<span class="fc" id="L44">		IObservationFieldMatcher objNameMatcher = new ObjectNameFieldMatcher();</span>
+<span class="fc" id="L45">		MATCHERS.put(objNameMatcher.getDisplayName(), objNameMatcher);</span>
+
+<span class="fc" id="L47">		IObservationFieldMatcher obsCodeMatcher = new ObsCodeFieldMatcher();</span>
+<span class="fc" id="L48">		MATCHERS.put(obsCodeMatcher.getDisplayName(), obsCodeMatcher);</span>
+
+<span class="fc" id="L50">		IObservationFieldMatcher magnitudeMatcher = new MagnitudeFieldMatcher();</span>
+<span class="fc" id="L51">		MATCHERS.put(magnitudeMatcher.getDisplayName(), magnitudeMatcher);</span>
+
+<span class="fc" id="L53">		IObservationFieldMatcher uncertaintyMatcher = new ErrorFieldMatcher();</span>
+<span class="fc" id="L54">		MATCHERS.put(uncertaintyMatcher.getDisplayName(), uncertaintyMatcher);</span>
+
+<span class="fc" id="L56">		IObservationFieldMatcher jdMatcher = new JDFieldMatcher();</span>
+<span class="fc" id="L57">		MATCHERS.put(jdMatcher.getDisplayName(), jdMatcher);</span>
+
+<span class="fc" id="L59">		IObservationFieldMatcher phaseMatcher = new PhaseFieldMatcher();</span>
+<span class="fc" id="L60">		MATCHERS.put(phaseMatcher.getDisplayName(), phaseMatcher);</span>
+
+<span class="fc" id="L62">		IObservationFieldMatcher transformedMatcher = new TransformedFieldMatcher();</span>
+<span class="fc" id="L63">		MATCHERS.put(transformedMatcher.getDisplayName(), transformedMatcher);</span>
+
+<span class="fc" id="L65">		IObservationFieldMatcher bandMatcher = new SeriesTypeFieldMatcher(SeriesTypeFieldMatcher.Kind.BAND);</span>
+<span class="fc" id="L66">		MATCHERS.put(bandMatcher.getDisplayName(), bandMatcher);</span>
+
+<span class="fc" id="L68">		IObservationFieldMatcher seriesMatcher = new SeriesTypeFieldMatcher(SeriesTypeFieldMatcher.Kind.SERIES);</span>
+<span class="fc" id="L69">		MATCHERS.put(seriesMatcher.getDisplayName(), seriesMatcher);</span>
+<span class="fc" id="L70">	}</span>
+
+	// Actual matchers for this observation filter instance.
+	private List&lt;IObservationFieldMatcher&gt; matchers;
+
+<span class="fc" id="L75">	public ObservationFilter() {</span>
+<span class="fc" id="L76">		matchers = new ArrayList&lt;IObservationFieldMatcher&gt;();</span>
+<span class="fc" id="L77">	}</span>
+
+	public void addMatcher(IObservationFieldMatcher matcher) {
+<span class="fc" id="L80">		matchers.add(matcher);</span>
+<span class="fc" id="L81">	}</span>
+
+	/**
+	 * @return the matchers
+	 */
+	public List&lt;IObservationFieldMatcher&gt; getMatchers() {
+<span class="fc" id="L87">		return matchers;</span>
+	}
+
+	/**
+	 * Reset this filter's state.
+	 */
+	public void reset() {
+<span class="fc" id="L94">		matchers.clear();</span>
+<span class="fc" id="L95">	}</span>
+
+	/**
+	 * Filter the supplied list of observations.
+	 * 
+	 * @param obs
+	 *            The observation list to be filtered.
+	 * @param includeFainterThan
+	 *            Should fainter-than observations be included?
+	 * @param includeDiscrepant
+	 *            Should discrepant observations be included?
+	 * @param includeExcluded
+	 *            Should excluded observations be included?
+	 * @return The ordered (by insertion) set of filtered observations.
+	 */
+	public Set&lt;ValidObservation&gt; getFilteredObservations(
+			List&lt;ValidObservation&gt; obs, boolean includeFainterThan,
+			boolean includeDiscrepant, boolean includeExcluded) {
+		// We use a LinkedHashSet to maintain addition and lookup efficiency
+		// while maintaining insertion order.
+		// Note: this is only necessary if a recipient of filtered observations
+		// needs to perform lookups.
+<span class="fc" id="L117">		Set&lt;ValidObservation&gt; matchingObs = new LinkedHashSet&lt;ValidObservation&gt;();</span>
+
+<span class="fc bfc" id="L119" title="All 2 branches covered.">		for (int i = 0; i &lt; obs.size(); i++) {</span>
+<span class="fc" id="L120">			ValidObservation ob = obs.get(i);</span>
+
+<span class="fc" id="L122">			boolean does_match = matches(ob);</span>
+
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">			if (does_match) {</span>
+				/**
+				 * Use logical implication, p =&gt; q, where p is the observation's
+				 * property and q is the inclusion property relating to p, to
+				 * check that our inclusion criteria still permit a match for
+				 * this observation.
+				 */
+<span class="fc" id="L131">				does_match &amp;= Logic.imp(ob.getMagnitude().isFainterThan(),</span>
+						includeFainterThan);
+<span class="fc" id="L133">				does_match &amp;= Logic.imp(ob.isDiscrepant(), includeDiscrepant);</span>
+<span class="fc" id="L134">				does_match &amp;= Logic.imp(ob.isExcluded(), includeExcluded);</span>
+
+<span class="fc bfc" id="L136" title="All 2 branches covered.">				if (does_match) {</span>
+<span class="fc" id="L137">					matchingObs.add(ob);</span>
+				}
+			}
+		}
+
+<span class="fc" id="L142">		return matchingObs;</span>
+	}
+
+	/**
+	 * Does the specified observation satisfy all this filter's matchers? The
+	 * matching process is short-circuited when one sub-filter fails.
+	 * 
+	 * @param ob
+	 *            The observation under test.
+	 * @return True or false.
+	 * @precondition It only makes sense to call this method when 'matchers' is
+	 *               non-empty, otherwise all observations will be filtered in.
+	 */
+	protected boolean matches(ValidObservation ob) {
+<span class="fc" id="L156">		boolean matching = true;</span>
+
+<span class="fc bfc" id="L158" title="All 2 branches covered.">		for (IObservationFieldMatcher matcher : matchers) {</span>
+<span class="fc" id="L159">			matching &amp;= matcher.matches(ob);</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">			if (!matching)</span>
+<span class="nc" id="L161">				break;</span>
+<span class="fc" id="L162">		}</span>
+
+<span class="fc" id="L164">		return matching;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

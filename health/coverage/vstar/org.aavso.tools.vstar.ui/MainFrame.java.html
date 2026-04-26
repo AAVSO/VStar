@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MainFrame.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui</a> &gt; <span class="el_source">MainFrame.java</span></div><h1>MainFrame.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Image;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.ViewModeType;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+
+/**
+ * The main VStar window.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class MainFrame extends JFrame implements IMainUI {
+
+	public final static int WIDTH = 800;
+	public final static int HEIGHT = 600;
+
+	// The user interface type.
+	private UIType uiType;
+
+	// The application's menu bar.
+	private MenuBar menuBar;
+
+	// The status bar which includes text and progress bar components.
+	private StatusPane statusPane;
+
+	// The tabbed pane that includes all content (plots, tables).
+	private TabbedDataPane tabs;
+
+	// Are we in scripting mode?
+	private boolean scriptingMode;
+
+	public MainFrame() {
+<span class="nc" id="L59">		super(&quot;VStar &quot; + ResourceAccessor.getVersionString());</span>
+
+<span class="nc" id="L61">		this.uiType = UIType.DESKTOP;</span>
+
+<span class="nc" id="L63">		Mediator.getInstance().setUI(this);</span>
+
+		// Set the application's main window icon.
+<span class="nc" id="L66">		Image image = ResourceAccessor.getImageResource(&quot;/icons/vstaricon.png&quot;);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">		if (image != null) {</span>
+<span class="nc" id="L68">			this.setIconImage(image);</span>
+		}
+
+<span class="nc" id="L71">		this.menuBar = new MenuBar(this, uiType);</span>
+<span class="nc" id="L72">		this.setJMenuBar(menuBar);</span>
+
+<span class="nc" id="L74">		this.setContentPane(createContent());</span>
+
+<span class="nc" id="L76">		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);</span>
+
+<span class="nc" id="L78">		this.pack();</span>
+<span class="nc" id="L79">	}</span>
+
+	// Create everything inside the main GUI view except for
+	// menus, but including the tool-bar; essentially the interior
+	// content of the GUI that represents the core functionality of
+	// interest to the user.
+	private JPanel createContent() {
+		// Top-level content pane to include status pane.
+<span class="nc" id="L87">		JPanel topPane = new JPanel(new BorderLayout());</span>
+
+		// Add the tool-bar.
+<span class="nc" id="L90">		topPane.add(new ToolBar(this.menuBar), BorderLayout.PAGE_START);</span>
+
+		// Major pane :) with left to right layout and an empty border.
+<span class="nc" id="L93">		JPanel majorPane = new JPanel();</span>
+<span class="nc" id="L94">		majorPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));</span>
+<span class="nc" id="L95">		majorPane.setLayout(new BoxLayout(majorPane, BoxLayout.LINE_AXIS));</span>
+
+<span class="nc" id="L97">		tabs = new TabbedDataPane();</span>
+<span class="nc" id="L98">		majorPane.add(tabs);</span>
+
+<span class="nc" id="L100">		topPane.add(majorPane, BorderLayout.CENTER);</span>
+
+		// Add status pane with an initial message.
+<span class="nc" id="L103">		statusPane = new StatusPane(LocaleProps.get(&quot;STATUS_PANE_SELECT_NEW_STAR_FROM_FILE&quot;));</span>
+<span class="nc" id="L104">		topPane.add(statusPane, BorderLayout.PAGE_END);</span>
+
+<span class="nc" id="L106">		return topPane;</span>
+	}
+
+	/**
+	 * @return the statusPane
+	 */
+	public StatusPane getStatusPane() {
+<span class="nc" id="L113">		return statusPane;</span>
+	}
+
+	@Override
+	public UIType getUiType() {
+<span class="nc" id="L118">		return uiType;</span>
+	}
+
+	@Override
+	public Component getComponent() {
+<span class="nc" id="L123">		return this;</span>
+	}
+
+	@Override
+	public void setScriptingStatus(boolean status) {
+<span class="nc" id="L128">		scriptingMode = status;</span>
+<span class="nc" id="L129">	}</span>
+
+	@Override
+	public boolean isScriptingMode() {
+<span class="nc" id="L133">		return scriptingMode;</span>
+	}
+
+	@Override
+	public void addTab(String name, ViewModeType viewMode, Component component, boolean canClose) {
+<span class="nc" id="L138">		tabs.createTab(name, viewMode, component);</span>
+<span class="nc" id="L139">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

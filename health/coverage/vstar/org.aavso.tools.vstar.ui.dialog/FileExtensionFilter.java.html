@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileExtensionFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog</a> &gt; <span class="el_source">FileExtensionFilter.java</span></div><h1>FileExtensionFilter.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog;
+
+import java.io.File;
+import java.util.List;
+
+import javax.swing.filechooser.FileFilter;
+
+/**
+ * File extension based file filter for file dialog.
+ */
+public class FileExtensionFilter extends FileFilter {
+
+	private List&lt;String&gt; extensions;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param extensions
+	 *            A list of file extensions on which to filter.
+	 */
+	public FileExtensionFilter(List&lt;String&gt; extensions) {
+<span class="fc" id="L39">		super();</span>
+<span class="fc" id="L40">		this.extensions = extensions;</span>
+<span class="fc" id="L41">	}</span>
+
+	/**
+	 * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
+	 */
+	public boolean accept(File f) {
+<span class="fc" id="L47">		boolean acceptable = false;</span>
+
+<span class="fc" id="L49">		String name = f.getName();</span>
+
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		if (f.isDirectory()) {</span>
+<span class="fc" id="L52">			acceptable = true;</span>
+		} else {
+<span class="nc bnc" id="L54" title="All 2 branches missed.">			for (String extension : extensions) {</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">				if (name.toLowerCase().endsWith(extension)) {</span>
+<span class="nc" id="L56">					acceptable = true;</span>
+<span class="nc" id="L57">					break;</span>
+				}
+<span class="nc" id="L59">			}</span>
+		}
+
+<span class="fc" id="L62">		return acceptable;</span>
+	}
+
+	/**
+	 * @see javax.swing.filechooser.FileFilter#getDescription()
+	 */
+	public String getDescription() {
+<span class="fc" id="L69">		StringBuffer strBuf = new StringBuffer();</span>
+
+<span class="fc bfc" id="L71" title="All 2 branches covered.">		for (String extension : extensions) {</span>
+<span class="fc" id="L72">			strBuf.append(&quot;'&quot;);</span>
+<span class="fc" id="L73">			strBuf.append(extension);</span>
+<span class="fc" id="L74">			strBuf.append(&quot;' &quot;);</span>
+<span class="fc" id="L75">		}</span>
+
+<span class="fc" id="L77">		return strBuf.toString().trim().replace(&quot; &quot;, &quot;, &quot;);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

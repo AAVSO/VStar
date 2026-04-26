@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DelimitedFieldFileSaveChooser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog</a> &gt; <span class="el_source">DelimitedFieldFileSaveChooser.java</span></div><h1>DelimitedFieldFileSaveChooser.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+
+import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.util.help.Help;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+
+/**
+ * This class aggregates a JFileChooser, a plugin selector, and a field
+ * delimiter selection component.
+ */
+public class DelimitedFieldFileSaveChooser {
+
+	private JFileChooser fileChooser;
+
+	private DefaultComboBoxModel&lt;String&gt; delimitersModel;
+	private JComboBox&lt;String&gt; delimiterChooser;
+	private Map&lt;String, String&gt; delimiters;
+	private String delimiter;
+
+	private Map&lt;String, ObservationSinkPluginBase&gt; plugins;
+	private JComboBox&lt;String&gt; pluginChooser;
+
+	/**
+	 * Constructor
+	 */
+<span class="fc" id="L60">	public DelimitedFieldFileSaveChooser() {</span>
+<span class="fc" id="L61">		fileChooser = new JFileChooser();</span>
+
+<span class="fc" id="L63">		delimiter = null;</span>
+<span class="fc" id="L64">		delimiterChooser = new JComboBox&lt;String&gt;();</span>
+
+<span class="fc" id="L66">		JPanel accessoryPane = new JPanel();</span>
+<span class="fc" id="L67">		accessoryPane.setLayout(new BoxLayout(accessoryPane,</span>
+				BoxLayout.PAGE_AXIS));
+<span class="fc" id="L69">		accessoryPane.add(createPluginsList());</span>
+<span class="fc" id="L70">		accessoryPane.add(createDelimiterSelectionPane());</span>
+
+<span class="fc" id="L72">		fileChooser.setAccessory(accessoryPane);</span>
+<span class="fc" id="L73">	}</span>
+
+	/**
+	 * Return the currently selected observation sink plugin.
+	 * 
+	 * @return The plugin instance.
+	 */
+	public ObservationSinkPluginBase getSelectedPlugin() {
+<span class="nc" id="L81">		return plugins.get(pluginChooser.getSelectedItem());</span>
+	}
+
+	/**
+	 * Return the selected file. If no suffix was specified and one is
+	 * associated with the selected delimiter, a suffix will be added to the
+	 * file name.
+	 * 
+	 * @return The selected file (absolute path as a File object).
+	 */
+	public File getSelectedFile() {
+<span class="nc" id="L92">		File file = fileChooser.getSelectedFile();</span>
+
+<span class="nc" id="L94">		ObservationSinkPluginBase plugin = getSelectedPlugin();</span>
+<span class="nc" id="L95">		Map&lt;String, String&gt; delimiter2suffixes = plugin</span>
+<span class="nc" id="L96">				.getDelimiterSuffixValuePairs();</span>
+
+<span class="nc" id="L98">		String selectedDelimiterName = (String) delimiterChooser</span>
+<span class="nc" id="L99">				.getSelectedItem();</span>
+<span class="nc" id="L100">		String suffix = delimiter2suffixes.get(selectedDelimiterName);</span>
+
+<span class="nc bnc" id="L102" title="All 4 branches missed.">		if (!file.getName().endsWith(suffix) &amp;&amp; delimiter2suffixes != null) {</span>
+<span class="nc" id="L103">			file = new File(file.getAbsolutePath() + &quot;.&quot; + suffix);</span>
+		}
+
+<span class="nc" id="L106">		return file;</span>
+	}
+
+	/**
+	 * @return the delimiter
+	 */
+	public String getDelimiter() {
+<span class="nc" id="L113">		return delimiter;</span>
+	}
+
+	/**
+	 * Show the file dialog.
+	 * 
+	 * @param parent
+	 *            The parent component to which this dialog should be positioned
+	 *            relative.
+	 * @return Whether the dialog was &quot;approved&quot;.
+	 */
+	public boolean showDialog(Component parent) {
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		return fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION;</span>
+	}
+
+	/**
+	 * Create plugin list and add a listener to change delimiters when a plugin
+	 * is selected.
+	 */
+	private JPanel createPluginsList() {
+<span class="fc" id="L133">		JPanel pane = new JPanel();</span>
+
+<span class="fc" id="L135">		pane.setBorder(BorderFactory.createTitledBorder(&quot;Type&quot;));</span>
+		
+<span class="fc" id="L137">		plugins = new HashMap&lt;String, ObservationSinkPluginBase&gt;();</span>
+
+<span class="fc bfc" id="L139" title="All 2 branches covered.">		for (ObservationSinkPluginBase plugin : PluginLoader</span>
+<span class="fc" id="L140">				.getObservationSinkPlugins()) {</span>
+<span class="fc" id="L141">			String name = plugin.getDisplayName();</span>
+<span class="fc" id="L142">			plugins.put(name, plugin);</span>
+<span class="fc" id="L143">		}</span>
+
+<span class="fc" id="L145">		pluginChooser = new JComboBox&lt;String&gt;(plugins.keySet().toArray(</span>
+				new String[0]));
+		
+<span class="fc" id="L148">		pluginChooser.setSelectedItem(LocaleProps.get(&quot;DOWNLOAD_FORMAT_FILE&quot;));</span>
+		//pluginChooser.setBorder(BorderFactory.createTitledBorder(&quot;Type&quot;));
+
+<span class="fc" id="L151">		pluginChooser.addActionListener(e -&gt; {</span>
+<span class="nc" id="L152">			String name = (String) pluginChooser.getSelectedItem();</span>
+<span class="nc" id="L153">			updateDelimiterChoices(plugins.get(name));</span>
+<span class="nc" id="L154">		});</span>
+
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">		if (!plugins.isEmpty()) {</span>
+			// Initial delimiter choices.
+<span class="fc" id="L158">			String name = (String) pluginChooser.getSelectedItem();</span>
+<span class="fc" id="L159">			updateDelimiterChoices(plugins.get(name));</span>
+		}
+
+<span class="fc" id="L162">		pane.add(pluginChooser);</span>
+		
+<span class="fc" id="L164">		JButton helpButton = new JButton(&quot;?&quot;);</span>
+		
+<span class="fc" id="L166">		helpButton.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L169">				ObservationSinkPluginBase plugin = getSelectedPlugin();</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">				Help.openPluginHelp(plugin != null ? plugin.getDocName() : null);</span>
+<span class="nc" id="L171">			}</span>
+		});
+
+<span class="fc" id="L174">		pane.add(helpButton);</span>
+
+<span class="fc" id="L176">		return pane;</span>
+	}
+
+	/**
+	 * Update the delimiter choices for a plugin.
+	 * 
+	 * @param plugin
+	 *            The selected plugin.
+	 */
+	private void updateDelimiterChoices(ObservationSinkPluginBase plugin) {
+		try {
+<span class="fc" id="L187">			delimitersModel = new DefaultComboBoxModel&lt;String&gt;();</span>
+
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">			if (plugin.getDelimiterNameValuePairs() != null) {</span>
+<span class="fc" id="L190">				delimiters = plugin.getDelimiterNameValuePairs();</span>
+
+<span class="fc bfc" id="L192" title="All 2 branches covered.">				for (String delim : delimiters.keySet().toArray(new String[0])) {</span>
+<span class="fc" id="L193">					delimitersModel.addElement(delim);</span>
+				}
+
+<span class="fc" id="L196">				delimiterChooser.setModel(delimitersModel);</span>
+<span class="fc" id="L197">				delimiterChooser.setSelectedIndex(0);</span>
+			} else {
+<span class="nc" id="L199">				delimiterChooser.setModel(delimitersModel);</span>
+			}
+<span class="nc" id="L201">		} catch (Exception e) {</span>
+<span class="nc" id="L202">			Exception f = e;</span>
+<span class="fc" id="L203">		}</span>
+<span class="fc" id="L204">	}</span>
+
+	/**
+	 * This component permits selection between field delimiters.
+	 */
+	private JPanel createDelimiterSelectionPane() {
+<span class="fc" id="L210">		JPanel panel = new JPanel();</span>
+		//panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+<span class="fc" id="L212">		panel.setLayout(new BorderLayout());</span>
+<span class="fc" id="L213">		panel.setBorder(BorderFactory.createTitledBorder(&quot;Delimiter&quot;));</span>
+
+<span class="fc" id="L215">		delimiterChooser.addActionListener(e -&gt; {</span>
+<span class="nc" id="L216">			String name = (String) delimiterChooser.getSelectedItem();</span>
+<span class="nc" id="L217">			delimiter = delimiters.get(name);</span>
+<span class="nc" id="L218">		});</span>
+
+<span class="pc bpc" id="L220" title="2 of 4 branches missed.">		if (delimiters != null &amp;&amp; !delimiters.isEmpty()) {</span>
+			// Initial delimiter selection.
+<span class="fc" id="L222">			String name = (String) delimiterChooser.getSelectedItem();</span>
+<span class="fc" id="L223">			delimiter = delimiters.get(name);</span>
+		}
+
+		//panel.add(delimiterChooser);
+<span class="fc" id="L227">		panel.add(delimiterChooser, BorderLayout.PAGE_START);</span>
+
+<span class="fc" id="L229">		return panel;</span>
+	}
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ModelInfoDialog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.model</a> &gt; <span class="el_source">ModelInfoDialog.java</span></div><h1>ModelInfoDialog.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.model;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.plugin.PluginComponentFactory;
+import org.aavso.tools.vstar.ui.NamedComponent;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.model.IModel;
+import org.aavso.tools.vstar.util.model.RelativeAmplitudeAndPhaseCreator;
+
+/**
+ * This dialog displays information about a model.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class ModelInfoDialog extends JDialog {
+
+	// TODO: make precision (4) a preference (or just use &quot;other&quot; in
+	// NumericPrecisionPrefs).
+	private final static int precision = 4;
+
+	private IModel model;
+
+	private JTextArea relAmplAndPhaseTextArea;
+	private JCheckBox useCyclesCheckBox;
+
+	private RelativeAmplitudeAndPhaseCreator creator;
+
+	private String starName;
+	private double startTime;
+	private double endTime;
+	private double averageTime;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param parent
+	 *            The parent dialog.
+	 * @param model
+	 *            The model about which information is to be displayed.
+	 */
+	public ModelInfoDialog(JDialog parent, IModel model) {
+<span class="nc" id="L77">		super(parent);</span>
+<span class="nc" id="L78">		this.model = model;</span>
+
+<span class="nc" id="L80">		starName = Mediator.getInstance().getLatestNewStarMessage()</span>
+<span class="nc" id="L81">				.getStarInfo().getDesignation();</span>
+
+		// TODO: should these times be from the original input series JDs rather
+		// than from the model.
+<span class="nc" id="L85">		startTime = model.getFit().get(0).getJD();</span>
+<span class="nc" id="L86">		endTime = model.getFit().get(model.getFit().size() - 1).getJD();</span>
+
+<span class="nc" id="L88">		averageTime = 0;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		for (ValidObservation ob : model.getFit()) {</span>
+<span class="nc" id="L90">			averageTime += ob.getJD();</span>
+<span class="nc" id="L91">		}</span>
+<span class="nc" id="L92">		averageTime /= model.getFit().size();</span>
+
+<span class="nc" id="L94">		this.setTitle(LocaleProps.get(&quot;MODEL_INFO_DLG_TITLE&quot;));</span>
+<span class="nc" id="L95">		this.setModal(true);</span>
+<span class="nc" id="L96">		this.setSize(200, 200);</span>
+
+<span class="nc" id="L98">		JPanel topPane = new JPanel();</span>
+<span class="nc" id="L99">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L100">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+		// Add tabs for function strings.
+<span class="nc" id="L103">		List&lt;NamedComponent&gt; namedComponents = new ArrayList&lt;NamedComponent&gt;();</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		if (model.getFunctionStrings() != null) {</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">			for (String funcKey : model.getFunctionStrings().keySet()) {</span>
+<span class="nc" id="L106">				JTextArea textArea = new JTextArea(model.getFunctionStrings()</span>
+<span class="nc" id="L107">						.get(funcKey));</span>
+<span class="nc" id="L108">				textArea.setBorder(BorderFactory.createTitledBorder(funcKey));</span>
+<span class="nc" id="L109">				textArea.setEditable(false);</span>
+<span class="nc" id="L110">				JScrollPane scrollPane = new JScrollPane(textArea);</span>
+<span class="nc" id="L111">				namedComponents.add(new NamedComponent(funcKey, scrollPane));</span>
+<span class="nc" id="L112">			}</span>
+		}
+
+<span class="nc" id="L115">		JTabbedPane tabs = PluginComponentFactory.createTabs(namedComponents);</span>
+<span class="nc" id="L116">		topPane.add(tabs);</span>
+		
+		// Add relative amplitude and phase information if it exists.
+<span class="nc bnc" id="L119" title="All 2 branches missed.">		if (model.getParameters() != null) {</span>
+<span class="nc" id="L120">			creator = new RelativeAmplitudeAndPhaseCreator(model</span>
+<span class="nc" id="L121">					.getParameters());</span>
+
+<span class="nc bnc" id="L123" title="All 2 branches missed.">			if (creator.hasHarmonics()) {</span>
+<span class="nc" id="L124">				topPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+<span class="nc" id="L125">				topPane.add(createRelAmplAndPhasePanel());</span>
+			}
+		}
+
+<span class="nc" id="L129">		topPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+<span class="nc" id="L131">		JPanel buttonPane = new JPanel();</span>
+<span class="nc" id="L132">		JButton okButton = new JButton(LocaleProps.get(&quot;OK_BUTTON&quot;));</span>
+<span class="nc" id="L133">		okButton.addActionListener(createOKButtonHandler());</span>
+<span class="nc" id="L134">		buttonPane.add(okButton, BorderLayout.CENTER);</span>
+<span class="nc" id="L135">		topPane.add(buttonPane);</span>
+
+<span class="nc" id="L137">		this.getContentPane().add(topPane);</span>
+
+<span class="nc" id="L139">		this.getRootPane().setDefaultButton(okButton);</span>
+
+<span class="nc" id="L141">		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);</span>
+
+<span class="nc" id="L143">		this.pack();</span>
+<span class="nc" id="L144">		this.setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L145">		this.setVisible(true);</span>
+<span class="nc" id="L146">	}</span>
+
+	private JPanel createRelAmplAndPhasePanel() {
+<span class="nc" id="L149">		JPanel pane = new JPanel();</span>
+<span class="nc" id="L150">		pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L151">		String title = LocaleProps</span>
+<span class="nc" id="L152">				.get(&quot;MODEL_INFO_RELATIVE_AMPLITUDE_AND_PHASE_PANE_TITLE&quot;);</span>
+<span class="nc" id="L153">		pane.setBorder(BorderFactory.createTitledBorder(title));</span>
+
+<span class="nc" id="L155">		relAmplAndPhaseTextArea = new JTextArea();</span>
+<span class="nc" id="L156">		relAmplAndPhaseTextArea.setEditable(false);</span>
+<span class="nc" id="L157">		JScrollPane scrollPane = new JScrollPane(relAmplAndPhaseTextArea);</span>
+<span class="nc" id="L158">		pane.add(scrollPane);</span>
+
+<span class="nc" id="L160">		JPanel cyclesPane = new JPanel();</span>
+<span class="nc" id="L161">		useCyclesCheckBox = new JCheckBox(&quot;Show as cycles?&quot;);</span>
+<span class="nc" id="L162">		useCyclesCheckBox.setSelected(false);</span>
+<span class="nc" id="L163">		useCyclesCheckBox.addActionListener(createUseCyclesCheckbox());</span>
+<span class="nc" id="L164">		cyclesPane.add(useCyclesCheckBox, BorderLayout.CENTER);</span>
+<span class="nc" id="L165">		pane.add(cyclesPane);</span>
+
+<span class="nc" id="L167">		setRelAmplAndPhaseText(useCyclesCheckBox.isSelected());</span>
+
+<span class="nc" id="L169">		return pane;</span>
+	}
+
+	private void setRelAmplAndPhaseText(boolean cycles) {
+		// fundamental: star-name start-time end-time average-time rel-ampl-1
+		// rel-phase-1 ... rel-ampl-n rel-phase-n
+<span class="nc" id="L175">		String fmt = &quot;%1.&quot; + precision + &quot;f: %s %1.&quot; + precision + &quot;f %1.&quot;</span>
+				+ precision + &quot;f %1.&quot; + precision + &quot;f &quot;;
+
+<span class="nc" id="L178">		String relStr = &quot;&quot;;</span>
+
+<span class="nc bnc" id="L180" title="All 2 branches missed.">		for (Double fundamental : creator.getFundamentals()) {</span>
+
+<span class="nc" id="L182">			String relSeqStr = creator.getRelativeSequenceString(fundamental,</span>
+					precision, cycles);
+
+<span class="nc bnc" id="L185" title="All 2 branches missed.">			if (!&quot;&quot;.equals(relSeqStr)) {</span>
+<span class="nc" id="L186">				relStr += String.format(fmt, fundamental, starName, startTime,</span>
+<span class="nc" id="L187">						endTime, averageTime)</span>
+						+ relSeqStr + &quot;\n&quot;;
+			}
+
+<span class="nc" id="L191">		}</span>
+
+<span class="nc" id="L193">		relAmplAndPhaseTextArea.setText(relStr);</span>
+<span class="nc" id="L194">	}</span>
+
+	private ActionListener createUseCyclesCheckbox() {
+<span class="nc" id="L197">		return new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L200">				setRelAmplAndPhaseText(useCyclesCheckBox.isSelected());</span>
+<span class="nc" id="L201">			}</span>
+		};
+	}
+
+	private ActionListener createOKButtonHandler() {
+<span class="nc" id="L206">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L208">				setVisible(false);</span>
+<span class="nc" id="L209">				dispose();</span>
+<span class="nc" id="L210">			}</span>
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

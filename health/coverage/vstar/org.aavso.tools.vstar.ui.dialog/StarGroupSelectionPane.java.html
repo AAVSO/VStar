@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StarGroupSelectionPane.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog</a> &gt; <span class="el_source">StarGroupSelectionPane.java</span></div><h1>StarGroupSelectionPane.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import org.aavso.tools.vstar.ui.resources.StarGroups;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+
+/**
+ * This class represents a widget that permits a star group to be selected from
+ * a pop-up list and a star in that group from another pop-up list.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class StarGroupSelectionPane extends JPanel {
+
+    private final static String NO_STARS = &quot;No stars&quot;;
+
+    private JComboBox&lt;String&gt; starGroupSelector;
+    private JComboBox&lt;String&gt; starSelector;
+    private ActionListener starGroupSelectorListener;
+    private ActionListener starSelectorListener;
+
+    private StarGroups starGroups;
+
+    // Selected star group, name and AUID.
+    private String selectedStarGroup;
+    private String selectedStarName;
+    private String selectedAUID;
+
+    private boolean clearStarField;
+    private JTextField starField;
+
+    /**
+     * Constructor
+     * 
+     * @param starField An optional star field to be cleared when a group star is
+     *                  selected.
+     */
+    public StarGroupSelectionPane(JTextField starField) {
+<span class="nc" id="L64">	this(starField, true);</span>
+<span class="nc" id="L65">    }</span>
+
+    /**
+     * Constructor
+     * 
+     * @param starField      An optional star field to be cleared or set when a
+     *                       group star is selected.
+     * @param clearStarField Whether to clear (true) or set (false) the star field.
+     */
+<span class="nc" id="L74">    public StarGroupSelectionPane(JTextField starField, boolean clearStarField) {</span>
+<span class="nc" id="L75">	this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L76">	this.setBorder(BorderFactory.createEtchedBorder());</span>
+
+<span class="nc" id="L78">	selectedStarGroup = null;</span>
+<span class="nc" id="L79">	selectedStarName = null;</span>
+
+<span class="nc" id="L81">	selectedAUID = null;</span>
+
+<span class="nc" id="L83">	this.clearStarField = clearStarField;</span>
+<span class="nc" id="L84">	this.starField = starField;</span>
+
+<span class="nc" id="L86">	starGroups = StarGroups.getInstance();</span>
+<span class="nc" id="L87">	Set&lt;String&gt; starGroupMapKeys = starGroups.getGroupNames();</span>
+
+<span class="nc" id="L89">	starGroupSelector = new JComboBox&lt;String&gt;(starGroupMapKeys.toArray(new String[0]));</span>
+<span class="nc" id="L90">	selectedStarGroup = (String) starGroupSelector.getItemAt(0);</span>
+<span class="nc" id="L91">	starGroupSelector.setBorder(BorderFactory.createTitledBorder(LocaleProps.get(&quot;NEW_STAR_FROM_AID_DLG_GROUP&quot;)));</span>
+<span class="nc" id="L92">	starGroupSelectorListener = createStarGroupSelectorListener();</span>
+<span class="nc" id="L93">	starGroupSelector.addActionListener(starGroupSelectorListener);</span>
+
+<span class="nc" id="L95">	starSelector = new JComboBox&lt;String&gt;();</span>
+<span class="nc" id="L96">	starSelector.setBorder(BorderFactory.createTitledBorder(LocaleProps.get(&quot;NEW_STAR_FROM_AID_DLG_STAR&quot;)));</span>
+<span class="nc" id="L97">	starSelectorListener = createStarSelectorListener();</span>
+<span class="nc" id="L98">	populateStarListForSelectedGroup();</span>
+<span class="nc" id="L99">	starSelector.addActionListener(starSelectorListener);</span>
+
+<span class="nc" id="L101">	this.add(starGroupSelector);</span>
+<span class="nc" id="L102">	this.add(starSelector);</span>
+<span class="nc" id="L103">    }</span>
+
+    // Star group selector listener.
+    private ActionListener createStarGroupSelectorListener() {
+<span class="nc" id="L107">	return new ActionListener() {</span>
+	    public void actionPerformed(ActionEvent e) {
+		// Populate the star selector list according
+		// to the selected group.
+<span class="nc" id="L111">		String group = (String) starGroupSelector.getSelectedItem();</span>
+		// Avoid clearing the star list / selectedStarName when the combo fires
+		// with no selection (can happen around dialog show/layout); that would
+		// wipe the last star and break persistence across invocations.
+<span class="nc bnc" id="L115" title="All 2 branches missed.">		if (group != null) {</span>
+<span class="nc" id="L116">		    selectedStarGroup = group;</span>
+<span class="nc" id="L117">		    populateStarListForSelectedGroup();</span>
+<span class="nc" id="L118">		    updateStarFieldForSelection();</span>
+		}
+<span class="nc" id="L120">	    }</span>
+	};
+    }
+
+    // Star selector listener.
+    private ActionListener createStarSelectorListener() {
+<span class="nc" id="L126">	return new ActionListener() {</span>
+	    public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L128">		String starName = (String) starSelector.getSelectedItem();</span>
+<span class="nc bnc" id="L129" title="All 6 branches missed.">		if (starName == null || NO_STARS.equals(starName) || selectedStarGroup == null) {</span>
+<span class="nc" id="L130">		    return;</span>
+		}
+<span class="nc" id="L132">		selectedStarName = starName;</span>
+<span class="nc" id="L133">		selectedAUID = starGroups.getAUID(selectedStarGroup, selectedStarName);</span>
+<span class="nc" id="L134">		updateStarFieldForSelection();</span>
+<span class="nc" id="L135">	    }</span>
+	};
+    }
+
+    private void withSuppressedStarSelectorListener(Runnable action) {
+<span class="nc" id="L140">	boolean wasRegistered = removeAllStarSelectorListeners();</span>
+	try {
+<span class="nc" id="L142">	    action.run();</span>
+	} finally {
+<span class="nc bnc" id="L144" title="All 2 branches missed.">	    if (wasRegistered) {</span>
+<span class="nc" id="L145">		starSelector.addActionListener(starSelectorListener);</span>
+	    }
+	}
+<span class="nc" id="L148">    }</span>
+
+    private void withSuppressedGroupSelectorListener(Runnable action) {
+<span class="nc" id="L151">	boolean wasRegistered = removeAllGroupSelectorListeners();</span>
+	try {
+<span class="nc" id="L153">	    action.run();</span>
+	} finally {
+<span class="nc bnc" id="L155" title="All 2 branches missed.">	    if (wasRegistered) {</span>
+<span class="nc" id="L156">		starGroupSelector.addActionListener(starGroupSelectorListener);</span>
+	    }
+	}
+<span class="nc" id="L159">    }</span>
+
+    private boolean removeAllStarSelectorListeners() {
+<span class="nc" id="L162">	boolean removedAny = false;</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">	for (ActionListener listener : starSelector.getActionListeners()) {</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">	    if (listener == starSelectorListener) {</span>
+<span class="nc" id="L165">		starSelector.removeActionListener(listener);</span>
+<span class="nc" id="L166">		removedAny = true;</span>
+	    }
+	}
+<span class="nc" id="L169">	return removedAny;</span>
+    }
+
+    private boolean removeAllGroupSelectorListeners() {
+<span class="nc" id="L173">	boolean removedAny = false;</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">	for (ActionListener listener : starGroupSelector.getActionListeners()) {</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">	    if (listener == starGroupSelectorListener) {</span>
+<span class="nc" id="L176">		starGroupSelector.removeActionListener(listener);</span>
+<span class="nc" id="L177">		removedAny = true;</span>
+	    }
+	}
+<span class="nc" id="L180">	return removedAny;</span>
+    }
+
+    private void syncSelectionFromUI() {
+<span class="nc" id="L184">	Object group = starGroupSelector.getSelectedItem();</span>
+<span class="nc bnc" id="L185" title="All 4 branches missed.">	if (group instanceof String &amp;&amp; starGroups.doesGroupExist((String) group)) {</span>
+<span class="nc" id="L186">	    selectedStarGroup = (String) group;</span>
+	}
+
+<span class="nc" id="L189">	Object star = starSelector.getSelectedItem();</span>
+<span class="nc bnc" id="L190" title="All 6 branches missed.">	if (star instanceof String &amp;&amp; !NO_STARS.equals(star) &amp;&amp; selectedStarGroup != null</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		&amp;&amp; starGroups.doesStarExistInGroup(selectedStarGroup, (String) star)) {</span>
+<span class="nc" id="L192">	    selectedStarName = (String) star;</span>
+<span class="nc" id="L193">	    selectedAUID = starGroups.getAUID(selectedStarGroup, selectedStarName);</span>
+	}
+<span class="nc" id="L195">    }</span>
+
+    private void updateStarFieldForSelection() {
+<span class="nc bnc" id="L198" title="All 2 branches missed.">	if (starField != null) {</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">	    if (clearStarField) {</span>
+<span class="nc" id="L200">		starField.setText(&quot;&quot;);</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">	    } else if (selectedStarName != null) {</span>
+<span class="nc" id="L202">		starField.setText(selectedStarName);</span>
+	    }
+	}
+<span class="nc" id="L205">    }</span>
+
+    /**
+     * Populate the star list combo-box given the currently selected star group. If
+     * the previously selected star is still in this group (e.g. after
+     * {@link #refreshGroups()} or prefs-driven star-group updates), keep that
+     * selection instead of resetting to the first list entry.
+     */
+    public void populateStarListForSelectedGroup() {
+<span class="nc" id="L214">	withSuppressedStarSelectorListener(() -&gt; {</span>
+<span class="nc" id="L215">	    starSelector.removeAllItems();</span>
+
+<span class="nc bnc" id="L217" title="All 4 branches missed.">	    if (selectedStarGroup != null &amp;&amp; !starGroups.getStarNamesInGroup(selectedStarGroup).isEmpty()) {</span>
+
+<span class="nc bnc" id="L219" title="All 2 branches missed.">		for (String starName : starGroups.getStarNamesInGroup(selectedStarGroup)) {</span>
+<span class="nc" id="L220">		    starSelector.addItem(starName);</span>
+<span class="nc" id="L221">		}</span>
+
+		// Prefer the model's string instance so setSelectedIndex/Item matches reliably.
+<span class="nc" id="L224">		String nameToSelect = findStarNameToSelect(selectedStarGroup, selectedStarName);</span>
+<span class="nc bnc" id="L225" title="All 4 branches missed.">		if (nameToSelect == null &amp;&amp; starSelector.getItemCount() &gt; 0) {</span>
+<span class="nc" id="L226">		    nameToSelect = (String) starSelector.getItemAt(0);</span>
+		}
+<span class="nc bnc" id="L228" title="All 2 branches missed.">		if (nameToSelect != null) {</span>
+<span class="nc" id="L229">		    int idx = indexOfStarItem(nameToSelect);</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">		    if (idx &gt;= 0) {</span>
+<span class="nc" id="L231">			starSelector.setSelectedIndex(idx);</span>
+<span class="nc" id="L232">			nameToSelect = (String) starSelector.getItemAt(idx);</span>
+		    } else {
+<span class="nc" id="L234">			starSelector.setSelectedIndex(0);</span>
+<span class="nc" id="L235">			nameToSelect = (String) starSelector.getItemAt(0);</span>
+		    }
+		}
+<span class="nc" id="L238">		selectedStarName = nameToSelect;</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">		if (selectedStarName != null) {</span>
+<span class="nc" id="L240">		    selectedAUID = starGroups.getAUID(selectedStarGroup, selectedStarName);</span>
+		} else {
+<span class="nc" id="L242">		    selectedAUID = null;</span>
+		}
+<span class="nc" id="L244">	    } else {</span>
+<span class="nc" id="L245">		starSelector.addItem(NO_STARS);</span>
+<span class="nc" id="L246">		selectedStarName = null;</span>
+<span class="nc" id="L247">		selectedAUID = null;</span>
+	    }
+<span class="nc" id="L249">	});</span>
+<span class="nc" id="L250">    }</span>
+
+    /**
+     * Pick a star name to show: keep {@code desiredName} if it matches a star in
+     * the group (exact or trim), else null so the caller can fall back to the first
+     * star.
+     */
+    private String findStarNameToSelect(String groupName, String desiredName) {
+<span class="nc bnc" id="L258" title="All 4 branches missed.">	if (desiredName == null || !starGroups.doesStarExistInGroup(groupName, desiredName)) {</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">	    String trimmed = desiredName == null ? null : desiredName.trim();</span>
+<span class="nc bnc" id="L260" title="All 4 branches missed.">	    if (trimmed != null &amp;&amp; starGroups.doesStarExistInGroup(groupName, trimmed)) {</span>
+<span class="nc" id="L261">		return trimmed;</span>
+	    }
+<span class="nc bnc" id="L263" title="All 2 branches missed.">	    for (String key : starGroups.getStarNamesInGroup(groupName)) {</span>
+<span class="nc bnc" id="L264" title="All 6 branches missed.">		if (key != null &amp;&amp; trimmed != null &amp;&amp; key.equalsIgnoreCase(trimmed)) {</span>
+<span class="nc" id="L265">		    return key;</span>
+		}
+<span class="nc" id="L267">	    }</span>
+<span class="nc" id="L268">	    return null;</span>
+	}
+<span class="nc" id="L270">	return desiredName;</span>
+    }
+
+    private int indexOfStarItem(String starName) {
+<span class="nc bnc" id="L274" title="All 2 branches missed.">	for (int i = 0; i &lt; starSelector.getItemCount(); i++) {</span>
+<span class="nc" id="L275">	    Object o = starSelector.getItemAt(i);</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">	    if (starName.equals(o)) {</span>
+<span class="nc" id="L277">		return i;</span>
+	    }
+	}
+<span class="nc" id="L280">	return -1;</span>
+    }
+
+    /**
+     * Add the specified group (to the map and visually) if it does not exist.
+     * 
+     * @param groupName The group to add.
+     */
+    public void addGroup(String groupName) {
+<span class="nc bnc" id="L289" title="All 2 branches missed.">	if (!starGroups.doesGroupExist(groupName)) {</span>
+<span class="nc" id="L290">	    starGroups.addStarGroup(groupName);</span>
+<span class="nc" id="L291">	    starGroupSelector.addItem(groupName);</span>
+<span class="nc" id="L292">	    selectAndRefreshStarsInGroup(groupName);</span>
+	}
+<span class="nc" id="L294">    }</span>
+
+    /**
+     * Remove the specified group (from the map and visually) if it exists.
+     * 
+     * @param groupName The group to remove.
+     */
+    public void removeGroup(String groupName) {
+<span class="nc bnc" id="L302" title="All 2 branches missed.">	if (starGroups.doesGroupExist(groupName)) {</span>
+<span class="nc bnc" id="L303" title="All 2 branches missed.">	    if (MessageBox.showConfirmDialog(&quot;Remove Group&quot;, LocaleProps.get(&quot;REALLY_DELETE&quot;))) {</span>
+<span class="nc" id="L304">		starGroups.removeStarGroup(groupName);</span>
+<span class="nc" id="L305">		starGroupSelector.removeItem(groupName);</span>
+<span class="nc bnc" id="L306" title="All 2 branches missed.">		if (starGroupSelector.getItemCount() &gt; 0) {</span>
+<span class="nc" id="L307">		    selectAndRefreshStarsInGroup((String) starGroupSelector.getItemAt(0));</span>
+		}
+	    }
+	}
+<span class="nc" id="L311">    }</span>
+
+    /**
+     * Add the specified group-star-AUID triple.
+     * 
+     * @param groupName The group to add.
+     * @param starName  The star to add to the specified group.
+     * @param auid      The AUID of the star to be added.
+     */
+    public void addStar(String groupName, String starName, String auid) {
+<span class="nc bnc" id="L321" title="All 2 branches missed.">	if (starGroups.doesGroupExist(groupName)) {</span>
+<span class="nc" id="L322">	    starGroups.addStar(groupName, starName, auid);</span>
+<span class="nc" id="L323">	    selectAndRefreshStarsInGroup(groupName);</span>
+	}
+<span class="nc" id="L325">    }</span>
+
+    /**
+     * Remove the specified star in the specified group.
+     * 
+     * @param groupName The group to add.
+     * @param starName
+     */
+    public void removeStar(String groupName, String starName) {
+<span class="nc bnc" id="L334" title="All 2 branches missed.">	if (starGroups.doesGroupExist(groupName)) {</span>
+<span class="nc bnc" id="L335" title="All 2 branches missed.">	    if (MessageBox.showConfirmDialog(&quot;Remove Star&quot;, LocaleProps.get(&quot;REALLY_DELETE&quot;))) {</span>
+<span class="nc" id="L336">		starGroups.removeStar(groupName, starName);</span>
+<span class="nc" id="L337">		selectAndRefreshStarsInGroup(groupName);</span>
+	    }
+	}
+<span class="nc" id="L340">    }</span>
+
+    /**
+     * Clear the groups in the star group selector list.
+     */
+    public void resetGroups() {
+<span class="nc" id="L346">	starGroups.resetGroupsToDefault();</span>
+
+<span class="nc" id="L348">	withSuppressedGroupSelectorListener(() -&gt; {</span>
+<span class="nc" id="L349">	    starGroupSelector.removeAllItems();</span>
+
+<span class="nc bnc" id="L351" title="All 2 branches missed.">	    for (String groupName : starGroups.getGroupNames()) {</span>
+<span class="nc" id="L352">		starGroupSelector.addItem(groupName);</span>
+<span class="nc" id="L353">	    }</span>
+
+<span class="nc" id="L355">	    selectAndRefreshStarsInGroup(starGroups.getDefaultStarListTitle());</span>
+<span class="nc" id="L356">	});</span>
+<span class="nc" id="L357">    }</span>
+
+    /**
+     * Refresh the groups in the star group selector list. Only groups with stars
+     * will be &quot;refreshed&quot;.
+     */
+    public void refreshGroups() {
+<span class="nc" id="L364">	syncSelectionFromUI();</span>
+	// Rebuilding the combo fires ActionListeners; without removing them first,
+	// selectedStarGroup is overwritten (often to the first group) before we
+	// can restore the user's last choice across dialog invocations.
+<span class="nc" id="L368">	final String savedGroup = getSelectedStarGroupName();</span>
+<span class="nc" id="L369">	final String savedStar = getSelectedStarName();</span>
+
+<span class="nc" id="L371">	withSuppressedGroupSelectorListener(() -&gt; {</span>
+<span class="nc" id="L372">	    starGroupSelector.removeAllItems();</span>
+
+<span class="nc bnc" id="L374" title="All 2 branches missed.">	    for (String groupName : starGroups.getGroupNames()) {</span>
+<span class="nc bnc" id="L375" title="All 2 branches missed.">		if (!starGroups.getStarNamesInGroup(groupName).isEmpty()) {</span>
+<span class="nc" id="L376">		    starGroupSelector.addItem(groupName);</span>
+		}
+<span class="nc" id="L378">	    }</span>
+
+<span class="nc" id="L380">	    String groupToSelect = resolveGroupToSelect(savedGroup);</span>
+
+<span class="nc" id="L382">	    selectedStarName = savedStar;</span>
+
+<span class="nc bnc" id="L384" title="All 2 branches missed.">	    if (groupToSelect != null) {</span>
+<span class="nc" id="L385">		starGroupSelector.setSelectedItem(groupToSelect);</span>
+<span class="nc" id="L386">		selectedStarGroup = groupToSelect;</span>
+<span class="nc" id="L387">		populateStarListForSelectedGroup();</span>
+	    }
+<span class="nc" id="L389">	});</span>
+<span class="nc" id="L390">    }</span>
+
+    private String resolveGroupToSelect(String savedGroup) {
+<span class="nc bnc" id="L393" title="All 4 branches missed.">	if (savedGroup != null &amp;&amp; starGroups.doesGroupExist(savedGroup)</span>
+<span class="nc bnc" id="L394" title="All 4 branches missed.">		&amp;&amp; !starGroups.getStarNamesInGroup(savedGroup).isEmpty() &amp;&amp; groupAppearsInCombo(savedGroup)) {</span>
+<span class="nc" id="L395">	    return savedGroup;</span>
+	}
+
+<span class="nc" id="L398">	String def = starGroups.getDefaultStarListTitle();</span>
+<span class="nc bnc" id="L399" title="All 2 branches missed.">	if (groupAppearsInCombo(def)) {</span>
+<span class="nc" id="L400">	    return def;</span>
+	}
+<span class="nc bnc" id="L402" title="All 2 branches missed.">	if (starGroupSelector.getItemCount() &gt; 0) {</span>
+<span class="nc" id="L403">	    return (String) starGroupSelector.getItemAt(0);</span>
+	}
+
+<span class="nc" id="L406">	return null;</span>
+    }
+
+    private boolean groupAppearsInCombo(String groupName) {
+<span class="nc bnc" id="L410" title="All 2 branches missed.">	if (groupName == null) {</span>
+<span class="nc" id="L411">	    return false;</span>
+	}
+<span class="nc bnc" id="L413" title="All 2 branches missed.">	for (int i = 0; i &lt; starGroupSelector.getItemCount(); i++) {</span>
+<span class="nc bnc" id="L414" title="All 2 branches missed.">	    if (groupName.equals(starGroupSelector.getItemAt(i))) {</span>
+<span class="nc" id="L415">		return true;</span>
+	    }
+	}
+<span class="nc" id="L418">	return false;</span>
+    }
+
+    /**
+     * Select the specified group and refresh its stars.
+     * 
+     * @param groupName The group to select.
+     */
+    public void selectAndRefreshStarsInGroup(String groupName) {
+<span class="nc bnc" id="L427" title="All 2 branches missed.">	if (starGroups.doesGroupExist(groupName)) {</span>
+<span class="nc" id="L428">	    withSuppressedGroupSelectorListener(() -&gt; {</span>
+<span class="nc" id="L429">		starGroupSelector.setSelectedItem(groupName);</span>
+<span class="nc" id="L430">		selectedStarGroup = groupName;</span>
+<span class="nc" id="L431">		populateStarListForSelectedGroup();</span>
+<span class="nc" id="L432">	    });</span>
+	}
+<span class="nc" id="L434">    }</span>
+
+    /**
+     * @return the starGroups
+     */
+    public StarGroups getStarGroups() {
+<span class="nc" id="L440">	return starGroups;</span>
+    }
+
+    /**
+     * @return the selectedStarGroup
+     */
+    public String getSelectedStarGroupName() {
+<span class="nc" id="L447">	return selectedStarGroup;</span>
+    }
+
+    /**
+     * @return the selectedStarName
+     */
+    public String getSelectedStarName() {
+<span class="nc" id="L454">	return selectedStarName;</span>
+    }
+
+    /**
+     * @return the selectedAUID
+     */
+    public String getSelectedAUID() {
+<span class="nc" id="L461">	return selectedAUID;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

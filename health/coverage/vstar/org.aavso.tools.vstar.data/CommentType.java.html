@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommentType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.data</a> &gt; <span class="el_source">CommentType.java</span></div><h1>CommentType.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.data;
+
+/**
+ * This enum represents &quot;comment code&quot; found in all data sources.
+ */
+<span class="fc" id="L23">public enum CommentType {</span>
+
+	// These are the current acceptable comment codes (per
+	// http://sourceforge.net/tracker/?func=detail&amp;aid=2858640&amp;group_id=263306&amp;atid=1152052):
+
+	// The below was used to auto generate the rest of the functions of this
+	// class.
+
+	// COMMENTCODE!! B: Sky is bright, moon, twilight, light pollution, aurorae:
+	// SKY_BRIGHT
+	// COMMENTCODE!! U: Clouds, dust, smoke, haze, etc.: CLOUDS
+	// COMMENTCODE!! W: Poor seeing: POOR_SEEING
+	// COMMENTCODE!! L: Low in the sky, near horizon, in trees, obstructed view:
+	// LOW_IN_SKY
+	// COMMENTCODE!! D: Unusual Activity (fading, flare, bizarre behavior,
+	// etc.): UFOS
+	// COMMENTCODE!! Y: Outburst: OUTBURST
+	// COMMENTCODE!! K: Non-AAVSO chart: NON_AAVSO_CHART
+	// COMMENTCODE!! S: Comparison sequence problem: COMP_SEQ_PROBLEM
+	// COMMENTCODE!! Z: Magnitude of star uncertain: MAG_UNCERTAIN
+	// COMMENTCODE!! I: Identification of star uncertain: IDENT_UNCERTAIN
+	// COMMENTCODE!! V: Faint star, near observing limit, only glimpsed:
+	// FAINT_STAR
+
+	// These are Obsolete Comment Codes: These comment codes are no longer
+	// accepted, but may be found in archival observations.
+
+	// OBSCOMMENTCODE!! A: AAVSO Atlas: AAVSO_ATLAS
+	// OBSCOMMENTCODE!! F: Unconventional method (out of focus, visual
+	// photometer, etc.): UNCONVENTIONAL
+	// OBSCOMMENTCODE!! G: Non-AAVSO chart with Guide Star Catalog magnitudes:
+	// NON_AAVSO_GUIDE_STAR_CAT
+	// OBSCOMMENTCODE!! H: Haze, mist, fog: HAZE
+	// OBSCOMMENTCODE!! J: Non-AAVSO chart with HIPPARCOS magnitudes:
+	// NON_AAVSO_HIPPARCOS
+	// OBSCOMMENTCODE!! M: Moon present and inteferes: MOON
+	// OBSCOMMENTCODE!! N: Angle, position angle: ANGLE
+	// OBSCOMMENTCODE!! O: &quot;Other&quot; comment: OTHER
+	// OBSCOMMENTCODE!! P: Magnitude derived from step magnitude: MAG_FROM_STEP_MAG
+	// OBSCOMMENTCODE!! Q: Questioned by HQ: QUESTIONED_BY_HQ
+	// OBSCOMMENTCODE!! R: Color comment (star is red, blue, etc.):
+	// COLOR_COMMENT
+	// OBSCOMMENTCODE!! T: Non-AAVSO chart with Tycho magnitudes:
+	// NON_AAVSO_TYCHO
+	// OBSCOMMENTCODE!! X: Rejected by HQ: REJECTED
+	//
+	// Multiple comment codes should be separated by spaces or not separated at
+	// all. (Ex: &quot;A Z Y&quot; or &quot;AZY&quot;)
+
+<span class="fc" id="L72">	SKY_BRIGHT, CLOUDS, POOR_SEEING, LOW_IN_SKY, UFOS, OUTBURST, NON_AAVSO_CHART, COMP_SEQ_PROBLEM, MAG_UNCERTAIN, IDENT_UNCERTAIN, FAINT_STAR, AAVSO_ATLAS, UNCONVENTIONAL, NON_AAVSO_GUIDE_STAR_CAT, HAZE, NON_AAVSO_HIPPARCOS, MOON, ANGLE, OTHER, MAG_FROM_STEP_MAG, QUESTIONED_BY_HQ, COLOR_COMMENT, NON_AAVSO_TYCHO, REJECTED;</span>
+
+	/**
+	 * Given a commentcode from an input file or database, return the
+	 * corresponding comment type.
+	 */
+	public static CommentType getTypeFromFlag(String commentflag) {
+<span class="fc" id="L79">		CommentType commenttype = null;</span>
+
+<span class="fc bfc" id="L81" title="All 2 branches covered.">		if (&quot;B&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L82">			commenttype = SKY_BRIGHT;</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">		} else if (&quot;U&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L84">			commenttype = CLOUDS;</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">		} else if (&quot;W&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L86">			commenttype = POOR_SEEING;</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">		} else if (&quot;L&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L88">			commenttype = LOW_IN_SKY;</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">		} else if (&quot;D&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L90">			commenttype = UFOS;</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">		} else if (&quot;Y&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L92">			commenttype = OUTBURST;</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">		} else if (&quot;K&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L94">			commenttype = NON_AAVSO_CHART;</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">		} else if (&quot;S&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L96">			commenttype = COMP_SEQ_PROBLEM;</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">		} else if (&quot;Z&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L98">			commenttype = MAG_UNCERTAIN;</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">		} else if (&quot;I&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L100">			commenttype = IDENT_UNCERTAIN;</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">		} else if (&quot;V&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L102">			commenttype = FAINT_STAR;</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">		} else if (&quot;A&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L104">			commenttype = AAVSO_ATLAS;</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">		} else if (&quot;F&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L106">			commenttype = UNCONVENTIONAL;</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">		} else if (&quot;G&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L108">			commenttype = NON_AAVSO_GUIDE_STAR_CAT;</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">		} else if (&quot;H&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L110">			commenttype = HAZE;</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">		} else if (&quot;J&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L112">			commenttype = NON_AAVSO_HIPPARCOS;</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">		} else if (&quot;M&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L114">			commenttype = MOON;</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">		} else if (&quot;N&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L116">			commenttype = ANGLE;</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">		} else if (&quot;O&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L118">			commenttype = OTHER;</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">		} else if (&quot;P&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L120">			commenttype = MAG_FROM_STEP_MAG;</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">		} else if (&quot;Q&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L122">			commenttype = QUESTIONED_BY_HQ;</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">		} else if (&quot;R&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L124">			commenttype = COLOR_COMMENT;</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">		} else if (&quot;T&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L126">			commenttype = NON_AAVSO_TYCHO;</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">		} else if (&quot;X&quot;.equals(commentflag)) {</span>
+<span class="fc" id="L128">			commenttype = REJECTED;</span>
+		}
+
+<span class="fc bfc" id="L131" title="All 2 branches covered.">		if (commenttype == null) {</span>
+<span class="fc" id="L132">			commenttype = OTHER;</span>
+		}
+
+<span class="fc" id="L135">		return commenttype;</span>
+	}
+
+	/**
+	 * Return the comment string corresponding to this this enum value.
+	 */
+	public String getCommentFlag() {
+<span class="fc" id="L142">		String str = null;</span>
+
+<span class="pc bpc" id="L144" title="1 of 25 branches missed.">		switch (this) {</span>
+		case SKY_BRIGHT:
+<span class="fc" id="L146">			str = &quot;B&quot;;</span>
+<span class="fc" id="L147">			break;</span>
+		case CLOUDS:
+<span class="fc" id="L149">			str = &quot;U&quot;;</span>
+<span class="fc" id="L150">			break;</span>
+		case POOR_SEEING:
+<span class="fc" id="L152">			str = &quot;W&quot;;</span>
+<span class="fc" id="L153">			break;</span>
+		case LOW_IN_SKY:
+<span class="fc" id="L155">			str = &quot;L&quot;;</span>
+<span class="fc" id="L156">			break;</span>
+		case UFOS:
+<span class="fc" id="L158">			str = &quot;D&quot;;</span>
+<span class="fc" id="L159">			break;</span>
+		case OUTBURST:
+<span class="fc" id="L161">			str = &quot;Y&quot;;</span>
+<span class="fc" id="L162">			break;</span>
+		case NON_AAVSO_CHART:
+<span class="fc" id="L164">			str = &quot;K&quot;;</span>
+<span class="fc" id="L165">			break;</span>
+		case COMP_SEQ_PROBLEM:
+<span class="fc" id="L167">			str = &quot;S&quot;;</span>
+<span class="fc" id="L168">			break;</span>
+		case MAG_UNCERTAIN:
+<span class="fc" id="L170">			str = &quot;Z&quot;;</span>
+<span class="fc" id="L171">			break;</span>
+		case IDENT_UNCERTAIN:
+<span class="fc" id="L173">			str = &quot;I&quot;;</span>
+<span class="fc" id="L174">			break;</span>
+		case FAINT_STAR:
+<span class="fc" id="L176">			str = &quot;V&quot;;</span>
+<span class="fc" id="L177">			break;</span>
+		case AAVSO_ATLAS:
+<span class="fc" id="L179">			str = &quot;A&quot;;</span>
+<span class="fc" id="L180">			break;</span>
+		case UNCONVENTIONAL:
+<span class="fc" id="L182">			str = &quot;F&quot;;</span>
+<span class="fc" id="L183">			break;</span>
+		case NON_AAVSO_GUIDE_STAR_CAT:
+<span class="fc" id="L185">			str = &quot;G&quot;;</span>
+<span class="fc" id="L186">			break;</span>
+		case HAZE:
+<span class="fc" id="L188">			str = &quot;H&quot;;</span>
+<span class="fc" id="L189">			break;</span>
+		case NON_AAVSO_HIPPARCOS:
+<span class="fc" id="L191">			str = &quot;J&quot;;</span>
+<span class="fc" id="L192">			break;</span>
+		case MOON:
+<span class="fc" id="L194">			str = &quot;M&quot;;</span>
+<span class="fc" id="L195">			break;</span>
+		case ANGLE:
+<span class="fc" id="L197">			str = &quot;N&quot;;</span>
+<span class="fc" id="L198">			break;</span>
+		case OTHER:
+<span class="fc" id="L200">			str = &quot;O&quot;;</span>
+<span class="fc" id="L201">			break;</span>
+		case MAG_FROM_STEP_MAG:
+<span class="fc" id="L203">			str = &quot;P&quot;;</span>
+<span class="fc" id="L204">			break;</span>
+		case QUESTIONED_BY_HQ:
+<span class="fc" id="L206">			str = &quot;Q&quot;;</span>
+<span class="fc" id="L207">			break;</span>
+		case COLOR_COMMENT:
+<span class="fc" id="L209">			str = &quot;R&quot;;</span>
+<span class="fc" id="L210">			break;</span>
+		case NON_AAVSO_TYCHO:
+<span class="fc" id="L212">			str = &quot;T&quot;;</span>
+<span class="fc" id="L213">			break;</span>
+		case REJECTED:
+<span class="fc" id="L215">			str = &quot;X&quot;;</span>
+<span class="fc" id="L216">			break;</span>
+		default:
+			// Default to OTHER
+<span class="nc" id="L219">			str = &quot;O&quot;;</span>
+			break;
+		}
+
+<span class="fc" id="L223">		return str;</span>
+	}
+
+	public String toString() {
+<span class="fc" id="L227">		String str = null;</span>
+
+<span class="pc bpc" id="L229" title="24 of 25 branches missed.">		switch (this) {</span>
+		case SKY_BRIGHT:
+<span class="nc" id="L231">			str = &quot;Sky is bright, moon, twilight, light pollution, aurorae\n&quot;;</span>
+<span class="nc" id="L232">			break;</span>
+		case CLOUDS:
+<span class="nc" id="L234">			str = &quot;Clouds, dust, smoke, haze, etc.\n&quot;;</span>
+<span class="nc" id="L235">			break;</span>
+		case POOR_SEEING:
+<span class="nc" id="L237">			str = &quot;Poor seeing\n&quot;;</span>
+<span class="nc" id="L238">			break;</span>
+		case LOW_IN_SKY:
+<span class="nc" id="L240">			str = &quot;Low in the sky, near horizon, in trees, obstructed view\n&quot;;</span>
+<span class="nc" id="L241">			break;</span>
+		case UFOS:
+<span class="nc" id="L243">			str = &quot;Unusual Activity (fading, flare, bizarre behavior, etc.)\n&quot;;</span>
+<span class="nc" id="L244">			break;</span>
+		case OUTBURST:
+<span class="nc" id="L246">			str = &quot;Outburst\n&quot;;</span>
+<span class="nc" id="L247">			break;</span>
+		case NON_AAVSO_CHART:
+<span class="nc" id="L249">			str = &quot;Non-AAVSO chart\n&quot;;</span>
+<span class="nc" id="L250">			break;</span>
+		case COMP_SEQ_PROBLEM:
+<span class="nc" id="L252">			str = &quot;Comparison sequence problem\n&quot;;</span>
+<span class="nc" id="L253">			break;</span>
+		case MAG_UNCERTAIN:
+<span class="nc" id="L255">			str = &quot;Magnitude of star uncertain\n&quot;;</span>
+<span class="nc" id="L256">			break;</span>
+		case IDENT_UNCERTAIN:
+<span class="nc" id="L258">			str = &quot;Identification of star uncertain\n&quot;;</span>
+<span class="nc" id="L259">			break;</span>
+		case FAINT_STAR:
+<span class="nc" id="L261">			str = &quot;Faint star, near observing limit, only glimpsed\n&quot;;</span>
+<span class="nc" id="L262">			break;</span>
+		case AAVSO_ATLAS:
+<span class="nc" id="L264">			str = &quot;AAVSO Atlas\n&quot;;</span>
+<span class="nc" id="L265">			break;</span>
+		case UNCONVENTIONAL:
+<span class="nc" id="L267">			str = &quot;Unconventional method (out of focus, visual photometer, etc.)\n&quot;;</span>
+<span class="nc" id="L268">			break;</span>
+		case NON_AAVSO_GUIDE_STAR_CAT:
+<span class="nc" id="L270">			str = &quot;Non-AAVSO chart with Guide Star Catalog magnitudes\n&quot;;</span>
+<span class="nc" id="L271">			break;</span>
+		case HAZE:
+<span class="nc" id="L273">			str = &quot;Haze, mist, fog\n&quot;;</span>
+<span class="nc" id="L274">			break;</span>
+		case NON_AAVSO_HIPPARCOS:
+<span class="nc" id="L276">			str = &quot;Non-AAVSO chart with HIPPARCOS magnitudes\n&quot;;</span>
+<span class="nc" id="L277">			break;</span>
+		case MOON:
+<span class="nc" id="L279">			str = &quot;Moon present and inteferes\n&quot;;</span>
+<span class="nc" id="L280">			break;</span>
+		case ANGLE:
+<span class="nc" id="L282">			str = &quot;Angle, position angle\n&quot;;</span>
+<span class="nc" id="L283">			break;</span>
+		case OTHER:
+<span class="fc" id="L285">			str = &quot;Other comment\n&quot;;</span>
+<span class="fc" id="L286">			break;</span>
+		case MAG_FROM_STEP_MAG:
+<span class="nc" id="L288">			str = &quot;Magnitude derived from step magnitude\n&quot;;</span>
+<span class="nc" id="L289">			break;</span>
+		case QUESTIONED_BY_HQ:
+<span class="nc" id="L291">			str = &quot;Questioned by HQ\n&quot;;</span>
+<span class="nc" id="L292">			break;</span>
+		case COLOR_COMMENT:
+<span class="nc" id="L294">			str = &quot;Color comment (star is red, blue, etc.)\n&quot;;</span>
+<span class="nc" id="L295">			break;</span>
+		case NON_AAVSO_TYCHO:
+<span class="nc" id="L297">			str = &quot;Non-AAVSO chart with Tycho magnitudes\n&quot;;</span>
+<span class="nc" id="L298">			break;</span>
+		case REJECTED:
+<span class="nc" id="L300">			str = &quot;Rejected by HQ\n&quot;;</span>
+<span class="nc" id="L301">			break;</span>
+		default:
+<span class="nc" id="L303">			str = &quot;\&quot;Other\&quot; comment\n&quot;;</span>
+			break;
+		}
+
+<span class="fc" id="L307">		return str;</span>
+	}
+
+	public static String getRegex() {
+		// Permit any character through. We don't want to
+		// exclude a data-point just because of an invalid
+		// comment code being used. Anything that is not known
+		// (see methods above) will be treated as &quot;other&quot;.
+<span class="fc" id="L315">		return &quot;.&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

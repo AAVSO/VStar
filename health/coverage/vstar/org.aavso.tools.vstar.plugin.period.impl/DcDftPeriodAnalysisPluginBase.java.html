@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DcDftPeriodAnalysisPluginBase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.plugin.period.impl</a> &gt; <span class="el_source">DcDftPeriodAnalysisPluginBase.java</span></div><h1>DcDftPeriodAnalysisPluginBase.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.plugin.period.impl;
+
+import javax.swing.JDialog;
+
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
+import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
+
+/**
+ * Date Compensated Discrete Fourier Transform period analysis plugin.
+ */
+abstract public class DcDftPeriodAnalysisPluginBase extends
+		PeriodAnalysisPluginBase {
+
+<span class="nc" id="L37">	private PeriodAnalysisCoordinateType[] dataCoordTypes = {</span>
+			PeriodAnalysisCoordinateType.FREQUENCY,
+			PeriodAnalysisCoordinateType.PERIOD,
+			PeriodAnalysisCoordinateType.POWER,
+			PeriodAnalysisCoordinateType.SEMI_AMPLITUDE };
+
+	protected NewStarMessage newStarMessage;
+	protected TSDcDft periodAnalysisAlgorithm;
+	protected PeriodAnalysisCoordinateType searchType;
+
+	/**
+	 * Constructor
+	 */
+	public DcDftPeriodAnalysisPluginBase(PeriodAnalysisCoordinateType searchType) {
+<span class="nc" id="L51">		super();</span>
+<span class="nc" id="L52">		this.searchType = searchType;</span>
+<span class="nc" id="L53">		Mediator.getInstance().getNewStarNotifier()</span>
+<span class="nc" id="L54">				.addListener(getNewStarListener());</span>
+<span class="nc" id="L55">	}</span>
+
+	// ** Mandatory interface methods **
+
+	@Override
+	public String getDisplayName() {
+<span class="nc" id="L61">		return LocaleProps.get(&quot;DCDFT_DISPLAY_NAME&quot;);</span>
+	}
+
+	@Override
+	public String getDescription() {
+<span class="nc" id="L66">		return LocaleProps.get(&quot;DCDFT_DESC&quot;);</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
+	 */
+	@Override
+	public String getGroup() {
+<span class="nc" id="L74">		return &quot;DC DFT&quot;;</span>
+	}
+
+	@Override
+	public JDialog getDialog(SeriesType sourceSeriesType) {
+
+<span class="nc" id="L80">		return new PeriodAnalysis2DResultDialog(</span>
+<span class="nc" id="L81">				LocaleProps.get(&quot;DCDFT_RESULT_TITLE&quot;) + &quot; &quot;</span>
+<span class="nc" id="L82">						+ newStarMessage.getStarInfo().getDesignation(), &quot;(&quot;</span>
+<span class="nc" id="L83">						+ LocaleProps.get(&quot;SERIES&quot;) + &quot;: &quot;</span>
+<span class="nc" id="L84">						+ sourceSeriesType.getDescription() + &quot;)&quot;,</span>
+				periodAnalysisAlgorithm, dataCoordTypes, searchType);
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase#interrupt()
+	 */
+	@Override
+	public void interrupt() {
+<span class="nc bnc" id="L93" title="All 2 branches missed.">		if (periodAnalysisAlgorithm != null) {</span>
+<span class="nc" id="L94">			periodAnalysisAlgorithm.interrupt();</span>
+		}
+<span class="nc" id="L96">	}</span>
+
+	// ** Mandatory message listeners. **
+
+	@Override
+	protected void newStarAction(NewStarMessage message) {
+<span class="nc" id="L102">		newStarMessage = message;</span>
+<span class="nc" id="L103">		reset();</span>
+<span class="nc" id="L104">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

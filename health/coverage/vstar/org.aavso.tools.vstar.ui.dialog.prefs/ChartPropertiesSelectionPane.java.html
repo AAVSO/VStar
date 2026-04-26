@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChartPropertiesSelectionPane.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.prefs</a> &gt; <span class="el_source">ChartPropertiesSelectionPane.java</span></div><h1>ChartPropertiesSelectionPane.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.prefs;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.Rectangle2D;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.dialog.IntegerField;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.prefs.ChartPropertiesPrefs;
+import org.jfree.chart.StandardChartTheme;
+import org.jfree.chart.ui.FontChooserPanel;
+
+/**
+ * This preferences pane permits the selection of general chart properties.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class ChartPropertiesSelectionPane extends JPanel implements
+IPreferenceComponent {
+	
+	class FontDialog extends
+			AbstractOkCancelDialog {
+
+<span class="nc" id="L65">		private Font font = null;</span>
+		private FontChooserPanel fontChooserPanel;
+		
+		/**
+		 * Constructor
+		 */
+<span class="nc" id="L71">		public FontDialog(Font font) {</span>
+<span class="nc" id="L72">			super(&quot;Font&quot;);</span>
+<span class="nc" id="L73">			this.font = font;</span>
+			
+<span class="nc" id="L75">			Container contentPane = this.getContentPane();</span>
+<span class="nc" id="L76">			JPanel topPane = new JPanel();</span>
+<span class="nc" id="L77">			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L78">			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));			</span>
+			
+<span class="nc" id="L80">			fontChooserPanel = new FontChooserPanel(font);</span>
+<span class="nc" id="L81">			topPane.add(fontChooserPanel);</span>
+			
+			// OK, Cancel
+<span class="nc" id="L84">			topPane.add(createButtonPane());</span>
+
+<span class="nc" id="L86">			contentPane.add(topPane);</span>
+
+<span class="nc" id="L88">			this.pack();</span>
+<span class="nc" id="L89">			setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L90">			this.setVisible(true);</span>
+<span class="nc" id="L91">		}</span>
+		
+		public Font getFont() {
+<span class="nc" id="L94">			return font;</span>
+		}
+		
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
+		 */
+		@Override
+		protected void cancelAction() {
+			// Nothing to do.
+<span class="nc" id="L103">		}</span>
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
+		 */
+		@Override
+		protected void okAction() {
+<span class="nc" id="L110">			boolean ok = true;</span>
+
+<span class="nc" id="L112">			font = fontChooserPanel.getSelectedFont();</span>
+			
+<span class="nc bnc" id="L114" title="All 2 branches missed.">			if (ok) {</span>
+<span class="nc" id="L115">				cancelled = false;</span>
+<span class="nc" id="L116">				setVisible(false);</span>
+<span class="nc" id="L117">				dispose();</span>
+			}
+<span class="nc" id="L119">		}</span>
+	}	
+	
+	/**
+	 * A color rectangle
+	 */
+	class ColorRectComponent extends JComponent {
+		
+		private Color color;
+		private boolean colorChanged;
+
+		public boolean getColorChanged() {
+<span class="nc" id="L131">			return colorChanged;</span>
+		}
+		
+		public void resetColorChanged() {
+<span class="nc" id="L135">			colorChanged = false;</span>
+<span class="nc" id="L136">		}</span>
+		
+<span class="nc" id="L138">		public ColorRectComponent(Color color) {</span>
+<span class="nc" id="L139">			setColor(color);</span>
+<span class="nc" id="L140">			resetColorChanged();</span>
+<span class="nc" id="L141">		}</span>
+
+		public Color getColor() {
+<span class="nc" id="L144">			return color;</span>
+		}
+		
+		public void setColor(Color color) {
+<span class="nc bnc" id="L148" title="All 2 branches missed.">			if (color == null)</span>
+<span class="nc" id="L149">				color = Color.BLACK;</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">			if (!color.equals(this.color)) {</span>
+<span class="nc" id="L151">				colorChanged = true;</span>
+<span class="nc" id="L152">				this.color = color;</span>
+<span class="nc" id="L153">				repaint();</span>
+			}
+<span class="nc" id="L155">		}</span>
+		
+		@Override
+		public void paint(Graphics g) {
+<span class="nc" id="L159">			Graphics2D gfx = (Graphics2D) g;</span>
+<span class="nc" id="L160">			int height = this.getHeight();</span>
+<span class="nc" id="L161">			int width = this.getWidth();</span>
+<span class="nc" id="L162">			Shape rect = new Rectangle2D.Float(0, 0, width - 1, height - 1);</span>
+<span class="nc" id="L163">			gfx.setPaint(color);</span>
+<span class="nc" id="L164">			gfx.fill(rect);</span>
+<span class="nc" id="L165">			gfx.setPaint(Color.BLACK);</span>
+<span class="nc" id="L166">			gfx.draw(rect);</span>
+<span class="nc" id="L167">		}</span>
+	}
+	
+	class ChartFontLabel extends JLabel {
+		
+<span class="nc" id="L172">		private boolean fontChanged = false;</span>
+		
+<span class="nc" id="L174">		public ChartFontLabel(String text) {</span>
+<span class="nc" id="L175">			super(text);</span>
+<span class="nc" id="L176">		}</span>
+		
+		@Override
+		public void setFont(Font font) {
+<span class="nc" id="L180">			super.setFont(font);</span>
+<span class="nc" id="L181">			fontChanged = true;</span>
+<span class="nc" id="L182">		}</span>
+		
+		public void resetFontChanged() {
+<span class="nc" id="L185">			fontChanged = false;</span>
+<span class="nc" id="L186">		}</span>
+		
+		public boolean isFontChanged() {
+<span class="nc" id="L189">			return fontChanged;</span>
+		}
+		
+		public void setFontChanged(boolean status) {
+<span class="nc" id="L193">			fontChanged = status;</span>
+<span class="nc" id="L194">		}</span>
+	}
+	
+	private ColorRectComponent backColorRect;	
+	private ColorRectComponent gridColorRect;
+
+	private ChartFontLabel regularFontLabel;
+	private ChartFontLabel smallFontLabel;
+	private ChartFontLabel extraLargeFontLabel;
+	private ChartFontLabel largeFontLabel;
+	
+	private JSpinner pngScaleFactor; 
+<span class="nc" id="L206">	private Integer changedScaleFactor = null;</span>
+	
+	/**
+	 * Constructor.
+	 */
+	public ChartPropertiesSelectionPane() {
+<span class="nc" id="L212">		super();</span>
+		
+<span class="nc" id="L214">		JPanel chartPropertiesPane = new JPanel();</span>
+<span class="nc" id="L215">		chartPropertiesPane.setLayout(new BoxLayout(chartPropertiesPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L216">		chartPropertiesPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L218">		chartPropertiesPane.add(createControlPane());</span>
+		
+<span class="nc" id="L220">		chartPropertiesPane.add(Box.createRigidArea(new Dimension(10, 10)));		</span>
+		
+<span class="nc" id="L222">		chartPropertiesPane.add(createControlPane2());</span>
+		
+<span class="nc" id="L224">		chartPropertiesPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+		
+<span class="nc" id="L226">		chartPropertiesPane.add(createButtonPane());</span>
+		
+<span class="nc" id="L228">		this.add(chartPropertiesPane);</span>
+		
+<span class="nc" id="L230">	}</span>
+
+	private JSpinner createScaleSpinner(int initial, String title) {
+<span class="nc" id="L233">		SpinnerNumberModel spinnerModel = new SpinnerNumberModel(</span>
+				initial, 
+				ChartPropertiesPrefs.MIN_PNG_SCALE_FACTOR,
+				ChartPropertiesPrefs.MAX_PNG_SCALE_FACTOR,
+				1);
+<span class="nc" id="L238">		JSpinner spinner = new JSpinner(spinnerModel);</span>
+<span class="nc" id="L239">		spinner.setBorder(BorderFactory.createTitledBorder(title));</span>
+<span class="nc" id="L240">		spinner.addChangeListener(new ChangeListener() {</span>
+			@Override
+			public void stateChanged(ChangeEvent e) {
+<span class="nc" id="L243">				JSpinner src = (JSpinner)(e.getSource());</span>
+<span class="nc" id="L244">				changedScaleFactor = (Integer)src.getValue();</span>
+<span class="nc" id="L245">			}</span>
+		});
+<span class="nc" id="L247">		return spinner;</span>
+	}
+	
+	protected JPanel createControlPane() {
+<span class="nc" id="L251">		JPanel panel = new JPanel(new GridLayout(0, 3, 10, 10));</span>
+		JButton selectBtn;
+
+<span class="nc" id="L254">		panel.add(new JLabel(&quot;Background Color&quot;));</span>
+<span class="nc" id="L255">		backColorRect = new ColorRectComponent(Color.WHITE);</span>
+<span class="nc" id="L256">		panel.add(backColorRect);		</span>
+<span class="nc" id="L257">		selectBtn = new JButton(&quot;Select...&quot;);</span>
+<span class="nc" id="L258">		selectBtn.addActionListener(createSelectBackgroundColorActionListener());</span>
+<span class="nc" id="L259">		panel.add(selectBtn);</span>
+				
+<span class="nc" id="L261">		panel.add(new JLabel(&quot;Gridline Color&quot;));</span>
+<span class="nc" id="L262">		gridColorRect = new ColorRectComponent(Color.WHITE);</span>
+<span class="nc" id="L263">		panel.add(gridColorRect);		</span>
+<span class="nc" id="L264">		selectBtn = new JButton(&quot;Select...&quot;);</span>
+<span class="nc" id="L265">		selectBtn.addActionListener(createSelectGridlineColorActionListener());</span>
+<span class="nc" id="L266">		panel.add(selectBtn);</span>
+
+<span class="nc" id="L268">		panel.add(new JLabel(&quot;Regular Chart Font&quot;));		</span>
+<span class="nc" id="L269">		regularFontLabel = new ChartFontLabel(&quot;Regular 3.14159&quot;);</span>
+<span class="nc" id="L270">		panel.add(regularFontLabel);</span>
+<span class="nc" id="L271">		selectBtn = new JButton(&quot;Select...&quot;);</span>
+<span class="nc" id="L272">		selectBtn.addActionListener(createSelectRegularFontActionListener());</span>
+<span class="nc" id="L273">		panel.add(selectBtn);</span>
+		
+<span class="nc" id="L275">		panel.add(new JLabel(&quot;Small Chart Font&quot;));		</span>
+<span class="nc" id="L276">		smallFontLabel = new ChartFontLabel(&quot;Small 3.14159&quot;);</span>
+<span class="nc" id="L277">		panel.add(smallFontLabel);</span>
+<span class="nc" id="L278">		selectBtn = new JButton(&quot;Select...&quot;);</span>
+<span class="nc" id="L279">		selectBtn.addActionListener(createSelectSmallFontActionListener());</span>
+<span class="nc" id="L280">		panel.add(selectBtn);</span>
+
+<span class="nc" id="L282">		panel.add(new JLabel(&quot;Large Chart Font&quot;));		</span>
+<span class="nc" id="L283">		largeFontLabel = new ChartFontLabel(&quot;Large 3.14159&quot;);</span>
+<span class="nc" id="L284">		panel.add(largeFontLabel);</span>
+<span class="nc" id="L285">		selectBtn = new JButton(&quot;Select...&quot;);</span>
+<span class="nc" id="L286">		selectBtn.addActionListener(createSelectLargeFontActionListener());</span>
+<span class="nc" id="L287">		panel.add(selectBtn);</span>
+
+<span class="nc" id="L289">		panel.add(new JLabel(&quot;XLarge Chart Font&quot;));		</span>
+<span class="nc" id="L290">		extraLargeFontLabel = new ChartFontLabel(&quot;XLarge 3.14159&quot;);</span>
+<span class="nc" id="L291">		panel.add(extraLargeFontLabel);</span>
+<span class="nc" id="L292">		selectBtn = new JButton(&quot;Select...&quot;);</span>
+<span class="nc" id="L293">		selectBtn.addActionListener(createSelectExtraLargeFontActionListener());</span>
+<span class="nc" id="L294">		panel.add(selectBtn);</span>
+		
+<span class="nc" id="L296">		return panel;</span>
+	}
+	
+	protected JPanel createControlPane2() {
+<span class="nc" id="L300">		JPanel panel = new JPanel(new GridLayout(0, 3, 10, 10));</span>
+
+<span class="nc" id="L302">		panel.add(new JLabel(&quot;Use the factor&quot;));</span>
+<span class="nc" id="L303">		pngScaleFactor = createScaleSpinner(ChartPropertiesPrefs.MIN_PNG_SCALE_FACTOR, &quot;Factor&quot;);</span>
+<span class="nc" id="L304">		panel.add(pngScaleFactor);</span>
+<span class="nc" id="L305">		panel.add(new JLabel(&quot;while saving PNG&quot;));</span>
+		
+<span class="nc" id="L307">		return panel;</span>
+	}
+	
+	protected JPanel createButtonPane() {
+<span class="nc" id="L311">		JPanel panel = new JPanel(new BorderLayout());</span>
+
+<span class="nc" id="L313">		JButton setDefaultsButton = new JButton(&quot;Set Defaults&quot;);</span>
+<span class="nc" id="L314">		setDefaultsButton.addActionListener(createSetDefaultsButtonActionListener());</span>
+<span class="nc" id="L315">		panel.add(setDefaultsButton, BorderLayout.LINE_START);</span>
+
+<span class="nc" id="L317">		JButton applyButton = new JButton(LocaleProps.get(&quot;APPLY_BUTTON&quot;));</span>
+<span class="nc" id="L318">		applyButton.addActionListener(createApplyButtonActionListener());</span>
+<span class="nc" id="L319">		panel.add(applyButton, BorderLayout.LINE_END);</span>
+
+<span class="nc" id="L321">		return panel;</span>
+	}
+	
+	
+	// Select Background color action button listener.
+	private ActionListener createSelectBackgroundColorActionListener() {
+<span class="nc" id="L327">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L329">				Color newColor = JColorChooser.showDialog(ChartPropertiesSelectionPane.this,</span>
+	                     &quot;Choose Background Color&quot;,
+<span class="nc" id="L331">	                     backColorRect.getColor());</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">				if (newColor != null) {</span>
+<span class="nc" id="L333">					backColorRect.setColor(newColor);</span>
+				}
+<span class="nc" id="L335">			}</span>
+		};
+	}
+	
+	// Select Gridline color action button listener.
+	private ActionListener createSelectGridlineColorActionListener() {
+<span class="nc" id="L341">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L343">				Color newColor = JColorChooser.showDialog(ChartPropertiesSelectionPane.this,</span>
+	                     &quot;Choose Gridline Color&quot;,
+<span class="nc" id="L345">	                     gridColorRect.getColor());</span>
+<span class="nc bnc" id="L346" title="All 2 branches missed.">				if (newColor != null) {</span>
+<span class="nc" id="L347">					gridColorRect.setColor(newColor);</span>
+				}
+<span class="nc" id="L349">			}</span>
+		};
+	}
+
+	// Select Regular Font action button listener.
+	private ActionListener createSelectRegularFontActionListener() {
+<span class="nc" id="L355">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L357">				FontDialog paramDialog = new FontDialog(regularFontLabel.getFont());</span>
+<span class="nc bnc" id="L358" title="All 2 branches missed.">				if (paramDialog.isCancelled())</span>
+<span class="nc" id="L359">					return;</span>
+<span class="nc" id="L360">				Font newFont = paramDialog.getFont();</span>
+<span class="nc bnc" id="L361" title="All 2 branches missed.">				if (newFont != null) {</span>
+<span class="nc" id="L362">					regularFontLabel.setFont(newFont);</span>
+				}
+<span class="nc" id="L364">			}</span>
+		};
+	}
+
+	// Select Small Font action button listener.
+	private ActionListener createSelectSmallFontActionListener() {
+<span class="nc" id="L370">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L372">				FontDialog paramDialog = new FontDialog(smallFontLabel.getFont());</span>
+<span class="nc bnc" id="L373" title="All 2 branches missed.">				if (paramDialog.isCancelled())</span>
+<span class="nc" id="L374">					return;</span>
+<span class="nc" id="L375">				Font newFont = paramDialog.getFont();</span>
+<span class="nc bnc" id="L376" title="All 2 branches missed.">				if (newFont != null) {</span>
+<span class="nc" id="L377">					smallFontLabel.setFont(newFont);</span>
+				}
+<span class="nc" id="L379">			}</span>
+		};
+	}
+
+	// Select Large Font action button listener.
+	private ActionListener createSelectLargeFontActionListener() {
+<span class="nc" id="L385">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L387">				FontDialog paramDialog = new FontDialog(largeFontLabel.getFont());</span>
+<span class="nc bnc" id="L388" title="All 2 branches missed.">				if (paramDialog.isCancelled())</span>
+<span class="nc" id="L389">					return;</span>
+<span class="nc" id="L390">				Font newFont = paramDialog.getFont();</span>
+<span class="nc bnc" id="L391" title="All 2 branches missed.">				if (newFont != null) {</span>
+<span class="nc" id="L392">					largeFontLabel.setFont(newFont);</span>
+				}
+<span class="nc" id="L394">			}</span>
+		};
+	}
+
+	// Select Extra Large Font action button listener.
+	private ActionListener createSelectExtraLargeFontActionListener() {
+<span class="nc" id="L400">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L402">				FontDialog paramDialog = new FontDialog(extraLargeFontLabel.getFont());</span>
+<span class="nc bnc" id="L403" title="All 2 branches missed.">				if (paramDialog.isCancelled())</span>
+<span class="nc" id="L404">					return;</span>
+<span class="nc" id="L405">				Font newFont = paramDialog.getFont();</span>
+<span class="nc bnc" id="L406" title="All 2 branches missed.">				if (newFont != null) {</span>
+<span class="nc" id="L407">					extraLargeFontLabel.setFont(newFont);</span>
+				}
+<span class="nc" id="L409">			}</span>
+		};
+	}
+	
+	// Set defaults action button listener.
+	private ActionListener createSetDefaultsButtonActionListener() {
+<span class="nc" id="L415">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L417">				ChartPropertiesPrefs.setDefaultChartPrefs();</span>
+<span class="nc" id="L418">				reset();</span>
+<span class="nc" id="L419">				updateCharts();</span>
+<span class="nc" id="L420">			}</span>
+		};
+	}
+	
+	// Set apply button listener.
+	private ActionListener createApplyButtonActionListener() {
+<span class="nc" id="L426">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L428">				update();</span>
+<span class="nc" id="L429">			}</span>
+		};
+	}
+	
+	private void updateCharts() {
+<span class="nc" id="L434">		Mediator.getInstance().updateChartProperties();</span>
+<span class="nc" id="L435">	}</span>
+	
+	/**
+	 * Updates the chart properties.
+	 */
+	@Override
+	public void update() {
+<span class="nc" id="L442">		boolean delta = false;</span>
+<span class="nc bnc" id="L443" title="All 2 branches missed.">		if (backColorRect.getColorChanged()) {</span>
+<span class="nc" id="L444">			ChartPropertiesPrefs.setChartBackgroundColor(backColorRect.getColor());</span>
+<span class="nc" id="L445">			delta = true;</span>
+		}
+<span class="nc bnc" id="L447" title="All 2 branches missed.">		if (gridColorRect.getColorChanged()) {</span>
+<span class="nc" id="L448">			ChartPropertiesPrefs.setChartGridlinesColor(gridColorRect.getColor());</span>
+<span class="nc" id="L449">			delta = true;</span>
+		}
+<span class="nc bnc" id="L451" title="All 2 branches missed.">		if (regularFontLabel.isFontChanged()) {</span>
+<span class="nc" id="L452">			ChartPropertiesPrefs.setChartRegularFont(regularFontLabel.getFont());</span>
+<span class="nc" id="L453">			delta = true;</span>
+		}
+<span class="nc bnc" id="L455" title="All 2 branches missed.">		if (smallFontLabel.isFontChanged()) {</span>
+<span class="nc" id="L456">			ChartPropertiesPrefs.setChartSmallFont(smallFontLabel.getFont());</span>
+<span class="nc" id="L457">			delta = true;</span>
+		}
+<span class="nc bnc" id="L459" title="All 2 branches missed.">		if (largeFontLabel.isFontChanged()) {</span>
+<span class="nc" id="L460">			ChartPropertiesPrefs.setChartLargeFont(largeFontLabel.getFont());</span>
+<span class="nc" id="L461">			delta = true;</span>
+		}
+<span class="nc bnc" id="L463" title="All 2 branches missed.">		if (extraLargeFontLabel.isFontChanged()) {</span>
+<span class="nc" id="L464">			ChartPropertiesPrefs.setChartExtraLargeFont(extraLargeFontLabel.getFont());</span>
+<span class="nc" id="L465">			delta = true;</span>
+		}
+<span class="nc bnc" id="L467" title="All 2 branches missed.">		if (changedScaleFactor != null) {</span>
+<span class="nc" id="L468">			ChartPropertiesPrefs.setScaleFactor(changedScaleFactor);</span>
+<span class="nc" id="L469">			delta = true;</span>
+		}
+<span class="nc bnc" id="L471" title="All 2 branches missed.">		if (delta) {</span>
+<span class="nc" id="L472">			ChartPropertiesPrefs.storeChartPropertiesPrefs();</span>
+<span class="nc" id="L473">			backColorRect.resetColorChanged();</span>
+<span class="nc" id="L474">			gridColorRect.resetColorChanged();</span>
+<span class="nc" id="L475">			regularFontLabel.resetFontChanged();</span>
+<span class="nc" id="L476">			smallFontLabel.resetFontChanged();</span>
+<span class="nc" id="L477">			largeFontLabel.resetFontChanged();</span>
+<span class="nc" id="L478">			extraLargeFontLabel.resetFontChanged();</span>
+<span class="nc" id="L479">			changedScaleFactor = null; </span>
+<span class="nc" id="L480">			updateCharts();			</span>
+		}
+<span class="nc" id="L482">	}</span>
+	
+	/**
+	 * Prepare this pane.
+	 */
+	@Override
+	public void reset() {
+<span class="nc" id="L489">		backColorRect.setColor(ChartPropertiesPrefs.getChartBackgroundColor());</span>
+<span class="nc" id="L490">		gridColorRect.setColor(ChartPropertiesPrefs.getChartGridlinesColor());</span>
+<span class="nc" id="L491">		backColorRect.resetColorChanged();		</span>
+<span class="nc" id="L492">		gridColorRect.resetColorChanged();</span>
+		
+		Font font;
+<span class="nc" id="L495">		StandardChartTheme chartTheme = (StandardChartTheme)StandardChartTheme.createJFreeTheme();</span>
+
+<span class="nc" id="L497">		font = ChartPropertiesPrefs.getChartRegularFont();</span>
+<span class="nc bnc" id="L498" title="All 2 branches missed.">		if (font == null)</span>
+<span class="nc" id="L499">			font = chartTheme.getRegularFont();</span>
+<span class="nc" id="L500">		regularFontLabel.setFont(font);</span>
+<span class="nc" id="L501">		regularFontLabel.resetFontChanged();</span>
+		
+<span class="nc" id="L503">		font = ChartPropertiesPrefs.getChartSmallFont();</span>
+<span class="nc bnc" id="L504" title="All 2 branches missed.">		if (font == null)</span>
+<span class="nc" id="L505">			font = chartTheme.getSmallFont();</span>
+<span class="nc" id="L506">		smallFontLabel.setFont(font);</span>
+<span class="nc" id="L507">		smallFontLabel.resetFontChanged();</span>
+
+<span class="nc" id="L509">		font = ChartPropertiesPrefs.getChartLargeFont();</span>
+<span class="nc bnc" id="L510" title="All 2 branches missed.">		if (font == null)</span>
+<span class="nc" id="L511">			font = chartTheme.getLargeFont();</span>
+<span class="nc" id="L512">		largeFontLabel.setFont(font);</span>
+<span class="nc" id="L513">		largeFontLabel.resetFontChanged();</span>
+		
+<span class="nc" id="L515">		font = ChartPropertiesPrefs.getChartExtraLargeFont();</span>
+<span class="nc bnc" id="L516" title="All 2 branches missed.">		if (font == null)</span>
+<span class="nc" id="L517">			font = chartTheme.getExtraLargeFont();</span>
+<span class="nc" id="L518">		extraLargeFontLabel.setFont(font);</span>
+<span class="nc" id="L519">		extraLargeFontLabel.resetFontChanged();</span>
+		
+<span class="nc" id="L521">		pngScaleFactor.setValue(ChartPropertiesPrefs.getScaleFactor());</span>
+<span class="nc" id="L522">		changedScaleFactor = null;</span>
+<span class="nc" id="L523">	}</span>
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

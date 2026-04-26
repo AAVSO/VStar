@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AIDWebServiceXMLAttributeObservationSourcePlugin.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.plugin.ob.src.impl</a> &gt; <span class="el_source">AIDWebServiceXMLAttributeObservationSourcePlugin.java</span></div><h1>AIDWebServiceXMLAttributeObservationSourcePlugin.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.plugin.ob.src.impl;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.InvalidObservation;
+import org.aavso.tools.vstar.data.MTypeType;
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidationType;
+import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+/**
+ * This intrinsic observation source plug-in retrieves AID observations via the
+ * VSX web service.
+ */
+public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
+		AIDWebServiceObservationSourcePluginBase {
+
+	public AIDWebServiceXMLAttributeObservationSourcePlugin() {
+<span class="fc" id="L54">		super(&quot;api.object&quot;, &quot;&amp;att&quot;);</span>
+<span class="fc" id="L55">	}</span>
+
+	@Override
+	public AbstractObservationRetriever getObservationRetriever() {
+<span class="fc" id="L59">		return new VSXAIDAttributeObservationRetriever();</span>
+	}
+
+	@Override
+	protected String addURLs(String auid) {
+<span class="nc" id="L64">		String urlStr = null;</span>
+
+		// Create a list of URLs with different series for the same target
+		// and time range.
+<span class="nc bnc" id="L68" title="All 2 branches missed.">		for (SeriesType series : starSelector.getSelectedSeries()) {</span>
+
+<span class="nc bnc" id="L70" title="All 2 branches missed.">			if (starSelector.wantAllData()) {</span>
+				// Request all AID data for object for requested series.
+<span class="nc" id="L72">				urlStr = createAIDUrlForAUID(auid);</span>
+			} else {
+				// Request AID data for object over a range and for the
+				// zeroth requested series.
+<span class="nc" id="L76">				urlStr = createAIDUrlForAUID(auid, starSelector.getMinDate()</span>
+<span class="nc" id="L77">						.getJulianDay(), starSelector.getMaxDate()</span>
+<span class="nc" id="L78">						.getJulianDay(), series.getShortName(), null, false);</span>
+			}
+
+<span class="nc" id="L81">			urlStrs.add(urlStr);</span>
+<span class="nc" id="L82">		}</span>
+
+<span class="nc" id="L84">		return urlStr;</span>
+	}
+
+	class VSXAIDAttributeObservationRetriever extends
+			AbstractObservationRetriever {
+
+<span class="fc" id="L90">		public VSXAIDAttributeObservationRetriever() {</span>
+<span class="fc" id="L91">			super(getVelaFilterStr());</span>
+<span class="fc" id="L92">			info.setRetriever(this);</span>
+<span class="fc" id="L93">		}</span>
+
+		@Override
+		public StarInfo getStarInfo() {
+<span class="nc" id="L97">			return info;</span>
+		}
+
+		@Override
+		public Integer getNumberOfRecords() throws ObservationReadError {
+<span class="nc" id="L102">			return info.getObsCount();</span>
+		}
+
+		@Override
+		public void retrieveObservations() throws ObservationReadError,
+				InterruptedException {
+
+			// Iterate over each series-based URL reading observations over
+			// potentially many &quot;pages&quot; for each URL.
+<span class="fc bfc" id="L111" title="All 2 branches covered.">			for (String urlStr : urlStrs) {</span>
+<span class="fc" id="L112">				Integer pageNum = 1;</span>
+
+				do {
+					try {
+<span class="fc" id="L116">						String currUrlStr = urlStr;</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">						if (pageNum != null) {</span>
+<span class="fc" id="L118">							currUrlStr += &quot;&amp;page=&quot; + pageNum;</span>
+						}
+
+<span class="fc" id="L121">						URL vsxUrl = new URL(currUrlStr);</span>
+
+						DocumentBuilderFactory factory = DocumentBuilderFactory
+<span class="fc" id="L124">								.newInstance();</span>
+<span class="fc" id="L125">						DocumentBuilder builder = factory.newDocumentBuilder();</span>
+
+<span class="fc" id="L127">						InputStream stream = new UTF8FilteringInputStream(</span>
+<span class="fc" id="L128">								vsxUrl.openStream());</span>
+<span class="fc" id="L129">						Document document = builder.parse(stream);</span>
+
+<span class="fc" id="L131">						document.getDocumentElement().normalize();</span>
+
+<span class="fc" id="L133">						pageNum = requestObservationDetails(document, pageNum);</span>
+
+<span class="nc" id="L135">					} catch (MalformedURLException e) {</span>
+<span class="nc" id="L136">						throw new ObservationReadError(</span>
+								&quot;Unable to obtain information for &quot;
+<span class="nc" id="L138">										+ info.getDesignation());</span>
+<span class="nc" id="L139">					} catch (ParserConfigurationException e) {</span>
+<span class="nc" id="L140">						throw new ObservationReadError(</span>
+								&quot;Unable to obtain information for &quot;
+<span class="nc" id="L142">										+ info.getDesignation());</span>
+<span class="nc" id="L143">					} catch (SAXException e) {</span>
+<span class="nc" id="L144">						throw new ObservationReadError(</span>
+								&quot;Unable to obtain information for &quot;
+<span class="nc" id="L146">										+ info.getDesignation());</span>
+<span class="nc" id="L147">					} catch (IOException e) {</span>
+<span class="nc" id="L148">						throw new ObservationReadError(</span>
+								&quot;Unable to obtain information for &quot;
+<span class="nc" id="L150">										+ info.getDesignation());</span>
+<span class="fc" id="L151">					}</span>
+<span class="pc bpc" id="L152" title="3 of 4 branches missed.">				} while (pageNum != null &amp;&amp; !interrupted);</span>
+<span class="fc" id="L153">			}</span>
+<span class="fc" id="L154">		}</span>
+
+		@Override
+		public String getSourceType() {
+<span class="nc" id="L158">			return LocaleProps.get(&quot;DATABASE_OBS_SOURCE&quot;);</span>
+		}
+
+		@Override
+		public String getSourceName() {
+<span class="nc" id="L163">			return info.getDesignation();</span>
+		}
+
+		// Helpers
+
+		/**
+		 * Retrieve all observation details from the document.
+		 * 
+		 * @param document
+		 *            The document from which to extract observations.
+		 * @param pageNum
+		 *            The page number of the document to read.
+		 * @return The next page number to read or null if not a multi-page
+		 *         document.
+		 * @throws ObservationReadError
+		 *             If an error occurs when reading the document.
+		 */
+		private Integer requestObservationDetails(Document document,
+				Integer pageNum) throws ObservationReadError {
+
+			// Has an observation count been supplied?
+			// If so, more observations remain than the ones about to be
+			// retrieved here.
+<span class="fc" id="L186">			Integer obsCount = null;</span>
+
+<span class="fc" id="L188">			NodeList dataNodes = document.getElementsByTagName(&quot;Data&quot;);</span>
+
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">			if (dataNodes.getLength() == 1) {</span>
+<span class="fc" id="L191">				Element dataElt = (Element) dataNodes.item(0);</span>
+<span class="fc" id="L192">				String count = dataElt.getAttribute(&quot;Count&quot;);</span>
+<span class="pc bpc" id="L193" title="2 of 4 branches missed.">				if (count != null &amp;&amp; count.trim().length() != 0) {</span>
+<span class="nc" id="L194">					obsCount = Integer.parseInt(count);</span>
+				}
+			}
+
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">			if (obsCount == null) {</span>
+<span class="fc" id="L199">				pageNum = null;</span>
+			}
+
+<span class="fc" id="L202">			NodeList obsNodes = document.getElementsByTagName(&quot;Observation&quot;);</span>
+
+<span class="fc bfc" id="L204" title="All 2 branches covered.">			for (int i = 0; i &lt; obsNodes.getLength(); i++) {</span>
+
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">				if (interrupted)</span>
+<span class="nc" id="L207">					break;</span>
+
+<span class="fc" id="L209">				NamedNodeMap obsDetails = obsNodes.item(i).getAttributes();</span>
+
+<span class="fc" id="L211">				ValidObservation ob = retrieveObservation(new NamedNodeMapSequence(</span>
+						obsDetails));
+
+<span class="pc bpc" id="L214" title="1 of 2 branches missed.">				if (ob != null) {</span>
+<span class="fc" id="L215">					collectObservation(ob);</span>
+				}
+
+<span class="fc" id="L218">				incrementProgress();</span>
+			}
+
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">			if (pageNum != null) {</span>
+<span class="nc" id="L222">				pageNum++;</span>
+			}
+
+<span class="fc" id="L225">			return pageNum;</span>
+		}
+
+		/**
+		 * Given an XML node of some kind (Element, Node) corresponding to the
+		 * details of a single observation, retrieve that observation.
+		 * 
+		 * @param obsDetails
+		 *            A sequence of observation details.
+		 * @return The observation.
+		 * @throws ObservationReadError
+		 *             if an error occurred during observation processing.
+		 */
+		private ValidObservation retrieveObservation(INodeSequence obsDetails)
+				throws ObservationReadError {
+
+<span class="fc" id="L241">			Integer id = null;</span>
+<span class="fc" id="L242">			Double jd = null;</span>
+<span class="fc" id="L243">			Double mag = null;</span>
+<span class="fc" id="L244">			Double error = 0.0;</span>
+<span class="fc" id="L245">			SeriesType band = null;</span>
+<span class="fc" id="L246">			String obscode = null;</span>
+<span class="fc" id="L247">			String obsType = null;</span>
+<span class="fc" id="L248">			ValidationType valType = null;</span>
+<span class="fc" id="L249">			String comp1 = null;</span>
+<span class="fc" id="L250">			String comp2 = null;</span>
+<span class="fc" id="L251">			String kMag = null;</span>
+<span class="fc" id="L252">			String charts = null;</span>
+<span class="fc" id="L253">			String commentCode = null;</span>
+<span class="fc" id="L254">			String comments = null;</span>
+<span class="fc" id="L255">			boolean transformed = false;</span>
+<span class="fc" id="L256">			boolean fainterThan = false;</span>
+<span class="fc" id="L257">			boolean isUncertain = false;</span>
+<span class="fc" id="L258">			DateInfo hJD = null;</span>
+<span class="fc" id="L259">			String airmass = null;</span>
+<span class="fc" id="L260">			String group = null;</span>
+<span class="fc" id="L261">			MTypeType mType = null;</span>
+<span class="fc" id="L262">			String credit = null;</span>
+<span class="fc" id="L263">			String pubref = null;</span>
+<span class="fc" id="L264">			String digitizer = null;</span>
+<span class="fc" id="L265">			String name = info.getDesignation();</span>
+
+<span class="fc bfc" id="L267" title="All 2 branches covered.">			for (int j = 0; j &lt; obsDetails.getLength(); j++) {</span>
+
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">				if (interrupted)</span>
+<span class="nc" id="L270">					break;</span>
+
+<span class="fc" id="L272">				Node detailNode = obsDetails.item(j);</span>
+<span class="fc" id="L273">				String nodeName = detailNode.getNodeName();</span>
+<span class="fc" id="L274">				String nodeValue = detailNode.getTextContent();</span>
+
+<span class="fc bfc" id="L276" title="All 2 branches covered.">				if (&quot;Id&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L277">					id = Integer.parseInt(nodeValue);</span>
+<span class="fc bfc" id="L278" title="All 2 branches covered.">				} else if (&quot;JD&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L279">					jd = getPossiblyNullDouble(nodeValue);</span>
+<span class="fc bfc" id="L280" title="All 2 branches covered.">				} else if (&quot;Mag&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L281">					mag = getPossiblyNullDouble(nodeValue);</span>
+<span class="fc bfc" id="L282" title="All 2 branches covered.">				} else if (&quot;uncertainty&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L283">					error = getPossiblyNullDouble(nodeValue);</span>
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">				} else if (&quot;uncertain&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="nc" id="L285">					isUncertain = Boolean.parseBoolean(nodeValue);</span>
+<span class="fc bfc" id="L286" title="All 2 branches covered.">				} else if (&quot;fainterthan&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L287">					fainterThan = Boolean.parseBoolean(nodeValue);</span>
+<span class="fc bfc" id="L288" title="All 2 branches covered.">				} else if (&quot;band&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L289">					band = SeriesType.getSeriesFromShortName(nodeValue);</span>
+<span class="fc bfc" id="L290" title="All 2 branches covered.">				} else if (&quot;transformed&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L291">					transformed = &quot;true&quot;.equalsIgnoreCase(nodeValue);</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">				} else if (&quot;airmass&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L293">					airmass = nodeValue;</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">				} else if (&quot;comp1&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L295">					comp1 = nodeValue;</span>
+<span class="fc bfc" id="L296" title="All 2 branches covered.">				} else if (&quot;comp2&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L297">					comp2 = nodeValue;</span>
+<span class="fc bfc" id="L298" title="All 2 branches covered.">				} else if (&quot;KMag&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L299">					kMag = nodeValue;</span>
+<span class="fc bfc" id="L300" title="All 2 branches covered.">				} else if (&quot;hjd&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L301">					Double hjd = getPossiblyNullDouble(nodeValue);</span>
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">					if (hjd != null) {</span>
+<span class="fc" id="L303">						hJD = new DateInfo(hjd);</span>
+					}
+<span class="fc bfc" id="L305" title="All 2 branches covered.">				} else if (&quot;group&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L306">					group = nodeValue;</span>
+<span class="fc bfc" id="L307" title="All 2 branches covered.">				} else if (&quot;obscode&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L308">					obscode = nodeValue;</span>
+<span class="fc bfc" id="L309" title="All 2 branches covered.">				} else if (&quot;obstype&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L310">					obsType = nodeValue;</span>
+<span class="fc bfc" id="L311" title="All 2 branches covered.">				} else if (&quot;charts&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L312">					charts = nodeValue;</span>
+<span class="fc bfc" id="L313" title="All 2 branches covered.">				} else if (&quot;commentcode&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L314">					commentCode = nodeValue;</span>
+<span class="fc bfc" id="L315" title="All 2 branches covered.">				} else if (&quot;comments&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L316">					comments = nodeValue;</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">				} else if (&quot;valflag&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L318">					valType = getValidationType(nodeValue);</span>
+<span class="fc bfc" id="L319" title="All 2 branches covered.">				} else if (&quot;mtype&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L320">					mType = getMType(nodeValue);</span>
+<span class="fc bfc" id="L321" title="All 2 branches covered.">				} else if (&quot;credit&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L322">					credit = nodeValue;</span>
+<span class="pc bpc" id="L323" title="1 of 2 branches missed.">				} else if (&quot;pubref&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="nc" id="L324">					pubref = nodeValue;</span>
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">				} else if (&quot;digitizer&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="nc" id="L326">					digitizer = nodeValue;</span>
+<span class="fc bfc" id="L327" title="All 2 branches covered.">				} else if (&quot;name&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L328">					name = nodeValue;</span>
+				}
+			}
+
+<span class="fc" id="L332">			ValidObservation ob = null;</span>
+
+<span class="pc bpc" id="L334" title="5 of 10 branches missed.">			if (id != null &amp;&amp; jd != null &amp;&amp; mag != null &amp;&amp; error != null</span>
+					&amp;&amp; valType != ValidationType.BAD) {
+
+<span class="fc" id="L337">				ob = new ValidObservation();</span>
+
+<span class="pc bpc" id="L339" title="1 of 2 branches missed.">				if (id != null) {</span>
+<span class="fc" id="L340">					ob.setRecordNumber(id);</span>
+				}
+
+<span class="fc" id="L343">				ob.setDateInfo(new DateInfo(jd));</span>
+<span class="fc" id="L344">				ob.setMagnitude(getMagnitude(mag, error, fainterThan,</span>
+						isUncertain));
+<span class="fc" id="L346">				ob.setBand(band);</span>
+<span class="fc" id="L347">				ob.setObsCode(obscode);</span>
+<span class="fc" id="L348">				ob.setObsType(obsType);</span>
+<span class="fc" id="L349">				ob.setValidationType(valType);</span>
+<span class="fc" id="L350">				ob.setCompStar1(comp1);</span>
+<span class="fc" id="L351">				ob.setCompStar2(comp2);</span>
+<span class="fc" id="L352">				ob.setKMag(kMag);</span>
+<span class="fc" id="L353">				ob.setHJD(hJD);</span>
+<span class="fc" id="L354">				ob.setCharts(charts);</span>
+<span class="fc" id="L355">				ob.setCommentCode(commentCode);</span>
+<span class="fc" id="L356">				ob.setComments(comments);</span>
+<span class="fc" id="L357">				ob.setTransformed(transformed);</span>
+<span class="fc" id="L358">				ob.setAirmass(airmass);</span>
+<span class="fc" id="L359">				ob.setGroup(group);</span>
+<span class="fc" id="L360">				ob.setMType(mType);</span>
+<span class="fc" id="L361">				ob.setCredit(credit);</span>
+<span class="fc" id="L362">				ob.setADSRef(pubref);</span>
+<span class="fc" id="L363">				ob.setDigitizer(digitizer);</span>
+<span class="fc" id="L364">				ob.setName(name);</span>
+			} else {
+<span class="nc" id="L366">				invalidObservations.add(new InvalidObservation(id + &quot;&quot;,</span>
+						&quot;Invalid&quot;));
+			}
+
+<span class="fc" id="L370">			return ob;</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

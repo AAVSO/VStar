@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FunctionExecutor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.vela</a> &gt; <span class="el_source">FunctionExecutor.java</span></div><h1>FunctionExecutor.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.vela;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * The base class for all function executors. Each subclass must implement
+ * apply().
+ */
+public abstract class FunctionExecutor {
+
+    // Note: this can go away when union types are implemented, or ANY is added as a
+    // type to VeLa; also need to distinguish between one ANY and many ANYs; current
+    // cases:
+    // print, println, help
+
+<span class="fc" id="L35">    public static final List&lt;Type&gt; ANY_FORMAL_TYPES = new ArrayList&lt;Type&gt;();</span>
+<span class="fc" id="L36">    public static final List&lt;String&gt; ANY_FORMAL_NAMES = new ArrayList&lt;String&gt;();</span>
+
+<span class="fc" id="L38">    public static final List&lt;String&gt; NO_FORMAL_NAMES = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L39">    public static final List&lt;Type&gt; NO_FORMAL_TYPES = new ArrayList&lt;Type&gt;();</span>
+
+<span class="fc" id="L41">    public static final List&lt;Operand&gt; NO_ACTUALS = new ArrayList&lt;Operand&gt;();</span>
+
+    protected Optional&lt;String&gt; funcName;
+    protected List&lt;Type&gt; parameterTypes;
+    protected List&lt;String&gt; parameterNames;
+    protected Optional&lt;Type&gt; returnType;
+    protected Optional&lt;String&gt; helpString;
+
+    /**
+     * Apply the function to the specified operands and return a result of the
+     * specified type.
+     * 
+     * @param operands A list if operands to which the function is to be applied.
+     * @return The optional return value.
+     * @throws A VeLaEvalError if an error occurred during function evaluation.
+     */
+    public abstract Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) throws VeLaEvalError;
+
+    /**
+     * Constructor for functions.
+     * 
+     * @param funcName       The function's name.
+     * @param parameterNames The function's formal parameter names.
+     * @param parameterTypes The function's parameter types.
+     * @param returnType     The function's optional return type.
+     * @param helpString     The optional help string.
+     */
+    public FunctionExecutor(Optional&lt;String&gt; funcName, List&lt;String&gt; parameterNames, List&lt;Type&gt; parameterTypes,
+<span class="fc" id="L69">            Optional&lt;Type&gt; returnType, Optional&lt;String&gt; helpString) {</span>
+<span class="fc" id="L70">        this.funcName = funcName;</span>
+<span class="fc" id="L71">        this.parameterNames = parameterNames;</span>
+<span class="fc" id="L72">        this.parameterTypes = parameterTypes;</span>
+<span class="fc" id="L73">        this.returnType = returnType;</span>
+<span class="fc" id="L74">        this.helpString = helpString;</span>
+<span class="fc" id="L75">    }</span>
+
+    /**
+     * Constructor for zero-arity functions.
+     * 
+     * @param funcName   The function's name.
+     * @param returnType The function's return type.
+     * @param helpString The optional help string.
+     */
+    public FunctionExecutor(Optional&lt;String&gt; funcName, Optional&lt;Type&gt; returnType, Optional&lt;String&gt; helpString) {
+<span class="fc" id="L85">        this(funcName, NO_FORMAL_NAMES, NO_FORMAL_TYPES, returnType, helpString);</span>
+<span class="fc" id="L86">    }</span>
+
+    /**
+     * Do the specified actual parameters conform to the function's formal parameter
+     * list? If any operands are converted to a different type, they will be
+     * replaced with a new operand in the actual parameter list to prevent side
+     * effects.
+     * 
+     * @param actualParameters A list of actual parameters (Operands).
+     * @return Whether or not the actuals conform to the formals.
+     */
+    public boolean conforms(List&lt;Operand&gt; actualParameters) {
+<span class="fc" id="L98">        boolean result = true;</span>
+
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (parameterTypes == ANY_FORMAL_TYPES) {</span>
+<span class="fc" id="L101">            result = true;</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        } else if (actualParameters.size() != parameterTypes.size()) {</span>
+<span class="fc" id="L103">            result = false;</span>
+        } else {
+<span class="fc bfc" id="L105" title="All 2 branches covered.">            for (int i = 0; i &lt; actualParameters.size(); i++) {</span>
+<span class="fc" id="L106">                Type requiredType = parameterTypes.get(i);</span>
+<span class="fc" id="L107">                Operand originalVal = actualParameters.get(i);</span>
+<span class="fc" id="L108">                Operand convertedVal = originalVal.convert(requiredType);</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">                if (convertedVal.getType() != requiredType) {</span>
+<span class="fc" id="L110">                    result = false;</span>
+<span class="fc" id="L111">                    break;</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">                } else if (convertedVal != originalVal) {</span>
+<span class="fc" id="L113">                    actualParameters.set(i, convertedVal);</span>
+                }
+            }
+        }
+
+<span class="fc" id="L118">        return result;</span>
+    }
+
+    /**
+     * @return the funcName
+     */
+    public Optional&lt;String&gt; getFuncName() {
+<span class="fc" id="L125">        return funcName;</span>
+    }
+
+    /**
+     * @return the parameterTypes
+     */
+    public List&lt;Type&gt; getParameterTypes() {
+<span class="nc" id="L132">        return parameterTypes;</span>
+    }
+
+    /**
+     * @return the returnType
+     */
+    public Optional&lt;Type&gt; getReturnType() {
+<span class="fc" id="L139">        return returnType;</span>
+    }
+
+    /**
+     * @param returnType the returnType to set
+     */
+    public void setReturnType(Optional&lt;Type&gt; returnType) {
+<span class="fc" id="L146">        this.returnType = returnType;</span>
+<span class="fc" id="L147">    }</span>
+
+    public Optional&lt;String&gt; getHelpString() {
+<span class="nc" id="L150">        return helpString;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L155">        StringBuffer buf = new StringBuffer();</span>
+
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        buf.append(String.format(&quot;%s(%s)&quot;, funcName.isPresent() ? funcName.get() : &quot;λ&quot;, getParametersString()));</span>
+
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        if (returnType.isPresent()) {</span>
+<span class="fc" id="L160">            Type retType = returnType.get();</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">            if (retType != Type.NONE) {</span>
+<span class="fc" id="L162">                buf.append(String.format(&quot; : %s&quot;, retType));</span>
+            }
+        }
+
+<span class="fc" id="L166">        return buf.toString();</span>
+    }
+
+    protected String getParametersString() {
+        String paramsStr;
+
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (parameterTypes == ANY_FORMAL_TYPES) {</span>
+<span class="fc" id="L173">            paramsStr = &quot;ANY&quot;;</span>
+        } else {
+<span class="fc" id="L175">            StringBuffer paramsBuf = new StringBuffer();</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">            for (int i = 0; i &lt; parameterTypes.size(); i++) {</span>
+<span class="fc" id="L177">                paramsBuf.append(parameterNames.get(i));</span>
+<span class="fc" id="L178">                paramsBuf.append(&quot;:&quot;);</span>
+<span class="fc" id="L179">                paramsBuf.append(parameterTypes.get(i));</span>
+<span class="fc" id="L180">                paramsBuf.append(&quot; &quot;);</span>
+            }
+
+<span class="fc" id="L183">            paramsStr = paramsBuf.toString().trim();</span>
+        }
+
+<span class="fc" id="L186">        return paramsStr;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L191">        final int prime = 31;</span>
+<span class="nc" id="L192">        int result = 1;</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        result = prime * result + ((funcName == null) ? 0 : funcName.hashCode());</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">        result = prime * result + ((parameterTypes == null) ? 0 : parameterTypes.hashCode());</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        result = prime * result + ((returnType == null) ? 0 : returnType.hashCode());</span>
+<span class="nc" id="L196">        return result;</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L201" title="All 2 branches missed.">        if (this == obj) {</span>
+<span class="nc" id="L202">            return true;</span>
+        }
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        if (obj == null) {</span>
+<span class="nc" id="L205">            return false;</span>
+        }
+<span class="nc bnc" id="L207" title="All 2 branches missed.">        if (!(obj instanceof FunctionExecutor)) {</span>
+<span class="nc" id="L208">            return false;</span>
+        }
+<span class="nc" id="L210">        FunctionExecutor other = (FunctionExecutor) obj;</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">        if (funcName == null) {</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">            if (other.funcName != null) {</span>
+<span class="nc" id="L213">                return false;</span>
+            }
+<span class="nc bnc" id="L215" title="All 2 branches missed.">        } else if (!funcName.equals(other.funcName)) {</span>
+<span class="nc" id="L216">            return false;</span>
+        }
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        if (parameterTypes == null) {</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">            if (other.parameterTypes != null) {</span>
+<span class="nc" id="L220">                return false;</span>
+            }
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        } else if (!parameterTypes.equals(other.parameterTypes)) {</span>
+<span class="nc" id="L223">            return false;</span>
+        }
+<span class="nc bnc" id="L225" title="All 2 branches missed.">        if (returnType != other.returnType) {</span>
+<span class="nc" id="L226">            return false;</span>
+        }
+<span class="nc" id="L228">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

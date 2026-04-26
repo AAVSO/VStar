@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HarmonicSearchResultMessage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.mediator.message</a> &gt; <span class="el_source">HarmonicSearchResultMessage.java</span></div><h1>HarmonicSearchResultMessage.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.mediator.message;
+
+import java.util.List;
+
+import org.aavso.tools.vstar.util.model.Harmonic;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
+
+/**
+ * Messages of this type are sent when a harmonic search result needs to be
+ * propagated.
+ */
+public class HarmonicSearchResultMessage extends MessageBase {
+
+	private List&lt;Harmonic&gt; harmonics;
+	private IPeriodAnalysisDatum dataPoint;
+	private double tolerance;
+<span class="nc" id="L34">	private String iDstring = null;</span>
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param source
+	 *            The source (sender) of the message.
+	 * @param harmonics The harmonics found in the search.
+	 * @param dataPoint The datapoint associated with the first harmonic.
+	 */
+	public HarmonicSearchResultMessage(Object source, List&lt;Harmonic&gt; harmonics,
+			IPeriodAnalysisDatum dataPoint, double tolerance) {
+<span class="nc" id="L46">		super(source);</span>
+
+<span class="nc" id="L48">		this.harmonics = harmonics;</span>
+<span class="nc" id="L49">		this.dataPoint = dataPoint;</span>
+<span class="nc" id="L50">		this.tolerance = tolerance;</span>
+<span class="nc" id="L51">	}</span>
+
+	/**
+	 * @return the harmonics
+	 */
+	public List&lt;Harmonic&gt; getHarmonics() {
+<span class="nc" id="L57">		return harmonics;</span>
+	}
+
+	/**
+	 * @return the dataPoint
+	 */
+	public IPeriodAnalysisDatum getDataPoint() {
+<span class="nc" id="L64">		return dataPoint;</span>
+	}
+	
+	public void setIDstring(String s) {
+<span class="nc" id="L68">		iDstring = s;</span>
+<span class="nc" id="L69">	}</span>
+	
+	public String getIDstring() {
+<span class="nc" id="L72">		return iDstring; </span>
+	}
+
+	public double getTolerance() {
+<span class="nc" id="L76">		return tolerance;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

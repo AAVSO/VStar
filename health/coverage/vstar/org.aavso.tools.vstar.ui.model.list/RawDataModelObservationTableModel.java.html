@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RawDataModelObservationTableModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.model.list</a> &gt; <span class="el_source">RawDataModelObservationTableModel.java</span></div><h1>RawDataModelObservationTableModel.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.model.list;
+
+import java.util.List;
+
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
+/**
+ * This class is a table model for model observation data for a raw data view.
+ * 
+ * The model is notified of model selection in order to update its data. The
+ * data is updated according to the type specified in the constructor.
+ */
+<span class="nc" id="L32">@SuppressWarnings(&quot;serial&quot;)</span>
+public class RawDataModelObservationTableModel extends
+		AbstractModelObservationTableModel {
+
+	private static final int JD_COLUMN = 0;
+	private static final int CALDATE_COLUMN = 1;
+	private static final int MAG_COLUMN = 2;
+
+	private static final int COLUMN_COUNT = 3;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param obs
+	 *            The initial data. The data can be updated later via this
+	 *            class's listener interface.
+	 */
+	public RawDataModelObservationTableModel(List&lt;ValidObservation&gt; obs,
+			SeriesType seriesType) {
+<span class="nc" id="L51">		super(obs, seriesType);</span>
+<span class="nc" id="L52">	}</span>
+
+	/**
+	 * 
+	 * @see org.aavso.tools.vstar.ui.model.list.AbstractSyntheticObservationTableModel
+	 *      #getColumnClass(int)
+	 */
+	@Override
+	public Class&lt;?&gt; getColumnClass(int columnIndex) {
+<span class="nc" id="L61">		Class&lt;?&gt; clazz = null;</span>
+
+<span class="nc bnc" id="L63" title="All 4 branches missed.">		switch (columnIndex) {</span>
+		case JD_COLUMN:
+<span class="nc" id="L65">			clazz = String.class;</span>
+<span class="nc" id="L66">			break;</span>
+		case CALDATE_COLUMN:
+<span class="nc" id="L68">			clazz = String.class;</span>
+<span class="nc" id="L69">			break;</span>
+		case MAG_COLUMN:
+<span class="nc" id="L71">			clazz = String.class;</span>
+			break;
+		}
+
+<span class="nc" id="L75">		return clazz;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.list.AbstractSyntheticObservationTableModel
+	 *      #getColumnCount()
+	 */
+	@Override
+	public int getColumnCount() {
+<span class="nc" id="L84">		return COLUMN_COUNT;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.list.AbstractSyntheticObservationTableModel
+	 *      #getColumnName(int)
+	 */
+	@Override
+	public String getColumnName(int column) {
+<span class="nc bnc" id="L93" title="All 2 branches missed.">		assert column &lt; COLUMN_COUNT;</span>
+
+<span class="nc" id="L95">		String columnName = null;</span>
+
+<span class="nc bnc" id="L97" title="All 4 branches missed.">		switch (column) {</span>
+		case JD_COLUMN:
+<span class="nc" id="L99">			columnName = &quot;Julian Day&quot;;</span>
+<span class="nc" id="L100">			break;</span>
+		case CALDATE_COLUMN:
+<span class="nc" id="L102">			columnName = &quot;Calendar Date&quot;;</span>
+<span class="nc" id="L103">			break;</span>
+		case MAG_COLUMN:
+<span class="nc" id="L105">			columnName = &quot;Magnitude&quot;;</span>
+			break;
+		}
+
+<span class="nc" id="L109">		return columnName;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.list.AbstractSyntheticObservationTableModel
+	 *      #getRowCount()
+	 */
+	@Override
+	public int getRowCount() {
+<span class="nc" id="L118">		return obs.size();</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.list.AbstractSyntheticObservationTableModel
+	 *      #getValueAt(int, int)
+	 */
+	@Override
+	public Object getValueAt(int rowIndex, int columnIndex) {
+<span class="nc bnc" id="L127" title="All 2 branches missed.">		assert columnIndex &lt; COLUMN_COUNT;</span>
+
+<span class="nc" id="L129">		ValidObservation ob = obs.get(rowIndex);</span>
+
+<span class="nc" id="L131">		Object value = null;</span>
+
+<span class="nc bnc" id="L133" title="All 4 branches missed.">		switch (columnIndex) {</span>
+		case JD_COLUMN:
+<span class="nc" id="L135">			value = NumericPrecisionPrefs.formatTime(ob.getDateInfo()</span>
+<span class="nc" id="L136">					.getJulianDay());</span>
+<span class="nc" id="L137">			break;</span>
+		case CALDATE_COLUMN:
+<span class="nc" id="L139">			value = ob.getDateInfo().getCalendarDate();</span>
+<span class="nc" id="L140">			break;</span>
+		case MAG_COLUMN:
+<span class="nc" id="L142">			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()</span>
+<span class="nc" id="L143">					.getMagValue());</span>
+			break;
+		}
+
+<span class="nc" id="L147">		return value;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

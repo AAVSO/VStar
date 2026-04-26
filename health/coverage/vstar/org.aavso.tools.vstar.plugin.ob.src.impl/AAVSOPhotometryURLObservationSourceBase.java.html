@@ -1,0 +1,624 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AAVSOPhotometryURLObservationSourceBase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.plugin.ob.src.impl</a> &gt; <span class="el_source">AAVSOPhotometryURLObservationSourceBase.java</span></div><h1>AAVSOPhotometryURLObservationSourceBase.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.plugin.ob.src.impl;
+
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.plugin.InputType;
+import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.plugin.PluginComponentFactory;
+import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.TextArea;
+import org.aavso.tools.vstar.ui.dialog.TextDialog;
+import org.aavso.tools.vstar.ui.dialog.TextField;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+//12/02/2018 C. Kotnik added name to observations so they can be
+//saved and reloaded from a file.
+import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.help.Help;
+
+/**
+ * The base class for URL based AAVSO photometry observation source plugins.
+ */
+public class AAVSOPhotometryURLObservationSourceBase extends
+		ObservationSourcePluginBase {
+
+	private final String kind;
+
+	protected final String baseURL;
+	protected final Map&lt;String, SeriesType&gt; seriesNameToTypeMap;
+
+	protected Locale locale;
+
+	// Current parameter values.
+	protected double raDegs;
+	protected double decDegs;
+	protected double radiusDegs;
+	protected Set&lt;String&gt; seriesNames;
+	protected boolean isHeliocentricObsSrc;
+
+	// Ordered list of series.
+	protected List&lt;SeriesType&gt; seriesList;
+
+	// Create static VeLa filter field here since cannot create it in
+	// inner dialog class.
+	private static Pair&lt;TextArea, JPanel&gt; velaFilterFieldPanelPair;
+
+	static {
+		velaFilterFieldPanelPair = PluginComponentFactory
+<span class="fc" id="L100">				.createVeLaFilterPane();</span>
+<span class="fc" id="L101">	}</span>
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param kind
+	 *            The kind of photometry observation source this is.
+	 * @param baseURL
+	 *            The base URL to which query parameters can be added.
+	 * @param user
+	 *            The user name to pass to the authenticator.
+	 * @param password
+	 *            The password to pass to the authenticator.
+	 * @param isHeliocentricObsSrc
+	 *            Will the observations for this plug-in have heliocentric JD
+	 *            values?
+	 */
+	public AAVSOPhotometryURLObservationSourceBase(String kind, String baseURL,
+			String user, String password, boolean isHeliocentricObsSrc) {
+<span class="fc" id="L120">		super(user, password);</span>
+<span class="fc" id="L121">		this.kind = kind;</span>
+<span class="fc" id="L122">		this.baseURL = baseURL;</span>
+<span class="fc" id="L123">		this.seriesNameToTypeMap = new LinkedHashMap&lt;String, SeriesType&gt;();</span>
+<span class="fc" id="L124">		this.seriesNames = new HashSet&lt;String&gt;();</span>
+<span class="fc" id="L125">		this.isHeliocentricObsSrc = isHeliocentricObsSrc;</span>
+
+<span class="fc" id="L127">		locale = Locale.getDefault();</span>
+<span class="fc" id="L128">	}</span>
+
+	@Override
+	public InputType getInputType() {
+<span class="nc" id="L132">		return InputType.URL;</span>
+	}
+
+	@Override
+	public AbstractObservationRetriever getObservationRetriever() {
+<span class="nc" id="L137">		return new AAVSOPhotometryURLObservationRetriever();</span>
+	}
+
+	@Override
+	public String getDescription() {
+<span class="fc" id="L142">		String str = kind + &quot; epoch photometry observation source plug-in.&quot;;</span>
+
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">		if (locale.equals(&quot;es&quot;)) {</span>
+			// TODO
+		}
+
+<span class="fc" id="L148">		return str;</span>
+	}
+
+	@Override
+	public String getDisplayName() {
+<span class="nc" id="L153">		String str = &quot;New Star from &quot; + kind + &quot; epoch photometry database...&quot;;</span>
+
+<span class="nc bnc" id="L155" title="All 2 branches missed.">		if (locale.equals(&quot;es&quot;)) {</span>
+			// TODO
+		}
+
+<span class="nc" id="L159">		return str;</span>
+	}
+
+	@Override
+	public List&lt;URL&gt; getURLs() throws Exception {
+<span class="nc" id="L164">		List&lt;URL&gt; urls = new ArrayList&lt;URL&gt;();</span>
+<span class="nc" id="L165">		seriesList = new ArrayList&lt;SeriesType&gt;();</span>
+
+<span class="nc" id="L167">		AAVSOPhotometryURLSearchParameterDialog paramDialog = new AAVSOPhotometryURLSearchParameterDialog();</span>
+
+<span class="nc bnc" id="L169" title="All 2 branches missed.">		if (!paramDialog.isCancelled()) {</span>
+<span class="nc" id="L170">			raDegs = paramDialog.getRADeg();</span>
+<span class="nc" id="L171">			decDegs = paramDialog.getDecDeg();</span>
+<span class="nc" id="L172">			radiusDegs = paramDialog.getRadiusDeg();</span>
+<span class="nc" id="L173">			setAdditive(paramDialog.isLoadAdditive());</span>
+
+			// We want numbers in the the URL to correspond to the server's
+			// locale!
+<span class="nc" id="L177">			String params = String</span>
+<span class="nc" id="L178">					.format(Locale.ENGLISH, &quot;radeg=%f&amp;decdeg=%f&amp;raddeg=%f&quot;,</span>
+<span class="nc" id="L179">							raDegs, decDegs, radiusDegs);</span>
+
+<span class="nc bnc" id="L181" title="All 2 branches missed.">			for (String seriesName : seriesNameToTypeMap.keySet()) {</span>
+				try {
+<span class="nc bnc" id="L183" title="All 2 branches missed.">					if (seriesNames.contains(seriesName)) {</span>
+<span class="nc" id="L184">						URL url = new URL(baseURL + params + &quot;&amp;filter=&quot;</span>
+								+ seriesName);
+<span class="nc" id="L186">						urls.add(url);</span>
+<span class="nc" id="L187">						seriesList.add(seriesNameToTypeMap.get(seriesName));</span>
+					}
+<span class="nc" id="L189">				} catch (MalformedURLException e) {</span>
+<span class="nc" id="L190">					throw new ObservationReadError(&quot;Cannot construct &quot; + kind</span>
+<span class="nc" id="L191">							+ &quot; URL (reason: &quot; + e.getLocalizedMessage() + &quot;)&quot;);</span>
+<span class="nc" id="L192">				}</span>
+<span class="nc" id="L193">			}</span>
+
+<span class="nc" id="L195">			setVelaFilterStr(paramDialog.getVelaFilterStr());</span>
+
+<span class="nc" id="L197">		} else {</span>
+<span class="nc" id="L198">			throw new CancellationException();</span>
+		}
+
+<span class="nc" id="L201">		return urls;</span>
+	}
+
+	@Override
+	public String getInputName() {
+<span class="nc" id="L206">		String desc = String.format(&quot;: RA=%f, Dec=%f, radius=%f, filter=&quot;,</span>
+<span class="nc" id="L207">				raDegs, decDegs, radiusDegs);</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">		for (String seriesName : seriesNameToTypeMap.keySet()) {</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">			if (seriesNames.contains(seriesName)) {</span>
+<span class="nc" id="L210">				desc += seriesName + &quot;, &quot;;</span>
+			}
+<span class="nc" id="L212">		}</span>
+<span class="nc" id="L213">		desc = desc.substring(0, desc.lastIndexOf(&quot;, &quot;));</span>
+<span class="nc" id="L214">		return kind + desc;</span>
+	}
+
+	@Override
+	public Set&lt;SeriesType&gt; getVisibleSeriesTypes() {
+<span class="nc" id="L219">		return new LinkedHashSet&lt;SeriesType&gt;(seriesList);</span>
+	}
+
+	class AAVSOPhotometryURLObservationRetriever extends
+			AbstractObservationRetriever {
+
+<span class="nc" id="L225">		public AAVSOPhotometryURLObservationRetriever() {</span>
+<span class="nc" id="L226">			super(getVelaFilterStr());</span>
+<span class="nc" id="L227">			setHeliocentric(isHeliocentricObsSrc);</span>
+<span class="nc" id="L228">		}</span>
+
+		@Override
+		public void retrieveObservations() throws ObservationReadError,
+				InterruptedException {
+			try {
+<span class="nc" id="L234">				List&lt;InputStream&gt; streams = getInputStreams();</span>
+
+<span class="nc bnc" id="L236" title="All 4 branches missed.">				if (streams == null || seriesList == null</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">						|| streams.size() != seriesList.size()) {</span>
+					// If getURLs() has completed correctly, we should not get
+					// to this point.
+<span class="nc" id="L240">					throw new ObservationReadError(kind</span>
+							+ &quot; input stream configuration error.&quot;);
+				}
+
+<span class="nc" id="L244">				int i = 0;</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">				for (InputStream stream : streams) {</span>
+<span class="nc" id="L246">					retrieveAAVSOPhotometryURLObs(stream, seriesList.get(i));</span>
+<span class="nc" id="L247">					i++;</span>
+<span class="nc" id="L248">				}</span>
+<span class="nc" id="L249">			} catch (IOException e) {</span>
+<span class="nc" id="L250">				throw new ObservationReadError(e.getLocalizedMessage());</span>
+<span class="nc" id="L251">			}</span>
+<span class="nc" id="L252">		}</span>
+
+		/**
+		 * Retrieve a set of observations for a particular filter.
+		 * 
+		 * @param stream
+		 *            The observation input stream.
+		 * @param series
+		 *            The series type to be used for the observations' band.
+		 * @throws IOException
+		 *             if a HTTP I/O error occurs.
+		 * @throws ObservationReadError
+		 *             if an error occurs during observation.
+		 */
+		private void retrieveAAVSOPhotometryURLObs(InputStream stream,
+				SeriesType series) throws IOException, ObservationReadError {
+<span class="nc" id="L268">			LineNumberReader reader = new LineNumberReader(</span>
+					new InputStreamReader(stream));
+
+<span class="nc" id="L271">			String line = reader.readLine();</span>
+
+<span class="nc bnc" id="L273" title="All 2 branches missed.">			while (line != null) {</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">				if (line.contains(&quot;An error occured while trying to connect to database&quot;)) {</span>
+<span class="nc" id="L275">					throw new ObservationReadError(&quot;Cannot access &quot; + kind</span>
+							+ &quot; database.&quot;);
+<span class="nc bnc" id="L277" title="All 2 branches missed.">				} else if (line.contains(&quot;No rows were returned by query&quot;)) {</span>
+<span class="nc" id="L278">					break;</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">				} else if (line.startsWith(&quot;#&quot;)) {</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">					if (inputName == null) {</span>
+<span class="nc" id="L281">						setInputInfo(null, line.substring(2).trim());</span>
+					}
+				} else {
+<span class="nc" id="L284">					String[] fields = line.split(&quot;,&quot;);</span>
+
+<span class="nc" id="L286">					double jd = Double.parseDouble(fields[0]);</span>
+<span class="nc" id="L287">					double mag = Double.parseDouble(fields[1]);</span>
+<span class="nc" id="L288">					double error = Double.parseDouble(fields[2]);</span>
+
+<span class="nc" id="L290">					ValidObservation ob = new ValidObservation();</span>
+<span class="nc" id="L291">					ob.setName(getInputName());</span>
+<span class="nc" id="L292">					ob.setDateInfo(new DateInfo(jd));</span>
+<span class="nc" id="L293">					ob.setMagnitude(new Magnitude(mag, error));</span>
+<span class="nc" id="L294">					ob.setBand(series);</span>
+<span class="nc" id="L295">					ob.setRecordNumber(reader.getLineNumber());</span>
+
+<span class="nc bnc" id="L297" title="All 2 branches missed.">					if (fields.length == 4) {</span>
+						// Source field.
+<span class="nc" id="L299">						int id = 0;</span>
+						try {
+<span class="nc" id="L301">							id = Integer.parseInt(fields[3]);</span>
+<span class="nc" id="L302">						} catch (NumberFormatException e) {</span>
+							// Nothing to do.
+<span class="nc" id="L304">						}</span>
+<span class="nc" id="L305">						String source = AAVSOPhotometrySource.fromID(id)</span>
+<span class="nc" id="L306">								.toString();</span>
+<span class="nc" id="L307">						ob.addDetail(&quot;SOURCE&quot;, source, &quot;Source&quot;);</span>
+					}
+
+<span class="nc" id="L310">					collectObservation(ob);</span>
+				}
+
+<span class="nc" id="L313">				line = reader.readLine();</span>
+			}
+<span class="nc" id="L315">		}</span>
+
+		@Override
+		public String getSourceName() {
+<span class="nc" id="L319">			return getInputName();</span>
+		}
+
+		@Override
+		public String getSourceType() {
+<span class="nc" id="L324">			String str = kind + &quot; epoch photometry database&quot;;</span>
+
+<span class="nc bnc" id="L326" title="All 2 branches missed.">			if (locale.equals(&quot;es&quot;)) {</span>
+				// TODO
+			}
+
+<span class="nc" id="L330">			return str;</span>
+		}
+	}
+
+	@SuppressWarnings(&quot;serial&quot;)
+	class AAVSOPhotometryURLSearchParameterDialog extends
+			AbstractOkCancelDialog {
+
+		private DoubleField raDegField;
+		private DoubleField decDegField;
+		private JComboBox radiusDegSelector;
+		private List&lt;JCheckBox&gt; checkBoxes;
+		private JCheckBox additiveLoadCheckbox;
+		private TextField urlField;
+		
+		/**
+		 * Constructor
+		 */
+<span class="nc" id="L348">		public AAVSOPhotometryURLSearchParameterDialog() {</span>
+<span class="nc" id="L349">			super(kind + &quot; Search Parameters&quot;);</span>
+
+<span class="nc" id="L351">			Container contentPane = this.getContentPane();</span>
+
+<span class="nc" id="L353">			JPanel topPane = new JPanel();</span>
+<span class="nc" id="L354">			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L355">			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L357">			topPane.add(createParameterPane());</span>
+
+<span class="nc" id="L359">			topPane.add(createAdditiveLoadCheckboxPane());</span>
+
+			// OK, Cancel
+			//topPane.add(createButtonPane());
+			
+			// OK, Cancel, Help
+<span class="nc" id="L365">			topPane.add(createButtonPane2());</span>
+
+<span class="nc" id="L367">			contentPane.add(topPane);</span>
+
+<span class="nc" id="L369">			this.pack();</span>
+<span class="nc" id="L370">			setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L371">			this.setVisible(true);</span>
+<span class="nc" id="L372">		}</span>
+
+		private JPanel createParameterPane() {
+<span class="nc" id="L375">			JPanel panel = new JPanel();</span>
+<span class="nc" id="L376">			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));</span>
+
+<span class="nc" id="L378">			raDegField = new DoubleField(&quot;RA (degrees)&quot;, 0.0, 360.0, raDegs);</span>
+<span class="nc" id="L379">			panel.add(raDegField.getUIComponent());</span>
+<span class="nc" id="L380">			panel.add(Box.createRigidArea(new Dimension(75, 10)));</span>
+
+<span class="nc" id="L382">			decDegField = new DoubleField(&quot;Dec (degrees)&quot;, -90.0, 90.0, decDegs);</span>
+<span class="nc" id="L383">			panel.add(decDegField.getUIComponent());</span>
+<span class="nc" id="L384">			panel.add(Box.createRigidArea(new Dimension(75, 10)));</span>
+
+<span class="nc" id="L386">			String[] radii = new String[] { &quot;0.001 deg = 3.6 arcsec&quot;,</span>
+					&quot;0.002 deg = 7.2 arcsec&quot;, &quot;0.005 deg = 18.0 arcsec&quot; };
+<span class="nc" id="L388">			radiusDegSelector = new JComboBox(radii);</span>
+<span class="nc" id="L389">			radiusDegSelector.setBorder(BorderFactory</span>
+<span class="nc" id="L390">					.createTitledBorder(&quot;Radius (degrees&quot;));</span>
+<span class="nc" id="L391">			panel.add(radiusDegSelector);</span>
+<span class="nc" id="L392">			panel.add(Box.createRigidArea(new Dimension(75, 10)));</span>
+
+<span class="nc" id="L394">			panel.add(createDataSeriesCheckboxes());</span>
+<span class="nc" id="L395">			panel.add(Box.createRigidArea(new Dimension(75, 10)));</span>
+
+<span class="nc" id="L397">			panel.add(createUrlPane());</span>
+			
+<span class="nc" id="L399">			panel.add(velaFilterFieldPanelPair.second);</span>
+			
+<span class="nc" id="L401">			panel.add(Box.createRigidArea(new Dimension(75, 10)));</span>
+
+<span class="nc" id="L403">			return panel;</span>
+		}
+
+		private JPanel createAdditiveLoadCheckboxPane() {
+<span class="nc" id="L407">			JPanel panel = new JPanel();</span>
+<span class="nc" id="L408">			panel.setBorder(BorderFactory.createTitledBorder(&quot;Additive Load&quot;));</span>
+
+<span class="nc" id="L410">			additiveLoadCheckbox = new JCheckBox(&quot;Add to current?&quot;);</span>
+<span class="nc" id="L411">			panel.add(additiveLoadCheckbox);</span>
+
+<span class="nc" id="L413">			return panel;</span>
+		}
+
+		private JPanel createDataSeriesCheckboxes() {
+<span class="nc" id="L417">			JPanel panel = new JPanel();</span>
+<span class="nc" id="L418">			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L419">			panel.setBorder(BorderFactory.createTitledBorder(&quot;Bands&quot;));</span>
+
+<span class="nc" id="L421">			checkBoxes = new ArrayList&lt;JCheckBox&gt;();</span>
+
+			// Ensure the panel is always wide enough.
+<span class="nc" id="L424">			this.add(Box.createRigidArea(new Dimension(75, 1)));</span>
+
+<span class="nc bnc" id="L426" title="All 2 branches missed.">			for (String seriesName : seriesNameToTypeMap.keySet()) {</span>
+<span class="nc" id="L427">				JCheckBox checkBox = new JCheckBox(seriesName);</span>
+
+<span class="nc" id="L429">				checkBox.addActionListener(createSeriesVisibilityCheckBoxListener());</span>
+
+<span class="nc" id="L431">				checkBox.setSelected(seriesNames.contains(seriesName));</span>
+
+<span class="nc" id="L433">				panel.add(checkBox);</span>
+<span class="nc" id="L434">				panel.add(Box.createRigidArea(new Dimension(3, 3)));</span>
+
+<span class="nc" id="L436">				checkBoxes.add(checkBox);</span>
+<span class="nc" id="L437">			}</span>
+
+<span class="nc" id="L439">			return panel;</span>
+		}
+
+		// Return a listener for the series visibility checkboxes.
+		private ActionListener createSeriesVisibilityCheckBoxListener() {
+<span class="nc" id="L444">			return new ActionListener() {</span>
+				public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L446">					JCheckBox checkBox = (JCheckBox) e.getSource();</span>
+<span class="nc" id="L447">					String seriesName = checkBox.getText();</span>
+<span class="nc bnc" id="L448" title="All 2 branches missed.">					if (checkBox.isSelected()</span>
+<span class="nc bnc" id="L449" title="All 2 branches missed.">							&amp;&amp; !seriesNames.contains(seriesName)) {</span>
+<span class="nc" id="L450">						seriesNames.add(seriesName);</span>
+<span class="nc bnc" id="L451" title="All 2 branches missed.">					} else if (!checkBox.isSelected()</span>
+<span class="nc bnc" id="L452" title="All 2 branches missed.">							&amp;&amp; seriesNames.contains(seriesName)) {</span>
+<span class="nc" id="L453">						seriesNames.remove(seriesName);</span>
+					}
+<span class="nc" id="L455">				}</span>
+			};
+		}
+
+		/**
+		 * This component provides a URL request button and corresponding
+		 * action.
+		 */
+		private JPanel createUrlPane() {
+<span class="nc" id="L464">			final Pattern raParamPattern = Pattern</span>
+<span class="nc" id="L465">					.compile(&quot;^.+radeg=(\\d+(\\.\\d+)?).+$&quot;);</span>
+
+<span class="nc" id="L467">			final Pattern decParamPattern = Pattern</span>
+<span class="nc" id="L468">					.compile(&quot;^.+decdeg=((\\-|\\+)?\\d+(\\.\\d+)?).+$&quot;);</span>
+
+<span class="nc" id="L470">			final Pattern radiusParamPattern = Pattern</span>
+<span class="nc" id="L471">					.compile(&quot;^.+raddeg=(\\d+\\.\\d+).*$&quot;);</span>
+
+<span class="nc" id="L473">			JPanel pane = new JPanel();</span>
+
+<span class="nc" id="L475">			JButton urlRequestButton = new JButton(</span>
+					&quot;Populate Parameters From VSX URL&quot;);
+
+<span class="nc" id="L478">			urlRequestButton.addActionListener(new ActionListener() {</span>
+				@Override
+				public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L481">					urlField = new TextField(&quot;URL&quot;);</span>
+<span class="nc" id="L482">					TextDialog urlDialog = new TextDialog(&quot;Enter URL&quot;, urlField);</span>
+<span class="nc bnc" id="L483" title="All 2 branches missed.">					if (!urlDialog.isCancelled()</span>
+<span class="nc bnc" id="L484" title="All 2 branches missed.">							&amp;&amp; !urlField.getValue().matches(&quot;^\\s*$&quot;)) {</span>
+
+<span class="nc" id="L486">						boolean raGiven = false;</span>
+<span class="nc" id="L487">						boolean decGiven = false;</span>
+<span class="nc" id="L488">						boolean radiusGiven = false;</span>
+
+						// Set RA, Dec, radius from URL and select all
+						// checkboxes since the VSX URL contains no filter
+						// information, returning all available.
+<span class="nc" id="L493">						Matcher raMatcher = raParamPattern.matcher(urlField</span>
+<span class="nc" id="L494">								.getStringValue());</span>
+
+<span class="nc bnc" id="L496" title="All 2 branches missed.">						if (raMatcher.matches()) {</span>
+<span class="nc" id="L497">							raGiven = true;</span>
+<span class="nc" id="L498">							raDegField.setValue(Double.parseDouble(raMatcher</span>
+<span class="nc" id="L499">									.group(1)));</span>
+						}
+
+<span class="nc" id="L502">						Matcher decMatcher = decParamPattern.matcher(urlField</span>
+<span class="nc" id="L503">								.getStringValue());</span>
+
+<span class="nc bnc" id="L505" title="All 2 branches missed.">						if (decMatcher.matches()) {</span>
+<span class="nc" id="L506">							decGiven = true;</span>
+<span class="nc" id="L507">							decDegField.setValue(Double.parseDouble(decMatcher</span>
+<span class="nc" id="L508">									.group(1)));</span>
+						}
+
+<span class="nc" id="L511">						Matcher radiusMatcher = radiusParamPattern</span>
+<span class="nc" id="L512">								.matcher(urlField.getStringValue());</span>
+
+<span class="nc bnc" id="L514" title="All 2 branches missed.">						if (radiusMatcher.matches()) {</span>
+<span class="nc" id="L515">							String radiusStr = radiusMatcher.group(1);</span>
+<span class="nc bnc" id="L516" title="All 4 branches missed.">							switch (radiusStr) {</span>
+							case &quot;0.001&quot;:
+<span class="nc" id="L518">								radiusGiven = true;</span>
+<span class="nc" id="L519">								radiusDegSelector.setSelectedIndex(0);</span>
+<span class="nc" id="L520">								break;</span>
+							case &quot;0.002&quot;:
+<span class="nc" id="L522">								radiusGiven = true;</span>
+<span class="nc" id="L523">								radiusDegSelector.setSelectedIndex(1);</span>
+<span class="nc" id="L524">								break;</span>
+							case &quot;0.005&quot;:
+<span class="nc" id="L526">								radiusGiven = true;</span>
+<span class="nc" id="L527">								radiusDegSelector.setSelectedIndex(2);</span>
+								break;
+							}
+						}
+
+<span class="nc bnc" id="L532" title="All 6 branches missed.">						if (raGiven &amp;&amp; decGiven &amp;&amp; radiusGiven) {</span>
+<span class="nc bnc" id="L533" title="All 2 branches missed.">							for (JCheckBox checkbox : checkBoxes) {</span>
+<span class="nc" id="L534">								checkbox.setSelected(true);</span>
+<span class="nc" id="L535">							}</span>
+						} else {
+<span class="nc" id="L537">							MessageBox.showWarningDialog(&quot;Parameter Error&quot;,</span>
+									&quot;Invalid URL&quot;);
+						}
+					}
+<span class="nc" id="L541">				}</span>
+			});
+
+<span class="nc" id="L544">			pane.add(urlRequestButton);</span>
+
+<span class="nc" id="L546">			return pane;</span>
+		}
+
+		public double getRADeg() {
+<span class="nc" id="L550">			return raDegField.getValue();</span>
+		}
+
+		public double getDecDeg() {
+<span class="nc" id="L554">			return decDegField.getValue();</span>
+		}
+
+		public double getRadiusDeg() {
+			// We'll just parse the first part of the string, which contains the
+			// degrees value.
+<span class="nc" id="L560">			String[] fields = ((String) radiusDegSelector.getSelectedItem())</span>
+<span class="nc" id="L561">					.split(&quot;\\s+&quot;);</span>
+<span class="nc" id="L562">			return Double.parseDouble(fields[0]);</span>
+		}
+
+		/**
+		 * @return The URL string.
+		 */
+		public String getUrlString() {
+<span class="nc" id="L569">			return urlField.getValue().trim();</span>
+		}
+
+		/**
+		 * Return whether or not the load is additive.
+		 * 
+		 * @return Whether or not the load is additive.
+		 */
+		public boolean isLoadAdditive() {
+<span class="nc" id="L578">			return additiveLoadCheckbox.isSelected();</span>
+		}
+
+		/**
+		 * @return The VeLa filter string.
+		 */
+		public String getVelaFilterStr() {
+<span class="nc" id="L585">			return velaFilterFieldPanelPair.first.getValue().trim();</span>
+		}
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
+		 */
+		@Override
+		protected void helpAction() {
+<span class="nc" id="L593">			Help.openPluginHelp(getDocName());</span>
+<span class="nc" id="L594">		}</span>
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
+		 */
+		@Override
+		protected void cancelAction() {
+			// Nothing to do.
+<span class="nc" id="L602">		}</span>
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
+		 */
+		@Override
+		protected void okAction() {
+<span class="nc" id="L609">			boolean ok = true;</span>
+
+<span class="nc bnc" id="L611" title="All 4 branches missed.">			if (raDegField.getValue() == null || decDegField.getValue() == null) {</span>
+<span class="nc" id="L612">				ok = false;</span>
+			}
+
+<span class="nc bnc" id="L615" title="All 2 branches missed.">			if (ok) {</span>
+<span class="nc" id="L616">				cancelled = false;</span>
+<span class="nc" id="L617">				setVisible(false);</span>
+<span class="nc" id="L618">				dispose();</span>
+			}
+<span class="nc" id="L620">		}</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

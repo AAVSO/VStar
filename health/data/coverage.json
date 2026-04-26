@@ -1,0 +1,10 @@
+{
+  "updated": "2026-04-26",
+  "java_version": "17",
+  "tests": 750,
+  "passed": 750,
+  "failures": 0,
+  "errors": 0,
+  "line_coverage": "28%",
+  "branch_coverage": "28%"
+}

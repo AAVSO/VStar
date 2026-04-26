@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ObservationFilterPane.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.filter</a> &gt; <span class="el_source">ObservationFilterPane.java</span></div><h1>ObservationFilterPane.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.filter;
+
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.filter.IObservationFieldMatcher;
+import org.aavso.tools.vstar.data.filter.ObservationFilter;
+import org.aavso.tools.vstar.data.filter.ObservationMatcherOp;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+
+/**
+ * This class represents a single filter pane.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class ObservationFilterPane extends JPanel {
+
+	private final static String NONE = &quot;                                       &quot;;
+	private final static int TEXT_WIDTH = 15 * 10;
+
+	private JComboBox filterNamesList;
+	private JComboBox filterOpsList;
+	// TODO: for booleans this should be a checkbox;
+	// for enums a combo-box; base on currFilter.getType()
+	// Need IValueWidget.{getValue() =&gt; String,setValue(String)}
+	private JTextField valueField;
+
+	private ActionListener filterOpsListener;
+
+	private IObservationFieldMatcher currFilter;
+	private ObservationMatcherOp currOp;
+
+	private ValidObservation observation;
+
+	/**
+	 * Constructor
+	 */
+<span class="nc" id="L63">	public ObservationFilterPane() {</span>
+<span class="nc" id="L64">		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L65">		this.setBorder(BorderFactory.createEtchedBorder());</span>
+
+		// Create the filter name menu.
+<span class="nc" id="L68">		filterNamesList = new JComboBox(new String[] { NONE });</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">		for (String filterName : ObservationFilter.MATCHERS.keySet()) {</span>
+<span class="nc" id="L70">			filterNamesList.addItem(filterName);</span>
+<span class="nc" id="L71">		}</span>
+<span class="nc" id="L72">		filterNamesList.addActionListener(createFilterNameListener());</span>
+
+<span class="nc" id="L74">		this.add(filterNamesList);</span>
+
+<span class="nc" id="L76">		this.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+		// Create the filter operations menu.
+<span class="nc" id="L79">		filterOpsList = new JComboBox(new String[] { NONE });</span>
+<span class="nc" id="L80">		filterOpsListener = createFilterOpsListener();</span>
+<span class="nc" id="L81">		this.add(filterOpsList);</span>
+
+<span class="nc" id="L83">		this.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+		// Create the value text field.
+<span class="nc" id="L86">		valueField = new JTextField();</span>
+<span class="nc" id="L87">		valueField.setMinimumSize(new Dimension(TEXT_WIDTH, 20));</span>
+<span class="nc" id="L88">		valueField.setMaximumSize(new Dimension(TEXT_WIDTH, 20));</span>
+<span class="nc" id="L89">		valueField.setPreferredSize(new Dimension(TEXT_WIDTH, 20));</span>
+<span class="nc" id="L90">		this.add(valueField);</span>
+
+		// JPanel p = new JPanel(new BorderLayout());
+		// p.add(new JLabel(&quot;&quot;), BorderLayout.CENTER);
+		// set min/max/pref sizes then add to map of Class&lt;?&gt; =? IValueWidget
+
+<span class="nc" id="L96">		this.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+<span class="nc" id="L98">		currFilter = null;</span>
+<span class="nc" id="L99">		currOp = null;</span>
+
+<span class="nc" id="L101">		observation = null;</span>
+<span class="nc" id="L102">	}</span>
+
+	/**
+	 * Return a field matcher corresponding to the selection. If no matcher is
+	 * selected, null is returned. If the value of the text field does not
+	 * conform to the filter's type, an exception is thrown.
+	 * 
+	 * @return A field matcher or null.
+	 * @throws IllegalArgumentException
+	 *             if the entered value does not match the type of the filter.
+	 */
+	public IObservationFieldMatcher getFieldMatcher()
+			throws IllegalArgumentException {
+<span class="nc" id="L115">		IObservationFieldMatcher matcher = null;</span>
+
+<span class="nc bnc" id="L117" title="All 2 branches missed.">		if (currFilter != null) {</span>
+<span class="nc" id="L118">			matcher = currFilter.create(valueField.getText().trim(), currOp);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">			if (matcher == null) {</span>
+<span class="nc" id="L120">				String msg = &quot;Invalid &quot; + currFilter.getDisplayName()</span>
+<span class="nc" id="L121">						+ &quot; value: '&quot; + valueField.getText() + &quot;'&quot;;</span>
+<span class="nc" id="L122">				throw new IllegalArgumentException(msg);</span>
+			}
+		}
+
+<span class="nc" id="L126">		return matcher;</span>
+	}
+
+	/**
+	 * This method resets this pane's filter-related members and UI elements so
+	 * that no filter is selected.
+	 */
+	public void resetFilter() {
+<span class="nc" id="L134">		currFilter = null;</span>
+<span class="nc" id="L135">		currOp = null;</span>
+<span class="nc" id="L136">		filterNamesList.setSelectedItem(NONE);</span>
+<span class="nc" id="L137">		filterOpsList.removeAllItems();</span>
+<span class="nc" id="L138">		filterOpsList.addItem(NONE);</span>
+<span class="nc" id="L139">		valueField.setText(&quot;&quot;);</span>
+<span class="nc" id="L140">	}</span>
+
+	/**
+	 * Tell this filter pane to set its field value now, or when a filter has
+	 * been selected, using the specified observation. If null is passed and a
+	 * current filter is selected, the value field is cleared.
+	 * 
+	 * @param msg
+	 *            The observation selection message from which to extract the
+	 *            observation; may be null.
+	 */
+	public void useObservation(ObservationSelectionMessage msg) {
+<span class="nc bnc" id="L152" title="All 2 branches missed.">		if (msg != null) {</span>
+<span class="nc" id="L153">			this.observation = msg.getObservation();</span>
+		} else {
+<span class="nc" id="L155">			this.observation = null;</span>
+		}
+
+<span class="nc bnc" id="L158" title="All 2 branches missed.">		if (currFilter != null) {</span>
+<span class="nc" id="L159">			currFilter.setSelectedObservationMessage(msg);</span>
+			
+<span class="nc bnc" id="L161" title="All 2 branches missed.">			if (this.observation != null) {</span>
+<span class="nc" id="L162">				valueField.setText(currFilter</span>
+<span class="nc" id="L163">						.getTestValueFromObservation(this.observation));</span>
+			} else {
+<span class="nc" id="L165">				valueField.setText(&quot;&quot;);</span>
+			}
+		}
+<span class="nc" id="L168">	}</span>
+
+	// Listen to the name list in order to update the operations list
+	// and related values according to the operations specific to the
+	// selected filter.
+	private ActionListener createFilterNameListener() {
+<span class="nc" id="L174">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+
+				// Re-populate the operations list according to the
+				// selected matcher.
+<span class="nc" id="L179">				String name = (String) filterNamesList.getSelectedItem();</span>
+
+<span class="nc bnc" id="L181" title="All 2 branches missed.">				if (NONE.equals(name)) {</span>
+<span class="nc" id="L182">					resetFilter();</span>
+				} else {
+<span class="nc" id="L184">					IObservationFieldMatcher filter = ObservationFilter.MATCHERS</span>
+<span class="nc" id="L185">							.get(name);</span>
+					// Update operator list and current values if a different
+					// matcher has been selected.
+<span class="nc bnc" id="L188" title="All 2 branches missed.">					if (filter != currFilter) {</span>
+<span class="nc" id="L189">						filterOpsList.removeAllItems();</span>
+<span class="nc" id="L190">						currFilter = filter;</span>
+<span class="nc" id="L191">						filterOpsList.removeActionListener(filterOpsListener);</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">						for (ObservationMatcherOp op : currFilter</span>
+<span class="nc" id="L193">								.getMatcherOps()) {</span>
+<span class="nc" id="L194">							filterOpsList.addItem(op.toString());</span>
+						}
+<span class="nc" id="L196">						filterOpsList.addActionListener(filterOpsListener);</span>
+<span class="nc" id="L197">						String opName = (String) filterOpsList.getItemAt(0);</span>
+<span class="nc" id="L198">						currOp = ObservationMatcherOp.fromString(opName);</span>
+<span class="nc" id="L199">						String testValue = null;</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">						if (observation != null) {</span>
+<span class="nc" id="L201">							testValue = currFilter</span>
+<span class="nc" id="L202">									.getTestValueFromObservation(observation);</span>
+						} else {
+<span class="nc" id="L204">							testValue = currFilter.getDefaultTestValue();</span>
+						}
+<span class="nc" id="L206">						valueField</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">								.setText((testValue == null) ? &quot;&quot; : testValue);</span>
+					}
+				}
+<span class="nc" id="L210">			}</span>
+		};
+	}
+
+	// Listen to the operators list in order to update the
+	// current operator value.
+	private ActionListener createFilterOpsListener() {
+<span class="nc" id="L217">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L219">				String opName = (String) filterOpsList.getSelectedItem();</span>
+
+<span class="nc bnc" id="L221" title="All 2 branches missed.">				if (!NONE.equals(opName)) {</span>
+<span class="nc" id="L222">					currOp = ObservationMatcherOp.fromString(opName);</span>
+				}
+<span class="nc" id="L224">			}</span>
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContinuousModelFunction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.model.plot</a> &gt; <span class="el_source">ContinuousModelFunction.java</span></div><h1>ContinuousModelFunction.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.model.plot;
+
+import java.util.List;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.apache.commons.math.analysis.UnivariateRealFunction;
+
+/**
+ * This class represents a continuous model function, the synthetic
+ * ValidObservations resulting from the model and any context required to apply
+ * it such as coordinate source.
+ */
+public class ContinuousModelFunction {
+
+	private UnivariateRealFunction function;
+	private ICoordSource coordSrc;
+	private List&lt;ValidObservation&gt; fit;
+	private double zeroPoint;
+	
+	private PhasedObservationAndMeanPlotModel ppModel;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param function
+	 *            The univariate real function.
+	 * @param fit
+	 *            The synthetic observations resulting from the fit.
+	 * @param zeroPoint
+	 *            The zero point to be subtracted from applications of the
+	 *            function, i.e. calls to UnivariateRealFunction.value().
+	 * @param coordSrc
+	 *            The coordinate source (JD, phase).
+	 */
+	public ContinuousModelFunction(UnivariateRealFunction function,
+			List&lt;ValidObservation&gt; fit, double zeroPoint, ICoordSource coordSrc) {
+<span class="nc" id="L54">		super();</span>
+<span class="nc" id="L55">		this.function = function;</span>
+<span class="nc" id="L56">		this.coordSrc = coordSrc;</span>
+<span class="nc" id="L57">		this.fit = fit;</span>
+<span class="nc" id="L58">		this.zeroPoint = zeroPoint;</span>
+<span class="nc" id="L59">	}</span>
+
+	/**
+	 * Constructor: defaults to JD coordinate source.
+	 * 
+	 * @param function
+	 *            The univariate real function.
+	 * @param fit
+	 *            The synthetic observations resulting from the fit.
+	 * @param zeroPoint
+	 *            The zero point to be subtracted from applications of the
+	 *            function, i.e. calls to UnivariateRealFunction.value().
+	 */
+	public ContinuousModelFunction(UnivariateRealFunction function,
+			List&lt;ValidObservation&gt; fit, double zeroPoint) {
+<span class="nc" id="L74">		this(function, fit, zeroPoint, JDCoordSource.instance);</span>
+<span class="nc" id="L75">	}</span>
+
+	/**
+	 * Constructor: defaults to JD coordinate source and no (0) zero point.
+	 * 
+	 * @param function
+	 *            The univariate real function.
+	 * @param fit
+	 *            The synthetic observations resulting from the fit.
+	 */
+	public ContinuousModelFunction(UnivariateRealFunction function,
+			List&lt;ValidObservation&gt; fit) {
+<span class="nc" id="L87">		this(function, fit, 0, JDCoordSource.instance);</span>
+<span class="nc" id="L88">	}</span>
+
+	/**
+	 * @param ppModel
+	 *            the ppModel to set
+	 */
+	public void setPpModel(PhasedObservationAndMeanPlotModel ppModel) {
+<span class="nc" id="L95">		this.ppModel = ppModel;</span>
+<span class="nc" id="L96">	}</span>
+
+	/**
+	 * @return the ppModel
+	 */
+	public PhasedObservationAndMeanPlotModel getPpModel() {
+<span class="nc" id="L102">		return ppModel;</span>
+	}
+
+	/**
+	 * @return the function
+	 */
+	public UnivariateRealFunction getFunction() {
+<span class="nc" id="L109">		return function;</span>
+	}
+
+	/**
+	 * @return the coordSrc
+	 */
+	public ICoordSource getCoordSrc() {
+<span class="nc" id="L116">		return coordSrc;</span>
+	}
+
+	/**
+	 * @return the fit
+	 */
+	public List&lt;ValidObservation&gt; getFit() {
+<span class="nc" id="L123">		return fit;</span>
+	}
+
+	/**
+	 * @return the zeroPoint
+	 */
+	public double getZeroPoint() {
+<span class="nc" id="L130">		return zeroPoint;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SingleSeriesSelectionPane.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.series</a> &gt; <span class="el_source">SingleSeriesSelectionPane.java</span></div><h1>SingleSeriesSelectionPane.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.series;
+
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+
+/**
+ * This class defines a pane with radio buttons for all series permitting a
+ * single series to be selected.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class SingleSeriesSelectionPane extends JPanel implements ActionListener {
+
+	private ObservationAndMeanPlotModel obsPlotModel;
+	private ButtonGroup seriesGroup;
+
+	/**
+	 * Constructor.
+	 */
+	public SingleSeriesSelectionPane(ObservationAndMeanPlotModel obsPlotModel) {
+<span class="nc" id="L49">		super();</span>
+
+<span class="nc" id="L51">		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L52">		this.setToolTipText(&quot;Select a single series.&quot;);</span>
+
+<span class="nc" id="L54">		this.obsPlotModel = obsPlotModel;</span>
+
+		// If no series has yet been selected, choose the
+		// current mean source series since it's likely to be of primary
+		// interest.
+<span class="nc bnc" id="L59" title="All 2 branches missed.">		if (obsPlotModel.getLastSinglySelectedSeries() == null) {</span>
+<span class="nc" id="L60">			int seriesNum = obsPlotModel.determineMeanSeriesSource();</span>
+<span class="nc" id="L61">			obsPlotModel.setLastSinglySelectedSeries(obsPlotModel</span>
+<span class="nc" id="L62">					.getSeriesNumToSrcTypeMap().get(seriesNum));</span>
+		}
+
+<span class="nc" id="L65">		addSeriesRadioButtons();</span>
+<span class="nc" id="L66">	}</span>
+
+	// Create a radio button for each series, selecting the one
+	// that corresponds to the current mean source series.
+	private void addSeriesRadioButtons() {
+<span class="nc" id="L71">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L72">		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
+
+<span class="nc" id="L74">		seriesGroup = new ButtonGroup();</span>
+
+<span class="nc" id="L76">		panel.add(createDataSeriesRadioButtons());</span>
+<span class="nc" id="L77">		panel.add(createDerivedSeriesRadioButtons());</span>
+<span class="nc" id="L78">		JPanel userPanel = createUserDefinedSeriesRadioButtons();</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (userPanel != null) {</span>
+<span class="nc" id="L80">			panel.add(userPanel);</span>
+		}
+<span class="nc" id="L82">		this.add(panel);</span>
+<span class="nc" id="L83">	}</span>
+
+	private JPanel createDataSeriesRadioButtons() {
+<span class="nc" id="L86">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L87">		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L88">		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps</span>
+<span class="nc" id="L89">				.get(&quot;DATA_TITLE&quot;)));</span>
+
+<span class="nc" id="L91">		SeriesType selectedSeries = obsPlotModel.getLastSinglySelectedSeries();</span>
+
+<span class="nc bnc" id="L93" title="All 2 branches missed.">		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {</span>
+<span class="nc bnc" id="L94" title="All 4 branches missed.">			if (!series.isSynthetic() &amp;&amp; !series.isUserDefined()) {</span>
+				// Add radio button for all non-synthetic series.
+<span class="nc" id="L96">				String seriesName = series.getDescription();</span>
+<span class="nc" id="L97">				JRadioButton seriesRadioButton = new JRadioButton(seriesName);</span>
+<span class="nc" id="L98">				seriesRadioButton.setActionCommand(seriesName);</span>
+<span class="nc" id="L99">				seriesRadioButton.addActionListener(this);</span>
+<span class="nc" id="L100">				seriesRadioButton.setEnabled(isSeriesNonEmpty(series));</span>
+<span class="nc" id="L101">				panel.add(seriesRadioButton);</span>
+<span class="nc" id="L102">				panel.add(Box.createRigidArea(new Dimension(3, 3)));</span>
+<span class="nc" id="L103">				seriesGroup.add(seriesRadioButton);</span>
+
+				// Select the initial series radio button.
+<span class="nc bnc" id="L106" title="All 2 branches missed.">				if (series == selectedSeries) {</span>
+<span class="nc" id="L107">					seriesRadioButton.setSelected(true);</span>
+				}
+			}
+<span class="nc" id="L110">		}</span>
+
+		// Ensure the panel is wide enough for textual border.
+<span class="nc" id="L113">		panel.add(Box.createRigidArea(new Dimension(75, 1)));</span>
+
+<span class="nc" id="L115">		return panel;</span>
+	}
+
+	private JPanel createDerivedSeriesRadioButtons() {
+<span class="nc" id="L119">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L120">		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L121">		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps</span>
+<span class="nc" id="L122">				.get(&quot;ANALYSIS_TITLE&quot;)));</span>
+
+<span class="nc" id="L124">		SeriesType selectedSeries = obsPlotModel.getLastSinglySelectedSeries();</span>
+
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">			if (series.isSynthetic()) {</span>
+				// Add radio button for all non-synthetic series.
+<span class="nc" id="L129">				String seriesName = series.getDescription();</span>
+<span class="nc" id="L130">				JRadioButton seriesRadioButton = new JRadioButton(seriesName);</span>
+<span class="nc" id="L131">				seriesRadioButton.setActionCommand(seriesName);</span>
+<span class="nc" id="L132">				seriesRadioButton.addActionListener(this);</span>
+<span class="nc" id="L133">				seriesRadioButton.setEnabled(isSeriesNonEmpty(series));</span>
+<span class="nc" id="L134">				panel.add(seriesRadioButton);</span>
+<span class="nc" id="L135">				panel.add(Box.createRigidArea(new Dimension(3, 3)));</span>
+<span class="nc" id="L136">				seriesGroup.add(seriesRadioButton);</span>
+
+				// Select the initial series radio button.
+<span class="nc bnc" id="L139" title="All 2 branches missed.">				if (series == selectedSeries) {</span>
+<span class="nc" id="L140">					seriesRadioButton.setSelected(true);</span>
+				}
+			}
+<span class="nc" id="L143">		}</span>
+
+<span class="nc" id="L145">		return panel;</span>
+	}
+
+	private JPanel createUserDefinedSeriesRadioButtons() {
+<span class="nc" id="L149">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L150">		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L151">		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps</span>
+<span class="nc" id="L152">				.get(&quot;USER_DEFINED_TITLE&quot;)));</span>
+
+<span class="nc" id="L154">		SeriesType selectedSeries = obsPlotModel.getLastSinglySelectedSeries();</span>
+
+<span class="nc" id="L156">		boolean anyObs = false;</span>
+
+<span class="nc bnc" id="L158" title="All 2 branches missed.">		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">			if (series.isUserDefined()) {</span>
+				// Ignore user-defined series with no corresponding data in the
+				// current dataset.
+<span class="nc" id="L162">				Integer seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()</span>
+<span class="nc" id="L163">						.get(series);</span>
+
+<span class="nc" id="L165">				if (obsPlotModel.getSeriesNumToObSrcListMap().get(seriesNum)</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">						.isEmpty()) {</span>
+<span class="nc" id="L167">					continue;</span>
+				} else {
+<span class="nc bnc" id="L169" title="All 2 branches missed.">					if (!anyObs) {</span>
+<span class="nc" id="L170">						anyObs = true;</span>
+					}
+				}
+
+				// Add radio button for all user-defined series.
+<span class="nc" id="L175">				String seriesName = series.getDescription();</span>
+<span class="nc" id="L176">				JRadioButton seriesRadioButton = new JRadioButton(seriesName);</span>
+<span class="nc" id="L177">				seriesRadioButton.setActionCommand(seriesName);</span>
+<span class="nc" id="L178">				seriesRadioButton.addActionListener(this);</span>
+<span class="nc" id="L179">				seriesRadioButton.setEnabled(isSeriesNonEmpty(series));</span>
+<span class="nc" id="L180">				panel.add(seriesRadioButton);</span>
+<span class="nc" id="L181">				panel.add(Box.createRigidArea(new Dimension(3, 3)));</span>
+<span class="nc" id="L182">				seriesGroup.add(seriesRadioButton);</span>
+
+				// Select the initial series radio button.
+<span class="nc bnc" id="L185" title="All 2 branches missed.">				if (series == selectedSeries) {</span>
+<span class="nc" id="L186">					seriesRadioButton.setSelected(true);</span>
+				}
+			}
+<span class="nc" id="L189">		}</span>
+		
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		if (!anyObs) {</span>
+<span class="nc" id="L192">			panel = null;</span>
+		} else {
+			// Ensure the panel is wide enough for textual border.
+<span class="nc" id="L195">			panel.add(Box.createRigidArea(new Dimension(75, 1)));</span>
+		}
+
+<span class="nc" id="L198">		return panel;</span>
+	}
+
+	/**
+	 * Does the specified series have corresponding observations?
+	 * 
+	 * @param type
+	 *            The series type in question.
+	 * @return Whether or not there are observations for this series type.
+	 */
+	private boolean isSeriesNonEmpty(SeriesType type) {
+<span class="nc" id="L209">		Integer num = obsPlotModel.getSrcTypeToSeriesNumMap().get(type);</span>
+
+		// This series exists and has obs (or not), so allow it to be selected
+		// (or not).
+<span class="nc bnc" id="L213" title="All 2 branches missed.">		boolean hasObs = obsPlotModel.getSeriesNumToObSrcListMap().containsKey(</span>
+				num)
+<span class="nc" id="L215">				&amp;&amp; !obsPlotModel.getSeriesNumToObSrcListMap().get(num)</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">						.isEmpty();</span>
+
+<span class="nc" id="L218">		return hasObs;</span>
+	}
+
+	// This method will be called when a radio button is selected.
+	// If the selected series is different from the model's last
+	// singly selected series number, store it in the model.
+	public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L225">		String seriesName = e.getActionCommand();</span>
+<span class="nc" id="L226">		SeriesType selectedSeries = SeriesType</span>
+<span class="nc" id="L227">				.getSeriesFromDescription(seriesName);</span>
+
+<span class="nc bnc" id="L229" title="All 2 branches missed.">		if (selectedSeries != obsPlotModel.getLastSinglySelectedSeries()) {</span>
+<span class="nc" id="L230">			obsPlotModel.setLastSinglySelectedSeries(selectedSeries);</span>
+		}
+<span class="nc" id="L232">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DoubleField.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog</a> &gt; <span class="el_source">DoubleField.java</span></div><h1>DoubleField.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog;
+
+import org.aavso.tools.vstar.util.locale.NumberParser;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.aavso.tools.vstar.vela.VeLaEvalError;
+import org.aavso.tools.vstar.vela.VeLaParseError;
+
+/**
+ * This class encapsulates the name, range, and value of a numeric text field
+ * along with a GUI textField and methods to operate upon it.
+ */
+public class DoubleField extends NumberFieldBase&lt;Double&gt; {
+
+	/**
+	 * Constructor
+	 * 
+	 * @param name
+	 *            The name of the textField.
+	 * @param min
+	 *            The value that the entered value must be greater than (may be
+	 *            null).
+	 * @param max
+	 *            The value that the entered value must be less than (may be
+	 *            null).
+	 * @param initial
+	 *            The initial value.
+	 */
+	public DoubleField(String name, Double min, Double max, Double initial) {
+<span class="nc" id="L46">		super(NumericPrecisionPrefs.getOtherOutputFormat(), name, min, max,</span>
+				initial);
+<span class="nc" id="L48">	}</span>
+
+	/**
+	 * Get the double value from the text field, if possible, otherwise return
+	 * null if no valid number is present in the textField.
+	 * 
+	 * @return The double value or null.
+	 */
+	public Double getValue() {
+<span class="nc" id="L57">		Double value = null;</span>
+
+		try {
+<span class="nc" id="L60">			value = NumberParser.parseDouble(textField.getText());</span>
+
+			// In the previous realization, null is assigned to the value if value &lt; min.
+			// Then in the next 'if' the null value is compared with max, this leads to Null Pointer Exception.
+			
+<span class="nc bnc" id="L65" title="All 4 branches missed.">			if (min != null &amp;&amp; value &lt; min) {</span>
+<span class="nc" id="L66">				return null;</span>
+			}
+
+<span class="nc bnc" id="L69" title="All 4 branches missed.">			if (max != null &amp;&amp; value &gt; max) {</span>
+<span class="nc" id="L70">				return null;</span>
+			}
+<span class="nc" id="L72">		} catch (NumberFormatException e) {</span>
+			// Nothing to do; return null.
+<span class="nc" id="L74">		} catch (VeLaParseError e) { // #PMAK#</span>
+			// Nothing to do; return null.
+<span class="nc" id="L76">		} catch (VeLaEvalError e) { // #PMAK#</span>
+			// Nothing to do; return null.
+<span class="nc" id="L78">		}</span>
+		
+<span class="nc" id="L80">		return value;</span>
+	}
+
+	@Override
+	public void setValue(Double value) {
+		//textField.setText(value.toString());
+		//locale-specific version (PMAK): identical to setting _initial_ value (see constructor).
+<span class="nc bnc" id="L87" title="All 2 branches missed.">		textField.setText(value == null ? &quot;&quot; : NumericPrecisionPrefs.getOtherOutputFormat().format(value));</span>
+<span class="nc" id="L88">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,2403 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Mediator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.mediator</a> &gt; <span class="el_source">Mediator.java</span></div><h1>Mediator.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.mediator;
+
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.print.PrinterException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+
+import javax.swing.JDialog;
+import javax.swing.JTable.PrintMode;
+import javax.swing.SwingWorker;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.aavso.tools.vstar.data.InvalidObservation;
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
+import org.aavso.tools.vstar.exception.AuthenticationError;
+import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.exception.ConnectionException;
+import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.input.database.Authenticator;
+import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
+import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase;
+import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
+import org.aavso.tools.vstar.ui.IMainUI;
+import org.aavso.tools.vstar.ui.NamedComponent;
+import org.aavso.tools.vstar.ui.TabbedDataPane;
+import org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser;
+import org.aavso.tools.vstar.ui.dialog.DiscrepantReportDialog;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
+import org.aavso.tools.vstar.ui.dialog.IntegerField;
+import org.aavso.tools.vstar.ui.dialog.LoadChooser;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
+import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
+import org.aavso.tools.vstar.ui.dialog.PNGImageFileSaveChooser;
+import org.aavso.tools.vstar.ui.dialog.PhaseDialog;
+import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
+import org.aavso.tools.vstar.ui.dialog.PlotControlDialog;
+import org.aavso.tools.vstar.ui.dialog.SaveChooser;
+import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
+import org.aavso.tools.vstar.ui.dialog.filter.ObservationFiltersDialog;
+import org.aavso.tools.vstar.ui.dialog.model.ModelDialog;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementOperation;
+import org.aavso.tools.vstar.ui.dialog.series.MultipleSeriesSelectionDialog;
+import org.aavso.tools.vstar.ui.dialog.series.SeriesVisibilityPane;
+import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
+import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
+import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.MessageBase;
+import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.MultipleObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PhaseChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PhaseSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesCreationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
+import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.UndoableActionType;
+import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
+import org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel;
+import org.aavso.tools.vstar.ui.model.list.AbstractModelObservationTableModel;
+import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
+import org.aavso.tools.vstar.ui.model.list.PhasePlotMeanObservationTableModel;
+import org.aavso.tools.vstar.ui.model.list.RawDataMeanObservationTableModel;
+import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
+import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
+import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
+import org.aavso.tools.vstar.ui.model.plot.InViewObservationFilter;
+import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
+import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
+import org.aavso.tools.vstar.ui.model.plot.PhasedObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.PreviousCyclePhaseCoordSource;
+import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
+import org.aavso.tools.vstar.ui.pane.list.ObservationListPane;
+import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPane;
+import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
+import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
+import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.ui.task.ModellingTask;
+import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginTask;
+import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginWithSuppliedFileTask;
+import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginWithSuppliedURLTask;
+import org.aavso.tools.vstar.ui.task.ObsListFileSaveTask;
+import org.aavso.tools.vstar.ui.task.PeriodAnalysisTask;
+import org.aavso.tools.vstar.ui.task.PhasePlotTask;
+import org.aavso.tools.vstar.ui.task.PluginManagerOperationTask;
+import org.aavso.tools.vstar.ui.undo.IUndoableAction;
+import org.aavso.tools.vstar.ui.undo.UndoableActionManager;
+import org.aavso.tools.vstar.util.Triple;
+import org.aavso.tools.vstar.util.comparator.JDComparator;
+import org.aavso.tools.vstar.util.comparator.PreviousCyclePhaseComparator;
+import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
+import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.EpochType;
+import org.aavso.tools.vstar.util.coords.RAInfo;
+import org.aavso.tools.vstar.util.date.AbstractHJDConverter;
+import org.aavso.tools.vstar.util.discrepant.DiscrepantReport;
+import org.aavso.tools.vstar.util.discrepant.IDiscrepantReporter;
+import org.aavso.tools.vstar.util.discrepant.VSXWebServiceZapperLogger;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.model.IModel;
+import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.notification.Notifier;
+import org.aavso.tools.vstar.util.prefs.ChartPropertiesPrefs;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.aavso.tools.vstar.util.stats.BinningResult;
+import org.aavso.tools.vstar.util.stats.PhaseCalcs;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtils;
+import org.jfree.chart.JFreeChart;
+
+/**
+ * This class manages the creation of models and views and sends notifications
+ * for changes to mode and analysis types.
+ * 
+ * This is a Singleton since only one mediator per application instance should
+ * exist.
+ * 
+ * TODO: This is really 2 classes: a task manager and a message broker...
+ */
+<span class="fc" id="L176">public class Mediator {</span>
+
+    public static final String NOT_IMPLEMENTED_YET = &quot;This feature is not implemented yet.&quot;;
+
+    private static IMainUI ui;
+
+    // Valid and invalid observation lists and series category maps.
+    private List&lt;ValidObservation&gt; validObsList;
+    private List&lt;InvalidObservation&gt; invalidObsList;
+
+    // Note: it would be useful to update these with mean obs, excluded obs etc
+    // so they could be used in places where currently the model must be
+    // consulted instead; especially the first map, e.g. for period analysis.
+    private Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; validObservationCategoryMap;
+    private Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; phasedValidObservationCategoryMap;
+
+    // Current observation and mean plot model.
+    // Period search (TODO: did I mean ANOVA vs period search?) needs access to
+    // this to determine the current mean source band.
+    private ObservationAndMeanPlotModel obsAndMeanPlotModel;
+
+    // Current observation table model.
+    private ValidObservationTableModel validObsTableModel;
+
+    // Current view viewMode.
+    private ViewModeType viewMode;
+
+    // Current analysis type.
+    private AnalysisType analysisType;
+
+    // The new star messages created and sent to listeners, most recent at
+    // the highest index.
+    private List&lt;NewStarMessage&gt; newStarMessageList;
+
+    // The latest model selection message created and sent to listeners.
+    private ModelSelectionMessage modelSelectionMessage;
+
+    // Mapping from analysis type to the latest analysis change
+    // messages created and sent to listeners.
+    private Map&lt;AnalysisType, AnalysisTypeChangeMessage&gt; analysisTypeMap;
+
+    // A file dialog for saving any kind of observation list.
+    private DelimitedFieldFileSaveChooser obsListFileSaveDialog;
+
+    // A file dialog for saving an image, e.g. a plot.
+    private PNGImageFileSaveChooser imageSaveDialog;
+
+    // A helper object for loading a VeLa code file.
+    private LoadChooser velaFileLoadDialog;
+
+    // A helper object for saving a VeLa code file.
+    private SaveChooser velaFileSaveDialog;
+
+    // A helper object for loading an XML from VeLa Model XML file using respective
+    // chooser.
+    private LoadChooser velaXMLloadDialog;
+
+    // An helper object for saving a VeLa model to XML file using respective
+    // chooser.
+    private SaveChooser velaXMLsaveDialog;
+
+    // Persistent phase parameter dialog.
+    private PhaseParameterDialog phaseParameterDialog;
+
+    // Persistent observation filter dialog.
+    private ObservationFilterDialog obsFilterDialog;
+
+    // Model dialog.
+    private ModelDialog modelDialog;
+
+    // A dialog to manage phase plots.
+    private PhaseDialog phaseDialog;
+
+    // A dialog to manage filters.
+    private ObservationFiltersDialog observationFiltersDialog;
+
+    // Notifiers.
+    private Notifier&lt;AnalysisTypeChangeMessage&gt; analysisTypeChangeNotifier;
+    private Notifier&lt;NewStarMessage&gt; newStarNotifier;
+    private Notifier&lt;ProgressInfo&gt; progressNotifier;
+    // TODO: This next notifier could be used to mark the &quot;document&quot;
+    // (the current star's dataset) associated with the valid obs
+    // as being in need of saving (optional for now). See DocumentManager
+    private Notifier&lt;DiscrepantObservationMessage&gt; discrepantObservationNotifier;
+    private Notifier&lt;ExcludedObservationMessage&gt; excludedObservationNotifier;
+    private Notifier&lt;ObservationSelectionMessage&gt; observationSelectionNotifier;
+    private Notifier&lt;MultipleObservationSelectionMessage&gt; multipleObservationSelectionNotifier;
+    private Notifier&lt;PeriodAnalysisSelectionMessage&gt; periodAnalysisSelectionNotifier;
+    private Notifier&lt;PeriodChangeMessage&gt; periodChangeNotifier;
+    private Notifier&lt;PhaseChangeMessage&gt; phaseChangeNotifier;
+    private Notifier&lt;PhaseSelectionMessage&gt; phaseSelectionNotifier;
+    private Notifier&lt;PeriodAnalysisRefinementMessage&gt; periodAnalysisRefinementNotifier;
+    private Notifier&lt;MeanSourceSeriesChangeMessage&gt; meanSourceSeriesChangeNotifier;
+    private Notifier&lt;ZoomRequestMessage&gt; zoomRequestNotifier;
+    private Notifier&lt;FilteredObservationMessage&gt; filteredObservationNotifier;
+    private Notifier&lt;ModelSelectionMessage&gt; modelSelectionNofitier;
+    private Notifier&lt;ModelCreationMessage&gt; modelCreationNotifier;
+    private Notifier&lt;PanRequestMessage&gt; panRequestNotifier;
+    private Notifier&lt;UndoActionMessage&gt; undoActionNotifier;
+    private Notifier&lt;StopRequestMessage&gt; stopRequestNotifier;
+    private Notifier&lt;SeriesVisibilityChangeMessage&gt; seriesVisibilityChangeNotifier;
+    private Notifier&lt;HarmonicSearchResultMessage&gt; harmonicSearchNotifier;
+    private Notifier&lt;SeriesCreationMessage&gt; seriesCreationNotifier;
+
+    private DocumentManager documentManager;
+
+    private UndoableActionManager undoableActionManager;
+
+    // Currently active task.
+    private SwingWorker currTask;
+
+    // Singleton fields, constructor, getter.
+
+    private static Mediator mediator;
+
+    /**
+     * Private constructor.
+     */
+<span class="fc" id="L294">    private Mediator() {</span>
+<span class="fc" id="L295">        ui = null;</span>
+
+<span class="fc" id="L297">        this.analysisTypeChangeNotifier = new Notifier&lt;AnalysisTypeChangeMessage&gt;();</span>
+<span class="fc" id="L298">        this.newStarNotifier = new Notifier&lt;NewStarMessage&gt;();</span>
+<span class="fc" id="L299">        this.progressNotifier = new Notifier&lt;ProgressInfo&gt;();</span>
+<span class="fc" id="L300">        this.discrepantObservationNotifier = new Notifier&lt;DiscrepantObservationMessage&gt;();</span>
+<span class="fc" id="L301">        this.excludedObservationNotifier = new Notifier&lt;ExcludedObservationMessage&gt;();</span>
+<span class="fc" id="L302">        this.observationSelectionNotifier = new Notifier&lt;ObservationSelectionMessage&gt;();</span>
+<span class="fc" id="L303">        this.multipleObservationSelectionNotifier = new Notifier&lt;MultipleObservationSelectionMessage&gt;();</span>
+<span class="fc" id="L304">        this.periodAnalysisSelectionNotifier = new Notifier&lt;PeriodAnalysisSelectionMessage&gt;();</span>
+<span class="fc" id="L305">        this.periodChangeNotifier = new Notifier&lt;PeriodChangeMessage&gt;();</span>
+<span class="fc" id="L306">        this.phaseChangeNotifier = new Notifier&lt;PhaseChangeMessage&gt;();</span>
+<span class="fc" id="L307">        this.phaseSelectionNotifier = new Notifier&lt;PhaseSelectionMessage&gt;();</span>
+<span class="fc" id="L308">        this.periodAnalysisRefinementNotifier = new Notifier&lt;PeriodAnalysisRefinementMessage&gt;();</span>
+<span class="fc" id="L309">        this.meanSourceSeriesChangeNotifier = new Notifier&lt;MeanSourceSeriesChangeMessage&gt;();</span>
+<span class="fc" id="L310">        this.zoomRequestNotifier = new Notifier&lt;ZoomRequestMessage&gt;();</span>
+<span class="fc" id="L311">        this.filteredObservationNotifier = new Notifier&lt;FilteredObservationMessage&gt;();</span>
+<span class="fc" id="L312">        this.modelSelectionNofitier = new Notifier&lt;ModelSelectionMessage&gt;();</span>
+<span class="fc" id="L313">        this.modelCreationNotifier = new Notifier&lt;ModelCreationMessage&gt;();</span>
+<span class="fc" id="L314">        this.panRequestNotifier = new Notifier&lt;PanRequestMessage&gt;();</span>
+<span class="fc" id="L315">        this.undoActionNotifier = new Notifier&lt;UndoActionMessage&gt;();</span>
+<span class="fc" id="L316">        this.stopRequestNotifier = new Notifier&lt;StopRequestMessage&gt;();</span>
+<span class="fc" id="L317">        this.seriesVisibilityChangeNotifier = new Notifier&lt;SeriesVisibilityChangeMessage&gt;();</span>
+<span class="fc" id="L318">        this.harmonicSearchNotifier = new Notifier&lt;HarmonicSearchResultMessage&gt;();</span>
+<span class="fc" id="L319">        this.seriesCreationNotifier = new Notifier&lt;SeriesCreationMessage&gt;();</span>
+
+<span class="fc" id="L321">        this.obsListFileSaveDialog = new DelimitedFieldFileSaveChooser();</span>
+<span class="fc" id="L322">        this.imageSaveDialog = new PNGImageFileSaveChooser();</span>
+        {
+<span class="fc" id="L324">            FileNameExtensionFilter[] extensionFilter = new FileNameExtensionFilter[1];</span>
+<span class="fc" id="L325">            extensionFilter[0] = new FileNameExtensionFilter(&quot;VeLa files (*.txt, *.vl, *.vela)&quot;, &quot;txt&quot;, &quot;vl&quot;, &quot;vela&quot;);</span>
+<span class="fc" id="L326">            this.velaFileLoadDialog = new LoadChooser(extensionFilter, &quot;Open VeLa File&quot;);</span>
+<span class="fc" id="L327">            this.velaFileSaveDialog = new SaveChooser(extensionFilter, &quot;vela&quot;, &quot;Save VeLa File&quot;);</span>
+        }
+        {
+<span class="fc" id="L330">            FileNameExtensionFilter[] extensionFilter = new FileNameExtensionFilter[1];</span>
+<span class="fc" id="L331">            extensionFilter[0] = new FileNameExtensionFilter(&quot;VeLa XML and Text files (*.vlmx, *.txt, *.vl, *.vela)&quot;,</span>
+                    &quot;vlmx&quot;, &quot;txt&quot;, &quot;vl&quot;, &quot;vela&quot;);
+<span class="fc" id="L333">            this.velaXMLloadDialog = new LoadChooser(extensionFilter, &quot;Open VeLa XML File&quot;);</span>
+<span class="fc" id="L334">            this.velaXMLsaveDialog = new SaveChooser(extensionFilter, &quot;vlmx&quot;, &quot;Save VeLa XML File&quot;);</span>
+        }
+
+        // These (among other things) are created for each new star.
+<span class="fc" id="L338">        this.validObsList = null;</span>
+<span class="fc" id="L339">        this.invalidObsList = null;</span>
+<span class="fc" id="L340">        this.validObservationCategoryMap = null;</span>
+<span class="fc" id="L341">        this.phasedValidObservationCategoryMap = null;</span>
+<span class="fc" id="L342">        this.obsAndMeanPlotModel = null;</span>
+
+<span class="fc" id="L344">        this.analysisTypeMap = new HashMap&lt;AnalysisType, AnalysisTypeChangeMessage&gt;();</span>
+
+<span class="fc" id="L346">        this.viewMode = ViewModeType.PLOT_OBS_MODE;</span>
+<span class="fc" id="L347">        this.analysisType = AnalysisType.RAW_DATA;</span>
+
+<span class="fc" id="L349">        this.newStarMessageList = new ArrayList&lt;NewStarMessage&gt;();</span>
+<span class="fc" id="L350">        this.modelSelectionMessage = null;</span>
+
+<span class="fc" id="L352">        this.periodChangeNotifier.addListener(createPeriodChangeListener());</span>
+
+<span class="fc" id="L354">        this.phaseSelectionNotifier.addListener(createPhaseSelectionListener());</span>
+
+<span class="fc" id="L356">        this.modelSelectionNofitier.addListener(createModelSelectionListener());</span>
+<span class="fc" id="L357">        this.filteredObservationNotifier.addListener(createFilteredObservationListener());</span>
+
+<span class="fc" id="L359">        this.seriesCreationNotifier.addListener(createSeriesCreationListener());</span>
+<span class="fc" id="L360">    }</span>
+
+    /**
+     * Return the Singleton instance, optionally creating it first
+     */
+    public static synchronized Mediator getInstance() {
+<span class="fc bfc" id="L366" title="All 2 branches covered.">        if (mediator == null) {</span>
+<span class="fc" id="L367">            mediator = new Mediator();</span>
+        }
+<span class="fc" id="L369">        return mediator;</span>
+    }
+
+    /**
+     * @param ui the ui to set
+     */
+    public void setUI(IMainUI ui) {
+<span class="nc" id="L376">        this.ui = ui;</span>
+<span class="nc" id="L377">    }</span>
+
+    public static IMainUI getUI() {
+<span class="nc" id="L380">        return ui;</span>
+    }
+
+    /**
+     * @return The current list of valid observations
+     */
+    public List&lt;ValidObservation&gt; getValidObsList() {
+<span class="nc" id="L387">        return validObsList;</span>
+    }
+
+    /**
+     * @return the latest newStarMessage, or null if none present.
+     */
+    public NewStarMessage getLatestNewStarMessage() {
+<span class="fc" id="L394">        NewStarMessage msg = null;</span>
+
+<span class="pc bpc" id="L396" title="1 of 2 branches missed.">        if (!newStarMessageList.isEmpty()) {</span>
+<span class="nc" id="L397">            msg = newStarMessageList.get(newStarMessageList.size() - 1);</span>
+        }
+
+<span class="fc" id="L400">        return msg;</span>
+    }
+
+    /**
+     * @return the newStarMessageList
+     */
+    public List&lt;NewStarMessage&gt; getNewStarMessageList() {
+<span class="nc" id="L407">        return newStarMessageList;</span>
+    }
+
+    /**
+     * @return the validObservationCategoryMap
+     */
+    public Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; getValidObservationCategoryMap() {
+<span class="nc" id="L414">        return validObservationCategoryMap;</span>
+    }
+
+    /**
+     * Given an analysis type, the plot pane for the specified analysis type.
+     * 
+     * @param type The analysis type.
+     * 
+     * @return The plot pane.
+     */
+    public ObservationAndMeanPlotPane getPlotPane(AnalysisType type) {
+<span class="nc" id="L425">        return analysisTypeMap.get(type).getObsAndMeanChartPane();</span>
+    }
+
+    /**
+     * Given an analysis type, the observation list pane for the specified analysis
+     * type.
+     * 
+     * @param type The analysis type.
+     * 
+     * @return The observation list pane.
+     */
+    public ObservationListPane getObservationListPane(AnalysisType type) {
+<span class="nc" id="L437">        return analysisTypeMap.get(type).getObsListPane();</span>
+    }
+
+    /**
+     * @return the modelSelectionMessage
+     */
+    public ModelSelectionMessage getModelSelectionMessage() {
+<span class="nc" id="L444">        return modelSelectionMessage;</span>
+    }
+
+    /**
+     * @return the analysisTypeChangeNotifier
+     */
+    public Notifier&lt;AnalysisTypeChangeMessage&gt; getAnalysisTypeChangeNotifier() {
+<span class="nc" id="L451">        return analysisTypeChangeNotifier;</span>
+    }
+
+    /**
+     * @param analysisType the analysisType to set
+     */
+    public void setAnalysisType(AnalysisType analysisType) {
+<span class="nc" id="L458">        this.analysisType = analysisType;</span>
+<span class="nc" id="L459">    }</span>
+
+    /**
+     * @return the newStarNotifier
+     */
+    public Notifier&lt;NewStarMessage&gt; getNewStarNotifier() {
+<span class="nc" id="L465">        return newStarNotifier;</span>
+    }
+
+    /**
+     * @return the progressNotifier
+     */
+    public Notifier&lt;ProgressInfo&gt; getProgressNotifier() {
+<span class="fc" id="L472">        return progressNotifier;</span>
+    }
+
+    /**
+     * @return the discrepantObservationNotifier
+     */
+    public Notifier&lt;DiscrepantObservationMessage&gt; getDiscrepantObservationNotifier() {
+<span class="nc" id="L479">        return discrepantObservationNotifier;</span>
+    }
+
+    /**
+     * @return the excludedObservationNotifier
+     */
+    public Notifier&lt;ExcludedObservationMessage&gt; getExcludedObservationNotifier() {
+<span class="nc" id="L486">        return excludedObservationNotifier;</span>
+    }
+
+    /**
+     * @return the observationSelectionNotifier
+     */
+    public Notifier&lt;ObservationSelectionMessage&gt; getObservationSelectionNotifier() {
+<span class="nc" id="L493">        return observationSelectionNotifier;</span>
+    }
+
+    /**
+     * @return the multipleObservationSelectionNotifier
+     */
+    public Notifier&lt;MultipleObservationSelectionMessage&gt; getMultipleObservationSelectionNotifier() {
+<span class="nc" id="L500">        return multipleObservationSelectionNotifier;</span>
+    }
+
+    /**
+     * @return the periodAnalysisSelectionNotifier
+     */
+    public Notifier&lt;PeriodAnalysisSelectionMessage&gt; getPeriodAnalysisSelectionNotifier() {
+<span class="nc" id="L507">        return periodAnalysisSelectionNotifier;</span>
+    }
+
+    /**
+     * @return the periodChangeNotifier
+     */
+    public Notifier&lt;PeriodChangeMessage&gt; getPeriodChangeNotifier() {
+<span class="nc" id="L514">        return periodChangeNotifier;</span>
+    }
+
+    /**
+     * @return the phaseChangeNotifier
+     */
+    public Notifier&lt;PhaseChangeMessage&gt; getPhaseChangeNotifier() {
+<span class="nc" id="L521">        return phaseChangeNotifier;</span>
+    }
+
+    /**
+     * @return the phaseSelectionNotifier
+     */
+    public Notifier&lt;PhaseSelectionMessage&gt; getPhaseSelectionNotifier() {
+<span class="nc" id="L528">        return phaseSelectionNotifier;</span>
+    }
+
+    /**
+     * @return the periodAnalysisRefinementNotifier
+     */
+    public Notifier&lt;PeriodAnalysisRefinementMessage&gt; getPeriodAnalysisRefinementNotifier() {
+<span class="nc" id="L535">        return periodAnalysisRefinementNotifier;</span>
+    }
+
+    /**
+     * @return the meanSourceSeriesChangeNotifier
+     */
+    public Notifier&lt;MeanSourceSeriesChangeMessage&gt; getMeanSourceSeriesChangeNotifier() {
+<span class="nc" id="L542">        return meanSourceSeriesChangeNotifier;</span>
+    }
+
+    /**
+     * @return the zoomRequestNotifier
+     */
+    public Notifier&lt;ZoomRequestMessage&gt; getZoomRequestNotifier() {
+<span class="nc" id="L549">        return zoomRequestNotifier;</span>
+    }
+
+    /**
+     * @return the filteredObservationNotifier
+     */
+    public Notifier&lt;FilteredObservationMessage&gt; getFilteredObservationNotifier() {
+<span class="nc" id="L556">        return filteredObservationNotifier;</span>
+    }
+
+    /**
+     * @return the modelSelectionNofitier
+     */
+    public Notifier&lt;ModelSelectionMessage&gt; getModelSelectionNofitier() {
+<span class="nc" id="L563">        return modelSelectionNofitier;</span>
+    }
+
+    /**
+     * @return the modelCreationNotifier
+     */
+    public Notifier&lt;ModelCreationMessage&gt; getModelCreationNotifier() {
+<span class="nc" id="L570">        return modelCreationNotifier;</span>
+    }
+
+    /**
+     * @return the panRequestNotifier
+     */
+    public Notifier&lt;PanRequestMessage&gt; getPanRequestNotifier() {
+<span class="nc" id="L577">        return panRequestNotifier;</span>
+    }
+
+    /**
+     * @return the undoActionNotifier
+     */
+    public Notifier&lt;UndoActionMessage&gt; getUndoActionNotifier() {
+<span class="nc" id="L584">        return undoActionNotifier;</span>
+    }
+
+    /**
+     * @return the stopRequestNotifier
+     */
+    public Notifier&lt;StopRequestMessage&gt; getStopRequestNotifier() {
+<span class="fc" id="L591">        return stopRequestNotifier;</span>
+    }
+
+    /**
+     * @return the seriesVisibilityChangeNotifier
+     */
+    public Notifier&lt;SeriesVisibilityChangeMessage&gt; getSeriesVisibilityChangeNotifier() {
+<span class="nc" id="L598">        return seriesVisibilityChangeNotifier;</span>
+    }
+
+    /**
+     * @return the harmonicSearchNotifier
+     */
+    public Notifier&lt;HarmonicSearchResultMessage&gt; getHarmonicSearchNotifier() {
+<span class="nc" id="L605">        return harmonicSearchNotifier;</span>
+    }
+
+    /**
+     * @return the seriesCreationNotifier
+     */
+    public Notifier&lt;SeriesCreationMessage&gt; getSeriesCreationNotifier() {
+<span class="nc" id="L612">        return seriesCreationNotifier;</span>
+    }
+
+    /**
+     * @return the velaFileLoadDialog
+     */
+    public LoadChooser getVelaFileLoadDialog() {
+<span class="nc" id="L619">        return velaFileLoadDialog;</span>
+    }
+
+    /**
+     * @return the velaFileSaveDialog
+     */
+    public SaveChooser getVelaFileSaveDialog() {
+<span class="nc" id="L626">        return velaFileSaveDialog;</span>
+    }
+
+    /**
+     * @return the velaXMLloadDialog
+     */
+    public LoadChooser getVelaXMLloadDialog() {
+<span class="nc" id="L633">        return velaXMLloadDialog;</span>
+    }
+
+    /**
+     * @return the velaXMLsaveDialog
+     */
+    public SaveChooser getVelaXMLsaveDialog() {
+<span class="nc" id="L640">        return velaXMLsaveDialog;</span>
+    }
+
+    /**
+     * Create a mean observation change listener and return it. Whenever the mean
+     * series source changes, listeners may want to perform a new period analysis or
+     * change the max time increments for means binning.
+     */
+    private Listener&lt;BinningResult&gt; createMeanObsChangeListener(int initialSeriesNum) {
+<span class="nc" id="L649">        final int initialSeriesNumFinal = initialSeriesNum;</span>
+
+<span class="nc" id="L651">        return new Listener&lt;BinningResult&gt;() {</span>
+<span class="nc" id="L652">            private int meanSourceSeriesNum = initialSeriesNumFinal;</span>
+
+            public boolean canBeRemoved() {
+<span class="nc" id="L655">                return false;</span>
+            }
+
+            public void update(BinningResult info) {
+                // TODO: would removing this guard permit listeners
+                // to do other things, e.g. compare old and new binning results,
+                // e.g. for change to days-in-bin?
+<span class="nc bnc" id="L662" title="All 2 branches missed.">                if (this.meanSourceSeriesNum != obsAndMeanPlotModel.getMeanSourceSeriesNum()) {</span>
+
+<span class="nc" id="L664">                    this.meanSourceSeriesNum = obsAndMeanPlotModel.getMeanSourceSeriesNum();</span>
+
+<span class="nc" id="L666">                    SeriesType meanSourceSeriesType = obsAndMeanPlotModel.getSeriesNumToSrcTypeMap()</span>
+<span class="nc" id="L667">                            .get(this.meanSourceSeriesNum);</span>
+
+<span class="nc" id="L669">                    meanSourceSeriesChangeNotifier</span>
+<span class="nc" id="L670">                            .notifyListeners(new MeanSourceSeriesChangeMessage(this, meanSourceSeriesType));</span>
+                }
+<span class="nc" id="L672">            }</span>
+        };
+    }
+
+    // When the period changes, create a new phase plot passing the pre-existing
+    // series visibility map if a previous phase plot was created.
+    //
+    // TODO: actually, it should only be necessary to a. set the phases with the
+    // new period and epoch (need to include the epoch in the message), and b.
+    // update the plot and table models.
+    private Listener&lt;PeriodChangeMessage&gt; createPeriodChangeListener() {
+<span class="fc" id="L683">        return new Listener&lt;PeriodChangeMessage&gt;() {</span>
+            public void update(PeriodChangeMessage info) {
+<span class="nc" id="L685">                PhaseParameterDialog phaseDialog = getPhaseParameterDialog();</span>
+<span class="nc" id="L686">                phaseDialog.setPeriodField(info.getPeriod());</span>
+<span class="nc" id="L687">                phaseDialog.showDialog();</span>
+
+<span class="nc bnc" id="L689" title="All 2 branches missed.">                if (!phaseDialog.isCancelled()) {</span>
+<span class="nc" id="L690">                    double period = phaseDialog.getPeriod();</span>
+<span class="nc" id="L691">                    double epoch = phaseDialog.getEpoch();</span>
+
+<span class="nc" id="L693">                    AnalysisTypeChangeMessage lastPhasePlotMsg = analysisTypeMap.get(AnalysisType.PHASE_PLOT);</span>
+
+<span class="nc" id="L695">                    Map&lt;SeriesType, Boolean&gt; seriesVisibilityMap = null;</span>
+
+<span class="nc bnc" id="L697" title="All 2 branches missed.">                    if (lastPhasePlotMsg != null) {</span>
+                        // Use the last phase plot's series visibility map.
+<span class="nc" id="L699">                        seriesVisibilityMap = lastPhasePlotMsg.getObsAndMeanChartPane().getObsModel()</span>
+<span class="nc" id="L700">                                .getSeriesVisibilityMap();</span>
+                    } else {
+                        // There has been no phase plot yet, so use the
+                        // light curve's series visibility map.
+<span class="nc" id="L704">                        AnalysisTypeChangeMessage lightCurveMsg = analysisTypeMap.get(AnalysisType.RAW_DATA);</span>
+<span class="nc" id="L705">                        seriesVisibilityMap = lightCurveMsg.getObsAndMeanChartPane().getObsModel()</span>
+<span class="nc" id="L706">                                .getSeriesVisibilityMap();</span>
+                    }
+
+<span class="nc" id="L709">                    performPhasePlot(period, epoch, seriesVisibilityMap);</span>
+                }
+<span class="nc" id="L711">            }</span>
+
+            public boolean canBeRemoved() {
+<span class="nc" id="L714">                return false;</span>
+            }
+        };
+    }
+
+    // Returns a phase selection message listener, the purpose of which is to
+    // recreate a previous phase plot.
+    protected Listener&lt;PhaseSelectionMessage&gt; createPhaseSelectionListener() {
+<span class="fc" id="L722">        final Mediator me = this;</span>
+<span class="fc" id="L723">        return new Listener&lt;PhaseSelectionMessage&gt;() {</span>
+            @Override
+            public void update(PhaseSelectionMessage info) {
+<span class="nc bnc" id="L726" title="All 2 branches missed.">                if (info.getSource() != me) {</span>
+<span class="nc" id="L727">                    performPhasePlot(info.getPeriod(), info.getEpoch(), info.getSeriesVisibilityMap());</span>
+                }
+<span class="nc" id="L729">            }</span>
+
+            @Override
+            public boolean canBeRemoved() {
+<span class="nc" id="L733">                return false;</span>
+            }
+        };
+    }
+
+    /**
+     * Removes phase plot if exists.
+     * 
+     */
+    public void dropPhasePlotAnalysis() {
+<span class="nc bnc" id="L743" title="All 2 branches missed.">        assert (analysisType != AnalysisType.PHASE_PLOT);</span>
+<span class="nc" id="L744">        analysisTypeMap.remove(AnalysisType.PHASE_PLOT);</span>
+<span class="nc" id="L745">    }</span>
+
+    /**
+     * Create a phase plot, first asking for period and epoch.
+     * 
+     * The series visibility map for the phase plot is taken from the currently
+     * visible plot (raw data or phase plot).
+     */
+    public void createPhasePlot() {
+<span class="nc" id="L754">        PhaseParameterDialog phaseDialog = getPhaseParameterDialog();</span>
+<span class="nc" id="L755">        phaseDialog.showDialog();</span>
+<span class="nc bnc" id="L756" title="All 2 branches missed.">        if (!phaseDialog.isCancelled()) {</span>
+<span class="nc" id="L757">            double period = phaseDialog.getPeriod();</span>
+<span class="nc" id="L758">            double epoch = phaseDialog.getEpoch();</span>
+
+<span class="nc" id="L760">            Map&lt;SeriesType, Boolean&gt; seriesVisibilityMap = analysisTypeMap.get(analysisType).getObsAndMeanChartPane()</span>
+<span class="nc" id="L761">                    .getObsModel().getSeriesVisibilityMap();</span>
+
+<span class="nc" id="L763">            performPhasePlot(period, epoch, seriesVisibilityMap);</span>
+        }
+<span class="nc" id="L765">    }</span>
+
+    /**
+     * Create a phase plot, given the period and epoch.
+     * 
+     * The series visibility map for the phase plot is taken from the currently
+     * visible plot (raw data or phase plot).
+     * 
+     * @param period The requested period of the phase plot.
+     * @param epoch  The epoch (first Julian Date) for the phase plot.
+     */
+    public void createPhasePlot(double period, double epoch) {
+<span class="nc" id="L777">        Map&lt;SeriesType, Boolean&gt; seriesVisibilityMap = analysisTypeMap.get(analysisType).getObsAndMeanChartPane()</span>
+<span class="nc" id="L778">                .getObsModel().getSeriesVisibilityMap();</span>
+
+<span class="nc" id="L780">        performPhasePlot(period, epoch, seriesVisibilityMap);</span>
+<span class="nc" id="L781">    }</span>
+
+    /**
+     * Common phase plot handler.
+     * 
+     * @param period              The requested period of the phase plot.
+     * @param epoch               The epoch (first Julian Date) for the phase plot.
+     * @param seriesVisibilityMap A mapping from series number to visibility status.
+     */
+    public void performPhasePlot(double period, double epoch, Map&lt;SeriesType, Boolean&gt; seriesVisibilityMap) {
+
+<span class="nc" id="L792">        PhasePlotTask task = new PhasePlotTask(period, epoch, seriesVisibilityMap);</span>
+
+        try {
+<span class="nc" id="L795">            currTask = task;</span>
+<span class="nc" id="L796">            task.execute();</span>
+<span class="nc" id="L797">        } catch (Exception e) {</span>
+<span class="nc" id="L798">            Mediator.getUI().setCursor(null);</span>
+<span class="nc" id="L799">            MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;New Phase Plot&quot;, e);</span>
+<span class="nc" id="L800">        }</span>
+<span class="nc" id="L801">    }</span>
+
+    /**
+     * Perform plugin manager operation.
+     */
+    public void performPluginManagerOperation(PluginManagementOperation op) {
+<span class="nc" id="L807">        PluginManagerOperationTask task = new PluginManagerOperationTask(op);</span>
+
+        try {
+<span class="nc" id="L810">            currTask = task;</span>
+<span class="nc" id="L811">            task.execute();</span>
+<span class="nc" id="L812">        } catch (Exception e) {</span>
+<span class="nc" id="L813">            Mediator.getUI().setCursor(null);</span>
+<span class="nc" id="L814">            MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;Plugin Manager&quot;, e.getLocalizedMessage());</span>
+<span class="nc" id="L815">        }</span>
+<span class="nc" id="L816">    }</span>
+
+    // ************************************************************************
+    // The following listener methods ensure that the obs category map is kept
+    // up to date with models, filters, new series. We handle means separately,
+    // although it would be more consistent if we did not. For example, perhaps
+    // we should just reconstruct this map each time it is required, from the
+    // obs model. For user-defined series, the obs list is also updated.
+    // Deriving this from the map would also be worth consideration.
+    // ************************************************************************
+
+    // Returns a model selection listener that updates the observation
+    // category map with model and residuals series.
+    private Listener&lt;ModelSelectionMessage&gt; createModelSelectionListener() {
+<span class="fc" id="L830">        return new Listener&lt;ModelSelectionMessage&gt;() {</span>
+            @Override
+            public void update(ModelSelectionMessage info) {
+<span class="nc" id="L833">                validObservationCategoryMap.put(SeriesType.Model, info.getModel().getFit());</span>
+
+<span class="nc" id="L835">                validObservationCategoryMap.put(SeriesType.Residuals, info.getModel().getResiduals());</span>
+
+<span class="nc" id="L837">                modelSelectionMessage = info;</span>
+<span class="nc" id="L838">            }</span>
+
+            @Override
+            public boolean canBeRemoved() {
+<span class="nc" id="L842">                return false;</span>
+            }
+        };
+    }
+
+    // Returns a filtered observation listener that updates the observation
+    // category map with the filtered series.
+    protected Listener&lt;FilteredObservationMessage&gt; createFilteredObservationListener() {
+<span class="fc" id="L850">        return new Listener&lt;FilteredObservationMessage&gt;() {</span>
+            @Override
+            public void update(FilteredObservationMessage info) {
+<span class="nc bnc" id="L853" title="All 2 branches missed.">                if (info == FilteredObservationMessage.NO_FILTER) {</span>
+<span class="nc" id="L854">                    validObservationCategoryMap.remove(SeriesType.Filtered);</span>
+                } else {
+                    // First, copy the set of filtered observations to a list.
+<span class="nc" id="L857">                    List&lt;ValidObservation&gt; obs = new ArrayList&lt;ValidObservation&gt;();</span>
+<span class="nc bnc" id="L858" title="All 2 branches missed.">                    for (ValidObservation ob : info.getFilteredObs()) {</span>
+<span class="nc" id="L859">                        obs.add(ob);</span>
+<span class="nc" id="L860">                    }</span>
+<span class="nc" id="L861">                    validObservationCategoryMap.put(SeriesType.Filtered, obs);</span>
+                }
+<span class="nc" id="L863">            }</span>
+
+            @Override
+            public boolean canBeRemoved() {
+<span class="nc" id="L867">                return false;</span>
+            }
+        };
+    }
+
+    // Returns a series creation listener that updates the observation
+    // category map and observation list with the series.
+    protected Listener&lt;SeriesCreationMessage&gt; createSeriesCreationListener() {
+<span class="fc" id="L875">        return new Listener&lt;SeriesCreationMessage&gt;() {</span>
+            @Override
+            public void update(SeriesCreationMessage msg) {
+                try {
+<span class="nc" id="L879">                    StarInfo info = getLatestNewStarMessage().getStarInfo();</span>
+<span class="nc" id="L880">                    info.getRetriever().collectAllObservations(msg.getObs(), info.getRetriever().getSourceName());</span>
+<span class="nc" id="L881">                } catch (ObservationReadError e) {</span>
+<span class="nc" id="L882">                    MessageBox.showErrorDialog(&quot;New Series&quot;, &quot;Invalid observations&quot;);</span>
+<span class="nc" id="L883">                }</span>
+<span class="nc" id="L884">            }</span>
+
+            @Override
+            public boolean canBeRemoved() {
+<span class="nc" id="L888">                return false;</span>
+            }
+        };
+    }
+
+    /**
+     * Change the mode of VStar's focus (i.e what is to be presented to the user).
+     * 
+     * @param viewMode The mode to change to.
+     */
+    public void changeViewMode(ViewModeType viewMode) {
+<span class="nc bnc" id="L899" title="All 2 branches missed.">        if (viewMode != this.viewMode) {</span>
+<span class="nc" id="L900">            this.viewMode = viewMode;</span>
+        }
+<span class="nc" id="L902">    }</span>
+
+    public ViewModeType getViewMode() {
+<span class="nc" id="L905">        return viewMode;</span>
+    }
+
+    // Dialog singleton getters
+
+    public PhaseParameterDialog getPhaseParameterDialog() {
+<span class="nc bnc" id="L911" title="All 2 branches missed.">        if (phaseParameterDialog == null) {</span>
+<span class="nc" id="L912">            phaseParameterDialog = new PhaseParameterDialog();</span>
+<span class="nc" id="L913">            newStarNotifier.addListener(phaseParameterDialog, true);</span>
+        }
+
+<span class="nc" id="L916">        return phaseParameterDialog;</span>
+    }
+
+    public ObservationFilterDialog getObsFilterDialog() {
+<span class="nc bnc" id="L920" title="All 2 branches missed.">        if (obsFilterDialog == null) {</span>
+<span class="nc" id="L921">            obsFilterDialog = new ObservationFilterDialog();</span>
+<span class="nc" id="L922">            newStarNotifier.addListener(obsFilterDialog.createNewStarListener(), true);</span>
+<span class="nc" id="L923">            observationSelectionNotifier.addListener(obsFilterDialog.createObservationSelectionListener(), true);</span>
+        }
+
+<span class="nc" id="L926">        return obsFilterDialog;</span>
+    }
+
+    public ModelDialog getModelDialog() {
+<span class="nc bnc" id="L930" title="All 2 branches missed.">        if (modelDialog == null) {</span>
+<span class="nc" id="L931">            modelDialog = new ModelDialog();</span>
+<span class="nc" id="L932">            newStarNotifier.addListener(modelDialog.createNewStarListener(), true);</span>
+<span class="nc" id="L933">            modelCreationNotifier.addListener(modelDialog.createModelCreationListener(), true);</span>
+        }
+
+<span class="nc" id="L936">        return modelDialog;</span>
+    }
+
+    public PhaseDialog getPhaseDialog() {
+<span class="nc bnc" id="L940" title="All 2 branches missed.">        if (phaseDialog == null) {</span>
+<span class="nc" id="L941">            phaseDialog = new PhaseDialog();</span>
+<span class="nc" id="L942">            newStarNotifier.addListener(phaseDialog.createNewStarListener(), true);</span>
+<span class="nc" id="L943">            phaseChangeNotifier.addListener(phaseDialog.createPhaseChangeListener(), true);</span>
+        }
+
+<span class="nc" id="L946">        return phaseDialog;</span>
+    }
+
+    public ObservationFiltersDialog getObservationFiltersDialog() {
+<span class="nc bnc" id="L950" title="All 2 branches missed.">        if (observationFiltersDialog == null) {</span>
+<span class="nc" id="L951">            observationFiltersDialog = new ObservationFiltersDialog();</span>
+<span class="nc" id="L952">            newStarNotifier.addListener(observationFiltersDialog.createNewStarListener(), true);</span>
+<span class="nc" id="L953">            filteredObservationNotifier.addListener(observationFiltersDialog.createFilterListener(), true);</span>
+        }
+
+<span class="nc" id="L956">        return observationFiltersDialog;</span>
+    }
+
+    public DocumentManager getDocumentManager() {
+<span class="nc bnc" id="L960" title="All 2 branches missed.">        if (documentManager == null) {</span>
+<span class="nc" id="L961">            documentManager = new DocumentManager();</span>
+<span class="nc" id="L962">            phaseChangeNotifier.addListener(documentManager.createPhaseChangeListener(), true);</span>
+        }
+
+<span class="nc" id="L965">        return documentManager;</span>
+    }
+
+    public UndoableActionManager getUndoableActionManager() {
+<span class="nc bnc" id="L969" title="All 2 branches missed.">        if (undoableActionManager == null) {</span>
+<span class="nc" id="L970">            undoableActionManager = new UndoableActionManager();</span>
+<span class="nc" id="L971">            newStarNotifier.addListener(undoableActionManager.createNewStarListener(), true);</span>
+<span class="nc" id="L972">            observationSelectionNotifier.addListener(undoableActionManager.createObservationSelectionListener(), true);</span>
+<span class="nc" id="L973">            multipleObservationSelectionNotifier</span>
+<span class="nc" id="L974">                    .addListener(undoableActionManager.createMultipleObservationSelectionListener(), true);</span>
+        }
+
+<span class="nc" id="L977">        return undoableActionManager;</span>
+    }
+
+    /**
+     * Get the object that has information about available series and observations
+     * pertaining thereto.
+     * 
+     * @return The series information provider.
+     */
+    public ISeriesInfoProvider getSeriesInfoProvider() {
+<span class="nc" id="L987">        return analysisTypeMap.get(AnalysisType.RAW_DATA).getObsAndMeanChartPane().getObsModel();</span>
+    }
+
+    /**
+     * Get the observation plot model for the specified analysis type.
+     * 
+     * @return The observation plot model.
+     */
+    public ObservationAndMeanPlotModel getObservationPlotModel(AnalysisType type) {
+<span class="nc" id="L996">        return analysisTypeMap.get(type).getObsAndMeanChartPane().getObsModel();</span>
+    }
+
+    /**
+     * Change the analysis type. If the old and new types are the same, there will
+     * be no effect.
+     * 
+     * @param analysisType The analysis type to change to.
+     */
+    public AnalysisType changeAnalysisType(AnalysisType analysisType) {
+<span class="nc bnc" id="L1006" title="All 2 branches missed.">        if (this.analysisType != analysisType) {</span>
+            try {
+                AnalysisTypeChangeMessage msg;
+
+<span class="nc bnc" id="L1010" title="All 3 branches missed.">                switch (analysisType) {</span>
+                case RAW_DATA:
+                    // Create or retrieve raw plots and data tables.
+                    // There has to be observations loaded already in order
+                    // to be able to switch to raw data analysis mode.
+<span class="nc" id="L1015">                    msg = this.analysisTypeMap.get(AnalysisType.RAW_DATA);</span>
+
+<span class="nc bnc" id="L1017" title="All 2 branches missed.">                    if (msg != null) {</span>
+<span class="nc" id="L1018">                        this.analysisType = analysisType;</span>
+<span class="nc" id="L1019">                        this.analysisTypeChangeNotifier.notifyListeners(msg);</span>
+<span class="nc" id="L1020">                        String statusMsg = &quot;Raw data mode (&quot;</span>
+<span class="nc" id="L1021">                                + this.getLatestNewStarMessage().getStarInfo().getDesignation() + &quot;)&quot;;</span>
+<span class="nc" id="L1022">                        Mediator.getUI().getStatusPane().setMessage(statusMsg);</span>
+<span class="nc" id="L1023">                    }</span>
+                    break;
+
+                case PHASE_PLOT:
+                    // Create or retrieve phase plots and data tables passing
+                    // the light curve's series visibility map for the first
+                    // phase plot.
+<span class="nc" id="L1030">                    msg = this.analysisTypeMap.get(AnalysisType.PHASE_PLOT);</span>
+
+<span class="nc bnc" id="L1032" title="All 2 branches missed.">                    if (msg == null) {</span>
+<span class="nc" id="L1033">                        createPhasePlot();</span>
+                    } else {
+                        // Change to the existing phase plot.
+<span class="nc" id="L1036">                        this.analysisType = analysisType;</span>
+<span class="nc" id="L1037">                        this.analysisTypeChangeNotifier.notifyListeners(msg);</span>
+<span class="nc" id="L1038">                        setPhasePlotStatusMessage();</span>
+                    }
+                    break;
+                }
+<span class="nc" id="L1042">            } catch (Exception e) {</span>
+<span class="nc" id="L1043">                MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;Analysis Type Change&quot;, e);</span>
+<span class="nc" id="L1044">            }</span>
+        }
+
+<span class="nc" id="L1047">        return this.analysisType;</span>
+    }
+
+    /**
+     * Set the status bar to display phase plot information.
+     */
+    public void setPhasePlotStatusMessage() {
+<span class="nc" id="L1054">        String statusMsg = &quot;Phase plot mode (&quot; + this.getLatestNewStarMessage().getStarInfo().getDesignation() + &quot;)&quot;;</span>
+<span class="nc" id="L1055">        Mediator.getUI().getStatusPane().setMessage(statusMsg);</span>
+<span class="nc" id="L1056">    }</span>
+
+    /**
+     * @return the analysisType
+     */
+    public AnalysisType getAnalysisType() {
+<span class="fc" id="L1062">        return analysisType;</span>
+    }
+
+    /**
+     * Remove messages and all listeners that are willing, from all notifiers, to
+     * ensure that no old, unnecessary listeners/messages remain from one new-star
+     * load to another. Such listeners could receive notifications that make no
+     * sense (e.g. location of an observation within a dataset) and guard against
+     * memory leaks.
+     */
+    private void freeListeners() {
+<span class="nc" id="L1073">        analysisTypeChangeNotifier.cleanup();</span>
+<span class="nc" id="L1074">        newStarNotifier.cleanup();</span>
+<span class="nc" id="L1075">        progressNotifier.cleanup();</span>
+<span class="nc" id="L1076">        discrepantObservationNotifier.cleanup();</span>
+<span class="nc" id="L1077">        excludedObservationNotifier.cleanup();</span>
+<span class="nc" id="L1078">        observationSelectionNotifier.cleanup();</span>
+<span class="nc" id="L1079">        multipleObservationSelectionNotifier.cleanup();</span>
+<span class="nc" id="L1080">        periodAnalysisSelectionNotifier.cleanup();</span>
+<span class="nc" id="L1081">        periodChangeNotifier.cleanup();</span>
+<span class="nc" id="L1082">        phaseChangeNotifier.cleanup();</span>
+<span class="nc" id="L1083">        phaseSelectionNotifier.cleanup();</span>
+<span class="nc" id="L1084">        periodAnalysisRefinementNotifier.cleanup();</span>
+<span class="nc" id="L1085">        meanSourceSeriesChangeNotifier.cleanup();</span>
+<span class="nc" id="L1086">        zoomRequestNotifier.cleanup();</span>
+<span class="nc" id="L1087">        filteredObservationNotifier.cleanup();</span>
+<span class="nc" id="L1088">        modelSelectionNofitier.cleanup();</span>
+<span class="nc" id="L1089">        modelCreationNotifier.cleanup();</span>
+<span class="nc" id="L1090">        panRequestNotifier.cleanup();</span>
+<span class="nc" id="L1091">        undoActionNotifier.cleanup();</span>
+<span class="nc" id="L1092">        stopRequestNotifier.cleanup();</span>
+<span class="nc" id="L1093">        seriesVisibilityChangeNotifier.cleanup();</span>
+<span class="nc" id="L1094">        harmonicSearchNotifier.cleanup();</span>
+<span class="nc" id="L1095">        observationSelectionNotifier.cleanup();</span>
+<span class="nc" id="L1096">    }</span>
+
+    /**
+     * Creates and executes a background task to handle
+     * new-star-from-external-source-plugin.
+     * 
+     * @param obSourcePlugin The plugin that will be used to obtain observations.
+     */
+    public void createObservationArtefactsFromObSourcePlugin(ObservationSourcePluginBase obSourcePlugin) {
+
+<span class="nc" id="L1106">        this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+<span class="nc" id="L1107">        this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);</span>
+
+<span class="nc" id="L1109">        NewStarFromObSourcePluginTask task = new NewStarFromObSourcePluginTask(obSourcePlugin);</span>
+<span class="nc" id="L1110">        this.currTask = task;</span>
+<span class="nc" id="L1111">        task.configure();</span>
+<span class="nc bnc" id="L1112" title="All 2 branches missed.">        if (task.isConfigured()) {</span>
+<span class="nc" id="L1113">            task.execute();</span>
+        }
+<span class="nc" id="L1115">        task.done();</span>
+<span class="nc" id="L1116">    }</span>
+
+    /**
+     * Creates and executes a background task to handle
+     * new-star-from-external-source-plugin when a file is supplied.
+     * 
+     * @param obSourcePlugin The plugin that will be used to obtain observations.
+     * @param file           The file to used as input.
+     * @param isAdditive     Is this an additive load?
+     */
+    public void createObservationArtefactsFromObSourcePlugin(ObservationSourcePluginBase obSourcePlugin, File file,
+            boolean isAdditive) throws IOException, ObservationReadError {
+
+<span class="nc" id="L1129">        this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+<span class="nc" id="L1130">        this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);</span>
+
+<span class="nc" id="L1132">        NewStarFromObSourcePluginWithSuppliedFileTask task = new NewStarFromObSourcePluginWithSuppliedFileTask(</span>
+                obSourcePlugin, file, isAdditive);
+<span class="nc" id="L1134">        this.currTask = task;</span>
+<span class="nc" id="L1135">        task.execute();</span>
+<span class="nc" id="L1136">    }</span>
+
+    /**
+     * Creates and executes a background task to handle
+     * new-star-from-external-source-plugin when a URL is supplied.
+     * 
+     * @param obSourcePlugin The plugin that will be used to obtain observations.
+     * @param url            The URL to used as input.
+     * @param isAdditive     Is this an additive load?
+     */
+    public void createObservationArtefactsFromObSourcePlugin(ObservationSourcePluginBase obSourcePlugin, URL url,
+            boolean isAdditive) throws IOException, ObservationReadError {
+
+<span class="nc" id="L1149">        this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+<span class="nc" id="L1150">        this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);</span>
+
+<span class="nc" id="L1152">        NewStarFromObSourcePluginWithSuppliedURLTask task = new NewStarFromObSourcePluginWithSuppliedURLTask(</span>
+                obSourcePlugin, url, isAdditive);
+<span class="nc" id="L1154">        this.currTask = task;</span>
+<span class="nc" id="L1155">        task.execute();</span>
+<span class="nc" id="L1156">    }</span>
+
+    /**
+     * Create observation artefacts (models, GUI elements) on the assumption that a
+     * valid observation list and category map have already been created.
+     * 
+     * @param newStarType               The new star enum type.
+     * @param starInfo                  Information about the star, e.g. name
+     *                                  (designation), AUID (for AID), period,
+     *                                  epoch, including observation retriever.
+     * @param obsArtefactProgressAmount The amount the progress bar should be
+     *                                  incremented by, a value corresponding to a
+     *                                  portion of the overall task of which this is
+     *                                  just a part.
+     * @param addObs                    Should the observations be added to the
+     *                                  existing loaded dataset?
+     */
+    public void createNewStarObservationArtefacts(NewStarType newStarType, StarInfo starInfo,
+            int obsArtefactProgressAmount, boolean addObs) throws ObservationReadError {
+
+        // Given raw valid and invalid observation data, create observation
+        // table and plot models, along with corresponding GUI components.
+
+        // Handle additive load if requested and observations are already
+        // loaded, otherwise, initialise the document manager.
+<span class="nc bnc" id="L1181" title="All 4 branches missed.">        if (addObs &amp;&amp; getLatestNewStarMessage() != null) {</span>
+            // convertObsToHJD(starInfo);
+
+<span class="nc" id="L1184">            starInfo.getRetriever().collectAllObservations(validObsList, starInfo.getRetriever().getSourceName());</span>
+
+<span class="nc" id="L1186">            starInfo.getRetriever().addAllInvalidObservations(invalidObsList);</span>
+
+            // If any loaded data source type is different from the current data
+            // source type, use arbitrary data source type that accommodates any
+            // data source type. We should change this so that all data sources
+            // have the same type!
+<span class="nc bnc" id="L1192" title="All 2 branches missed.">            for (NewStarMessage msg : getNewStarMessageList()) {</span>
+<span class="nc bnc" id="L1193" title="All 2 branches missed.">                if (msg.getNewStarType() != newStarType) {</span>
+<span class="nc" id="L1194">                    newStarType = NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;</span>
+<span class="nc" id="L1195">                    break;</span>
+                }
+<span class="nc" id="L1197">            }</span>
+        } else {
+<span class="nc" id="L1199">            getDocumentManager().init();</span>
+        }
+
+<span class="nc" id="L1202">        List&lt;ValidObservation&gt; validObsList = starInfo.getRetriever().getValidObservations();</span>
+
+<span class="nc" id="L1204">        List&lt;InvalidObservation&gt; invalidObsList = starInfo.getRetriever().getInvalidObservations();</span>
+
+<span class="nc" id="L1206">        Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; newObsCategoryMap = starInfo.getRetriever()</span>
+<span class="nc" id="L1207">                .getValidObservationCategoryMap();</span>
+
+        // Table models.
+<span class="nc" id="L1210">        validObsTableModel = null;</span>
+<span class="nc" id="L1211">        InvalidObservationTableModel invalidObsTableModel = null;</span>
+<span class="nc" id="L1212">        RawDataMeanObservationTableModel meanObsTableModel = null;</span>
+
+        // Plot models.
+<span class="nc" id="L1215">        obsAndMeanPlotModel = null;</span>
+
+        // GUI table and chart components.
+<span class="nc" id="L1218">        ObservationListPane obsListPane = null;</span>
+<span class="nc" id="L1219">        SyntheticObservationListPane&lt;AbstractMeanObservationTableModel&gt; meansListPane = null;</span>
+<span class="nc" id="L1220">        ObservationAndMeanPlotPane obsAndMeanChartPane = null;</span>
+
+<span class="nc bnc" id="L1222" title="All 2 branches missed.">        if (!validObsList.isEmpty()) {</span>
+
+<span class="nc" id="L1224">            freeListeners();</span>
+
+<span class="nc bnc" id="L1226" title="All 2 branches missed.">            if (!addObs) {</span>
+<span class="nc" id="L1227">                newStarMessageList.clear();</span>
+            } else {
+                // Exclude all but the most recent new star message if the newly
+                // loaded dataset's series+observations are the same as that
+                // of any previously loaded dataset.
+<span class="nc" id="L1232">                List&lt;NewStarMessage&gt; dupMessages = new ArrayList&lt;NewStarMessage&gt;();</span>
+
+<span class="nc bnc" id="L1234" title="All 2 branches missed.">                for (NewStarMessage msg : getNewStarMessageList()) {</span>
+                    // We need to check that both SeriesType and the corresponding observations are
+                    // the same.
+<span class="nc bnc" id="L1237" title="All 2 branches missed.">                    if (newObsCategoryMap.entrySet().equals(msg.getObsCategoryMap().entrySet())) {</span>
+<span class="nc" id="L1238">                        dupMessages.add(msg);</span>
+                    }
+<span class="nc" id="L1240">                }</span>
+
+<span class="nc bnc" id="L1242" title="All 2 branches missed.">                for (NewStarMessage msg : dupMessages) {</span>
+<span class="nc" id="L1243">                    newStarMessageList.remove(msg);</span>
+<span class="nc" id="L1244">                }</span>
+            }
+
+            // Create a message to notify whoever is listening that a new star
+            // has been loaded.
+<span class="nc" id="L1249">            NewStarMessage newStarMsg = new NewStarMessage(newStarType, starInfo, validObsList, newObsCategoryMap,</span>
+<span class="nc" id="L1250">                    starInfo.getRetriever().getMinMag(), starInfo.getRetriever().getMaxMag(),</span>
+<span class="nc" id="L1251">                    starInfo.getRetriever().getSourceName());</span>
+
+<span class="nc" id="L1253">            newStarMessageList.add(newStarMsg);</span>
+
+            // This is a specific fix for tracker 3007948.
+<span class="nc" id="L1256">            this.discrepantObservationNotifier = new Notifier&lt;DiscrepantObservationMessage&gt;();</span>
+
+            // Observation table and plot.
+<span class="nc" id="L1259">            validObsTableModel = new ValidObservationTableModel(newObsCategoryMap, validObsList,</span>
+<span class="nc" id="L1260">                    newStarType.getRawDataTableColumnInfoSource());</span>
+
+            // Observation-and-mean table and plot.
+<span class="nc" id="L1263">            obsAndMeanPlotModel = new ObservationAndMeanPlotModel(newObsCategoryMap, JDCoordSource.instance,</span>
+                    JDComparator.instance, JDTimeElementEntity.instance, null);
+
+            if (false) {
+                // Record initial ANOVA information and make the document
+                // manager
+                // listen to changes to ANOVA via new binning results.
+                getDocumentManager().updateAnovaInfo(obsAndMeanPlotModel.getBinningResult());
+            }
+
+<span class="nc" id="L1273">            obsAndMeanPlotModel.getMeansChangeNotifier().addListener(getDocumentManager().createBinChangeListener());</span>
+
+<span class="nc" id="L1275">            getDocumentManager().addStatsInfo(&quot;Confidence Interval&quot;,</span>
+                    &quot;Mean error bars denote 95% Confidence Interval (twice Standard Error)&quot;);
+
+            String plotName;
+<span class="nc" id="L1279">            String designation = starInfo.getDesignation();</span>
+            // If star's designation starts with '^', do not prefix it with &quot;Light Curve
+            // for&quot;
+<span class="nc bnc" id="L1282" title="All 6 branches missed.">            if (designation != null &amp;&amp; designation.length() &gt; 0 &amp;&amp; &quot;^&quot;.equals(designation.substring(0, 1)))</span>
+<span class="nc" id="L1283">                plotName = designation.substring(1);</span>
+            else
+<span class="nc" id="L1285">                plotName = LocaleProps.get(&quot;LIGHT_CURVE&quot;) + &quot; &quot; + LocaleProps.get(&quot;FOR&quot;) + &quot; &quot; + designation;</span>
+<span class="nc" id="L1286">            obsAndMeanChartPane = createObservationAndMeanPlotPane(plotName, null, obsAndMeanPlotModel,</span>
+<span class="nc" id="L1287">                    starInfo.getRetriever());</span>
+
+<span class="nc" id="L1289">            obsAndMeanPlotModel.getMeansChangeNotifier()</span>
+<span class="nc" id="L1290">                    .addListener(createMeanObsChangeListener(obsAndMeanPlotModel.getMeanSourceSeriesNum()));</span>
+
+            // The mean observation table model must listen to the plot
+            // model to know when the means data has changed. We also pass
+            // the initial means data obtained from the plot model to
+            // the mean observation table model.
+<span class="nc" id="L1296">            meanObsTableModel = new RawDataMeanObservationTableModel(obsAndMeanPlotModel.getMeanObsList());</span>
+
+<span class="nc" id="L1298">            obsAndMeanPlotModel.getMeansChangeNotifier().addListener(meanObsTableModel);</span>
+
+<span class="nc bnc" id="L1300" title="All 2 branches missed.">            if (obsArtefactProgressAmount &gt; 0) {</span>
+                // Update progress.
+<span class="nc" id="L1302">                getProgressNotifier()</span>
+<span class="nc" id="L1303">                        .notifyListeners(new ProgressInfo(ProgressType.INCREMENT_PROGRESS, obsArtefactProgressAmount));</span>
+            }
+
+<span class="nc bnc" id="L1306" title="All 2 branches missed.">            if (!invalidObsList.isEmpty()) {</span>
+<span class="nc" id="L1307">                invalidObsTableModel = new InvalidObservationTableModel(invalidObsList);</span>
+            }
+
+            // The observation table pane contains valid and potentially
+            // invalid data components. Tell the valid data table to have
+            // a horizontal scrollbar if there will be too many columns.
+
+<span class="nc bnc" id="L1314" title="All 6 branches missed.">            boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE</span>
+                    || (newStarType == NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE &amp;&amp; !addObs);
+
+<span class="nc" id="L1317">            obsListPane = new ObservationListPane(starInfo.getDesignation(), validObsTableModel, invalidObsTableModel,</span>
+<span class="nc" id="L1318">                    enableColumnAutoResize, obsAndMeanPlotModel.getVisibleSeries(), AnalysisType.RAW_DATA);</span>
+
+            // We also create the means list pane.
+<span class="nc" id="L1321">            meansListPane = new SyntheticObservationListPane&lt;AbstractMeanObservationTableModel&gt;(meanObsTableModel,</span>
+                    null);
+
+            // Create a message to notify whoever is listening that the analysis
+            // type has changed (we could have been viewing a phase plot for a
+            // different star before now) passing GUI components in the message.
+<span class="nc" id="L1327">            analysisType = AnalysisType.RAW_DATA;</span>
+
+<span class="nc" id="L1329">            AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(analysisType, obsAndMeanChartPane,</span>
+                    obsListPane, meansListPane, ViewModeType.PLOT_OBS_MODE);
+
+            // Commit to using the new observation lists and category map,
+            // first making old values available for garbage collection.
+            // TODO: It would be worth considering doing this at the start
+            // of this method, not at the end, so more memory is free.
+
+<span class="nc bnc" id="L1337" title="All 2 branches missed.">            if (this.validObsList != null) {</span>
+<span class="nc" id="L1338">                this.validObsList.clear();</span>
+            }
+
+<span class="nc bnc" id="L1341" title="All 2 branches missed.">            if (this.invalidObsList != null) {</span>
+<span class="nc" id="L1342">                this.invalidObsList.clear();</span>
+            }
+
+<span class="nc bnc" id="L1345" title="All 2 branches missed.">            if (this.validObservationCategoryMap != null) {</span>
+<span class="nc" id="L1346">                this.validObservationCategoryMap.clear();</span>
+            }
+
+<span class="nc bnc" id="L1349" title="All 2 branches missed.">            if (this.phasedValidObservationCategoryMap != null) {</span>
+                // In case we did a phase plot, free this up.
+<span class="nc" id="L1351">                this.phasedValidObservationCategoryMap.clear();</span>
+<span class="nc" id="L1352">                this.phasedValidObservationCategoryMap = null;</span>
+            }
+
+            // Throw away old artefacts from raw and phase plot,
+            // if there was (at least) one.
+<span class="nc" id="L1357">            analysisTypeMap.clear();</span>
+<span class="nc" id="L1358">            analysisTypeMap.put(analysisType, analysisTypeMsg);</span>
+
+            // Suggest garbage collection.
+<span class="nc" id="L1361">            System.gc();</span>
+
+            // Store new data.
+<span class="nc" id="L1364">            this.validObsList = validObsList;</span>
+<span class="nc" id="L1365">            this.invalidObsList = invalidObsList;</span>
+<span class="nc" id="L1366">            this.validObservationCategoryMap = newObsCategoryMap;</span>
+
+            // Notify listeners of new star and analysis type.
+<span class="nc" id="L1369">            newStarNotifier.notifyListeners(getLatestNewStarMessage());</span>
+<span class="nc" id="L1370">            analysisTypeChangeNotifier.notifyListeners(analysisTypeMsg);</span>
+        }
+<span class="nc" id="L1372">    }</span>
+
+    // Request the J2000.0 RA in HH:MM:SS.n
+    public RAInfo requestRA(RAInfo ra) {
+<span class="nc" id="L1376">        Integer h = null;</span>
+<span class="nc" id="L1377">        Integer m = null;</span>
+<span class="nc" id="L1378">        Double s = null;</span>
+
+<span class="nc bnc" id="L1380" title="All 2 branches missed.">        if (ra != null) {</span>
+<span class="nc" id="L1381">            Triple&lt;Integer, Integer, Double&gt; hms = ra.toHMS();</span>
+<span class="nc" id="L1382">            h = hms.first;</span>
+<span class="nc" id="L1383">            m = hms.second;</span>
+<span class="nc" id="L1384">            s = hms.third;</span>
+        }
+
+<span class="nc" id="L1387">        IntegerField raHours = new IntegerField(&quot;Hours&quot;, 0, 23, h);</span>
+<span class="nc" id="L1388">        IntegerField raMinutes = new IntegerField(&quot;Minutes&quot;, 0, 59, m);</span>
+<span class="nc" id="L1389">        DoubleField raSeconds = new DoubleField(&quot;Seconds&quot;, 0.0, 59.99, s);</span>
+<span class="nc" id="L1390">        MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(&quot;RA (&quot; + EpochType.J2000 + &quot;)&quot;, raHours,</span>
+                raMinutes, raSeconds);
+
+<span class="nc" id="L1393">        RAInfo raInfo = null;</span>
+<span class="nc bnc" id="L1394" title="All 2 branches missed.">        if (!dialog.isCancelled()) {</span>
+<span class="nc" id="L1395">            raInfo = new RAInfo(EpochType.J2000, raHours.getValue(), raMinutes.getValue(), raSeconds.getValue());</span>
+        }
+
+<span class="nc" id="L1398">        return raInfo;</span>
+    }
+
+    // Request the J2000.0 RA in HH:MM:SS.n
+    public RAInfo requestRA() {
+<span class="nc" id="L1403">        return requestRA(null);</span>
+    }
+
+    // Request the J2000.0 Dec in DD:MM:SS.n
+    public DecInfo requestDec(DecInfo dec) {
+<span class="nc" id="L1408">        Integer d = null;</span>
+<span class="nc" id="L1409">        Integer m = null;</span>
+<span class="nc" id="L1410">        Double s = null;</span>
+
+<span class="nc bnc" id="L1412" title="All 2 branches missed.">        if (dec != null) {</span>
+<span class="nc" id="L1413">            Triple&lt;Integer, Integer, Double&gt; dms = dec.toDMS();</span>
+<span class="nc" id="L1414">            d = dms.first;</span>
+<span class="nc" id="L1415">            m = dms.second;</span>
+<span class="nc" id="L1416">            s = dms.third;</span>
+        }
+
+<span class="nc" id="L1419">        IntegerField decDegrees = new IntegerField(&quot;Degrees&quot;, -90, 90, d);</span>
+<span class="nc" id="L1420">        IntegerField decMinutes = new IntegerField(&quot;Minutes&quot;, 0, 59, m);</span>
+<span class="nc" id="L1421">        DoubleField decSeconds = new DoubleField(&quot;Seconds&quot;, 0.0, 59.99, s);</span>
+
+        DecInfo decInfo;
+        while (true) {
+<span class="nc" id="L1425">            decInfo = null;</span>
+<span class="nc" id="L1426">            MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(&quot;Dec (&quot; + EpochType.J2000 + &quot;)&quot;,</span>
+                    decDegrees, decMinutes, decSeconds);
+<span class="nc bnc" id="L1428" title="All 2 branches missed.">            if (dialog.isCancelled())</span>
+<span class="nc" id="L1429">                break;</span>
+<span class="nc" id="L1430">            decInfo = new DecInfo(EpochType.J2000, decDegrees.getValue(), decMinutes.getValue(), decSeconds.getValue());</span>
+
+<span class="nc" id="L1432">            double degrees = decInfo.toDegrees();</span>
+
+            // If Degrees = 90 and Min or Sec &gt; 0, the resulted value is out of range.
+<span class="nc bnc" id="L1435" title="All 4 branches missed.">            if (degrees &gt;= -90.0 &amp;&amp; degrees &lt;= 90.0)</span>
+<span class="nc" id="L1436">                break;</span>
+
+<span class="nc" id="L1438">            MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;Error&quot;,</span>
+                    &quot;Please check input: Dec must be between -90.0 and 90.0&quot;);
+<span class="nc" id="L1440">        }</span>
+
+<span class="nc" id="L1442">        return decInfo;</span>
+    }
+
+    // Request the J2000.0 Dec in DD:MM:SS.n
+    public DecInfo requestDec() {
+<span class="nc" id="L1447">        return requestDec(null);</span>
+    }
+
+    /**
+     * Convert the specified observations to use HJD (if not already) rather than
+     * JD.
+     * 
+     * @param obs The list of observations to be converted.
+     * @param ra  The RA for the object.
+     * @param dec The Dec for the object.
+     * @return The number of observations converted.
+     */
+    public int convertObsToHJD(List&lt;ValidObservation&gt; obs, RAInfo ra, DecInfo dec) {
+<span class="nc" id="L1460">        int count = 0;</span>
+
+<span class="nc" id="L1462">        AbstractHJDConverter converter = AbstractHJDConverter.getInstance(ra.getEpoch());</span>
+
+<span class="nc bnc" id="L1464" title="All 2 branches missed.">        for (ValidObservation ob : obs) {</span>
+<span class="nc bnc" id="L1465" title="All 2 branches missed.">            if (ob.getJDflavour() == JDflavour.JD) {</span>
+<span class="nc" id="L1466">                ob.setJD(converter.convert(ob.getJD(), ra, dec));</span>
+<span class="nc" id="L1467">                ob.setJDflavour(JDflavour.HJD);</span>
+<span class="nc" id="L1468">                count++;</span>
+            }
+<span class="nc" id="L1470">        }</span>
+
+<span class="nc" id="L1472">        return count;</span>
+    }
+
+    /**
+     * Create phase plot artefacts, adding them to the analysis type map and
+     * returning this message.
+     * 
+     * @param period              The requested period of the phase plot.
+     * @param epoch               The epoch (first Julian Date) for the phase plot.
+     * @param seriesVisibilityMap A mapping from series number to visibility status.
+     * @return An analysis type message consisting of phase plot artefacts.
+     */
+    public AnalysisTypeChangeMessage createPhasePlotArtefacts(double period, double epoch,
+            Map&lt;SeriesType, Boolean&gt; seriesVisibilityMap) throws Exception {
+<span class="nc" id="L1486">        String objName = getLatestNewStarMessage().getStarInfo().getDesignation();</span>
+
+<span class="nc" id="L1488">        String subTitle = &quot;&quot;;</span>
+<span class="nc" id="L1489">        String periodAndEpochStr = String.format(</span>
+<span class="nc" id="L1490">                LocaleProps.get(&quot;PERIOD&quot;) + &quot;: %s, &quot; + LocaleProps.get(&quot;EPOCH&quot;) + &quot;: %s&quot;,</span>
+<span class="nc" id="L1491">                NumericPrecisionPrefs.formatOther(period), NumericPrecisionPrefs.formatTime(epoch));</span>
+
+<span class="nc bnc" id="L1493" title="All 2 branches missed.">        if (this.getLatestNewStarMessage().getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {</span>
+<span class="nc" id="L1494">            Date now = Calendar.getInstance().getTime();</span>
+<span class="nc" id="L1495">            String formattedDate = DateFormat.getDateInstance().format(now);</span>
+<span class="nc" id="L1496">            subTitle = formattedDate + &quot; (&quot; + LocaleProps.get(&quot;DATABASE&quot;) + &quot;), &quot; + periodAndEpochStr;</span>
+<span class="nc" id="L1497">        } else {</span>
+<span class="nc" id="L1498">            subTitle = periodAndEpochStr;</span>
+        }
+
+        // Here we modify the underlying ValidObservation objects which will
+        // affect both validObsList and validObservationCategoryMap. Some
+        // series are not in the main observation list, only in the map
+        // (e.g. model, residuals, filtered obs), so we handle those separately.
+<span class="nc" id="L1505">        PhaseCalcs.setPhases(validObsList, epoch, period);</span>
+<span class="nc" id="L1506">        setPhasesForSeries(SeriesType.Model, epoch, period);</span>
+<span class="nc" id="L1507">        setPhasesForSeries(SeriesType.Residuals, epoch, period);</span>
+<span class="nc" id="L1508">        setPhasesForSeries(SeriesType.Filtered, epoch, period);</span>
+
+        // We duplicate the valid observation category map
+        // so that it can vary from the main plot's over time.
+        // TODO: but is it ever mutated in the plot models? is it enough to
+        // duplicate and sort means?
+<span class="nc" id="L1514">        Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; phasedValidObservationCategoryMap = new TreeMap&lt;SeriesType, List&lt;ValidObservation&gt;&gt;();</span>
+
+<span class="nc bnc" id="L1516" title="All 2 branches missed.">        for (SeriesType series : validObservationCategoryMap.keySet()) {</span>
+<span class="nc" id="L1517">            List&lt;ValidObservation&gt; obs = validObservationCategoryMap.get(series);</span>
+
+<span class="nc" id="L1519">            List&lt;ValidObservation&gt; phasedObs = new ArrayList&lt;ValidObservation&gt;(obs);</span>
+
+<span class="nc" id="L1521">            Collections.sort(phasedObs, StandardPhaseComparator.instance);</span>
+
+<span class="nc" id="L1523">            phasedValidObservationCategoryMap.put(series, phasedObs);</span>
+<span class="nc" id="L1524">        }</span>
+
+        // TODO:
+        // o fix occurrences of obs doubling and just copy and sort
+        // o indeed: is this needed now anyway? see plot model/pane code
+
+        // Table and plot models.
+<span class="nc" id="L1531">        ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(</span>
+                phasedValidObservationCategoryMap, validObsList, // TODO: phased obs?
+<span class="nc" id="L1533">                getLatestNewStarMessage().getNewStarType().getPhasePlotTableColumnInfoSource());</span>
+
+        // Observation-and-mean plot and table.
+<span class="nc" id="L1536">        ContinuousModelFunction rawModelFuncModel = obsAndMeanPlotModel.getModelFunction();</span>
+
+<span class="nc" id="L1538">        ContinuousModelFunction prevCyclePhaseModelFuncModel = null;</span>
+<span class="nc" id="L1539">        ContinuousModelFunction stdPhaseModelFuncModel = null;</span>
+<span class="nc" id="L1540">        int modelFuncSeriesNum = ObservationAndMeanPlotModel.NO_SERIES;</span>
+
+<span class="nc bnc" id="L1542" title="All 2 branches missed.">        if (rawModelFuncModel != null) {</span>
+            // Use sorted fit from category map; this will also be compatible,
+            // order-wise, with previous cycle phase.
+<span class="nc" id="L1545">            List&lt;ValidObservation&gt; phasedFit = phasedValidObservationCategoryMap.get(SeriesType.Model);</span>
+
+<span class="nc" id="L1547">            prevCyclePhaseModelFuncModel = new ContinuousModelFunction(rawModelFuncModel.getFunction(), phasedFit,</span>
+<span class="nc" id="L1548">                    rawModelFuncModel.getZeroPoint(), PreviousCyclePhaseCoordSource.instance);</span>
+
+<span class="nc" id="L1550">            stdPhaseModelFuncModel = new ContinuousModelFunction(rawModelFuncModel.getFunction(), phasedFit,</span>
+<span class="nc" id="L1551">                    rawModelFuncModel.getZeroPoint(), StandardPhaseCoordSource.instance);</span>
+
+<span class="nc" id="L1553">            modelFuncSeriesNum = obsAndMeanPlotModel.getModelFunctionSeriesNum();</span>
+        }
+
+<span class="nc" id="L1556">        PhasedObservationAndMeanPlotModel obsAndMeanPlotModel1 = new PhasedObservationAndMeanPlotModel(</span>
+                phasedValidObservationCategoryMap, PreviousCyclePhaseCoordSource.instance,
+                PreviousCyclePhaseComparator.instance, PhaseTimeElementEntity.instance, seriesVisibilityMap,
+                prevCyclePhaseModelFuncModel, modelFuncSeriesNum);
+
+<span class="nc bnc" id="L1561" title="All 2 branches missed.">        if (prevCyclePhaseModelFuncModel != null) {</span>
+<span class="nc" id="L1562">            prevCyclePhaseModelFuncModel.setPpModel(obsAndMeanPlotModel1);</span>
+        }
+
+<span class="nc" id="L1565">        PhasedObservationAndMeanPlotModel obsAndMeanPlotModel2 = new PhasedObservationAndMeanPlotModel(</span>
+                phasedValidObservationCategoryMap, StandardPhaseCoordSource.instance, StandardPhaseComparator.instance,
+                PhaseTimeElementEntity.instance, seriesVisibilityMap, stdPhaseModelFuncModel, modelFuncSeriesNum);
+
+<span class="nc bnc" id="L1569" title="All 2 branches missed.">        if (stdPhaseModelFuncModel != null) {</span>
+<span class="nc" id="L1570">            stdPhaseModelFuncModel.setPpModel(obsAndMeanPlotModel2);</span>
+        }
+
+        // Select an arbitrary model for mean.
+<span class="nc" id="L1574">        obsAndMeanPlotModel = obsAndMeanPlotModel1;</span>
+
+        // The mean observation table model must listen to the plot
+        // model to know when the means data has changed. We also pass
+        // the initial means data obtained from the plot model to
+        // the mean observation table model.
+<span class="nc" id="L1580">        PhasePlotMeanObservationTableModel meanObsTableModel = new PhasePlotMeanObservationTableModel(</span>
+<span class="nc" id="L1581">                obsAndMeanPlotModel1.getMeanObsList());</span>
+
+<span class="nc" id="L1583">        obsAndMeanPlotModel1.getMeansChangeNotifier().addListener(meanObsTableModel);</span>
+
+<span class="nc" id="L1585">        obsAndMeanPlotModel2.getMeansChangeNotifier().addListener(meanObsTableModel);</span>
+
+        // If star's name starts with '^', remove the first char (see &quot;LIGHT_CURVE&quot;)
+<span class="nc bnc" id="L1588" title="All 6 branches missed.">        if (objName != null &amp;&amp; objName.length() &gt; 0 &amp;&amp; &quot;^&quot;.equals(objName.substring(0, 1)))</span>
+<span class="nc" id="L1589">            objName = objName.substring(1);</span>
+<span class="nc" id="L1590">        PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(</span>
+<span class="nc" id="L1591">                LocaleProps.get(&quot;PHASE_PLOT&quot;) + &quot; &quot; + LocaleProps.get(&quot;FOR&quot;) + &quot; &quot; + objName, subTitle,</span>
+                obsAndMeanPlotModel1, obsAndMeanPlotModel2, epoch, period,
+<span class="nc" id="L1593">                getLatestNewStarMessage().getStarInfo().getRetriever());</span>
+
+        // The observation table pane contains valid and potentially
+        // invalid data components but for phase plot purposes, we only
+        // display valid data, as opposed to the raw data view in which
+        // both are shown. Tell the valid data table to have a horizontal
+        // scrollbar if there will be too many columns.
+<span class="nc" id="L1600">        boolean enableColumnAutoResize = getLatestNewStarMessage()</span>
+<span class="nc bnc" id="L1601" title="All 2 branches missed.">                .getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE</span>
+<span class="nc bnc" id="L1602" title="All 2 branches missed.">                || getLatestNewStarMessage().getNewStarType() == NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;</span>
+
+<span class="nc" id="L1604">        ObservationListPane obsListPane = new ObservationListPane(objName, validObsTableModel, null,</span>
+<span class="nc" id="L1605">                enableColumnAutoResize, obsAndMeanPlotModel1.getVisibleSeries(), AnalysisType.PHASE_PLOT);</span>
+
+<span class="nc" id="L1607">        SyntheticObservationListPane&lt;AbstractMeanObservationTableModel&gt; meansListPane = new SyntheticObservationListPane&lt;AbstractMeanObservationTableModel&gt;(</span>
+                meanObsTableModel, null);
+
+        // Create a phase change message so that existing plot and tables can
+        // update their GUI components and/or models accordingly. Also,
+        // recording the series visibility map permits the existence of a phase
+        // change creation listener that collects phase change messages for the
+        // purpose of later being able to re-create the same phase plot.
+<span class="nc" id="L1615">        PhaseChangeMessage phaseChangeMessage = new PhaseChangeMessage(this, period, epoch, seriesVisibilityMap);</span>
+<span class="nc" id="L1616">        phaseChangeNotifier.notifyListeners(phaseChangeMessage);</span>
+
+        // Observation-and-mean table and plot.
+<span class="nc" id="L1619">        AnalysisTypeChangeMessage phasePlotMsg = new AnalysisTypeChangeMessage(AnalysisType.PHASE_PLOT,</span>
+                obsAndMeanChartPane, obsListPane, meansListPane, ViewModeType.PLOT_OBS_MODE);
+
+<span class="nc" id="L1622">        analysisTypeMap.put(AnalysisType.PHASE_PLOT, phasePlotMsg);</span>
+
+<span class="nc" id="L1624">        analysisTypeChangeNotifier.notifyListeners(phasePlotMsg);</span>
+
+<span class="nc" id="L1626">        return phasePlotMsg;</span>
+    }
+
+    /**
+     * Set the phases for a particular series in the observation category map.
+     * 
+     * @param type   The series type of the observations whose phases are to be set.
+     * @param epoch  The epoch to use for the phase calculation.
+     * @param period The period to use for the phase calculation.
+     */
+    public void setPhasesForSeries(SeriesType type, double epoch, double period) {
+<span class="nc bnc" id="L1637" title="All 2 branches missed.">        if (validObservationCategoryMap.containsKey(type)) {</span>
+<span class="nc" id="L1638">            List&lt;ValidObservation&gt; obs = validObservationCategoryMap.get(type);</span>
+<span class="nc" id="L1639">            PhaseCalcs.setPhases(obs, epoch, period);</span>
+        }
+<span class="nc" id="L1641">    }</span>
+
+    /**
+     * Block, waiting for a job to complete. We only want to block if there is a
+     * concurrent task in progress.
+     */
+    public void waitForJobCompletion() {
+<span class="nc bnc" id="L1648" title="All 4 branches missed.">        if (currTask != null &amp;&amp; !currTask.isDone()) {</span>
+            try {
+<span class="nc" id="L1650">                currTask.get();</span>
+<span class="nc" id="L1651">            } catch (InterruptedException e) {</span>
+<span class="nc" id="L1652">            } catch (ExecutionException e) {</span>
+<span class="nc" id="L1653">            }</span>
+        }
+<span class="nc" id="L1655">    }</span>
+
+    /**
+     * Attempt to stop the current task.
+     */
+    public void stopCurrentTask() {
+<span class="nc bnc" id="L1661" title="All 2 branches missed.">        if (this.currTask != null) {</span>
+<span class="nc" id="L1662">            this.currTask.cancel(true);</span>
+        }
+<span class="nc" id="L1664">    }</span>
+
+    /**
+     * Clear the current task if not already cleared.
+     */
+    public void clearCurrentTask() {
+<span class="nc bnc" id="L1670" title="All 2 branches missed.">        if (this.currTask != null) {</span>
+<span class="nc" id="L1671">            this.currTask = null;</span>
+        }
+<span class="nc" id="L1673">    }</span>
+
+    /**
+     * Create the observation-and-mean plot pane for the current list of valid
+     * observations.
+     */
+    private ObservationAndMeanPlotPane createObservationAndMeanPlotPane(String plotName, String subTitle,
+            ObservationAndMeanPlotModel obsAndMeanPlotModel, AbstractObservationRetriever retriever) {
+
+<span class="nc" id="L1682">        Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9), (int) (TabbedDataPane.HEIGHT * 0.9));</span>
+
+<span class="nc" id="L1684">        return new ObservationAndMeanPlotPane(plotName, subTitle, obsAndMeanPlotModel, bounds, retriever, AnalysisType.RAW_DATA);</span>
+    }
+
+    /**
+     * Create the observation-and-mean phase plot pane for the current list of valid
+     * observations.
+     */
+    private PhaseAndMeanPlotPane createPhaseAndMeanPlotPane(String plotName, String subTitle,
+            PhasedObservationAndMeanPlotModel obsAndMeanPlotModel1,
+            PhasedObservationAndMeanPlotModel obsAndMeanPlotModel2, double epoch, double period,
+            AbstractObservationRetriever retriever) {
+
+<span class="nc" id="L1696">        Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9), (int) (TabbedDataPane.HEIGHT * 0.9));</span>
+
+<span class="nc" id="L1698">        return new PhaseAndMeanPlotPane(plotName, subTitle, bounds, epoch, period, retriever, obsAndMeanPlotModel1,</span>
+                obsAndMeanPlotModel2);
+    }
+
+    /**
+     * Create a period analysis dialog after the analysis is done. It only makes
+     * sense to apply the observations to a single band as per this Q &amp; A between
+     * Matt Templeton and I:&lt;br/&gt;
+     * DB: Like mean curve creation in VStar, should we only apply DC DFT to a
+     * single band, e.g. visual? MT: Yes, because of two things: 1) The different
+     * bands will have different mean values, and 2) The different bands will have
+     * different amplitudes or frequencies depending on what is physically causing
+     * the variation. Variability caused by temperature changes can have wildly
+     * different amplitudes in U or B versus Rc or Ic.
+     */
+    public void performPeriodAnalysis(PeriodAnalysisPluginBase plugin) {
+        try {
+<span class="nc bnc" id="L1715" title="All 4 branches missed.">            if (getLatestNewStarMessage() != null &amp;&amp; validObsList != null) {</span>
+<span class="nc" id="L1716">                SingleSeriesSelectionDialog dialog = new SingleSeriesSelectionDialog(obsAndMeanPlotModel);</span>
+
+<span class="nc bnc" id="L1718" title="All 2 branches missed.">                if (!dialog.isCancelled()) {</span>
+<span class="nc" id="L1719">                    SeriesType type = dialog.getSeries();</span>
+
+<span class="nc" id="L1721">                    List&lt;ValidObservation&gt; obs = getSeriesInfoProvider().getObservations(type);</span>
+
+<span class="nc" id="L1723">                    this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+<span class="nc" id="L1724">                    this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);</span>
+
+<span class="nc" id="L1726">                    PeriodAnalysisTask task = new PeriodAnalysisTask(plugin, type, obs);</span>
+
+<span class="nc" id="L1728">                    this.currTask = task;</span>
+<span class="nc" id="L1729">                    task.execute();</span>
+                }
+            }
+<span class="nc" id="L1732">        } catch (Exception e) {</span>
+<span class="nc" id="L1733">            MessageBox.showErrorDialog(Mediator.getUI().getComponent(), LocaleProps.get(&quot;PERIOD_ANALYSIS&quot;), e);</span>
+
+            // TODO: why not ProgressInfo.COMPLETE_PROGRESS then
+            // ProgressInfo.CLEAR_PROGRESS?
+<span class="nc" id="L1737">            this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+
+<span class="nc" id="L1739">            Mediator.getUI().getStatusPane().setMessage(&quot;&quot;);</span>
+<span class="nc" id="L1740">        }</span>
+<span class="nc" id="L1741">    }</span>
+
+    /**
+     * Open the plot control dialog relevant to the current analysis mode.&lt;br/&gt;
+     */
+    public void showPlotControlDialog() {
+<span class="nc" id="L1747">        String title = null;</span>
+<span class="nc" id="L1748">        ObservationAndMeanPlotPane plotPane = analysisTypeMap.get(analysisType).getObsAndMeanChartPane();</span>
+<span class="nc" id="L1749">        TimeElementsInBinSettingPane binSettingPane = null;</span>
+<span class="nc" id="L1750">        NamedComponent extra = null;</span>
+
+<span class="nc bnc" id="L1752" title="All 2 branches missed.">        if (analysisType == AnalysisType.RAW_DATA) {</span>
+<span class="nc" id="L1753">            title = LocaleProps.get(&quot;LIGHT_CURVE_CONTROL_DLG_TITLE&quot;);</span>
+<span class="nc" id="L1754">            binSettingPane = new TimeElementsInBinSettingPane(LocaleProps.get(&quot;DAYS_PER_MEAN_SERIES_BIN&quot;), plotPane,</span>
+                    JDTimeElementEntity.instance);
+<span class="nc bnc" id="L1756" title="All 2 branches missed.">        } else if (analysisType == AnalysisType.PHASE_PLOT) {</span>
+<span class="nc" id="L1757">            title = LocaleProps.get(&quot;PHASE_PLOT_CONTROL_DLG_TITLE&quot;);</span>
+<span class="nc" id="L1758">            binSettingPane = new TimeElementsInBinSettingPane(LocaleProps.get(&quot;PHASE_STEPS_PER_MEAN_SERIES_BIN&quot;),</span>
+                    plotPane, PhaseTimeElementEntity.instance);
+        }
+
+<span class="nc" id="L1762">        PlotControlDialog dialog = new PlotControlDialog(title, plotPane, binSettingPane, extra, analysisType);</span>
+<span class="nc" id="L1763">        dialog.setVisible(true);</span>
+<span class="nc" id="L1764">    }</span>
+
+    /**
+     * Open the model dialog.
+     */
+    public void showModelDialog() {
+<span class="nc" id="L1770">        getModelDialog().showDialog();</span>
+<span class="nc" id="L1771">    }</span>
+
+    /**
+     * Open the phase plots dialog.
+     */
+    public void showPhaseDialog() {
+<span class="nc" id="L1777">        getPhaseDialog().showDialog();</span>
+<span class="nc" id="L1778">    }</span>
+
+    /**
+     * Opens the filters dialog.
+     */
+    public void showFiltersDialog() {
+<span class="nc" id="L1784">        getObservationFiltersDialog().showDialog();</span>
+<span class="nc" id="L1785">    }</span>
+
+    /**
+     * Perform a plugin based modeling operation.
+     */
+    public void performModellingOperation(ModelCreatorPluginBase plugin) {
+        try {
+<span class="nc bnc" id="L1792" title="All 4 branches missed.">            if (getLatestNewStarMessage() != null &amp;&amp; validObsList != null) {</span>
+<span class="nc" id="L1793">                SingleSeriesSelectionDialog seriesDialog = new SingleSeriesSelectionDialog(obsAndMeanPlotModel);</span>
+
+<span class="nc bnc" id="L1795" title="All 2 branches missed.">                if (!seriesDialog.isCancelled()) {</span>
+<span class="nc" id="L1796">                    SeriesType type = seriesDialog.getSeries();</span>
+
+<span class="nc" id="L1798">                    List&lt;ValidObservation&gt; obs = getSeriesInfoProvider().getObservations(type);</span>
+
+                    // TODO: possibly need to add: getUI()/invokeDialog()
+                    // compare with modelling and obs src plugins
+
+<span class="nc" id="L1803">                    IModel model = plugin.getModel(obs);</span>
+
+<span class="nc bnc" id="L1805" title="All 2 branches missed.">                    if (model != null) {</span>
+<span class="nc" id="L1806">                        ModellingTask task = new ModellingTask(model);</span>
+
+<span class="nc" id="L1808">                        this.currTask = task;</span>
+
+<span class="nc" id="L1810">                        this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+<span class="nc" id="L1811">                        this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);</span>
+
+<span class="nc" id="L1813">                        task.execute();</span>
+                    }
+                }
+            }
+<span class="nc" id="L1817">        } catch (Exception e) {</span>
+<span class="nc" id="L1818">            MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;Modelling Error&quot;, e);</span>
+
+<span class="nc" id="L1820">            this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+
+<span class="nc" id="L1822">            Mediator.getUI().getStatusPane().setMessage(&quot;&quot;);</span>
+<span class="nc" id="L1823">        }</span>
+<span class="nc" id="L1824">    }</span>
+
+    /**
+     * Perform a non-plugin based modeling operation.
+     * 
+     * @param model The model object for this plugin whose execute() method can be
+     *              invoked to create the model artifacts.
+     */
+    public void performModellingOperation(IModel model) {
+        try {
+<span class="nc" id="L1834">            ModellingTask task = new ModellingTask(model);</span>
+
+<span class="nc" id="L1836">            this.currTask = task;</span>
+
+<span class="nc" id="L1838">            this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+<span class="nc" id="L1839">            this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);</span>
+
+<span class="nc" id="L1841">            task.execute();</span>
+<span class="nc" id="L1842">        } catch (Exception e) {</span>
+<span class="nc" id="L1843">            MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;Modelling Error&quot;, e);</span>
+
+<span class="nc" id="L1845">            this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+
+<span class="nc" id="L1847">            Mediator.getUI().getStatusPane().setMessage(&quot;&quot;);</span>
+<span class="nc" id="L1848">        }</span>
+<span class="nc" id="L1849">    }</span>
+
+    /**
+     * Perform an observation transformation plugin operation.
+     */
+    public void performObservationTransformationOperation(ObservationTransformerPluginBase plugin) {
+        try {
+<span class="nc bnc" id="L1856" title="All 4 branches missed.">            if (getLatestNewStarMessage() != null &amp;&amp; validObsList != null) {</span>
+<span class="nc" id="L1857">                SeriesVisibilityPane seriesVisibilityPane = new SeriesVisibilityPane(obsAndMeanPlotModel,</span>
+<span class="nc" id="L1858">                        this.getAnalysisType(), false, false, false);</span>
+
+<span class="nc" id="L1860">                MultipleSeriesSelectionDialog seriesDialog = new MultipleSeriesSelectionDialog(seriesVisibilityPane);</span>
+
+<span class="nc bnc" id="L1862" title="All 2 branches missed.">                if (!seriesDialog.isCancelled()) {</span>
+<span class="nc" id="L1863">                    IUndoableAction action = plugin.createAction(Mediator.getInstance().getSeriesInfoProvider(),</span>
+<span class="nc" id="L1864">                            seriesDialog.getSelectedSeries());</span>
+
+<span class="nc" id="L1866">                    currTask = getUndoableActionManager().performUndoableAction(action, UndoableActionType.DO);</span>
+                }
+            }
+<span class="nc" id="L1869">        } catch (Exception e) {</span>
+<span class="nc" id="L1870">            MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;Observation Transformartion Error&quot;,</span>
+<span class="nc" id="L1871">                    e.getLocalizedMessage());</span>
+
+<span class="nc" id="L1873">            this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+
+<span class="nc" id="L1875">            Mediator.getUI().getStatusPane().setMessage(&quot;&quot;);</span>
+<span class="nc" id="L1876">        }</span>
+<span class="nc" id="L1877">    }</span>
+
+    /**
+     * Fire data model change events.&lt;br/&gt;
+     * This method should be called after observation plot or table model changes.
+     */
+    public void updatePlotsAndTables() {
+<span class="nc" id="L1884">        getObservationPlotModel(AnalysisType.RAW_DATA).update();</span>
+
+<span class="nc bnc" id="L1886" title="All 2 branches missed.">        if (analysisTypeMap.containsKey(AnalysisType.PHASE_PLOT)) {</span>
+<span class="nc" id="L1887">            ObservationAndMeanPlotModel phase_model = getObservationPlotModel(AnalysisType.PHASE_PLOT);</span>
+<span class="nc" id="L1888">            phase_model.update();</span>
+        }
+
+<span class="nc" id="L1891">        validObsTableModel.fireTableDataChanged();</span>
+<span class="nc" id="L1892">    }</span>
+
+    /**
+     * Invokes a tool plugin with the currently loaded observations.
+     * 
+     * @param plugin The tool plugin to be invoked.
+     */
+    public void invokeTool(ObservationToolPluginBase plugin) {
+<span class="nc bnc" id="L1900" title="All 2 branches missed.">        if (validObservationCategoryMap != null) {</span>
+            try {
+                // getSeriesInfoProvider() always returns series info for RAW_DATA.
+                // PHASE_PLOT can have other series visibility, so it is more logical to pass
+                // series info for the active analysis.
+<span class="nc" id="L1905">                ISeriesInfoProvider seriesInfo = analysisTypeMap.get(analysisType).getObsAndMeanChartPane()</span>
+<span class="nc" id="L1906">                        .getObsModel();</span>
+<span class="nc" id="L1907">                plugin.invoke(seriesInfo);</span>
+                // plugin.invoke(getSeriesInfoProvider());
+<span class="nc" id="L1909">            } catch (Throwable t) {</span>
+<span class="nc" id="L1910">                MessageBox.showErrorDialog(&quot;Tool Error&quot;, t);</span>
+<span class="nc" id="L1911">            }</span>
+        } else {
+<span class="nc" id="L1913">            MessageBox.showMessageDialog(Mediator.getUI().getComponent(), &quot;Tool Error&quot;,</span>
+                    &quot;There are no observations loaded.&quot;);
+        }
+<span class="nc" id="L1916">    }</span>
+
+    /**
+     * Apply the custom filter plug-in to the currently loaded observation set.
+     * 
+     * @param plugin The tool plug-in to be invoked.
+     */
+    public void applyCustomFilterToCurrentObservations(CustomFilterPluginBase plugin) {
+<span class="nc bnc" id="L1924" title="All 2 branches missed.">        if (validObsList != null) {</span>
+            try {
+<span class="nc" id="L1926">                plugin.apply(validObsList);</span>
+<span class="nc" id="L1927">            } catch (Throwable t) {</span>
+<span class="nc" id="L1928">                MessageBox.showErrorDialog(&quot;Custom Filter Error&quot;, t);</span>
+<span class="nc" id="L1929">            }</span>
+        } else {
+<span class="nc" id="L1931">            MessageBox.showMessageDialog(Mediator.getUI().getComponent(), &quot;Custom Filter&quot;,</span>
+                    &quot;There are no observations loaded.&quot;);
+        }
+<span class="nc" id="L1934">    }</span>
+
+    /**
+     * Create a filter from the current plot view.
+     */
+    public void createFilterFromPlot() {
+<span class="nc" id="L1940">        InViewObservationFilter filter = new InViewObservationFilter();</span>
+<span class="nc" id="L1941">        filter.execute();</span>
+<span class="nc" id="L1942">    }</span>
+
+    /**
+     * Save the artefact corresponding to the current viewMode.
+     * 
+     * @param parent The parent component to be used in dialogs.
+     */
+    public void saveCurrentMode(Component parent) {
+<span class="nc" id="L1950">        List&lt;ValidObservation&gt; obs = null;</span>
+
+<span class="nc bnc" id="L1952" title="All 6 branches missed.">        switch (viewMode) {</span>
+        case PLOT_OBS_MODE:
+<span class="nc" id="L1954">            savePlotToFile(parent);</span>
+<span class="nc" id="L1955">            break;</span>
+        case LIST_OBS_MODE:
+<span class="nc" id="L1957">            saveObsListToFile(parent);</span>
+<span class="nc" id="L1958">            break;</span>
+        case LIST_MEANS_MODE:
+<span class="nc" id="L1960">            obs = analysisTypeMap.get(analysisType).getMeansListPane().getObsTableModel().getObs();</span>
+<span class="nc" id="L1961">            saveSyntheticObsListToFile(parent, obs);</span>
+<span class="nc" id="L1962">            break;</span>
+        case MODEL_MODE:
+<span class="nc bnc" id="L1964" title="All 2 branches missed.">            if (modelSelectionMessage != null) {</span>
+<span class="nc" id="L1965">                obs = modelSelectionMessage.getModel().getFit();</span>
+<span class="nc" id="L1966">                saveSyntheticObsListToFile(parent, obs);</span>
+            }
+            break;
+        case RESIDUALS_MODE:
+<span class="nc bnc" id="L1970" title="All 2 branches missed.">            if (modelSelectionMessage != null) {</span>
+<span class="nc" id="L1971">                obs = modelSelectionMessage.getModel().getResiduals();</span>
+<span class="nc" id="L1972">                saveSyntheticObsListToFile(parent, obs);</span>
+            }
+            break;
+        }
+<span class="nc" id="L1976">    }</span>
+
+    /**
+     * Save the current plot (as a PNG) to the specified file.&lt;br/&gt;
+     * Used by VStar scripting API.
+     * 
+     * @param path   The file to write the PNG image to.
+     * @param width  The desired width of the image.
+     * @param height The desired height of the image.
+     */
+    public void saveCurrentPlotToFile(File file, int width, int height) {
+<span class="nc" id="L1987">        ChartPanel chart = analysisTypeMap.get(analysisType).getObsAndMeanChartPane().getChartPanel();</span>
+
+        try {
+            //ChartUtils.saveChartAsPNG(file, chart.getChart(), width, height);
+<span class="nc" id="L1991">        	savePlotToFileHelper(file, chart.getChart(), width, height, ChartPropertiesPrefs.getScaleFactor());</span>
+<span class="nc" id="L1992">        } catch (IOException e) {</span>
+<span class="nc" id="L1993">            MessageBox.showErrorDialog(&quot;Save plot to file&quot;, &quot;Cannot save plot to &quot; + &quot;'&quot; + file.getPath() + &quot;'.&quot;);</span>
+<span class="nc" id="L1994">        }</span>
+<span class="nc" id="L1995">    }</span>
+
+    /**
+     * Save observation list to a file in a separate thread. Note that we want to
+     * save just those observations that are in view in the observation list
+     * currently.
+     * 
+     * Used by the VStar Scripting API.
+     * 
+     * @param parent    The parent component to be used in dialogs.
+     * @param plugin    The observation sink plugin.
+     * @param path      The path of the file to save to.
+     * @param delimiter The delimiter between data items.
+     */
+    public void saveObsListToFile(Component parent, ObservationSinkPluginBase plugin, File path, String delimiter) {
+<span class="nc" id="L2010">        List&lt;ValidObservation&gt; obs = this.analysisTypeMap.get(analysisType).getObsListPane().getObservationsInView();</span>
+
+<span class="nc bnc" id="L2012" title="All 2 branches missed.">        if (!obs.isEmpty()) {</span>
+<span class="nc" id="L2013">            this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+
+<span class="nc" id="L2015">            this.getProgressNotifier().notifyListeners(new ProgressInfo(ProgressType.MAX_PROGRESS, obs.size()));</span>
+
+<span class="nc" id="L2017">            ObsListFileSaveTask task = new ObsListFileSaveTask(plugin, obs, path, delimiter);</span>
+
+<span class="nc" id="L2019">            this.currTask = task;</span>
+<span class="nc" id="L2020">            task.execute();</span>
+<span class="nc" id="L2021">        } else {</span>
+<span class="nc" id="L2022">            MessageBox.showMessageDialog(parent, &quot;Save Observations&quot;, &quot;There are no visible observations to save.&quot;);</span>
+        }
+<span class="nc" id="L2024">    }</span>
+
+    /**
+     * Save synthetic observation list (means, model, residuals) to a file in a
+     * separate thread.&lt;br/&gt;
+     * 
+     * Used by VStar scripting API.
+     * 
+     * @param parent    The parent component to be used in dialogs.
+     * @param plugin    The observation sink plugin.
+     * @param mode      The current synthetic view mode.
+     * @param path      The path of the file to save to.
+     * @param delimiter The delimiter between data items.
+     */
+    public void saveSyntheticObsListToFile(Component parent, ObservationSinkPluginBase plugin, ViewModeType mode,
+            File path, String delimiter) {
+
+<span class="nc" id="L2041">        List&lt;ValidObservation&gt; obs = null;</span>
+
+<span class="nc bnc" id="L2043" title="All 5 branches missed.">        switch (mode) {</span>
+        case LIST_MEANS_MODE:
+<span class="nc" id="L2045">            obs = analysisTypeMap.get(analysisType).getMeansListPane().getObsTableModel().getObs();</span>
+<span class="nc" id="L2046">            break;</span>
+        case MODEL_MODE:
+<span class="nc bnc" id="L2048" title="All 2 branches missed.">            if (modelSelectionMessage != null) {</span>
+<span class="nc" id="L2049">                obs = modelSelectionMessage.getModel().getFit();</span>
+            } else {
+<span class="nc" id="L2051">                MessageBox.showMessageDialog(parent, &quot;Save Observations&quot;, &quot;There are no observations to save.&quot;);</span>
+            }
+<span class="nc" id="L2053">            break;</span>
+        case RESIDUALS_MODE:
+<span class="nc bnc" id="L2055" title="All 2 branches missed.">            if (modelSelectionMessage != null) {</span>
+<span class="nc" id="L2056">                obs = modelSelectionMessage.getModel().getResiduals();</span>
+            } else {
+<span class="nc" id="L2058">                MessageBox.showMessageDialog(parent, &quot;Save Observations&quot;, &quot;There are no observations to save.&quot;);</span>
+            }
+            // Note: we include these for completeness otherwise the type
+            // checker will complain. We assert that we should never arrive
+            // here. We could of course merge this method and
+            // saveObsListToFile().
+        case LIST_OBS_MODE:
+        case PLOT_OBS_MODE:
+<span class="nc" id="L2066">            assert (false);</span>
+            break;
+        }
+
+<span class="nc bnc" id="L2070" title="All 2 branches missed.">        if (!obs.isEmpty()) {</span>
+<span class="nc" id="L2071">            this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+
+<span class="nc" id="L2073">            this.getProgressNotifier().notifyListeners(new ProgressInfo(ProgressType.MAX_PROGRESS, obs.size()));</span>
+
+            // We re-use the same observation list file save task as
+            // elsewhere but specify simple file type to match the fact that
+            // we are only going to save JD, magnitude, and uncertainty
+            // (for means).
+<span class="nc" id="L2079">            ObsListFileSaveTask task = new ObsListFileSaveTask(plugin, obs, path, obsListFileSaveDialog.getDelimiter());</span>
+
+<span class="nc" id="L2081">            this.currTask = task;</span>
+<span class="nc" id="L2082">            task.execute();</span>
+<span class="nc" id="L2083">        } else {</span>
+<span class="nc" id="L2084">            MessageBox.showMessageDialog(parent, &quot;Save Observations&quot;, &quot;There are no observations to save.&quot;);</span>
+        }
+<span class="nc" id="L2086">    }</span>
+
+    /**
+     * Save the currently visible mode's plot. The file is requested from the user
+     * via a dialog.
+     * 
+     * @param parent The parent component of the file dialog.
+     */
+    private void savePlotToFile(Component parent) {
+        try {
+<span class="nc" id="L2096">            ChartPanel chartPanel = analysisTypeMap.get(analysisType).getObsAndMeanChartPane().getChartPanel();</span>
+
+<span class="nc bnc" id="L2098" title="All 2 branches missed.">            if (imageSaveDialog.showDialog(parent)) {</span>
+<span class="nc" id="L2099">                File path = imageSaveDialog.getSelectedFile();</span>
+<span class="nc bnc" id="L2100" title="All 6 branches missed.">                if (path.exists() &amp;&amp; path.isFile() &amp;&amp; !MessageBox.showConfirmDialog(LocaleProps.get(&quot;FILE_MENU_SAVE&quot;),</span>
+<span class="nc" id="L2101">                        LocaleProps.get(&quot;SAVE_OVERWRITE&quot;))) {</span>
+<span class="nc" id="L2102">                    return;</span>
+                }
+<span class="nc" id="L2104">                JFreeChart chart = chartPanel.getChart();</span>
+<span class="nc" id="L2105">                int width = chartPanel.getWidth();</span>
+<span class="nc" id="L2106">                int height = chartPanel.getHeight();</span>
+
+                //ChartUtils.saveChartAsPNG(path, chart, width, height);
+<span class="nc" id="L2109">                savePlotToFileHelper(path, chart, width, height, ChartPropertiesPrefs.getScaleFactor());</span>
+            }
+<span class="nc" id="L2111">        } catch (IOException ex) {</span>
+<span class="nc" id="L2112">            MessageBox.showErrorDialog(parent, &quot;Save Observation and Means Plot&quot;, ex.getMessage());</span>
+<span class="nc" id="L2113">        }</span>
+<span class="nc" id="L2114">    }</span>
+
+    private void savePlotToFileHelper(File path, JFreeChart chart, int width, int height, int scale)
+    		throws FileNotFoundException, IOException {
+<span class="nc" id="L2118">    	try (FileOutputStream out = new FileOutputStream(path)) {</span>
+<span class="nc" id="L2119">            ChartUtils.writeScaledChartAsPNG(out, chart, width, height, scale, scale);</span>
+        }
+<span class="nc" id="L2121">    }</span>
+    
+    /**
+     * Save observation list to a file in a separate thread. Note that we want to
+     * save just those observations that are in view in the observation list
+     * currently. The file is requested from the user via a dialog.
+     * 
+     * @param parent The parent component to be used in dialogs.
+     */
+    private void saveObsListToFile(Component parent) {
+<span class="nc" id="L2131">        List&lt;ValidObservation&gt; obs = this.analysisTypeMap.get(analysisType).getObsListPane().getObservationsInView();</span>
+
+<span class="nc bnc" id="L2133" title="All 2 branches missed.">        if (!obs.isEmpty()) {</span>
+<span class="nc bnc" id="L2134" title="All 2 branches missed.">            if (obsListFileSaveDialog.showDialog(parent)) {</span>
+<span class="nc" id="L2135">                File outFile = obsListFileSaveDialog.getSelectedFile();</span>
+
+<span class="nc bnc" id="L2137" title="All 4 branches missed.">                if (outFile.exists() &amp;&amp; outFile.isFile() &amp;&amp; !MessageBox</span>
+<span class="nc bnc" id="L2138" title="All 2 branches missed.">                        .showConfirmDialog(LocaleProps.get(&quot;FILE_MENU_SAVE&quot;), LocaleProps.get(&quot;SAVE_OVERWRITE&quot;))) {</span>
+<span class="nc" id="L2139">                    return;</span>
+                }
+
+<span class="nc" id="L2142">                this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+
+<span class="nc" id="L2144">                this.getProgressNotifier().notifyListeners(new ProgressInfo(ProgressType.MAX_PROGRESS, obs.size()));</span>
+
+<span class="nc" id="L2146">                ObsListFileSaveTask task = new ObsListFileSaveTask(obsListFileSaveDialog.getSelectedPlugin(), obs,</span>
+<span class="nc" id="L2147">                        outFile, obsListFileSaveDialog.getDelimiter());</span>
+
+<span class="nc" id="L2149">                this.currTask = task;</span>
+<span class="nc" id="L2150">                task.execute();</span>
+<span class="nc" id="L2151">            }</span>
+        } else {
+<span class="nc" id="L2153">            MessageBox.showMessageDialog(parent, &quot;Save Observations&quot;, &quot;There are no visible observations to save.&quot;);</span>
+        }
+<span class="nc" id="L2155">    }</span>
+
+    /**
+     * Save synthetic observation list (means, model, residuals) to a file in a
+     * separate thread.
+     * 
+     * @param parent The parent component to be used in dialogs.
+     * @param plugin The observation sink plugin.
+     * @param obs    The list of observations to be saved.
+     */
+    private void saveSyntheticObsListToFile(Component parent, List&lt;ValidObservation&gt; obs) {
+
+<span class="nc bnc" id="L2167" title="All 2 branches missed.">        if (!obs.isEmpty()) {</span>
+<span class="nc bnc" id="L2168" title="All 2 branches missed.">            if (obsListFileSaveDialog.showDialog(parent)) {</span>
+<span class="nc" id="L2169">                File outFile = obsListFileSaveDialog.getSelectedFile();</span>
+
+<span class="nc bnc" id="L2171" title="All 4 branches missed.">                if (outFile.exists() &amp;&amp; outFile.isFile() &amp;&amp; !MessageBox</span>
+<span class="nc bnc" id="L2172" title="All 2 branches missed.">                        .showConfirmDialog(LocaleProps.get(&quot;FILE_MENU_SAVE&quot;), LocaleProps.get(&quot;SAVE_OVERWRITE&quot;))) {</span>
+<span class="nc" id="L2173">                    return;</span>
+                }
+
+<span class="nc" id="L2176">                this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);</span>
+
+<span class="nc" id="L2178">                this.getProgressNotifier().notifyListeners(new ProgressInfo(ProgressType.MAX_PROGRESS, obs.size()));</span>
+
+                // We re-use the same observation list file save task as
+                // above but specify simple file type to match the fact that
+                // we are only going to save JD, magnitude, and uncertainty
+                // (for means).
+<span class="nc" id="L2184">                ObsListFileSaveTask task = new ObsListFileSaveTask(obsListFileSaveDialog.getSelectedPlugin(), obs,</span>
+<span class="nc" id="L2185">                        outFile, obsListFileSaveDialog.getDelimiter());</span>
+
+<span class="nc" id="L2187">                this.currTask = task;</span>
+<span class="nc" id="L2188">                task.execute();</span>
+<span class="nc" id="L2189">            }</span>
+        } else {
+<span class="nc" id="L2191">            MessageBox.showMessageDialog(parent, &quot;Save Observations&quot;, &quot;There are no observations to save.&quot;);</span>
+        }
+<span class="nc" id="L2193">    }</span>
+
+    /**
+     * Print the artefact corresponding to the current mode.
+     * 
+     * @param parent The parent component to be used by an error dialog.
+     */
+    public void printCurrentMode(Component parent) {
+<span class="nc bnc" id="L2201" title="All 6 branches missed.">        switch (viewMode) {</span>
+        case PLOT_OBS_MODE:
+<span class="nc" id="L2203">            this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane().getChartPanel().createChartPrintJob();</span>
+<span class="nc" id="L2204">            break;</span>
+
+        case LIST_OBS_MODE:
+            try {
+<span class="nc" id="L2208">                ObservationListPane obsListPane = this.analysisTypeMap.get(analysisType).getObsListPane();</span>
+
+<span class="nc" id="L2210">                obsListPane.getValidDataTable().print(PrintMode.FIT_WIDTH);</span>
+
+<span class="nc bnc" id="L2212" title="All 2 branches missed.">                if (obsListPane.getInvalidDataTable() != null) {</span>
+<span class="nc" id="L2213">                    obsListPane.getInvalidDataTable().print(PrintMode.FIT_WIDTH);</span>
+                }
+<span class="nc" id="L2215">            } catch (PrinterException e) {</span>
+<span class="nc" id="L2216">                MessageBox.showErrorDialog(parent, &quot;Print Observations&quot;, e.getMessage());</span>
+<span class="nc" id="L2217">            }</span>
+<span class="nc" id="L2218">            break;</span>
+
+        case LIST_MEANS_MODE:
+            try {
+<span class="nc" id="L2222">                SyntheticObservationListPane&lt;AbstractMeanObservationTableModel&gt; meanObsListPane = this.analysisTypeMap</span>
+<span class="nc" id="L2223">                        .get(analysisType).getMeansListPane();</span>
+
+<span class="nc" id="L2225">                meanObsListPane.getObsTable().print(PrintMode.FIT_WIDTH);</span>
+<span class="nc" id="L2226">            } catch (PrinterException e) {</span>
+<span class="nc" id="L2227">                MessageBox.showErrorDialog(parent, &quot;Print Mean Values&quot;, e.getMessage());</span>
+<span class="nc" id="L2228">            }</span>
+<span class="nc" id="L2229">            break;</span>
+        case MODEL_MODE:
+<span class="nc bnc" id="L2231" title="All 2 branches missed.">            if (modelSelectionMessage != null) {</span>
+                try {
+<span class="nc" id="L2233">                    SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt; modelListPane = getDocumentManager()</span>
+<span class="nc" id="L2234">                            .getModelListPane(analysisType, modelSelectionMessage.getModel());</span>
+
+<span class="nc" id="L2236">                    modelListPane.getObsTable().print(PrintMode.FIT_WIDTH);</span>
+<span class="nc" id="L2237">                } catch (PrinterException e) {</span>
+<span class="nc" id="L2238">                    MessageBox.showErrorDialog(parent, &quot;Print Model Values&quot;, e.getMessage());</span>
+<span class="nc" id="L2239">                }</span>
+            }
+            break;
+        case RESIDUALS_MODE:
+<span class="nc bnc" id="L2243" title="All 2 branches missed.">            if (modelSelectionMessage != null) {</span>
+                try {
+<span class="nc" id="L2245">                    SyntheticObservationListPane&lt;AbstractModelObservationTableModel&gt; residualsListPane = getDocumentManager()</span>
+<span class="nc" id="L2246">                            .getResidualsListPane(analysisType, modelSelectionMessage.getModel());</span>
+
+<span class="nc" id="L2248">                    residualsListPane.getObsTable().print(PrintMode.FIT_WIDTH);</span>
+<span class="nc" id="L2249">                } catch (PrinterException e) {</span>
+<span class="nc" id="L2250">                    MessageBox.showErrorDialog(parent, &quot;Print Residual Values&quot;, e.getMessage());</span>
+<span class="nc" id="L2251">                }</span>
+            }
+            break;
+        }
+<span class="nc" id="L2255">    }</span>
+
+    /**
+     * Show the details of the currently selected observation in the current view
+     * mode (plot or table).
+     */
+    public void showObservationDetails() {
+<span class="nc" id="L2262">        ValidObservation ob = null;</span>
+
+<span class="nc bnc" id="L2264" title="All 6 branches missed.">        switch (viewMode) {</span>
+        case PLOT_OBS_MODE:
+<span class="nc" id="L2266">            ob = this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane().getLastObSelected();</span>
+<span class="nc" id="L2267">            break;</span>
+        case LIST_OBS_MODE:
+<span class="nc" id="L2269">            ob = this.analysisTypeMap.get(analysisType).getObsListPane().getLastObSelected();</span>
+<span class="nc" id="L2270">            break;</span>
+        case LIST_MEANS_MODE:
+<span class="nc" id="L2272">            ob = this.analysisTypeMap.get(analysisType).getMeansListPane().getLastObSelected();</span>
+<span class="nc" id="L2273">            break;</span>
+        case MODEL_MODE:
+<span class="nc" id="L2275">            ob = getDocumentManager().getModelListPane(analysisType, modelSelectionMessage.getModel())</span>
+<span class="nc" id="L2276">                    .getLastObSelected();</span>
+<span class="nc" id="L2277">            break;</span>
+        case RESIDUALS_MODE:
+<span class="nc" id="L2279">            ob = getDocumentManager().getResidualsListPane(analysisType, modelSelectionMessage.getModel())</span>
+<span class="nc" id="L2280">                    .getLastObSelected();</span>
+            break;
+        }
+
+<span class="nc bnc" id="L2284" title="All 2 branches missed.">        if (ob != null) {</span>
+<span class="nc" id="L2285">            new ObservationDetailsDialog(ob);</span>
+        } else {
+<span class="nc" id="L2287">            MessageBox.showWarningDialog(&quot;Observation Details&quot;, &quot;No observation selected&quot;);</span>
+        }
+<span class="nc" id="L2289">    }</span>
+
+    private void updateChartPropertiesForAnalysisType(AnalysisType type) {
+<span class="nc" id="L2292">        AnalysisTypeChangeMessage m = analysisTypeMap.get(type);</span>
+<span class="nc bnc" id="L2293" title="All 2 branches missed.">        if (m != null) {</span>
+<span class="nc" id="L2294">            ObservationAndMeanPlotPane pane = m.getObsAndMeanChartPane();</span>
+<span class="nc bnc" id="L2295" title="All 2 branches missed.">            if (pane != null) {</span>
+<span class="nc" id="L2296">                pane.updateChartProperties();</span>
+            }
+        }
+<span class="nc" id="L2299">    }</span>
+
+    /**
+     * 
+     * Updates properties for charts (light curve, phase plot)
+     * 
+     */
+    public void updateChartProperties() {
+<span class="nc" id="L2307">        List&lt;AnalysisType&gt; list = Arrays.asList(AnalysisType.values());</span>
+<span class="nc bnc" id="L2308" title="All 2 branches missed.">        for (AnalysisType type : list) {</span>
+<span class="nc" id="L2309">            updateChartPropertiesForAnalysisType(type);</span>
+<span class="nc" id="L2310">        }</span>
+<span class="nc" id="L2311">    }</span>
+
+    /**
+     * Report a discrepant observation to AAVSO (if the dataset was AID-downloaded).
+     * 
+     * @param ob     The observation to be reported.
+     * @param dialog A parent dialog to set non-visible and dispose. May be null.
+     */
+    public void reportDiscrepantObservation(ValidObservation ob, JDialog dialog)
+            throws AuthenticationError, CancellationException, ConnectionException {
+        // If the dataset was loaded from AID and the change was
+        // to mark this observation as discrepant, we ask the user
+        // whether to report this to AAVSO.
+<span class="nc bnc" id="L2324" title="All 4 branches missed.">        if (ob.isDiscrepant() &amp;&amp; getLatestNewStarMessage().getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {</span>
+
+<span class="nc" id="L2326">            String auid = getLatestNewStarMessage().getStarInfo().getAuid();</span>
+<span class="nc" id="L2327">            String name = ob.getName();</span>
+<span class="nc" id="L2328">            int uniqueId = ob.getRecordNumber();</span>
+
+<span class="nc" id="L2330">            DiscrepantReportDialog reportDialog = new DiscrepantReportDialog(auid, ob);</span>
+
+<span class="nc bnc" id="L2332" title="All 2 branches missed.">            if (!reportDialog.isCancelled()) {</span>
+                try {
+<span class="nc" id="L2334">                    Mediator.getUI().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));</span>
+
+<span class="nc" id="L2336">                    Authenticator.getInstance().authenticate();</span>
+
+<span class="nc" id="L2338">                    String userName = ResourceAccessor.getLoginInfo().getUserName();</span>
+
+<span class="nc" id="L2340">                    String editor = &quot;vstar:&quot; + userName;</span>
+
+<span class="nc bnc" id="L2342" title="All 2 branches missed.">                    if (dialog != null) {</span>
+<span class="nc" id="L2343">                        dialog.setVisible(false);</span>
+                    }
+
+                    // Create and submit the discrepant report.
+<span class="nc" id="L2347">                    DiscrepantReport report = new DiscrepantReport(auid, name, uniqueId, editor,</span>
+<span class="nc" id="L2348">                            reportDialog.getComments());</span>
+
+<span class="nc" id="L2350">                    IDiscrepantReporter reporter = new VSXWebServiceZapperLogger();</span>
+
+<span class="nc" id="L2352">                    reporter.lodge(report);</span>
+
+<span class="nc" id="L2354">                    getUI().setCursor(null);</span>
+
+<span class="nc bnc" id="L2356" title="All 2 branches missed.">                    if (dialog != null) {</span>
+<span class="nc" id="L2357">                        dialog.dispose();</span>
+                    }
+                } finally {
+<span class="nc" id="L2360">                    Mediator.getUI().setCursor(null);</span>
+
+                }
+            }
+        }
+<span class="nc" id="L2365">    }</span>
+
+    /**
+     * Exit VStar.
+     */
+    public void quit() {
+        // TODO: do other cleanup, e.g. if file needs saving;
+        // need a document model including undo for this;
+        // defer to Mediator.
+<span class="nc" id="L2374">        System.exit(0);</span>
+<span class="nc" id="L2375">    }</span>
+
+    public static JDialog getParentDialog(Component c) {
+<span class="nc bnc" id="L2378" title="All 2 branches missed.">        while (c != null) {</span>
+<span class="nc bnc" id="L2379" title="All 2 branches missed.">            if (c instanceof JDialog) {</span>
+<span class="nc" id="L2380">                return (JDialog) c;</span>
+            }
+<span class="nc" id="L2382">            c = c.getParent();</span>
+        }
+<span class="nc" id="L2384">        return null;</span>
+    }
+
+    public static String getParentDialogName(Component c) {
+<span class="nc" id="L2388">        JDialog dlg = getParentDialog(c);</span>
+<span class="nc bnc" id="L2389" title="All 2 branches missed.">        if (dlg != null) {</span>
+<span class="nc" id="L2390">            return dlg.getName();</span>
+        } else {
+<span class="nc" id="L2392">            return null;</span>
+        }
+    }
+
+    public static boolean isMsgForDialog(JDialog dlg, MessageBase msg) {
+<span class="nc bnc" id="L2397" title="All 6 branches missed.">        if (dlg == null || msg == null || msg.getTag() == null)</span>
+<span class="nc" id="L2398">            return false;</span>
+<span class="nc" id="L2399">        return msg.getTag().equals(dlg.getName());</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ModelDialog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.model</a> &gt; <span class="el_source">ModelDialog.java</span></div><h1>ModelDialog.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.model;
+
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.util.model.IModel;
+import org.aavso.tools.vstar.util.notification.Listener;
+
+/**
+ * This dialog collects created models and permits their selection and deletion.
+ * Selecting a model causes that model and its residuals to become current.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class ModelDialog extends JDialog implements ListSelectionListener {
+
+	private boolean firstUse;
+
+	private JList modelList;
+	private DefaultListModel modelListModel;
+
+	private Map&lt;String, IModel&gt; modelMap;
+
+	private JButton selectButton;
+	private JButton showModelButton;
+	private JButton deleteButton;
+
+	/**
+	 * Constructor.
+	 */
+	public ModelDialog() {
+<span class="nc" id="L68">		super(DocumentManager.findActiveWindow());</span>
+<span class="nc" id="L69">		this.setTitle(&quot;Models&quot;);</span>
+<span class="nc" id="L70">		this.setModal(true);</span>
+
+<span class="nc" id="L72">		this.firstUse = true;</span>
+<span class="nc" id="L73">		this.modelMap = new TreeMap&lt;String, IModel&gt;();</span>
+
+<span class="nc" id="L75">		JPanel topPane = new JPanel();</span>
+<span class="nc" id="L76">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L77">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L79">		topPane.add(createListPane());</span>
+<span class="nc" id="L80">		topPane.add(createButtonPane());</span>
+
+<span class="nc" id="L82">		getContentPane().add(topPane);</span>
+<span class="nc" id="L83">		pack();</span>
+<span class="nc" id="L84">	}</span>
+
+	/**
+	 * Show the dialog. This is intended to be a Singleton class.
+	 */
+	public void showDialog() {
+<span class="nc bnc" id="L90" title="All 2 branches missed.">		if (firstUse) {</span>
+<span class="nc" id="L91">			setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L92">			firstUse = false;</span>
+		}
+
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		if (modelList.getSelectedIndex() == -1) {</span>
+<span class="nc" id="L96">			modelList.setSelectedIndex(0);</span>
+		}
+
+<span class="nc" id="L99">		this.getRootPane().setDefaultButton(selectButton);</span>
+<span class="nc" id="L100">		this.setVisible(true);</span>
+<span class="nc" id="L101">	}</span>
+
+	private JPanel createListPane() {
+<span class="nc" id="L104">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L105">		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L107">		modelListModel = new DefaultListModel();</span>
+<span class="nc" id="L108">		modelList = new JList(modelListModel);</span>
+<span class="nc" id="L109">		modelList</span>
+<span class="nc" id="L110">				.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);</span>
+<span class="nc" id="L111">		modelList.addListSelectionListener(this);</span>
+<span class="nc" id="L112">		JScrollPane modelListScroller = new JScrollPane(modelList);</span>
+
+<span class="nc" id="L114">		panel.add(modelListScroller);</span>
+
+<span class="nc" id="L116">		return panel;</span>
+	}
+
+	private JPanel createButtonPane() {
+<span class="nc" id="L120">		JPanel panel = new JPanel(new FlowLayout());</span>
+
+<span class="nc" id="L122">		deleteButton = new JButton(&quot;Delete&quot;);</span>
+<span class="nc" id="L123">		deleteButton.addActionListener(createDeleteButtonListener());</span>
+<span class="nc" id="L124">		deleteButton.setEnabled(false);</span>
+<span class="nc" id="L125">		panel.add(deleteButton);</span>
+
+<span class="nc" id="L127">		showModelButton = new JButton(&quot;Show Model&quot;);</span>
+<span class="nc" id="L128">		showModelButton.addActionListener(createShowModelButtonListener());</span>
+<span class="nc" id="L129">		showModelButton.setEnabled(false);</span>
+<span class="nc" id="L130">		panel.add(showModelButton);</span>
+
+<span class="nc" id="L132">		selectButton = new JButton(&quot;Select&quot;);</span>
+<span class="nc" id="L133">		selectButton.addActionListener(createSelectButtonListener());</span>
+<span class="nc" id="L134">		selectButton.setEnabled(false);</span>
+<span class="nc" id="L135">		panel.add(selectButton);</span>
+
+<span class="nc" id="L137">		this.getRootPane().setDefaultButton(selectButton);</span>
+
+<span class="nc" id="L139">		return panel;</span>
+	}
+
+	// List selection listener to update button states.
+	public void valueChanged(ListSelectionEvent e) {
+<span class="nc bnc" id="L144" title="All 2 branches missed.">		if (e.getValueIsAdjusting() == false) {</span>
+<span class="nc" id="L145">			int index = modelList.getSelectedIndex();</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">			if (index == -1) {</span>
+<span class="nc" id="L147">				selectButton.setEnabled(false);</span>
+<span class="nc" id="L148">				deleteButton.setEnabled(false);</span>
+<span class="nc" id="L149">				showModelButton.setEnabled(false);</span>
+			} else {
+				// If a list item is selected, enable select and delete buttons.
+<span class="nc" id="L152">				selectButton.setEnabled(true);</span>
+<span class="nc" id="L153">				deleteButton.setEnabled(true);</span>
+
+				// Does the model support displaying coefficients?
+<span class="nc" id="L156">				String desc = (String) modelListModel.get(index);</span>
+<span class="nc" id="L157">				IModel model = modelMap.get(desc);</span>
+<span class="nc" id="L158">				showModelButton.setEnabled(model.hasFuncDesc());</span>
+			}
+		}
+<span class="nc" id="L161">	}</span>
+
+	// Return a listener for the &quot;Select&quot; button.
+	private ActionListener createSelectButtonListener() {
+<span class="nc" id="L165">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L167">				int selectedModelIndex = modelList.getSelectedIndex();</span>
+<span class="nc" id="L168">				String desc = (String) modelListModel.get(selectedModelIndex);</span>
+<span class="nc" id="L169">				IModel model = modelMap.get(desc);</span>
+<span class="nc" id="L170">				ModelSelectionMessage msg = new ModelSelectionMessage(this,</span>
+						model);
+<span class="nc" id="L172">				Mediator.getInstance().getModelSelectionNofitier()</span>
+<span class="nc" id="L173">						.notifyListeners(msg);</span>
+<span class="nc" id="L174">			}</span>
+		};
+	}
+
+	// Return a listener for the &quot;Show Model&quot; button.
+	private ActionListener createShowModelButtonListener() {
+<span class="nc" id="L180">		final JDialog parent = this;</span>
+<span class="nc" id="L181">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L183">				int selectedModelIndex = modelList.getSelectedIndex();</span>
+<span class="nc" id="L184">				String desc = (String) modelListModel.get(selectedModelIndex);</span>
+<span class="nc" id="L185">				IModel model = modelMap.get(desc);</span>
+<span class="nc" id="L186">				new ModelInfoDialog(parent, model);</span>
+<span class="nc" id="L187">			}</span>
+		};
+	}
+
+	// Return a listener for the &quot;Delete&quot; button.
+	private ActionListener createDeleteButtonListener() {
+<span class="nc" id="L193">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L195">				int selectedModelIndex = modelList.getSelectedIndex();</span>
+
+<span class="nc" id="L197">				String desc = (String) modelListModel</span>
+<span class="nc" id="L198">						.remove(selectedModelIndex);</span>
+<span class="nc" id="L199">				modelMap.remove(desc);</span>
+<span class="nc" id="L200">				pack();</span>
+<span class="nc" id="L201">			}</span>
+		};
+	}
+
+	/**
+	 * Return a model creation listener, the purpose of which is to store new
+	 * model information.
+	 */
+	public Listener&lt;ModelCreationMessage&gt; createModelCreationListener() {
+<span class="nc" id="L210">		return new Listener&lt;ModelCreationMessage&gt;() {</span>
+			@Override
+			public void update(ModelCreationMessage info) {
+<span class="nc" id="L213">				String desc = Mediator.getInstance().getDocumentManager()</span>
+<span class="nc" id="L214">						.getModelDisplayLabel(info.getModel());</span>
+
+<span class="nc bnc" id="L216" title="All 2 branches missed.">				if (!modelMap.containsKey(desc)) {</span>
+<span class="nc" id="L217">					modelMap.put(desc, info.getModel());</span>
+
+<span class="nc" id="L219">					modelListModel.addElement(desc);</span>
+<span class="nc" id="L220">					pack();</span>
+				}
+<span class="nc" id="L222">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L226">				return false;</span>
+			}
+		};
+	}
+
+	/**
+	 * Return a new star listener, the purpose of which is to clear the
+	 * collections and disable the buttons.
+	 */
+	public Listener&lt;NewStarMessage&gt; createNewStarListener() {
+<span class="nc" id="L236">		return new Listener&lt;NewStarMessage&gt;() {</span>
+			@Override
+			public void update(NewStarMessage info) {
+<span class="nc" id="L239">				modelListModel.clear();</span>
+<span class="nc" id="L240">				pack();</span>
+<span class="nc" id="L241">				modelMap.clear();</span>
+<span class="nc" id="L242">				selectButton.setEnabled(false);</span>
+<span class="nc" id="L243">				deleteButton.setEnabled(false);</span>
+<span class="nc" id="L244">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L248">				return false;</span>
+			}
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

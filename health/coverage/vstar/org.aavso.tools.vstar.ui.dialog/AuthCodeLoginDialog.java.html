@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthCodeLoginDialog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog</a> &gt; <span class="el_source">AuthCodeLoginDialog.java</span></div><h1>AuthCodeLoginDialog.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog;
+
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.UUID;
+import java.util.regex.Pattern;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.ClipboardUtils;
+import org.aavso.tools.vstar.util.help.Help;
+
+/**
+ * This class encapsulates the behaviour of an authentication code modal
+ * login dialog box.
+ * 
+ * It requests and validates an authentication code field, only being dismissed
+ * when a valid code is entered.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class AuthCodeLoginDialog extends AbstractOkCancelDialog {
+
+<span class="nc" id="L49">	private Pattern whitespacePattern = Pattern.compile(&quot;^\\s*$&quot;);</span>
+
+	private static final String AUTH_URL_PREFIX = &quot;https://apps.aavso.org/auth/external?app=vstar&amp;identifier=&quot;;
+
+	private String intro;
+
+	private Container contentPane;
+
+	private JTextField authCodeField;
+
+	private String uuid;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param intro The introductory text to be displayed in this dialog.
+	 */
+	public AuthCodeLoginDialog(String intro) {
+<span class="nc" id="L67">		super(&quot;Login&quot;);</span>
+
+<span class="nc" id="L69">		this.intro = intro;</span>
+
+<span class="nc" id="L71">		contentPane = this.getContentPane();</span>
+
+<span class="nc" id="L73">		JPanel topPane = new JPanel();</span>
+<span class="nc" id="L74">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L75">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L77">		uuid = UUID.randomUUID().toString();</span>
+<span class="nc" id="L78">		String loginURL = AUTH_URL_PREFIX + uuid;</span>
+
+<span class="nc" id="L80">		topPane.add(createOpenURLPane(loginURL));</span>
+<span class="nc" id="L81">		topPane.add(createURLPane(loginURL));</span>
+<span class="nc" id="L82">		topPane.add(createAuthCodePane());</span>
+<span class="nc" id="L83">		topPane.add(createButtonPane());</span>
+<span class="nc" id="L84">		contentPane.add(topPane);</span>
+
+<span class="nc" id="L86">		this.pack();</span>
+<span class="nc" id="L87">		authCodeField.requestFocusInWindow();</span>
+<span class="nc" id="L88">		this.setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L89">		this.setVisible(true);</span>
+<span class="nc" id="L90">	}</span>
+
+	private JPanel createOpenURLPane(String loginURL) {
+<span class="nc" id="L93">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L94">		panel.setBorder(BorderFactory.createTitledBorder(this.intro));</span>
+<span class="nc" id="L95">		JButton loginButton = new JButton(&quot;Authenticate&quot;);</span>
+<span class="nc" id="L96">		loginButton.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L99">				Help.openURLInWebBrowser(loginURL, &quot;Authentication&quot;);</span>
+
+<span class="nc" id="L101">			}</span>
+		});
+<span class="nc" id="L103">		panel.add(loginButton);</span>
+
+<span class="nc" id="L105">		return panel;</span>
+	}
+
+	private JPanel createURLPane(String loginURL) {
+<span class="nc" id="L109">		JPanel panel = new JPanel(new BorderLayout());</span>
+<span class="nc" id="L110">		panel.setBorder(BorderFactory.createTitledBorder(&quot;Or, paste URL into browser&quot;));</span>
+<span class="nc" id="L111">		JButton copyButton = new JButton(&quot;Copy URL to Clipboard&quot;);</span>
+<span class="nc" id="L112">        copyButton.addActionListener(e -&gt; {</span>
+<span class="nc" id="L113">            ClipboardUtils.copyToClipboard(loginURL);</span>
+<span class="nc" id="L114">            MessageBox.showMessageDialog(&quot;Authentication&quot;, &quot;Authentication URL copied to clipboard&quot;);</span>
+<span class="nc" id="L115">        });</span>
+<span class="nc" id="L116">        panel.add(copyButton);</span>
+
+<span class="nc" id="L118">		return panel;</span>
+	}
+
+	private JPanel createAuthCodePane() {
+<span class="nc" id="L122">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L123">		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L124">		panel.setBorder(BorderFactory.createTitledBorder(&quot;Enter Authentication Code&quot;));</span>
+
+<span class="nc" id="L126">		authCodeField = new JTextField();</span>
+<span class="nc" id="L127">		authCodeField.addActionListener(createFieldActionListener());</span>
+<span class="nc" id="L128">		panel.add(authCodeField);</span>
+
+<span class="nc" id="L130">		return panel;</span>
+	}
+
+	// Return a listener for the token fields.
+	private ActionListener createFieldActionListener() {
+<span class="nc" id="L135">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L137">				checkInput();</span>
+<span class="nc" id="L138">			}</span>
+		};
+	}
+
+	// Validate token field. If it doesn't validate, we pop-up
+	// a message box, clear both fields, and start again,
+	// otherwise we tell the dialog to go away.
+	private void checkInput() {
+<span class="nc bnc" id="L146" title="All 2 branches missed.">		if (whitespacePattern.matcher(authCodeField.getText()).matches()) {</span>
+<span class="nc" id="L147">			authCodeField.setText(&quot;&quot;);</span>
+<span class="nc" id="L148">			setVisible(true);</span>
+		} else {
+			// The field validated, so dismiss the dialog box, indicating
+			// success.
+<span class="nc" id="L152">			setCancelled(false);</span>
+<span class="nc" id="L153">			setVisible(false);</span>
+<span class="nc" id="L154">			dispose();</span>
+		}
+<span class="nc" id="L156">	}</span>
+
+	public String getUUID() {
+<span class="nc" id="L159">		return uuid;</span>
+	}
+
+	public String getCode() {
+<span class="nc" id="L163">		return authCodeField.getText();</span>
+	}
+
+	protected void cancelAction() {
+		// Nothing to do
+<span class="nc" id="L168">	}</span>
+
+	protected void okAction() {
+<span class="nc" id="L171">		checkInput();</span>
+<span class="nc" id="L172">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserDefinedFunctionExecutor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.vela</a> &gt; <span class="el_source">UserDefinedFunctionExecutor.java</span></div><h1>UserDefinedFunctionExecutor.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.vela;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * This class executes user defined functions.
+ */
+public class UserDefinedFunctionExecutor extends FunctionExecutor {
+
+    private VeLaInterpreter vela;
+    private Optional&lt;AST&gt; ast;
+    private VeLaScope env;
+
+    /**
+     * Construct a named function definition
+     * 
+     * @param vela           The interpreter instance from which this object is
+     *                       being created.
+     * @param funcName       The function's name.
+     * @param parameterNames The function's formal parameter names.
+     * @param parameterTypes The function's formal parameter types.
+     * @param returnType     The function's return type.
+     * @param ast            The AST corresponding to the body of the function.
+     * @param helpString     The optional help string.
+     */
+    public UserDefinedFunctionExecutor(VeLaInterpreter vela, Optional&lt;String&gt; funcName, List&lt;String&gt; parameterNames,
+            List&lt;Type&gt; parameterTypes, Optional&lt;Type&gt; returnType, Optional&lt;AST&gt; ast, Optional&lt;String&gt; helpString) {
+<span class="fc" id="L46">        super(funcName, parameterNames, parameterTypes, returnType, helpString);</span>
+
+<span class="fc" id="L48">        this.vela = vela;</span>
+<span class="fc" id="L49">        this.ast = ast;</span>
+
+        // Capture current environment by coalescing all but the global scope
+        // into one environment, starting from the first to the last such that
+        // newer definitions override older ones.
+<span class="fc" id="L54">        env = new VeLaScope();</span>
+<span class="fc" id="L55">        List&lt;VeLaScope&gt; scopes = vela.getScopes();</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        for (int i = 1; i &lt; scopes.size(); i++) {</span>
+<span class="fc" id="L57">            env.addAll(scopes.get(i));</span>
+        }
+<span class="fc" id="L59">    }</span>
+
+    /**
+     * Construct an anonymous function definition
+     *
+     * @param vela           The interpreter instance from which this object is
+     *                       being created.
+     * @param parameterNames The function's formal parameter names.
+     * @param parameterTypes The function's formal parameter types.
+     * @param returnType     The function's return type.
+     * @param ast            The AST corresponding to the body of the function.
+     * @param helpString     The optional help string.
+     */
+    public UserDefinedFunctionExecutor(VeLaInterpreter vela, List&lt;String&gt; parameterNames, List&lt;Type&gt; parameterTypes,
+            Optional&lt;Type&gt; returnType, Optional&lt;AST&gt; ast, Optional&lt;String&gt; helpString) {
+<span class="nc" id="L74">        this(vela, Optional.empty(), parameterNames, parameterTypes, returnType, ast, helpString);</span>
+<span class="nc" id="L75">    }</span>
+
+    @Override
+    public Optional&lt;Operand&gt; apply(List&lt;Operand&gt; operands) throws VeLaEvalError {
+        // If the function has a body, push a new scope and the environment if
+        // non-empty, bind the actual parameters to the formal parameters,
+        // evaluate the body AST and pop the scope and the environment if
+        // non-empty.
+<span class="fc" id="L83">        int initialStackSize = vela.getStack().size();</span>
+
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (ast.isPresent()) {</span>
+
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">            if (!isTailRecursive()) {</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">                if (!env.isEmpty()) {</span>
+<span class="fc" id="L89">                    vela.pushEnvironment(env);</span>
+                }
+<span class="fc" id="L91">                vela.pushEnvironment(new VeLaScope());</span>
+            }
+
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            for (int i = 0; i &lt; operands.size(); i++) {</span>
+<span class="fc" id="L95">                vela.peekEnvironment().bind(parameterNames.get(i), operands.get(i), false);</span>
+            }
+
+<span class="fc" id="L98">            vela.eval(ast.get());</span>
+
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">            if (!isTailRecursive()) {</span>
+<span class="fc" id="L101">                vela.popEnvironment();</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">                if (!env.isEmpty()) {</span>
+<span class="fc" id="L103">                    vela.popEnvironment();</span>
+                }
+            }
+        }
+
+        // The result, if any, will be on the stack.
+<span class="fc" id="L109">        Optional&lt;Operand&gt; result = Optional.empty();</span>
+
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (vela.getStack().size() &gt; initialStackSize) {</span>
+<span class="fc" id="L112">            result = Optional.of(vela.getStack().pop());</span>
+        }
+
+<span class="fc" id="L115">        return result;</span>
+    }
+
+    /**
+     * Is the function body tail recursive?
+     */
+    private boolean isTailRecursive() {
+<span class="fc" id="L122">        boolean isTailRecursive = false;</span>
+
+<span class="fc" id="L124">        AST lastChild = ast.get().lastChild();</span>
+
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        if (lastChild.getOp() == Operation.FUNCALL) {</span>
+<span class="pc bpc" id="L127" title="1 of 4 branches missed.">            if (getFuncName().isPresent() &amp;&amp; getFuncName().get().equalsIgnoreCase(lastChild.getToken())) {</span>
+<span class="nc" id="L128">                isTailRecursive = true;</span>
+            }
+        }
+
+<span class="fc" id="L132">        return isTailRecursive;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

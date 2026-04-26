@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ObservationSourceAnalyser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.input.text</a> &gt; <span class="el_source">ObservationSourceAnalyser.java</span></div><h1>ObservationSourceAnalyser.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.input.text;
+
+import java.io.IOException;
+import java.io.LineNumberReader;
+
+import org.aavso.tools.vstar.data.validation.AAVSODownloadFormatValidator;
+import org.aavso.tools.vstar.data.validation.CommonTextFormatValidator;
+import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
+import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.ui.mediator.NewStarType;
+
+import com.csvreader.CsvReader;
+
+/**
+ * This class analyses an observation file (simple or download formats) and
+ * makes information about the file available for use by consumers.
+ */
+<span class="fc" id="L35">public class ObservationSourceAnalyser {</span>
+
+	public static final String TAB_DELIM = &quot;\t&quot;;
+	public static final String COMMA_DELIM = &quot;,&quot;;
+	public static final String SPACE_DELIM = &quot; +&quot;;
+
+	private LineNumberReader obsSource;
+	private String obsSourceIdentifier;
+	private int lineCount;
+	private NewStarType newStarType;
+	private String delimiter;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param obsSource
+	 *            The observation source to be analysed.
+	 * @param obsSourceIdentifier
+	 *            An identifier for the source of the observations.
+	 */
+	public ObservationSourceAnalyser(LineNumberReader obsSource,
+<span class="fc" id="L56">			String obsSourceIdentifier) {</span>
+<span class="fc" id="L57">		this.obsSource = obsSource;</span>
+<span class="fc" id="L58">		this.obsSourceIdentifier = obsSourceIdentifier;</span>
+<span class="fc" id="L59">		this.lineCount = 0;</span>
+<span class="fc" id="L60">	}</span>
+
+	/**
+	 * Analyse the source.
+	 */
+	public void analyse() throws IOException, ObservationReadError {
+
+<span class="fc" id="L67">		boolean gleanedFormat = false;</span>
+
+<span class="fc" id="L69">		String line = obsSource.readLine();</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">		while (line != null) {</span>
+			// Using one line of data, glean format information.
+			// Other than doing this once, just read all lines
+			// so we can get a line count.
+<span class="fc bfc" id="L74" title="All 2 branches covered.">			if (!gleanedFormat) {</span>
+				// Ignore comment or blank line.
+<span class="fc bfc" id="L76" title="All 4 branches covered.">				if (!line.startsWith(&quot;#&quot;) &amp;&amp; !line.matches(&quot;^\\s*$&quot;)) {</span>
+					// Try different delimiter types to guess CSV or TSV.
+<span class="fc" id="L78">					gleanedFormat = determinedFormat(line, TAB_DELIM);</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">					if (!gleanedFormat) {</span>
+<span class="fc" id="L80">						gleanedFormat = determinedFormat(line, COMMA_DELIM);</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">						if (!gleanedFormat) {</span>
+<span class="fc" id="L82">							gleanedFormat = determinedFormat(line, SPACE_DELIM);</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">							if (!gleanedFormat) {</span>
+<span class="fc" id="L84">								throw new ObservationReadError(&quot;'&quot;</span>
+										+ obsSourceIdentifier
+										+ &quot;' is in an unknown format.&quot;);
+							}
+						}
+					}
+				}
+			}
+
+<span class="fc" id="L93">			line = obsSource.readLine();</span>
+		}
+
+<span class="fc" id="L96">		this.lineCount = obsSource.getLineNumber();</span>
+<span class="fc" id="L97">		obsSource.close();</span>
+<span class="fc" id="L98">	}</span>
+
+	/**
+	 * Try to determine the format of the file from a single line: TSV vs CSV
+	 * and simple vs download format.
+	 * 
+	 * @param line
+	 *            The line to be analysed.
+	 * @param delimiter
+	 *            Tab or comma.
+	 * @return Whether or not the format was determined.
+	 */
+	private boolean determinedFormat(String line, String delimiter) {
+<span class="fc" id="L111">		boolean determined = false;</span>
+
+<span class="fc" id="L113">		String[] fields = line.split(delimiter);</span>
+<span class="fc bfc" id="L114" title="All 4 branches covered.">		if (fields.length &gt;= 2 &amp;&amp; fields.length &lt;= 5) {</span>
+<span class="fc" id="L115">			this.delimiter = delimiter;</span>
+<span class="fc" id="L116">			this.newStarType = NewStarType.NEW_STAR_FROM_SIMPLE_FILE;</span>
+<span class="fc" id="L117">			determined = true;</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">		} else if (fields.length &gt; 5) {</span>
+<span class="fc" id="L119">			this.delimiter = delimiter;</span>
+<span class="fc" id="L120">			this.newStarType = NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE;</span>
+<span class="fc" id="L121">			determined = true;</span>
+		}
+
+<span class="fc" id="L124">		return determined;</span>
+	}
+
+	/**
+	 * @return the lineCount
+	 */
+	public int getLineCount() {
+<span class="fc" id="L131">		return lineCount;</span>
+	}
+
+	/**
+	 * @return the newStarType
+	 */
+	public NewStarType getNewStarType() {
+<span class="fc" id="L138">		return newStarType;</span>
+	}
+
+	/**
+	 * @return the delimiter
+	 */
+	public String getDelimiter() {
+<span class="fc" id="L145">		return delimiter;</span>
+	}
+
+	/**
+	 * @return the obsSourceIdentifier
+	 */
+	public String getObsSourceIdentifier() {
+<span class="fc" id="L152">		return obsSourceIdentifier;</span>
+	}
+
+	/**
+	 * Return an instance of the text format validator class to be used for
+	 * creating observation objects from a sequence of lines containing comma or
+	 * tab delimited fields (CSV, TSV).
+	 * 
+	 * @param obsSource
+	 *            The observation source to be analysed. Passing this in here
+	 *            allows us to ensure we pass in an observation source that is
+	 *            reset to the start, not the case for the one passed into the
+	 *            constructor after analyse() has been invoked.
+	 * @return The validator object corresponding to this &quot;new star&quot; type.
+	 */
+	public CommonTextFormatValidator getTextFormatValidator(
+			LineNumberReader obsSource) throws IOException {
+
+<span class="pc bfc" id="L170" title="All 2 branches covered.">		assert (ObservationSourceAnalyser.TAB_DELIM.equals(delimiter)</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">				|| ObservationSourceAnalyser.COMMA_DELIM.equals(delimiter) || ObservationSourceAnalyser.SPACE_DELIM</span>
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">				.equals(delimiter));</span>
+
+<span class="fc" id="L174">		CommonTextFormatValidator validator = null;</span>
+
+<span class="fc" id="L176">		CsvReader lineReader = new CsvReader(obsSource);</span>
+<span class="fc" id="L177">		lineReader.setDelimiter(delimiter.charAt(0));</span>
+
+<span class="fc bfc" id="L179" title="All 2 branches covered.">		if (NewStarType.NEW_STAR_FROM_SIMPLE_FILE.equals(newStarType)) {</span>
+<span class="fc" id="L180">			validator = new SimpleTextFormatValidator(lineReader, newStarType</span>
+<span class="fc" id="L181">					.getMinFields(), newStarType.getMaxFields(), newStarType</span>
+<span class="fc" id="L182">					.getFieldInfoSource());</span>
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">		} else if (NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE.equals(newStarType)) {</span>
+<span class="fc" id="L184">			validator = new AAVSODownloadFormatValidator(lineReader,</span>
+<span class="fc" id="L185">					newStarType.getMinFields(), newStarType.getMaxFields(),</span>
+<span class="fc" id="L186">					newStarType.getFieldInfoSource());</span>
+		}
+
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">		assert (validator != null);</span>
+
+<span class="fc" id="L191">		return validator;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

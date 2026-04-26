@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PluginSettingsPane.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.prefs</a> &gt; <span class="el_source">PluginSettingsPane.java</span></div><h1>PluginSettingsPane.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2015  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.prefs;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementDialog;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+
+/**
+ * Plug-in management preferences panel.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class PluginSettingsPane extends JPanel implements IPreferenceComponent {
+
+	private JCheckBox loadPluginsCheckbox;
+	private JTextField baseUrlField;
+	private JFileChooser localDirChooser;
+	private JCheckBox showAllObsSourcePluginsInFileMenuButton;
+
+	/**
+	 * Constructor.
+	 */
+	public PluginSettingsPane() {
+<span class="nc" id="L58">		super();</span>
+
+<span class="nc" id="L60">		JPanel pluginManagementPane = new JPanel();</span>
+<span class="nc" id="L61">		pluginManagementPane.setLayout(new BoxLayout(pluginManagementPane,</span>
+				BoxLayout.PAGE_AXIS));
+<span class="nc" id="L63">		pluginManagementPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,</span>
+				5));
+
+<span class="nc" id="L66">		loadPluginsCheckbox = new JCheckBox(&quot;Load plug-ins?&quot;);</span>
+<span class="nc" id="L67">		loadPluginsCheckbox.setSelected(PluginManager.shouldLoadPlugins());</span>
+<span class="nc" id="L68">		loadPluginsCheckbox</span>
+<span class="nc" id="L69">				.setToolTipText(&quot;Should plug-ins be loaded at startup?&quot;);</span>
+<span class="nc" id="L70">		loadPluginsCheckbox.setBorder(BorderFactory</span>
+<span class="nc" id="L71">				.createLineBorder(Color.BLACK));</span>
+<span class="nc" id="L72">		pluginManagementPane.add(loadPluginsCheckbox);</span>
+
+<span class="nc" id="L74">		pluginManagementPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+<span class="nc" id="L76">		JPanel urlPanel = new JPanel();</span>
+<span class="nc" id="L77">		urlPanel.setLayout(new BoxLayout(urlPanel, BoxLayout.LINE_AXIS));</span>
+
+<span class="nc" id="L79">		baseUrlField = new JTextField(PluginManager.getPluginsBaseUrl());</span>
+<span class="nc" id="L80">		baseUrlField.setToolTipText(&quot;Set plug-in location base URL&quot;);</span>
+<span class="nc" id="L81">		baseUrlField.setBorder(BorderFactory</span>
+<span class="nc" id="L82">				.createTitledBorder(&quot;Plug-in location base URL&quot;));</span>
+<span class="nc" id="L83">		urlPanel.add(baseUrlField);</span>
+
+<span class="nc" id="L85">		JButton selectLocalDirButton = new JButton(&quot;Select Local Directory&quot;);</span>
+<span class="nc" id="L86">		selectLocalDirButton</span>
+<span class="nc" id="L87">				.addActionListener(createSelectLocalDirButtonActionListener());</span>
+<span class="nc" id="L88">		urlPanel.add(selectLocalDirButton);</span>
+
+<span class="nc" id="L90">		pluginManagementPane.add(urlPanel);</span>
+
+<span class="nc" id="L92">		localDirChooser = new JFileChooser();</span>
+<span class="nc" id="L93">		localDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);</span>
+
+<span class="nc" id="L95">		pluginManagementPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+<span class="nc" id="L97">		JButton deleteAllButton = new JButton(&quot;Delete Installed Plug-ins&quot;);</span>
+<span class="nc" id="L98">		deleteAllButton.setToolTipText(&quot;Delete all plug-ins&quot;);</span>
+<span class="nc" id="L99">		deleteAllButton</span>
+<span class="nc" id="L100">				.addActionListener(createDeleteAllPluginsButtonActionListener());</span>
+<span class="nc" id="L101">		pluginManagementPane.add(deleteAllButton);</span>
+
+<span class="nc" id="L103">		pluginManagementPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+<span class="nc" id="L105">		showAllObsSourcePluginsInFileMenuButton = new JCheckBox(</span>
+				&quot;Show all observation source plugins in File menu?&quot;);
+<span class="nc" id="L107">		showAllObsSourcePluginsInFileMenuButton</span>
+<span class="nc" id="L108">				.setToolTipText(&quot;Determines whether to show all observation source plugins in the File menu&quot;);</span>
+<span class="nc" id="L109">		showAllObsSourcePluginsInFileMenuButton</span>
+<span class="nc" id="L110">				.addActionListener(e -&gt; {</span>
+<span class="nc" id="L111">					PluginManager</span>
+<span class="nc" id="L112">							.setAllObsSourcePluginsInFileMenu(showAllObsSourcePluginsInFileMenuButton</span>
+<span class="nc" id="L113">									.isSelected());</span>
+<span class="nc" id="L114">				});</span>
+<span class="nc" id="L115">		showAllObsSourcePluginsInFileMenuButton.setSelected(false);</span>
+<span class="nc" id="L116">		pluginManagementPane.add(showAllObsSourcePluginsInFileMenuButton);</span>
+
+		// Add a local context button pane.
+<span class="nc" id="L119">		pluginManagementPane.add(createButtonPane());</span>
+
+<span class="nc" id="L121">		this.add(pluginManagementPane);</span>
+<span class="nc" id="L122">	}</span>
+
+	protected JPanel createButtonPane() {
+<span class="nc" id="L125">		JPanel panel = new JPanel(new BorderLayout());</span>
+
+<span class="nc" id="L127">		JButton setDefaultsButton = new JButton(&quot;Set Defaults&quot;);</span>
+<span class="nc" id="L128">		setDefaultsButton</span>
+<span class="nc" id="L129">				.addActionListener(createSetDefaultsButtonActionListener());</span>
+<span class="nc" id="L130">		panel.add(setDefaultsButton, BorderLayout.LINE_START);</span>
+
+<span class="nc" id="L132">		JButton applyButton = new JButton(LocaleProps.get(&quot;APPLY_BUTTON&quot;));</span>
+<span class="nc" id="L133">		applyButton.addActionListener(createApplyButtonActionListener());</span>
+<span class="nc" id="L134">		panel.add(applyButton, BorderLayout.LINE_END);</span>
+
+<span class="nc" id="L136">		return panel;</span>
+	}
+
+	// Delete all plug-ins button action listener creator.
+	private ActionListener createDeleteAllPluginsButtonActionListener() {
+<span class="nc" id="L141">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc bnc" id="L143" title="All 2 branches missed.">				if (PluginManagementDialog.getPluginManagementActive()) {</span>
+					// Max: somewhat paranoid.
+<span class="nc" id="L145">					MessageBox.showMessageDialog(&quot;Plug-in Manager&quot;, </span>
+							&quot;Cannot perform plug-in operations now.&quot;);
+<span class="nc" id="L147">					return;</span>
+				}
+<span class="nc bnc" id="L149" title="All 2 branches missed.">				if (!MessageBox.showConfirmDialog(&quot;Plug-in Manager&quot;,</span>
+						&quot;Delete all plug-ins?&quot;))
+<span class="nc" id="L151">					return;</span>
+<span class="nc" id="L152">				PluginLoader.closePluginLoaders();</span>
+<span class="nc" id="L153">				new PluginManager().deleteAllPlugins();</span>
+<span class="nc" id="L154">				MessageBox.showMessageDialog(&quot;Plug-in Manager&quot;, </span>
+						&quot;The program should be restarted now.&quot;);
+<span class="nc" id="L156">			}</span>
+		};
+	}
+
+	// Set defaults action button listener creator.
+	private ActionListener createSetDefaultsButtonActionListener() {
+<span class="nc" id="L162">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L164">				loadPluginsCheckbox.setSelected(true);</span>
+<span class="nc" id="L165">				baseUrlField.setText(PluginManager.DEFAULT_PLUGIN_BASE_URL_STR);</span>
+<span class="nc" id="L166">				PluginManager.setAllObsSourcePluginsInFileMenu(false);</span>
+<span class="nc" id="L167">			}</span>
+		};
+	}
+
+	// Set select local directory button listener creator.
+	private ActionListener createSelectLocalDirButtonActionListener() {
+<span class="nc" id="L173">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L175">				int retVal = localDirChooser.showOpenDialog(DocumentManager</span>
+<span class="nc" id="L176">						.findActiveWindow());</span>
+
+<span class="nc bnc" id="L178" title="All 2 branches missed.">				if (retVal == JFileChooser.APPROVE_OPTION) {</span>
+<span class="nc" id="L179">					File file = localDirChooser.getSelectedFile();</span>
+
+<span class="nc bnc" id="L181" title="All 2 branches missed.">					if (file.isDirectory()) {</span>
+<span class="nc" id="L182">						String filePrefix = &quot;file://&quot;;</span>
+<span class="nc" id="L183">						if (System.getProperty(&quot;os.name&quot;).toLowerCase()</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">								.indexOf(&quot;win&quot;) &gt;= 0) {</span>
+							// Mac and *nix will always have an absolute path
+							// that begins with &quot;/&quot;. A Windows path must have
+							// this added explicitly.
+<span class="nc" id="L188">							filePrefix += &quot;/&quot;;</span>
+						}
+<span class="nc" id="L190">						baseUrlField.setText(filePrefix</span>
+<span class="nc" id="L191">								+ file.getAbsolutePath());</span>
+<span class="nc" id="L192">					} else {</span>
+<span class="nc" id="L193">						MessageBox.showErrorDialog(</span>
+								&quot;Plug-in Preferences&quot;,
+<span class="nc" id="L195">								String.format(&quot;'%s' is not a directory&quot;,</span>
+<span class="nc" id="L196">										file.getAbsolutePath()));</span>
+					}
+				}
+<span class="nc" id="L199">			}</span>
+		};
+	}
+
+	// Set apply button listener creator.
+	private ActionListener createApplyButtonActionListener() {
+<span class="nc" id="L205">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L207">				update();</span>
+<span class="nc" id="L208">			}</span>
+		};
+	}
+
+	/**
+	 * Updates the global values.
+	 */
+	@Override
+	public void update() {
+<span class="nc" id="L217">		PluginManager.setLoadPlugins(loadPluginsCheckbox.isSelected());</span>
+<span class="nc" id="L218">		PluginManager.setPluginsBaseUrl(baseUrlField.getText());</span>
+<span class="nc" id="L219">		PluginManager</span>
+<span class="nc" id="L220">				.setAllObsSourcePluginsInFileMenu(showAllObsSourcePluginsInFileMenuButton</span>
+<span class="nc" id="L221">						.isSelected());</span>
+<span class="nc" id="L222">	}</span>
+
+	/**
+	 * Prepare this pane for use by resetting whatever state needs to be.
+	 */
+	@Override
+	public void reset() {
+<span class="nc" id="L229">		loadPluginsCheckbox.setSelected(PluginManager.shouldLoadPlugins());</span>
+<span class="nc" id="L230">		baseUrlField.setText(PluginManager.getPluginsBaseUrl());</span>
+<span class="nc" id="L231">		showAllObsSourcePluginsInFileMenuButton.setSelected(PluginManager</span>
+<span class="nc" id="L232">				.shouldAllObsSourcePluginsBeInFileMenu());</span>
+<span class="nc" id="L233">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

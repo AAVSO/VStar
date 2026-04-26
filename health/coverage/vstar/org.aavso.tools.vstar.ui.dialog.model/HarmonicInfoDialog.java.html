@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HarmonicInfoDialog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.model</a> &gt; <span class="el_source">HarmonicInfoDialog.java</span></div><h1>HarmonicInfoDialog.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.model;
+
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
+import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
+import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
+import org.aavso.tools.vstar.util.Tolerance;
+import org.aavso.tools.vstar.util.model.Harmonic;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.jfree.chart.plot.XYPlot;
+
+/**
+ * This dialog shows harmonics found from a search for harmonics of some
+ * frequency. When an entry is selected, the cross-hair of the corresponding
+ * plot is moved to pin-point the frequency.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class HarmonicInfoDialog extends JDialog implements
+		ListSelectionListener {
+
+	private HarmonicSearchResultMessage msg;
+	//private PeriodAnalysis2DChartPane plotPane;
+	private Component interfaceComponent;
+
+	private double startX, startY;
+	
+	private ArrayList&lt;Integer&gt; startIndices;
+
+	private JList harmonicList;
+	private DefaultListModel harmonicListModel;
+
+	private Map&lt;String, Harmonic&gt; harmonicMap;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param msg
+	 *            The harmonic search result message.
+	 * @param interfaceComponent
+	 *            plot pane or data table.
+	 */
+	public HarmonicInfoDialog(HarmonicSearchResultMessage msg,
+			Component interfaceComponent) {
+<span class="nc" id="L92">		super(DocumentManager.findActiveWindow());</span>
+
+<span class="nc" id="L94">		this.setTitle(&quot;Harmonics&quot;);</span>
+<span class="nc" id="L95">		this.setModal(true);</span>
+
+<span class="nc" id="L97">		this.msg = msg;</span>
+		
+<span class="nc" id="L99">		this.interfaceComponent = interfaceComponent;</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">		if (interfaceComponent instanceof PeriodAnalysis2DChartPane) {</span>
+<span class="nc" id="L101">			XYPlot plot = ((PeriodAnalysis2DChartPane)interfaceComponent).getChart().getXYPlot();</span>
+<span class="nc" id="L102">			startX = plot.getDomainCrosshairValue();</span>
+<span class="nc" id="L103">			startY = plot.getRangeCrosshairValue();</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		} else if (interfaceComponent instanceof PeriodAnalysisDataTablePane) {</span>
+<span class="nc" id="L105">			JTable table = ((PeriodAnalysisDataTablePane)interfaceComponent).getTable();</span>
+<span class="nc" id="L106">			 int[] indices = table.getSelectedRows();</span>
+<span class="nc" id="L107">			 startIndices = new ArrayList&lt;Integer&gt;();</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">			 for (int row : indices) {</span>
+<span class="nc" id="L109">				 startIndices.add(row);</span>
+			 }
+		}
+		
+<span class="nc" id="L113">		this.harmonicMap = new TreeMap&lt;String, Harmonic&gt;();</span>
+
+<span class="nc" id="L115">		JPanel topPane = new JPanel();</span>
+<span class="nc" id="L116">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L117">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L119">		topPane.add(createListPane());</span>
+<span class="nc" id="L120">		topPane.add(createButtonPane());</span>
+
+<span class="nc" id="L122">		getContentPane().add(topPane);</span>
+<span class="nc" id="L123">		pack();</span>
+
+<span class="nc" id="L125">		this.addWindowListener(new WindowAdapter() {</span>
+			public void windowClosing(WindowEvent we) {
+<span class="nc" id="L127">				dismiss();</span>
+<span class="nc" id="L128">			}</span>
+		});
+		
+<span class="nc" id="L131">		setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L132">		setVisible(true);</span>
+<span class="nc" id="L133">	}</span>
+
+	private JPanel createListPane() {
+<span class="nc" id="L136">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L137">		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L139">		harmonicListModel = new DefaultListModel();</span>
+
+<span class="nc bnc" id="L141" title="All 2 branches missed.">		for (Harmonic harmonic : msg.getHarmonics()) {</span>
+<span class="nc" id="L142">			String label = &quot;Frequency: &quot; + harmonic.toString() + &quot; (&quot;</span>
+<span class="nc" id="L143">					+ harmonic.getHarmonicNumber() + &quot;f), Period: &quot;</span>
+<span class="nc" id="L144">					+ NumericPrecisionPrefs.formatOther(harmonic.getPeriod());</span>
+<span class="nc" id="L145">			harmonicListModel.addElement(label);</span>
+<span class="nc" id="L146">			harmonicMap.put(label, harmonic);</span>
+<span class="nc" id="L147">		}</span>
+
+<span class="nc" id="L149">		harmonicList = new JList(harmonicListModel);</span>
+<span class="nc" id="L150">		harmonicList</span>
+<span class="nc" id="L151">				.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);</span>
+<span class="nc" id="L152">		harmonicList.addListSelectionListener(this);</span>
+<span class="nc" id="L153">		JScrollPane modelListScroller = new JScrollPane(harmonicList);</span>
+
+<span class="nc" id="L155">		panel.add(modelListScroller);</span>
+
+<span class="nc" id="L157">		return panel;</span>
+	}
+
+	private JPanel createButtonPane() {
+<span class="nc" id="L161">		JPanel panel = new JPanel(new FlowLayout());</span>
+
+<span class="nc" id="L163">		JButton dismissButton = new JButton(&quot;Dismiss&quot;);</span>
+<span class="nc" id="L164">		dismissButton.addActionListener(createDismissButtonListener());</span>
+<span class="nc" id="L165">		dismissButton.setEnabled(true);</span>
+<span class="nc" id="L166">		panel.add(dismissButton);</span>
+
+<span class="nc" id="L168">		JButton copyButton = new JButton(&quot;Copy&quot;);</span>
+<span class="nc" id="L169">		copyButton.addActionListener(createCopyButtonListener());</span>
+<span class="nc" id="L170">		copyButton.setEnabled(true);</span>
+<span class="nc" id="L171">		panel.add(copyButton);</span>
+		
+<span class="nc" id="L173">		this.getRootPane().setDefaultButton(dismissButton);</span>
+
+<span class="nc" id="L175">		return panel;</span>
+	}
+
+	// List selection listener to update button states.
+	public void valueChanged(ListSelectionEvent e) {
+<span class="nc bnc" id="L180" title="All 2 branches missed.">		if (e.getValueIsAdjusting() == false) {</span>
+<span class="nc" id="L181">			int index = harmonicList.getSelectedIndex();</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">			if (index != -1) {</span>
+<span class="nc" id="L183">				int selectedModelIndex = harmonicList.getSelectedIndex();</span>
+<span class="nc" id="L184">				String desc = (String) harmonicListModel</span>
+<span class="nc" id="L185">						.get(selectedModelIndex);</span>
+<span class="nc" id="L186">				Harmonic harmonic = harmonicMap.get(desc);</span>
+				double x;
+				
+<span class="nc bnc" id="L189" title="All 2 branches missed.">				if (interfaceComponent instanceof PeriodAnalysis2DChartPane) {</span>
+<span class="nc" id="L190">					PeriodAnalysis2DChartPane plotPane = (PeriodAnalysis2DChartPane)interfaceComponent;</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">					if (plotPane.getModel().getDomainType() == PeriodAnalysisCoordinateType.FREQUENCY) { </span>
+<span class="nc" id="L192">						x = harmonic.getFrequency();</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">					} else if (plotPane.getModel().getDomainType() == PeriodAnalysisCoordinateType.PERIOD) { </span>
+<span class="nc" id="L194">						x = harmonic.getPeriod();</span>
+					} else {
+<span class="nc" id="L196">						return;</span>
+					}
+<span class="nc" id="L198">					plotPane.setCrossHair(x, 0);</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">				} else if (interfaceComponent instanceof PeriodAnalysisDataTablePane) {</span>
+<span class="nc" id="L200">					selectHarmonic(((PeriodAnalysisDataTablePane)interfaceComponent).getTable(), harmonic, msg.getTolerance());</span>
+				}
+			}
+		}
+<span class="nc" id="L204">	}</span>
+	
+	private void selectHarmonic(JTable table, Harmonic harmonic, double tolerance) {
+<span class="nc bnc" id="L207" title="All 2 branches missed.">		if (table.getModel() instanceof PeriodAnalysisDataTableModel) {</span>
+<span class="nc" id="L208">			PeriodAnalysisDataTableModel model = (PeriodAnalysisDataTableModel)(table.getModel());</span>
+<span class="nc" id="L209">			Integer closestRow = null;</span>
+<span class="nc" id="L210">			Double minDiff = null;</span>
+<span class="nc" id="L211">			int n = harmonic.getHarmonicNumber();</span>
+			//System.out.println(&quot;\nselectHarmonic&quot;);
+<span class="nc bnc" id="L213" title="All 2 branches missed.">			for (int row = 0; row &lt; model.getRowCount(); row++) {</span>
+<span class="nc" id="L214">				PeriodAnalysisDataPoint dataPoint = model.getDataPointFromRow(row);</span>
+<span class="nc" id="L215">				double f = dataPoint.getFrequency();</span>
+				// use tolerance but also look for the closest point inside the tolerance!
+<span class="nc bnc" id="L217" title="All 2 branches missed.">				if (Tolerance.areClose(f / n, harmonic.getFrequency() / n, tolerance, false)) {</span>
+<span class="nc" id="L218">					double dif = Math.abs(f - harmonic.getFrequency());</span>
+<span class="nc bnc" id="L219" title="All 4 branches missed.">					if (minDiff == null || dif &lt; minDiff) {</span>
+<span class="nc" id="L220">						minDiff = dif;</span>
+<span class="nc" id="L221">						closestRow = row;</span>
+						//System.out.println(&quot;minDif = &quot; + minDiff);
+					}
+				}
+			}
+<span class="nc bnc" id="L226" title="All 2 branches missed.">			if (closestRow != null) {</span>
+<span class="nc" id="L227">				closestRow = table.convertRowIndexToView(closestRow);				</span>
+<span class="nc" id="L228">				ensureVisible(table, closestRow);</span>
+<span class="nc" id="L229">				boolean state = ((PeriodAnalysisDataTablePane)interfaceComponent).disableValueChangeEvent();</span>
+				try {
+<span class="nc" id="L231">					table.setRowSelectionInterval(closestRow, closestRow);</span>
+				} finally {
+<span class="nc" id="L233">					((PeriodAnalysisDataTablePane)interfaceComponent).setValueChangedDisabledState(state);</span>
+				}
+<span class="nc" id="L235">			} else {</span>
+<span class="nc" id="L236">				throw new IllegalArgumentException(&quot;Harmonic not found&quot;);</span>
+			}
+		}
+<span class="nc" id="L239">	}</span>
+
+	private void dismiss() {
+<span class="nc" id="L242">		setVisible(false);</span>
+<span class="nc" id="L243">		dispose();</span>
+		// Restore the plot's cross hair or table's selection(s).
+<span class="nc bnc" id="L245" title="All 2 branches missed.">		if (interfaceComponent instanceof PeriodAnalysis2DChartPane) {</span>
+<span class="nc" id="L246">			((PeriodAnalysis2DChartPane)interfaceComponent).setCrossHair(startX, startY);</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">		} else if (interfaceComponent instanceof PeriodAnalysisDataTablePane) {</span>
+<span class="nc" id="L248">			JTable table = ((PeriodAnalysisDataTablePane)interfaceComponent).getTable();</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">			if (startIndices != null) {</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">				if (startIndices.size() &gt; 0) {</span>
+<span class="nc" id="L251">					ensureVisible(table, startIndices.get(0));</span>
+				}
+<span class="nc" id="L253">				boolean state = ((PeriodAnalysisDataTablePane)interfaceComponent).disableValueChangeEvent();</span>
+				try {
+<span class="nc" id="L255">					table.clearSelection();</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">					for (int row : startIndices) {</span>
+<span class="nc" id="L257">						table.addRowSelectionInterval(row, row);</span>
+<span class="nc" id="L258">					}</span>
+				} finally {
+<span class="nc" id="L260">					((PeriodAnalysisDataTablePane)interfaceComponent).setValueChangedDisabledState(state);</span>
+				}
+			}
+		}
+<span class="nc" id="L264">	}</span>
+
+	private void ensureVisible(JTable table, int row) {
+<span class="nc" id="L267">		int colWidth = (int) table.getCellRect(row, 0, true).getWidth();</span>
+<span class="nc" id="L268">		int rowHeight = table.getRowHeight(row);</span>
+<span class="nc" id="L269">		table.scrollRectToVisible(new Rectangle(colWidth, rowHeight * row, colWidth, rowHeight));</span>
+<span class="nc" id="L270">	}</span>
+	
+	// Return a listener for the &quot;Dismiss&quot; button.
+	private ActionListener createDismissButtonListener() {
+<span class="nc" id="L274">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L276">				dismiss();</span>
+<span class="nc" id="L277">			}</span>
+		};
+	}
+	
+	// Return a listener for the &quot;Dismiss&quot; button.
+	private ActionListener createCopyButtonListener() {
+<span class="nc" id="L283">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L285">				String s = &quot;&quot;;</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">				for (int i = 0; i &lt; harmonicListModel.size(); i++) {</span>
+<span class="nc" id="L287">					s += harmonicListModel.get(i).toString() + &quot;\n&quot;;</span>
+				}
+<span class="nc" id="L289">				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();</span>
+<span class="nc" id="L290">				clipboard.setContents(new StringSelection(s) , null);</span>
+<span class="nc" id="L291">			}</span>
+		};
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

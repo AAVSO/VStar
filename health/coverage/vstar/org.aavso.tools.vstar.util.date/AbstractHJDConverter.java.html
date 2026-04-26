@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractHJDConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.date</a> &gt; <span class="el_source">AbstractHJDConverter.java</span></div><h1>AbstractHJDConverter.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.date;
+
+import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.EpochType;
+import org.aavso.tools.vstar.util.coords.RAInfo;
+
+/**
+ * All HJD converters must extend this base class which also acts as a Factory
+ * Method to select a converter for a specified epoch.
+ */
+<span class="fc" id="L28">public abstract class AbstractHJDConverter {</span>
+
+<span class="fc" id="L30">	private static AbstractHJDConverter J2000Converter = new J2000HJDConverter();</span>
+<span class="fc" id="L31">	private static AbstractHJDConverter B1950Converter = new B1950HJDConverter();</span>
+
+	/**
+	 * Factory method to return suitable converter for a given epoch.
+	 * 
+	 * @return The HJD converter for the specified epoch.
+	 */
+	public static AbstractHJDConverter getInstance(EpochType epoch) {
+<span class="fc" id="L39">		AbstractHJDConverter converter = null;</span>
+
+<span class="pc bpc" id="L41" title="1 of 3 branches missed.">		switch (epoch) {</span>
+		case J2000:
+<span class="fc" id="L43">			converter = J2000Converter;</span>
+<span class="fc" id="L44">			break;</span>
+		case B1950:
+<span class="fc" id="L46">			converter = B1950Converter;</span>
+<span class="fc" id="L47">			break;</span>
+		default:
+			break;
+		}
+
+<span class="fc" id="L52">		return converter;</span>
+	}
+
+	/**
+	 * Given a JD, RA, and Dec, return HJD.
+	 * 
+	 * @param jd
+	 *            The Julian Date to be converted.
+	 * @param ra
+	 *            The right ascension coordinate.
+	 * @param dec
+	 *            The declination coordinate.
+	 * @return The corresponding Heliocentric Julian Date.
+	 */
+	public abstract double convert(double jd, RAInfo ra, DecInfo dec);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

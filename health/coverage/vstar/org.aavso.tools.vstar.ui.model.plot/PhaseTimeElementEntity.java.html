@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PhaseTimeElementEntity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.model.plot</a> &gt; <span class="el_source">PhaseTimeElementEntity.java</span></div><h1>PhaseTimeElementEntity.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.model.plot;
+
+import java.util.List;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
+/**
+ * A phase element source/sink.
+ */
+<span class="fc" id="L28">public class PhaseTimeElementEntity implements ITimeElementEntity {</span>
+
+	private static final double DEFAULT_BIN_PHASE_INCREMENTS = 0.1;
+
+<span class="fc" id="L32">	public static final PhaseTimeElementEntity instance = new PhaseTimeElementEntity();</span>
+
+	public double getTimeElement(List&lt;ValidObservation&gt; obs, int index) {
+<span class="fc" id="L35">		ValidObservation ob = obs.get(index);</span>
+<span class="fc" id="L36">		Double phase = null;</span>
+
+<span class="fc bfc" id="L38" title="All 2 branches covered.">		if (index &lt; obs.size() / 2) {</span>
+<span class="fc" id="L39">			phase = ob.getPreviousCyclePhase();</span>
+		} else {
+<span class="fc" id="L41">			phase = ob.getStandardPhase();</span>
+		}
+
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">		if (phase == null) phase = Double.NaN;</span>
+
+<span class="fc" id="L46">		return phase;</span>
+	}
+
+	public void setTimeElement(ValidObservation ob, double meanPhase) {
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		if (meanPhase &gt;= 0) {</span>
+			// The mean phase value represents a standard phase
+			// so store this and calculate the mean previous cycle.
+<span class="fc" id="L53">			ob.setStandardPhase(meanPhase);</span>
+<span class="fc" id="L54">			ob.setPreviousCyclePhase(meanPhase - 1);</span>
+		} else {
+			// The mean phase value represents a previous cycle 
+			// phase so store this and calculate the mean standard.
+<span class="nc" id="L58">			ob.setPreviousCyclePhase(meanPhase);</span>
+<span class="nc" id="L59">			ob.setStandardPhase(meanPhase + 1);</span>
+		}
+<span class="fc" id="L61">	}</span>
+
+	public double getDefaultTimeElementsInBin() {
+<span class="nc" id="L64">		return DEFAULT_BIN_PHASE_INCREMENTS;</span>
+	}
+
+	public double getDefaultTimeIncrements() {
+<span class="nc" id="L68">		return 0.01;</span>
+	}
+
+	@Override
+	public double getMaxTimeIncrements(List&lt;ValidObservation&gt; meanSourceObs) {
+		// A single phase, irrespective of the observations. 
+<span class="nc" id="L74">		return 1;</span>
+	}
+
+	public String getNumberFormat() {
+		// TODO: once we have plot control dialog, not sure we need this
+//		return &quot;  #.####&quot;;
+<span class="nc" id="L80">		return NumericPrecisionPrefs.getTimeInputFormat();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

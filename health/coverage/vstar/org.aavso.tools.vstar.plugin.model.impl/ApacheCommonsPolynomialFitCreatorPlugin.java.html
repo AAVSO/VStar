@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApacheCommonsPolynomialFitCreatorPlugin.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.plugin.model.impl</a> &gt; <span class="el_source">ApacheCommonsPolynomialFitCreatorPlugin.java</span></div><h1>ApacheCommonsPolynomialFitCreatorPlugin.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2013 AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.plugin.model.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
+import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
+import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
+import org.aavso.tools.vstar.util.ApacheCommonsDerivativeBasedExtremaFinder;
+import org.aavso.tools.vstar.util.Tolerance;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.model.AbstractModel;
+import org.aavso.tools.vstar.util.model.PeriodFitParameters;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.apache.commons.math.ConvergenceException;
+import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.analysis.DifferentiableUnivariateRealFunction;
+import org.apache.commons.math.analysis.UnivariateRealFunction;
+import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
+import org.apache.commons.math.optimization.fitting.PolynomialFitter;
+import org.apache.commons.math.optimization.general.AbstractLeastSquaresOptimizer;
+import org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer;
+
+/**
+ * A polynomial model creator plugin that uses an Apache Commons polynomial
+ * fitter.
+ */
+<span class="nc" id="L50">public class ApacheCommonsPolynomialFitCreatorPlugin extends ModelCreatorPluginBase {</span>
+
+<span class="nc" id="L52">    private boolean needGUI = true;</span>
+
+    private int degree;
+
+    public ApacheCommonsPolynomialFitCreatorPlugin() {
+<span class="nc" id="L57">        super();</span>
+<span class="nc" id="L58">    }</span>
+
+    @Override
+    public String getDescription() {
+<span class="nc" id="L62">        return LocaleProps.get(&quot;ANALYSIS_MENU_POLYNOMIAL_FIT&quot;);</span>
+    }
+
+    @Override
+    public String getDisplayName() {
+<span class="nc" id="L67">        return LocaleProps.get(&quot;ANALYSIS_MENU_POLYNOMIAL_FIT&quot;);</span>
+    }
+
+    @Override
+    public AbstractModel getModel(List&lt;ValidObservation&gt; obs) {
+<span class="nc" id="L72">        return new PolynomialFitModel(obs);</span>
+    }
+
+    /**
+     * This is intended for setting parameters from the scripting API or plug-in
+     * test.
+     */
+    @Override
+    public void setParams(Object[] params) {
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        assert (params.length == 1);</span>
+<span class="nc" id="L82">        double degree = (double) params[0];</span>
+<span class="nc" id="L83">        setDegree((int) degree);</span>
+<span class="nc" id="L84">        needGUI = false;</span>
+<span class="nc" id="L85">    }</span>
+
+    private void setDegree(int degree) {
+<span class="nc" id="L88">        this.degree = degree;</span>
+<span class="nc" id="L89">    }</span>
+
+    public int getDegree() {
+<span class="nc" id="L92">        return degree;</span>
+    }
+
+    private int getMinDegree() {
+<span class="nc" id="L96">        return 0;</span>
+    }
+
+    private int getMaxDegree() {
+        // TODO: make this a preference
+<span class="nc" id="L101">        return 30;</span>
+    }
+
+    class PolynomialFitModel extends AbstractModel {
+        PolynomialFunction function;
+        PolynomialFitter fitter;
+        AbstractLeastSquaresOptimizer optimizer;
+
+<span class="nc" id="L109">        PolynomialFitModel(List&lt;ValidObservation&gt; obs) {</span>
+<span class="nc" id="L110">            super(obs);</span>
+
+<span class="nc" id="L112">            int minDegree = getMinDegree();</span>
+<span class="nc" id="L113">            int maxDegree = getMaxDegree();</span>
+
+<span class="nc" id="L115">            boolean cancelled = false;</span>
+
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (needGUI) {</span>
+<span class="nc" id="L118">                PolynomialDegreeDialog polyDegreeDialog = new PolynomialDegreeDialog(minDegree, maxDegree);</span>
+
+<span class="nc" id="L120">                setDegree(polyDegreeDialog.getDegree());</span>
+
+<span class="nc" id="L122">                cancelled = polyDegreeDialog.isCancelled();</span>
+            }
+
+<span class="nc bnc" id="L125" title="All 2 branches missed.">            if (!cancelled) {</span>
+<span class="nc" id="L126">                optimizer = new LevenbergMarquardtOptimizer();</span>
+<span class="nc" id="L127">                fitter = new PolynomialFitter(getDegree(), optimizer);</span>
+            }            
+<span class="nc" id="L129">        }</span>
+
+        @Override
+        public String getDescription() {
+<span class="nc" id="L133">            return LocaleProps.get(&quot;MODEL_INFO_POLYNOMIAL_DEGREE_DESC&quot;) + degree + &quot; for &quot; + obs.get(0).getBand()</span>
+                    + &quot; series&quot;;
+        }
+
+        @Override
+        public String getKind() {
+<span class="nc" id="L139">            return LocaleProps.get(&quot;ANALYSIS_MENU_POLYNOMIAL_FIT&quot;);</span>
+        }
+
+        // TODO: if this is not generalisable, it should be removed
+        // as a requirement from base class or the name changed to
+        // getPeriodFitParameters()
+        @Override
+        public List&lt;PeriodFitParameters&gt; getParameters() {
+            // None for a polynomial fit.
+<span class="nc" id="L148">            return null;</span>
+        }
+
+        @Override
+        public boolean hasFuncDesc() {
+<span class="nc" id="L153">            return true;</span>
+        }
+
+        @Override
+        public void rootMeanSquare() {
+<span class="nc" id="L158">            rms = optimizer.getRMS();</span>
+<span class="nc" id="L159">        }</span>
+
+        @Override
+        public Map&lt;String, String&gt; getFunctionStrings() {
+<span class="nc" id="L163">            return functionStrMap;</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="nc" id="L168">            return toVeLaString();</span>
+        }
+
+        @Override
+        public String toVeLaString() {
+<span class="nc" id="L173">            String strRepr = functionStrMap.get(LocaleProps.get(&quot;MODEL_INFO_FUNCTION_TITLE&quot;));</span>
+
+<span class="nc bnc" id="L175" title="All 2 branches missed.">            if (strRepr == null) {</span>
+<span class="nc" id="L176">                strRepr = &quot;zeroPoint is &quot; + NumericPrecisionPrefs.formatTime(zeroPoint) + &quot;\n\n&quot;;</span>
+
+<span class="nc" id="L178">                strRepr += &quot;f(t:real) : real {\n&quot;;</span>
+
+<span class="nc" id="L180">                double[] coeffs = function.getCoefficients();</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">                for (int i = coeffs.length - 1; i &gt;= 1; i--) {</span>
+<span class="nc" id="L182">                    strRepr += &quot;    &quot; + NumericPrecisionPrefs.formatCoef(coeffs[i]);</span>
+<span class="nc" id="L183">                    strRepr += &quot;*(t-zeroPoint)^&quot; + i + &quot; +\n&quot;;</span>
+                }
+<span class="nc" id="L185">                strRepr += &quot;    &quot; + NumericPrecisionPrefs.formatCoef(coeffs[0]);</span>
+<span class="nc" id="L186">                strRepr += &quot;\n}&quot;;</span>
+            }
+
+<span class="nc" id="L189">            return strRepr;</span>
+        }
+
+        public String toExcelString() {
+<span class="nc" id="L193">            String strRepr = functionStrMap.get(LocaleProps.get(&quot;MODEL_INFO_EXCEL_TITLE&quot;));</span>
+
+<span class="nc bnc" id="L195" title="All 2 branches missed.">            if (strRepr == null) {</span>
+<span class="nc" id="L196">                strRepr = &quot;=&quot;;</span>
+
+<span class="nc" id="L198">                double[] coeffs = function.getCoefficients();</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">                for (int i = coeffs.length - 1; i &gt;= 1; i--) {</span>
+<span class="nc" id="L200">                    strRepr += NumericPrecisionPrefs.formatCoef(coeffs[i]);</span>
+<span class="nc" id="L201">                    strRepr += &quot;*(A1-&quot; + NumericPrecisionPrefs.formatTime(zeroPoint) + &quot;)^&quot; + i + &quot;+\n&quot;;</span>
+                }
+<span class="nc" id="L203">                strRepr += NumericPrecisionPrefs.formatCoef(coeffs[0]);</span>
+            }
+
+<span class="nc" id="L206">            return strRepr;</span>
+        }
+
+        // toRString must be locale-independent!
+        public String toRString() {
+<span class="nc" id="L211">            String strRepr = functionStrMap.get(LocaleProps.get(&quot;MODEL_INFO_R_TITLE&quot;));</span>
+
+<span class="nc bnc" id="L213" title="All 2 branches missed.">            if (strRepr == null) {</span>
+<span class="nc" id="L214">                strRepr = &quot;zeroPoint &lt;- &quot; + NumericPrecisionPrefs.formatTimeLocaleIndependent(zeroPoint) + &quot;\n\n&quot;;</span>
+
+<span class="nc" id="L216">                strRepr += &quot;model &lt;- function(t)\n&quot;;</span>
+
+<span class="nc" id="L218">                double[] coeffs = function.getCoefficients();</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">                for (int i = coeffs.length - 1; i &gt;= 1; i--) {</span>
+<span class="nc" id="L220">                    strRepr += NumericPrecisionPrefs.formatCoefLocaleIndependent(coeffs[i]);</span>
+<span class="nc" id="L221">                    strRepr += &quot;*(t-zeroPoint)^&quot; + i + &quot; +\n&quot;;</span>
+                }
+<span class="nc" id="L223">                strRepr += NumericPrecisionPrefs.formatCoefLocaleIndependent(coeffs[0]);</span>
+            }
+
+<span class="nc" id="L226">            return strRepr;</span>
+        }
+
+        @Override
+        public void functionStrings() {
+<span class="nc" id="L231">            super.functionStrings();</span>
+<span class="nc" id="L232">            functionStrMap.put(LocaleProps.get(&quot;MODEL_INFO_EXCEL_TITLE&quot;), toExcelString());</span>
+<span class="nc" id="L233">            functionStrMap.put(LocaleProps.get(&quot;MODEL_INFO_R_TITLE&quot;), toRString());</span>
+<span class="nc" id="L234">        }</span>
+
+        @Override
+        public ContinuousModelFunction getModelFunction() {
+            // UnivariateRealFunction func = new
+            // UnivariateRealFunction() {
+            // @Override
+            // public double value(double x)
+            // throws FunctionEvaluationException {
+            // double y = 0;
+            // double[] coeffs = function.getCoefficients();
+            // for (int i = coeffs.length - 1; i &gt;= 1; i--) {
+            // y += coeffs[i] * Math.pow(x, i);
+            // }
+            // y += coeffs[0];
+            // return y;
+            // }
+            // };
+
+<span class="nc" id="L253">            return new ContinuousModelFunction(function, fit, zeroPoint);</span>
+        }
+
+        // An alternative implementation for getModelFunction() that
+        // uses Horner's method to avoid exponentiation.
+        public UnivariateRealFunction getModelFunctionHorner() {
+<span class="nc" id="L259">            UnivariateRealFunction func = new UnivariateRealFunction() {</span>
+                @Override
+                public double value(double x) throws FunctionEvaluationException {
+                    // Compute the value of the polynomial for x via
+                    // Horner's method.
+<span class="nc" id="L264">                    double y = 0;</span>
+<span class="nc" id="L265">                    double[] coeffs = function.getCoefficients();</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">                    for (double coeff : coeffs) {</span>
+<span class="nc" id="L267">                        y = y * x + coeff;</span>
+                    }
+<span class="nc" id="L269">                    return y;</span>
+                }
+            };
+
+<span class="nc" id="L273">            return func;</span>
+        }
+
+        @Override
+        public void execute() throws AlgorithmError {
+
+<span class="nc bnc" id="L279" title="All 4 branches missed.">            for (int i = 0; i &lt; obs.size() &amp;&amp; !interrupted; i++) {</span>
+<span class="nc" id="L280">                fitter.addObservedPoint(1.0, timeCoordSource.getXCoord(i, obs) - zeroPoint, obs.get(i).getMag());</span>
+            }
+
+<span class="nc bnc" id="L283" title="All 2 branches missed.">            if (!interrupted) {</span>
+                try {
+<span class="nc" id="L285">                    function = fitter.fit();</span>
+
+<span class="nc" id="L287">                    fit = new ArrayList&lt;ValidObservation&gt;();</span>
+<span class="nc" id="L288">                    residuals = new ArrayList&lt;ValidObservation&gt;();</span>
+
+<span class="nc" id="L290">                    String comment = LocaleProps.get(&quot;MODEL_INFO_POLYNOMIAL_DEGREE_DESC&quot;) + degree;</span>
+
+<span class="nc bnc" id="L292" title="All 4 branches missed.">                    for (int i = 0; i &lt; obs.size() &amp;&amp; !interrupted; i++) {</span>
+<span class="nc" id="L293">                        ValidObservation ob = obs.get(i);</span>
+
+<span class="nc" id="L295">                        double x = timeCoordSource.getXCoord(i, obs);</span>
+<span class="nc" id="L296">                        double zeroedX = x - zeroPoint;</span>
+<span class="nc" id="L297">                        double y = function.value(zeroedX);</span>
+
+<span class="nc" id="L299">                        collectObs(y, ob, comment);</span>
+                    }
+
+<span class="nc" id="L302">                    rootMeanSquare();</span>
+<span class="nc" id="L303">                    informationCriteria(degree);</span>
+<span class="nc" id="L304">                    fitMetrics();</span>
+
+<span class="nc" id="L306">                    ApacheCommonsDerivativeBasedExtremaFinder finder = new ApacheCommonsDerivativeBasedExtremaFinder(</span>
+                            fit, (DifferentiableUnivariateRealFunction) function, timeCoordSource, zeroPoint);
+
+<span class="nc" id="L309">                    String extremaStr = finder.toString();</span>
+
+<span class="nc bnc" id="L311" title="All 2 branches missed.">                    if (extremaStr != null) {</span>
+<span class="nc" id="L312">                        String title = LocaleProps.get(&quot;MODEL_INFO_EXTREMA_TITLE&quot;);</span>
+
+<span class="nc" id="L314">                        functionStrMap.put(title, extremaStr);</span>
+                    }
+
+<span class="nc" id="L317">                    functionStrings();</span>
+
+<span class="nc" id="L319">                } catch (ConvergenceException e) {</span>
+<span class="nc" id="L320">                    throw new AlgorithmError(e.getLocalizedMessage());</span>
+<span class="nc" id="L321">                }</span>
+            }
+<span class="nc" id="L323">        }</span>
+    }
+
+    // Test
+    // see also TSPolynomialFitterTest (under test directory)
+
+    @Override
+    public Boolean test() {
+<span class="nc" id="L331">        boolean result = true;</span>
+
+<span class="nc" id="L333">        setTestMode(true);</span>
+<span class="nc" id="L334">        needGUI = false;</span>
+        
+<span class="nc" id="L336">        result &amp;= testPolynomialFit();</span>
+
+<span class="nc" id="L338">        setTestMode(false);</span>
+
+<span class="nc" id="L340">        return result;</span>
+    }
+
+    private boolean testPolynomialFit() {
+<span class="nc" id="L344">        boolean result = true;</span>
+
+<span class="nc" id="L346">        List&lt;ValidObservation&gt; obs = getTestObs();</span>
+
+<span class="nc" id="L348">        setDegree(9);</span>
+
+<span class="nc" id="L350">        AbstractModel model = getModel(obs);</span>
+
+        try {
+<span class="nc" id="L353">            model.execute();</span>
+
+<span class="nc" id="L355">            double DELTA = 1e-5;</span>
+
+<span class="nc" id="L357">            List&lt;ValidObservation&gt; fit = model.getFit();</span>
+<span class="nc" id="L358">            ValidObservation fitOb = fit.get(0);</span>
+<span class="nc bnc" id="L359" title="All 2 branches missed.">            result &amp;= fitOb.getJD() == 2459301.0;</span>
+<span class="nc" id="L360">            result &amp;= Tolerance.areClose(0.629248, fitOb.getMag(), DELTA, true);</span>
+            
+<span class="nc" id="L362">            List&lt;ValidObservation&gt; residuals = model.getResiduals();</span>
+<span class="nc" id="L363">            ValidObservation resOb = residuals.get(0);</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">            result &amp;= resOb.getJD() == 2459301.0;</span>
+<span class="nc" id="L365">            result &amp;= Tolerance.areClose(0.000073, resOb.getMag(), DELTA, true);</span>
+
+<span class="nc" id="L367">            result &amp;= Tolerance.areClose(0.0000162266724849, model.getRMS(), DELTA, true);</span>
+<span class="nc" id="L368">            result &amp;= Tolerance.areClose(-7923.218889035116, model.getAIC(), DELTA, true);</span>
+<span class="nc" id="L369">            result &amp;= Tolerance.areClose(-7888.243952752065, model.getBIC(), DELTA, true);</span>
+<span class="nc" id="L370">        } catch (AlgorithmError e) {</span>
+<span class="nc" id="L371">            result = false;</span>
+<span class="nc" id="L372">        }</span>
+
+<span class="nc" id="L374">        return result;</span>
+    }
+
+    private List&lt;ValidObservation&gt; getTestObs() {
+<span class="nc" id="L378">        List&lt;ValidObservation&gt; obs = new ArrayList&lt;ValidObservation&gt;();</span>
+
+<span class="nc bnc" id="L380" title="All 2 branches missed.">        for (int t = 1; t &lt;= 360; t++) {</span>
+<span class="nc" id="L381">            double time = 2459300 + t;</span>
+<span class="nc" id="L382">            double mag = Math.sin(Math.toRadians(time));</span>
+<span class="nc" id="L383">            ValidObservation ob = new ValidObservation();</span>
+<span class="nc" id="L384">            ob.setDateInfo(new DateInfo(time));</span>
+<span class="nc" id="L385">            ob.setMagnitude(new Magnitude(mag, 0));</span>
+<span class="nc" id="L386">            obs.add(ob);</span>
+        }
+
+<span class="nc" id="L389">        return obs;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NumberParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.locale</a> &gt; <span class="el_source">NumberParser.java</span></div><h1>NumberParser.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.locale;
+
+import java.util.Collections;
+
+import org.aavso.tools.vstar.vela.Operand;
+import org.aavso.tools.vstar.vela.VeLaEvalError;
+import org.aavso.tools.vstar.vela.VeLaInterpreter;
+import org.aavso.tools.vstar.vela.VeLaParseError;
+
+/**
+ * This class contains static method that parses numeric expressions in a
+ * locale-independent way, intended as replacements for the Double method of the
+ * same name.
+ */
+<span class="nc" id="L32">public class NumberParser {</span>
+
+	private final static boolean VERBOSE = false;
+	
+	private final static boolean ADD_VSTAR_API = false;
+
+<span class="fc" id="L38">	private static VeLaInterpreter vela =</span>
+<span class="fc" id="L39">			new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());</span>
+
+	/**
+	 * Parses a string, returning a double primitive value, or if no valid
+	 * double value is present, throws an exception.
+	 * 
+	 * @param str
+	 *            The string that (hopefully) contains a numeric VeLa
+	 *            expression.
+	 * @return The double value corresponding to the evaluated string.
+	 * @throws VeLaParseError
+	 *             If a parse error occurs.
+	 * @throws VeLaEvalError
+	 *             If an evaluation error occurs.
+	 * @throws NumberFormatException
+	 *             If there was no valid double value resulting from the parse
+	 *             (the VeLa expression did not evaluate to a double or
+	 *             integer).
+	 */
+	public static double parseDouble(String str) throws VeLaParseError,
+			VeLaEvalError, NumberFormatException {
+
+<span class="fc" id="L61">		Operand operand = vela.expressionToOperand(str);</span>
+
+<span class="fc" id="L63">		double result = Double.NaN;</span>
+
+<span class="pc bpc" id="L65" title="1 of 3 branches missed.">		switch (operand.getType()) {</span>
+		case INTEGER:
+<span class="fc" id="L67">			result = operand.intVal();</span>
+<span class="fc" id="L68">			break;</span>
+
+		case REAL:
+<span class="fc" id="L71">			result = operand.doubleVal();</span>
+<span class="fc" id="L72">			break;</span>
+
+		default:
+<span class="nc" id="L75">			throw new NumberFormatException();</span>
+		}
+
+<span class="fc" id="L78">		return result;</span>
+	}
+
+	/**
+	 * Parses a string, returning an integer primitive value, or if no valid
+	 * integer value is present, throws an exception.
+	 * 
+	 * @param str
+	 *            The string that (hopefully) contains an integer VeLa
+	 *            expression.
+	 * @return The integer value corresponding to the evaluated string.
+	 * @throws VeLaParseError
+	 *             If a parse error occurs.
+	 * @throws VeLaEvalError
+	 *             If an evaluation error occurs.
+	 * @throws NumberFormatException
+	 *             If there was no valid integer value resulting from the parse
+	 *             (the VeLa expression did not evaluate to an integer).
+	 */
+	public static long parseInteger(String str) throws VeLaParseError,
+			VeLaEvalError, NumberFormatException {
+
+<span class="nc" id="L100">		Operand operand = vela.expressionToOperand(str);</span>
+
+<span class="nc" id="L102">		long result = 0;</span>
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		switch (operand.getType()) {</span>
+		case INTEGER:
+<span class="nc" id="L106">			result = operand.intVal();</span>
+<span class="nc" id="L107">			break;</span>
+
+		default:
+<span class="nc" id="L110">			throw new NumberFormatException();</span>
+		}
+
+<span class="nc" id="L113">		return result;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Property.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.data</a> &gt; <span class="el_source">Property.java</span></div><h1>Property.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.data;
+
+/**
+ * This class represents property of a particular type. The intention is to use
+ * instances of this class in the context of ValidObservation where string
+ * properties (details) would once have been used.
+ */
+// TODO: need &lt;T&gt; in both!
+public class Property implements Comparable {
+
+<span class="fc" id="L28">	public final static Property NO_VALUE = new Property();</span>
+
+<span class="fc" id="L30">	public static enum propType {</span>
+<span class="fc" id="L31">		INTEGER, REAL, BOOLEAN, STRING, NONE</span>
+	};
+
+	private propType type;
+
+	private int intVal;
+	private double realVal;
+	private boolean boolVal;
+	private String strVal;
+
+<span class="fc" id="L41">	public Property() {</span>
+<span class="fc" id="L42">		type = propType.NONE;</span>
+<span class="fc" id="L43">	}</span>
+
+<span class="fc" id="L45">	public Property(int val) {</span>
+<span class="fc" id="L46">		type = propType.INTEGER;</span>
+<span class="fc" id="L47">		intVal = val;</span>
+<span class="fc" id="L48">	}</span>
+
+<span class="fc" id="L50">	public Property(double val) {</span>
+<span class="fc" id="L51">		type = propType.REAL;</span>
+<span class="fc" id="L52">		realVal = val;</span>
+<span class="fc" id="L53">	}</span>
+
+<span class="fc" id="L55">	public Property(boolean val) {</span>
+<span class="fc" id="L56">		type = propType.BOOLEAN;</span>
+<span class="fc" id="L57">		boolVal = val;</span>
+<span class="fc" id="L58">	}</span>
+
+<span class="fc" id="L60">	public Property(String val) {</span>
+<span class="fc" id="L61">		type = propType.STRING;</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">		strVal = val != null ? val : &quot;&quot;;</span>
+<span class="fc" id="L63">	}</span>
+
+	public propType getType() {
+<span class="fc" id="L66">		return type;</span>
+	}
+
+	public int getIntVal() {
+<span class="fc" id="L70">		return intVal;</span>
+	}
+
+	public double getRealVal() {
+<span class="fc" id="L74">		return realVal;</span>
+	}
+
+	public boolean getBoolVal() {
+<span class="fc" id="L78">		return boolVal;</span>
+	}
+
+	public String getStrVal() {
+<span class="fc" id="L82">		return strVal;</span>
+	}
+
+	public Class&lt;?&gt; getClazz() {
+		Class&lt;?&gt; clazz;
+
+<span class="fc bfc" id="L88" title="All 5 branches covered.">		switch (type) {</span>
+		case INTEGER:
+<span class="fc" id="L90">			clazz = Integer.class;</span>
+<span class="fc" id="L91">			break;</span>
+		case REAL:
+<span class="fc" id="L93">			clazz = Double.class;</span>
+<span class="fc" id="L94">			break;</span>
+		case BOOLEAN:
+<span class="fc" id="L96">			clazz = Boolean.class;</span>
+<span class="fc" id="L97">			break;</span>
+		case STRING:
+<span class="fc" id="L99">			clazz = String.class;</span>
+<span class="fc" id="L100">			break;</span>
+		case NONE:
+		default:
+<span class="fc" id="L103">			clazz = Void.class;</span>
+		}
+
+<span class="fc" id="L106">		return clazz;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L111">		final int prime = 31;</span>
+<span class="fc" id="L112">		int result = 1;</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">		result = prime * result + (boolVal ? 1231 : 1237);</span>
+<span class="fc" id="L114">		result = prime * result + intVal;</span>
+		long temp;
+<span class="fc" id="L116">		temp = Double.doubleToLongBits(realVal);</span>
+<span class="fc" id="L117">		result = prime * result + (int) (temp ^ (temp &gt;&gt;&gt; 32));</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">		result = prime * result + ((strVal == null) ? 0 : strVal.hashCode());</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">		result = prime * result + ((type == null) ? 0 : type.hashCode());</span>
+<span class="fc" id="L120">		return result;</span>
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L125" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L126">			return true;</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">		if (obj == null)</span>
+<span class="fc" id="L128">			return false;</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L130">			return false;</span>
+<span class="fc" id="L131">		Property other = (Property) obj;</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">		if (boolVal != other.boolVal)</span>
+<span class="nc" id="L133">			return false;</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">		if (intVal != other.intVal)</span>
+<span class="nc" id="L135">			return false;</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">		if (Double.doubleToLongBits(realVal) != Double.doubleToLongBits(other.realVal))</span>
+<span class="nc" id="L137">			return false;</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">		if (strVal == null) {</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">			if (other.strVal != null)</span>
+<span class="nc" id="L140">				return false;</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">		} else if (!strVal.equals(other.strVal))</span>
+<span class="fc" id="L142">			return false;</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">		if (type != other.type)</span>
+<span class="nc" id="L144">			return false;</span>
+<span class="fc" id="L145">		return true;</span>
+	}
+
+
+	@Override
+	public int compareTo(Object o) {
+<span class="fc" id="L151">		int result = 0;</span>
+
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">		if (o instanceof Property) {</span>
+<span class="fc" id="L154">			Property p = (Property)o;</span>
+<span class="pc bpc" id="L155" title="1 of 5 branches missed.">			switch (type) {</span>
+			case INTEGER:
+<span class="fc" id="L157">				result = Integer.compare(intVal, p.intVal);</span>
+<span class="fc" id="L158">				break;</span>
+			case REAL:
+<span class="fc" id="L160">				result = Double.compare(realVal, p.realVal);</span>
+<span class="fc" id="L161">				break;</span>
+			case BOOLEAN:
+<span class="fc" id="L163">				result = Boolean.compare(boolVal, p.boolVal); </span>
+<span class="fc" id="L164">				break;</span>
+			case STRING:
+<span class="fc" id="L166">				result = strVal.compareTo(p.strVal);</span>
+<span class="fc" id="L167">				break;</span>
+			case NONE:
+			default:
+<span class="nc" id="L170">				result = 0;</span>
+			}
+		}
+
+<span class="fc" id="L174">		return result;</span>
+	}
+
+	@Override
+	public String toString() {
+		String str;
+
+<span class="pc bpc" id="L181" title="1 of 5 branches missed.">		switch (type) {</span>
+		case INTEGER:
+<span class="fc" id="L183">			str = String.valueOf(intVal);</span>
+<span class="fc" id="L184">			break;</span>
+		case REAL:
+<span class="fc" id="L186">			str = String.valueOf(realVal);</span>
+<span class="fc" id="L187">			break;</span>
+		case BOOLEAN:
+<span class="fc" id="L189">			str = String.valueOf(boolVal);</span>
+<span class="fc" id="L190">			break;</span>
+		case STRING:
+<span class="fc" id="L192">			str = strVal;</span>
+<span class="fc" id="L193">			break;</span>
+		case NONE:
+		default:
+<span class="nc" id="L196">			str = &quot;&quot;;</span>
+		}
+
+<span class="fc" id="L199">		return str;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

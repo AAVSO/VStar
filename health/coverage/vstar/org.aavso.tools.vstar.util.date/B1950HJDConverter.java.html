@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>B1950HJDConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.date</a> &gt; <span class="el_source">B1950HJDConverter.java</span></div><h1>B1950HJDConverter.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.date;
+
+import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.RAInfo;
+
+
+/**
+ * This class contains a method for converting a Julian Date to a Heliocentric
+ * Julian Date.&lt;br/&gt;
+ * 
+ * Based upon Perl code provided by Matthew Templeton, AAVSO. See
+ * https://sourceforge
+ * .net/tracker/?func=detail&amp;aid=3391997&amp;group_id=263306&amp;atid=1152052&lt;br/&gt;
+ * 
+ * TODO: Independent reference to algorithm; see tracker
+ */
+<span class="fc" id="L34">public class B1950HJDConverter extends AbstractHJDConverter {</span>
+
+	/**
+	 * Given a JD, RA, and Dec, return HJD.
+	 * 
+	 * @param jd
+	 *            The Julian Date to be converted.
+	 * @param ra
+	 *            The B1950 epoch right ascension coordinate.
+	 * @param dec
+	 *            The B1950 epoch declination coordinate.
+	 * @return The corresponding Heliocentric Julian Date.
+	 */
+	@Override
+	public double convert(double jd, RAInfo ra, DecInfo dec) {
+<span class="fc" id="L49">		double hjd = 0;</span>
+	
+		// TODO: use Math.toRadians(arg0)?
+	
+<span class="fc" id="L53">		double deg2rad = 3.1415926535 / 180.;</span>
+<span class="fc" id="L54">		double raRadians = ra.toDegrees() * deg2rad;</span>
+<span class="fc" id="L55">		double decRadians = dec.toDegrees() * deg2rad;</span>
+	
+<span class="fc" id="L57">		double eps = (23. + (27. / 60.)) * deg2rad;</span>
+	
+<span class="fc" id="L59">		double T = (jd - 2415020.) / 36525.;</span>
+	
+<span class="fc" id="L61">		double p = (1.396041 + (0.000308 * (T + 0.5))) * (T - 0.499998);</span>
+	
+<span class="fc" id="L63">		double L = 279.696678 + (36000.76892 * T) + (0.000303 * T * T) - p;</span>
+	
+<span class="fc" id="L65">		double G = 358.475833 + (35999.04975 * T) - (0.00015 * T * T);</span>
+	
+<span class="fc" id="L67">		L = L * deg2rad;</span>
+<span class="fc" id="L68">		G = G * deg2rad;</span>
+	
+<span class="fc" id="L70">		double AJ = 225.444651 + (2880. * T) + (154.906654 * T * T);</span>
+<span class="fc" id="L71">		AJ = AJ * deg2rad;</span>
+	
+<span class="fc" id="L73">		double X = 0.99986 * Math.cos(L) - 0.025127 * Math.cos(G - L)</span>
+<span class="fc" id="L74">				+ 0.0008374 * Math.cos(G + L) + 0.000105 * Math.cos(G + G + L)</span>
+<span class="fc" id="L75">				+ 0.000063 * T * Math.cos(G - L) + 0.000035</span>
+<span class="fc" id="L76">				* Math.cos(G + G + L) - 0.000026 * Math.sin(G - L - AJ)</span>
+<span class="fc" id="L77">				- 0.000021 * T * Math.cos(G + L);</span>
+	
+<span class="fc" id="L79">		double Y = 0.917308 * Math.sin(L) + 0.023053 * Math.sin(G - L)</span>
+<span class="fc" id="L80">				+ 0.007683 * Math.sin(G + L) + 0.000097 * Math.sin(G + G + L)</span>
+<span class="fc" id="L81">				- 0.000057 * T * Math.sin(G - L) - 0.000032</span>
+<span class="fc" id="L82">				* Math.sin(G + G - L) - 0.000024 * Math.cos(G - L - AJ)</span>
+<span class="fc" id="L83">				- 0.000019 * T * Math.sin(G + L);</span>
+	
+<span class="fc" id="L85">		double dt = -0.0057755</span>
+<span class="fc" id="L86">				* ((Math.cos(decRadians) * Math.cos(raRadians) * X) + ((Math</span>
+<span class="fc" id="L87">						.tan(eps)</span>
+<span class="fc" id="L88">						* Math.sin(decRadians) + Math.cos(decRadians)</span>
+<span class="fc" id="L89">						* Math.sin(raRadians)) * Y));</span>
+	
+<span class="fc" id="L91">		hjd = jd + dt;</span>
+	
+<span class="fc" id="L93">		return hjd;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

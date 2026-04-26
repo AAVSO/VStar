@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AIDWebServiceObservationSourcePluginBase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.plugin.ob.src.impl</a> &gt; <span class="el_source">AIDWebServiceObservationSourcePluginBase.java</span></div><h1>AIDWebServiceObservationSourcePluginBase.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.plugin.ob.src.impl;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.aavso.tools.vstar.data.MTypeType;
+import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.MagnitudeModifier;
+import org.aavso.tools.vstar.data.ValidationType;
+import org.aavso.tools.vstar.data.validation.MagnitudeFieldValidator;
+import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.input.database.VSXWebServiceStarInfoSource;
+import org.aavso.tools.vstar.plugin.InputType;
+import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
+import org.aavso.tools.vstar.ui.mediator.NewStarType;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.util.help.Help;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+
+public abstract class AIDWebServiceObservationSourcePluginBase extends
+		ObservationSourcePluginBase {
+
+	protected static final int MAX_OBS_AT_ONCE = 50000;
+<span class="fc" id="L44">	protected static final String BASE_URL = ResourceAccessor.getVsxApiUrlBase();</span>
+	protected String view;
+	protected String method;
+<span class="fc" id="L47">	protected static final MagnitudeFieldValidator magnitudeFieldValidator = new MagnitudeFieldValidator();</span>
+	protected StarInfo info;
+	protected StarSelectorDialog starSelector;
+	protected List&lt;String&gt; urlStrs;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param view
+	 *            view type, e.g. api.object
+	 * @param method
+	 *            response method: &amp;csv, &amp;att
+	 */
+	public AIDWebServiceObservationSourcePluginBase(String view, String method) {
+<span class="fc" id="L61">		super();</span>
+<span class="pc bpc" id="L62" title="1 of 4 branches missed.">		assert (&quot;&amp;csv&quot;.equals(method) || &quot;&amp;att&quot;.equals(method));</span>
+<span class="fc" id="L63">		this.view = view;</span>
+<span class="fc" id="L64">		this.method = method;</span>
+<span class="fc" id="L65">		this.info = null;</span>
+<span class="fc" id="L66">	}</span>
+
+	/**
+	 * Given an AUID, min and max JD, return a web service URL.
+	 * 
+	 * @param auid
+	 *            The AUID of the target.
+	 * @param minJD
+	 *            The minimum JD of the range to be loaded.
+	 * @param maxJD
+	 *            The maximum JD of the range to be loaded.
+	 * @return The URL string necessary to load data for the target and JD
+	 *         range.
+	 */
+	public String createAIDUrlForAUID(String auid, double minJD, double maxJD) {
+
+<span class="fc" id="L82">		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);</span>
+
+<span class="fc" id="L84">		urlStrBuf.append(view);</span>
+<span class="fc" id="L85">		urlStrBuf.append(&quot;&amp;ident=&quot;);</span>
+<span class="fc" id="L86">		urlStrBuf.append(auid);</span>
+<span class="fc" id="L87">		urlStrBuf.append(&quot;&amp;data=&quot;);</span>
+<span class="fc" id="L88">		urlStrBuf.append(MAX_OBS_AT_ONCE);</span>
+<span class="fc" id="L89">		urlStrBuf.append(&quot;&amp;fromjd=&quot;);</span>
+<span class="fc" id="L90">		urlStrBuf.append(minJD);</span>
+<span class="fc" id="L91">		urlStrBuf.append(&quot;&amp;tojd=&quot;);</span>
+<span class="fc" id="L92">		urlStrBuf.append(maxJD);</span>
+<span class="fc" id="L93">		urlStrBuf.append(method);</span>
+<span class="fc" id="L94">		urlStrBuf.append(&quot;&amp;mtype=std&quot;);</span>
+
+<span class="fc" id="L96">		return urlStrBuf.toString();</span>
+	}
+
+	/**
+	 * Given an AUID, min and max JD, and a series, return a web service URL.
+	 * 
+	 * @param auid
+	 *            The AUID of the target.
+	 * @param minJD
+	 *            The minimum JD of the range to be loaded.
+	 * @param maxJD
+	 *            The maximum JD of the range to be loaded.
+	 * @param series
+	 *            The series to be loaded; may be a comma-delimited list or null
+	 * @param obsCodes
+	 *            The observer codes to be loaded; may be a comma-delimited list
+	 *            or null
+	 * @param minFields
+	 *            Whether or not to request a minimum number of fields.
+	 * @return The URL string necessary to load data for the target and JD
+	 *         range.
+	 */
+	public String createAIDUrlForAUID(String auid, double minJD, double maxJD,
+			String series, String obsCodes, boolean minFields) {
+
+<span class="fc" id="L121">		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);</span>
+
+<span class="fc" id="L123">		urlStrBuf.append(view);</span>
+<span class="fc" id="L124">		urlStrBuf.append(&quot;&amp;ident=&quot;);</span>
+<span class="fc" id="L125">		urlStrBuf.append(auid);</span>
+<span class="fc" id="L126">		urlStrBuf.append(&quot;&amp;data=&quot;);</span>
+<span class="fc" id="L127">		urlStrBuf.append(MAX_OBS_AT_ONCE);</span>
+<span class="fc" id="L128">		urlStrBuf.append(&quot;&amp;fromjd=&quot;);</span>
+<span class="fc" id="L129">		urlStrBuf.append(minJD);</span>
+<span class="fc" id="L130">		urlStrBuf.append(&quot;&amp;tojd=&quot;);</span>
+<span class="fc" id="L131">		urlStrBuf.append(maxJD);</span>
+<span class="fc" id="L132">		urlStrBuf.append(method);</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">		if (series != null) {</span>
+<span class="fc" id="L134">			urlStrBuf.append(&quot;&amp;band=&quot;);</span>
+<span class="fc" id="L135">			urlStrBuf.append(series);</span>
+		}
+<span class="fc bfc" id="L137" title="All 2 branches covered.">		if (obsCodes != null) {</span>
+<span class="fc" id="L138">			urlStrBuf.append(&quot;&amp;obscode=&quot;);</span>
+<span class="fc" id="L139">			urlStrBuf.append(obsCodes);</span>
+		}
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">		if (minFields) {</span>
+<span class="nc" id="L142">			urlStrBuf.append(&quot;&amp;minfields&quot;);</span>
+		}
+<span class="fc" id="L144">		urlStrBuf.append(&quot;&amp;mtype=std&quot;);</span>
+
+<span class="fc" id="L146">		return urlStrBuf.toString();</span>
+	}
+
+	/**
+	 * Given an AUID and a series, return a web service URL to load data for all
+	 * times with the specified constraints.
+	 * 
+	 * @param auid
+	 *            The AUID of the target.
+	 * @param series
+	 *            The series to be loaded; may be a comma-delimited list or null
+	 * @param obsCodes
+	 *            The observer codes to be loaded; may be a comma-delimited list
+	 *            or null
+	 * @param minFields
+	 *            Whether or not to request a minimum number of fields.
+	 * @return The URL string necessary to load data for the target and JD
+	 *         range.
+	 */
+	public String createAIDUrlForAUID(String auid, String series,
+			String obsCodes, boolean minFields) {
+
+<span class="nc" id="L168">		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);</span>
+
+<span class="nc" id="L170">		urlStrBuf.append(view);</span>
+<span class="nc" id="L171">		urlStrBuf.append(&quot;&amp;ident=&quot;);</span>
+<span class="nc" id="L172">		urlStrBuf.append(auid);</span>
+<span class="nc" id="L173">		urlStrBuf.append(&quot;&amp;data=&quot;);</span>
+<span class="nc" id="L174">		urlStrBuf.append(MAX_OBS_AT_ONCE);</span>
+<span class="nc" id="L175">		urlStrBuf.append(method);</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">		if (series != null) {</span>
+<span class="nc" id="L177">			urlStrBuf.append(&quot;&amp;band=&quot;);</span>
+<span class="nc" id="L178">			urlStrBuf.append(series);</span>
+		}
+<span class="nc bnc" id="L180" title="All 2 branches missed.">		if (obsCodes != null) {</span>
+<span class="nc" id="L181">			urlStrBuf.append(&quot;&amp;obscode=&quot;);</span>
+<span class="nc" id="L182">			urlStrBuf.append(obsCodes);</span>
+		}
+<span class="nc bnc" id="L184" title="All 2 branches missed.">		if (minFields) {</span>
+<span class="nc" id="L185">			urlStrBuf.append(&quot;&amp;minfields&quot;);</span>
+		}
+<span class="nc" id="L187">		urlStrBuf.append(&quot;&amp;mtype=std&quot;);</span>
+
+<span class="nc" id="L189">		return urlStrBuf.toString();</span>
+	}
+
+	/**
+	 * Given an AUID return a web service URL for all data for the target.
+	 * 
+	 * @param auid
+	 *            The AUID of the target.
+	 * @return The URL string necessary to load data for the target and JD
+	 *         range.
+	 */
+	public String createAIDUrlForAUID(String auid) {
+
+<span class="nc" id="L202">		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);</span>
+
+<span class="nc" id="L204">		urlStrBuf.append(view);</span>
+<span class="nc" id="L205">		urlStrBuf.append(&quot;&amp;ident=&quot;);</span>
+<span class="nc" id="L206">		urlStrBuf.append(auid);</span>
+<span class="nc" id="L207">		urlStrBuf.append(&quot;&amp;data=&quot;);</span>
+<span class="nc" id="L208">		urlStrBuf.append(MAX_OBS_AT_ONCE);</span>
+<span class="nc" id="L209">		urlStrBuf.append(method);</span>
+<span class="nc" id="L210">		urlStrBuf.append(&quot;&amp;mtype=std&quot;);</span>
+
+<span class="nc" id="L212">		return urlStrBuf.toString();</span>
+	}
+
+	@Override
+	public String getDisplayName() {
+<span class="nc" id="L217">		return LocaleProps.get(&quot;FILE_MENU_NEW_STAR_FROM_DATABASE&quot;);</span>
+	}
+
+	@Override
+	public String getDescription() {
+<span class="nc" id="L222">		return LocaleProps.get(&quot;DATABASE_OBS_SOURCE&quot;);</span>
+	}
+
+	@Override
+	public String getDocName() {
+<span class="nc" id="L227">		return Help.getAIDWebServiceHelpPage();</span>
+	}
+
+	@Override
+	public InputType getInputType() {
+<span class="nc" id="L232">		return InputType.URL;</span>
+	}
+
+	@Override
+	public List&lt;URL&gt; getURLs() throws Exception {
+<span class="nc" id="L237">		urlStrs = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L238">		List&lt;URL&gt; urls = new ArrayList&lt;URL&gt;();</span>
+
+<span class="nc" id="L240">		starSelector = StarSelectorDialog.getInstance();</span>
+<span class="nc" id="L241">		starSelector.setPluginDocName(getDocName());</span>
+
+		// Ask for object information.
+<span class="nc" id="L244">		starSelector.showDialog();</span>
+
+<span class="nc bnc" id="L246" title="All 2 branches missed.">		if (!starSelector.isCancelled()) {</span>
+<span class="nc" id="L247">			setAdditive(starSelector.isLoadAdditive());</span>
+
+<span class="nc" id="L249">			String auid = starSelector.getAuid();</span>
+<span class="nc" id="L250">			String starName = starSelector.getStarName();</span>
+
+			// Get the star name if we don't have it.
+<span class="nc" id="L253">			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();</span>
+
+<span class="nc bnc" id="L255" title="All 2 branches missed.">			if (starSelector.wantAllData()) {</span>
+				// Star info for all data
+<span class="nc bnc" id="L257" title="All 2 branches missed.">				if (starName == null) {</span>
+<span class="nc" id="L258">					info = infoSrc.getStarByAUID(auid);</span>
+<span class="nc" id="L259">					starName = info.getDesignation();</span>
+				} else {
+<span class="nc" id="L261">					info = infoSrc.getStarByName(starName);</span>
+<span class="nc" id="L262">					auid = info.getAuid();</span>
+				}
+			} else {
+				// Star info by JD range
+<span class="nc bnc" id="L266" title="All 2 branches missed.">				if (starName == null) {</span>
+<span class="nc" id="L267">					info = infoSrc.getStarByAUID(auid, starSelector</span>
+<span class="nc" id="L268">							.getMinDate().getJulianDay(), starSelector</span>
+<span class="nc" id="L269">							.getMaxDate().getJulianDay());</span>
+<span class="nc" id="L270">					starName = info.getDesignation();</span>
+				} else {
+<span class="nc" id="L272">					info = infoSrc.getStarByName(starName, starSelector</span>
+<span class="nc" id="L273">							.getMinDate().getJulianDay(), starSelector</span>
+<span class="nc" id="L274">							.getMaxDate().getJulianDay());</span>
+<span class="nc" id="L275">					auid = info.getAuid();</span>
+				}
+			}
+
+<span class="nc" id="L279">			setVelaFilterStr(starSelector.getVeLaFilter());</span>
+
+<span class="nc" id="L281">			String urlStr = addURLs(auid);</span>
+
+			// Return a list containing one URL to satisfy logic in new star
+			// from obs source plug-in task. We are actually interested in just
+			// the partial URL string we constructed, which will be used in
+			// retrieveObservations().
+<span class="nc" id="L287">			urls.add(new URL(urlStr));			</span>
+<span class="nc" id="L288">		} else {</span>
+<span class="nc" id="L289">			throw new CancellationException();</span>
+		}
+
+<span class="nc" id="L292">		return urls;</span>
+	}
+
+	@Override
+	public NewStarType getNewStarType() {
+<span class="nc" id="L297">		return NewStarType.NEW_STAR_FROM_DATABASE;</span>
+	}
+
+	@Override
+	public String getInputName() {
+<span class="nc" id="L302">		return super.getInputName();</span>
+	}
+
+	@Override
+	public String getGroup() {
+<span class="nc" id="L307">		return &quot;Internal&quot;;</span>
+	}
+
+	/**
+	 * Set the star information object. This is primarily so we can test
+	 * requestObservations() independent of the rest of the plug-in code.
+	 * 
+	 * @param info
+	 *            the info to set
+	 */
+	public void setInfo(StarInfo info) {
+<span class="fc" id="L318">		this.info = info;</span>
+<span class="fc" id="L319">	}</span>
+
+	/**
+	 * Set the URL. This is primarily so we can test requestObservations()
+	 * independent of the rest of the plug-in code.
+	 * 
+	 * @param url
+	 */
+	public void setUrl(String urlStr) {
+<span class="fc" id="L328">		urlStrs = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L329">		urlStrs.add(urlStr);</span>
+<span class="fc" id="L330">	}</span>
+
+	/**
+	 * Create one or more URLs, adding them to the URL string list, for the
+	 * specified target AUID.
+	 * 
+	 * @param auid
+	 *            The target AUID.
+	 * @return A representative URL.
+	 */
+	abstract protected String addURLs(String auid);
+
+	protected Double getPossiblyNullDouble(String valStr) {
+<span class="fc" id="L343">		Double num = null;</span>
+
+		try {
+<span class="pc bpc" id="L346" title="1 of 2 branches missed.">			if (valStr != null) {</span>
+<span class="fc" id="L347">				num = Double.parseDouble(valStr);</span>
+			}
+<span class="fc" id="L349">		} catch (NumberFormatException e) {</span>
+			// The value will default to null.
+<span class="fc" id="L351">		}</span>
+
+<span class="fc" id="L353">		return num;</span>
+	}
+
+	protected Magnitude getMagnitude(double mag, double error,
+			boolean fainterThan, boolean isUncertain) {
+
+<span class="fc bfc" id="L359" title="All 2 branches covered.">		MagnitudeModifier modifier = fainterThan ? MagnitudeModifier.FAINTER_THAN</span>
+<span class="fc" id="L360">				: MagnitudeModifier.NO_DELTA;</span>
+
+<span class="fc" id="L362">		return new Magnitude(mag, modifier, isUncertain, error);</span>
+	}
+
+	protected ValidationType getValidationType(String valflag) {
+		ValidationType type;
+
+		// - V,Z,U =&gt; Good
+		// - T,N =&gt; discrepant
+		// - Y(,Q) filtered out server side
+
+<span class="pc bpc" id="L372" title="1 of 3 branches missed.">		switch (valflag) {</span>
+		case &quot;V&quot;:
+		case &quot;Z&quot;:
+		case &quot;U&quot;:
+<span class="fc" id="L376">			type = ValidationType.GOOD;</span>
+<span class="fc" id="L377">			break;</span>
+
+		case &quot;T&quot;:
+		case &quot;N&quot;:
+<span class="fc" id="L381">			type = ValidationType.DISCREPANT;</span>
+<span class="fc" id="L382">			break;</span>
+
+		default:
+			// In case anything else slips through, e.g. Y,Q.
+<span class="nc" id="L386">			type = ValidationType.BAD;</span>
+			break;
+		}
+
+<span class="fc" id="L390">		return type;</span>
+	}
+
+	protected MTypeType getMType(String mtypeStr) {
+<span class="fc" id="L394">		MTypeType result = MTypeType.STD;</span>
+
+		// If mtypeStr is null, we use the ValidObservation's
+		// constructed default (standard magnitude type).
+		//
+		// Note that we should only ever see STD here anyway!
+
+<span class="pc bpc" id="L401" title="3 of 4 branches missed.">		if (mtypeStr != null || &quot;&quot;.equals(mtypeStr)) {</span>
+<span class="pc bpc" id="L402" title="1 of 2 branches missed.">			if (mtypeStr == &quot;DIFF&quot;) {</span>
+<span class="nc" id="L403">				result = MTypeType.DIFF;</span>
+<span class="pc bpc" id="L404" title="1 of 2 branches missed.">			} else if (mtypeStr == &quot;STEP&quot;) {</span>
+<span class="nc" id="L405">				result = MTypeType.STEP;</span>
+			}
+		}
+
+<span class="fc" id="L409">		return result;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

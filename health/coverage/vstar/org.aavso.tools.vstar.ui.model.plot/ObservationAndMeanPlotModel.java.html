@@ -1,0 +1,771 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ObservationAndMeanPlotModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.model.plot</a> &gt; <span class="el_source">ObservationAndMeanPlotModel.java</span></div><h1>ObservationAndMeanPlotModel.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.model.plot;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
+import org.aavso.tools.vstar.util.model.IModel;
+import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.notification.Notifier;
+import org.aavso.tools.vstar.util.stats.BinningResult;
+import org.aavso.tools.vstar.util.stats.DescStats;
+
+/**
+ * This class is a model that represents a series of valid variable star
+ * observations, e.g. for different bands (or from different sources) along with
+ * a means series that can change over time.
+ */
+<span class="nc" id="L45">@SuppressWarnings(&quot;serial&quot;)</span>
+public class ObservationAndMeanPlotModel extends ObservationPlotModel {
+
+	public static final int NO_SERIES = -1;
+
+	// The series number of the series that is the source of the
+	// means series.
+	protected int meanSourceSeriesNum;
+
+	// The series number of the means series.
+	protected int meansSeriesNum;
+
+	// An observation time source.
+	protected ITimeElementEntity timeElementEntity;
+
+	// The number of time elements in a means series bin.
+	protected double timeElementsInBin;
+
+	// The observations that constitute the means series.
+	protected List&lt;ValidObservation&gt; meanObsList;
+
+	// The binning result associated with this mean observation list.
+	protected BinningResult binningResult;
+
+	protected Notifier&lt;BinningResult&gt; meansChangeNotifier;
+
+	// The current model function series number; may be NO_SERIES.
+	protected int modelFunctionSeriesNum;
+
+	// The current model function (polynomial fit, DCDFT, ...); may be
+	// null.
+	protected ContinuousModelFunction modelFunction;
+
+	/**
+	 * Constructor
+	 * 
+	 * We add named observation source lists to unique series numbers. Then we
+	 * add the initial mean-based series.
+	 * 
+	 * @param obsSourceListMap
+	 *            A mapping from source series to lists of observation sources.
+	 * @param coordSrc
+	 *            coordinate and error source.
+	 * @param obComparator
+	 *            A valid observation comparator (e.g. by JD or phase).
+	 * @param timeElementEntity
+	 *            A time element source for observations.
+	 * @param seriesVisibilityMap
+	 *            A mapping from series type to visibility status.
+	 */
+	public ObservationAndMeanPlotModel(
+			Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; obsSourceListMap,
+			ICoordSource coordSrc, Comparator&lt;ValidObservation&gt; obComparator,
+			ITimeElementEntity timeElementEntity,
+			Map&lt;SeriesType, Boolean&gt; seriesVisibilityMap) {
+
+<span class="nc" id="L101">		super(obsSourceListMap, coordSrc, obComparator, seriesVisibilityMap);</span>
+
+<span class="nc" id="L103">		this.meansSeriesNum = NO_SERIES;</span>
+
+<span class="nc" id="L105">		this.timeElementEntity = timeElementEntity;</span>
+
+<span class="nc" id="L107">		this.timeElementsInBin = this.timeElementEntity</span>
+<span class="nc" id="L108">				.getDefaultTimeElementsInBin();</span>
+
+<span class="nc" id="L110">		this.meansChangeNotifier = new Notifier&lt;BinningResult&gt;();</span>
+
+<span class="nc" id="L112">		this.meanSourceSeriesNum = determineMeanSeriesSource();</span>
+
+<span class="nc" id="L114">		this.modelFunctionSeriesNum = NO_SERIES;</span>
+<span class="nc" id="L115">		this.modelFunction = null;</span>
+
+		// It doesn't actually matter whether we pass true or false here
+		// since the parameter won't apply to the first mean series created.
+<span class="nc" id="L119">		this.setMeanSeries(false);</span>
+
+<span class="nc" id="L121">		Mediator.getInstance().getDiscrepantObservationNotifier()</span>
+<span class="nc" id="L122">				.addListener(createDiscrepantChangeListener());</span>
+
+<span class="nc" id="L124">		Mediator.getInstance().getExcludedObservationNotifier()</span>
+<span class="nc" id="L125">				.addListener(createExcludedChangeListener());</span>
+
+<span class="nc" id="L127">		Mediator.getInstance().getModelSelectionNofitier()</span>
+<span class="nc" id="L128">				.addListener(createModelSelectionListener());</span>
+
+<span class="nc" id="L130">		Mediator.getInstance().getFilteredObservationNotifier()</span>
+<span class="nc" id="L131">				.addListener(createFilteredObservationListener());</span>
+<span class="nc" id="L132">	}</span>
+
+	/**
+	 * @return the timeElementEntity
+	 */
+	public ITimeElementEntity getTimeElementEntity() {
+<span class="nc" id="L138">		return timeElementEntity;</span>
+	}
+
+	/**
+	 * Set the mean-based series.
+	 * 
+	 * This method creates a new means series based upon the current mean source
+	 * series index and time-elements-in-bin. It then updates the view and any
+	 * listeners.
+	 * 
+	 * @param updateAfterInitial
+	 *            Should the mean series be made visible after the initial
+	 *            series is replaced by another? Even if this is set to false,
+	 *            if the series is already visible, it will remain so, and any
+	 *            change to the mean curve will be visible more or less
+	 *            immediately.
+	 */
+	public boolean setMeanSeries(boolean updateAfterInitial) {
+
+<span class="nc" id="L157">		boolean changed = true;</span>
+
+		// Does this rely upon mean source series being sorted to determine time
+		// range?
+		// Perhaps the difference between when mean is selected via plot control
+		// dialog vs model listener below?
+
+<span class="nc" id="L164">		binningResult = DescStats.createSymmetricBinnedObservations(</span>
+<span class="nc" id="L165">				seriesNumToObSrcListMap.get(meanSourceSeriesNum),</span>
+				timeElementEntity, timeElementsInBin);
+
+<span class="nc" id="L168">		meanObsList = binningResult.getMeanObservations();</span>
+
+<span class="nc bnc" id="L170" title="All 2 branches missed.">		if (meanObsList != Collections.EMPTY_LIST) {</span>
+			// As long as there were enough observations to create a means list
+			// to make a &quot;means&quot; series, we do so.
+<span class="nc" id="L173">			boolean found = false;</span>
+
+			// TODO: do something like this instead of what follows below.
+			// Is this the first time the means series has been added?
+			// if (this.meansSeriesNum != NO_SERIES) {
+			// // Replace the means series with the new one.
+			// this.seriesNumToObSrcListMap.put(this.meanSourceSeriesNum,
+			// meanObsList);
+			// this.fireDatasetChanged();
+			//
+			// // The mean series has been changed after the initial one. If it
+			// // is not visible, make it so since the user has updated it and
+			// // probably wants to see it right away.
+			// if (updateAfterInitial) {
+			// changeSeriesVisibility(this.meansSeriesNum, true);
+			// }
+			// } else {
+			// // Create the means series.
+			// this.meansSeriesNum = addObservationSeries(SeriesType.MEANS,
+			// meanObsList);
+			//
+			// // Mean series not rendered by default.
+			// getSeriesVisibilityMap().put(SeriesType.MEANS, false);
+			// }
+
+<span class="nc bnc" id="L198" title="All 2 branches missed.">			for (Map.Entry&lt;Integer, SeriesType&gt; entry : this.seriesNumToSrcTypeMap</span>
+<span class="nc" id="L199">					.entrySet()) {</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">				if (SeriesType.MEANS.equals(entry.getValue())) {</span>
+<span class="nc" id="L201">					int series = entry.getKey();</span>
+<span class="nc" id="L202">					this.seriesNumToObSrcListMap.put(series, meanObsList);</span>
+<span class="nc" id="L203">					this.fireDatasetChanged();</span>
+<span class="nc" id="L204">					found = true;</span>
+<span class="nc" id="L205">					break;</span>
+				}
+<span class="nc" id="L207">			}</span>
+
+			// Is this the first time the means series has been added?
+<span class="nc bnc" id="L210" title="All 2 branches missed.">			if (!found) {</span>
+<span class="nc" id="L211">				this.meansSeriesNum = addObservationSeries(SeriesType.MEANS,</span>
+						meanObsList);
+
+				// Mean series not rendered by default.
+<span class="nc" id="L215">				getSeriesVisibilityMap().put(SeriesType.MEANS, false);</span>
+			} else {
+				// The mean series has been changed after the initial one. If it
+				// is not visible, make it so since the user has updated it and
+				// probably wants to see it right away.
+<span class="nc bnc" id="L220" title="All 2 branches missed.">				if (updateAfterInitial) {</span>
+<span class="nc" id="L221">					changeSeriesVisibility(this.meansSeriesNum, true);</span>
+				}
+			}
+
+			// Notify listeners.
+<span class="nc" id="L226">			this.meansChangeNotifier.notifyListeners(binningResult);</span>
+<span class="nc" id="L227">		} else {</span>
+<span class="nc" id="L228">			changed = false;</span>
+		}
+
+<span class="nc" id="L231">		return changed;</span>
+	}
+
+	/**
+	 * Attempt to create a new mean series with the specified number of time
+	 * elements per bin.
+	 * 
+	 * @param timeElementsInBin
+	 *            The number of days or phase steps to be created per bin.
+	 * @return Whether or not the series was changed.
+	 */
+	public boolean changeMeansSeries(double timeElementsInBin) {
+<span class="nc" id="L243">		this.timeElementsInBin = timeElementsInBin;</span>
+<span class="nc" id="L244">		return this.setMeanSeries(true);</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel#changeSeriesVisibility(int,
+	 *      boolean)
+	 */
+	public boolean changeSeriesVisibility(int seriesNum, boolean visibility) {
+<span class="nc" id="L252">		return super.changeSeriesVisibility(seriesNum, visibility);</span>
+	}
+
+	/**
+	 * Which series' elements should be joined visually (e.g. with lines)?
+	 * 
+	 * @return A collection of series numbers for series whose elements should
+	 *         be joined visually.
+	 */
+	public Collection&lt;Integer&gt; getSeriesWhoseElementsShouldBeJoinedVisually() {
+<span class="nc" id="L262">		List&lt;Integer&gt; seriesNumList = new ArrayList&lt;Integer&gt;();</span>
+
+		// See TODO in setMeanSeries() which also applies here.
+<span class="nc bnc" id="L265" title="All 2 branches missed.">		for (Map.Entry&lt;Integer, SeriesType&gt; entry : this.seriesNumToSrcTypeMap</span>
+<span class="nc" id="L266">				.entrySet()) {</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">			if (SeriesType.MEANS == entry.getValue()) {</span>
+<span class="nc" id="L268">				seriesNumList.add(entry.getKey());</span>
+<span class="nc" id="L269">				break;</span>
+			}
+<span class="nc" id="L271">		}</span>
+
+<span class="nc" id="L273">		return seriesNumList;</span>
+	}
+
+	/**
+	 * Return the error associated with the magnitude. We skip the series and
+	 * item legality check to improve performance on the assumption that this
+	 * has been checked already when calling getMagAsYCoord(). So this is a
+	 * precondition of calling the current function.
+	 * 
+	 * @param series
+	 *            The series number.
+	 * @param item
+	 *            The item number within the series.
+	 * @return The error value associated with the mean.
+	 */
+	public double getMagError(int series, int item) {
+<span class="nc bnc" id="L289" title="All 2 branches missed.">		if (series != this.meansSeriesNum) {</span>
+			// The series is something other than the means series
+			// so just default to the superclass behaviour.
+<span class="nc" id="L292">			return super.getMagError(series, item);</span>
+		} else {
+			// For the means series, we store the mean magnitude error
+			// value as the magnitude's uncertainty, and we are only interested
+			// in this (not HQ vs user-specified, since only one value exists
+			// for
+			// a mean observation).
+
+			// For mean observations we double the error value to show the 95%
+			// Confidence Interval, as suggested to me by Grant Foster. See his
+			// book
+			// &quot;Analyzing Light Curves&quot; re: this.
+<span class="nc" id="L304">			return this.seriesNumToObSrcListMap.get(series).get(item)</span>
+<span class="nc" id="L305">					.getMagnitude().getUncertainty() * 2;</span>
+		}
+	}
+
+	/**
+	 * @return the meanSourceSeriesNum
+	 */
+	public int getMeanSourceSeriesNum() {
+<span class="nc" id="L313">		return meanSourceSeriesNum;</span>
+	}
+
+	/**
+	 * @param meanSourceSeriesNum
+	 *            the meanSourceSeriesNum to set
+	 */
+	public void setMeanSourceSeriesNum(int meanSourceSeriesNum) {
+<span class="nc" id="L321">		this.meanSourceSeriesNum = meanSourceSeriesNum;</span>
+<span class="nc" id="L322">	}</span>
+
+	/**
+	 * @return the means series number
+	 */
+	public int getMeansSeriesNum() {
+<span class="nc" id="L328">		return meansSeriesNum;</span>
+	}
+
+	/**
+	 * @return the timeElementsInBin
+	 */
+	public double getTimeElementsInBin() {
+<span class="nc" id="L335">		return timeElementsInBin;</span>
+	}
+
+	/**
+	 * @param timeElementsInBin
+	 *            the timeElementsInBin to set
+	 */
+	public void setTimeElementsInBin(double timeElementsInBin) {
+<span class="nc" id="L343">		this.timeElementsInBin = timeElementsInBin;</span>
+<span class="nc" id="L344">	}</span>
+
+	/**
+	 * @return the meanObsList
+	 */
+	public List&lt;ValidObservation&gt; getMeanObsList() {
+<span class="nc" id="L350">		return meanObsList;</span>
+	}
+
+	/**
+	 * @return the binningResult
+	 */
+	public BinningResult getBinningResult() {
+<span class="nc" id="L357">		return binningResult;</span>
+	}
+
+	/**
+	 * @return the meansChangeNotifier
+	 */
+	public Notifier&lt;BinningResult&gt; getMeansChangeNotifier() {
+<span class="nc" id="L364">		return meansChangeNotifier;</span>
+	}
+
+	/**
+	 * @return the modelFunctionSeriesNum
+	 */
+	public int getModelFunctionSeriesNum() {
+<span class="nc" id="L371">		return modelFunctionSeriesNum;</span>
+	}
+
+	/**
+	 * @return the model
+	 */
+	public ContinuousModelFunction getModelFunction() {
+<span class="nc" id="L378">		return modelFunction;</span>
+	}
+
+	// Helper methods.
+
+	/**
+	 * Determine which series will initially be the source of the mean series.
+	 * Note that this may be changed subsequently. Visual bands have the highest
+	 * priority. If not found, the Unspecified series is looked at, otherwise
+	 * the first band encountered other than fainter-than, excluded, or
+	 * discrepant will be chosen.
+	 * 
+	 * @return The series number on which to base the mean series.
+	 */
+	public int determineMeanSeriesSource() {
+<span class="nc" id="L393">		int seriesNum = NO_SERIES;</span>
+
+		// TODO:
+		// - use keySet().contains() below!
+		// - out of V and Visual, choose the series with the most observations
+
+		// Look for Visual, then V.
+<span class="nc bnc" id="L400" title="All 2 branches missed.">		for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {</span>
+<span class="nc bnc" id="L401" title="All 2 branches missed.">			if (series == SeriesType.Visual) {</span>
+				// Visual band
+<span class="nc" id="L403">				seriesNum = srcTypeToSeriesNumMap.get(series);</span>
+<span class="nc" id="L404">				break;</span>
+			}
+<span class="nc" id="L406">		}</span>
+
+<span class="nc bnc" id="L408" title="All 2 branches missed.">		if (seriesNum == NO_SERIES) {</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {</span>
+<span class="nc bnc" id="L410" title="All 2 branches missed.">				if (series == SeriesType.Johnson_V) {</span>
+					// Johnson V band
+<span class="nc" id="L412">					seriesNum = srcTypeToSeriesNumMap.get(series);</span>
+<span class="nc" id="L413">					break;</span>
+				}
+<span class="nc" id="L415">			}</span>
+		}
+
+		// No visual bands present. Try 'Unspecified'.
+<span class="nc bnc" id="L419" title="All 2 branches missed.">		if (seriesNum == NO_SERIES) {</span>
+<span class="nc bnc" id="L420" title="All 2 branches missed.">			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {</span>
+<span class="nc bnc" id="L421" title="All 2 branches missed.">				if (series == SeriesType.Unspecified) {</span>
+					// Unspecified
+<span class="nc" id="L423">					seriesNum = srcTypeToSeriesNumMap.get(series);</span>
+<span class="nc" id="L424">					break;</span>
+				}
+<span class="nc" id="L426">			}</span>
+		}
+
+		// No match: choose a non-empty series other than fainter-than,
+		// discrepant, or excluded. More specifically, choose the series with
+		// the greatest number of observations.
+<span class="nc" id="L432">		int maxObsSeriesNum = NO_SERIES;</span>
+<span class="nc" id="L433">		int maxObs = Integer.MIN_VALUE;</span>
+<span class="nc bnc" id="L434" title="All 2 branches missed.">		if (seriesNum == NO_SERIES) {</span>
+<span class="nc bnc" id="L435" title="All 2 branches missed.">			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {</span>
+<span class="nc bnc" id="L436" title="All 6 branches missed.">				if (series != SeriesType.FAINTER_THAN</span>
+						&amp;&amp; series != SeriesType.DISCREPANT
+						&amp;&amp; series != SeriesType.Excluded
+<span class="nc bnc" id="L439" title="All 2 branches missed.">						&amp;&amp; !series.isSynthetic()</span>
+<span class="nc" id="L440">						&amp;&amp; !seriesNumToObSrcListMap.get(</span>
+<span class="nc bnc" id="L441" title="All 2 branches missed.">								srcTypeToSeriesNumMap.get(series)).isEmpty()) {</span>
+					//
+<span class="nc" id="L443">					seriesNum = srcTypeToSeriesNumMap.get(series);</span>
+<span class="nc" id="L444">					int numObs = seriesNumToObSrcListMap.get(seriesNum).size();</span>
+<span class="nc bnc" id="L445" title="All 2 branches missed.">					if (numObs &gt; maxObs) {</span>
+<span class="nc" id="L446">						maxObsSeriesNum = seriesNum;</span>
+<span class="nc" id="L447">						maxObs = numObs;</span>
+					}
+
+				}
+<span class="nc" id="L451">			}</span>
+<span class="nc" id="L452">			seriesNum = maxObsSeriesNum;</span>
+		}
+
+		// Still nothing? Okay, now we just choose the first non-empty series
+		// we come to, including fainter-thans or discrepants.
+		//
+		// For this to happen should be very rare, but it could happen
+		// For example, CM Cru as of Sep 2010 contains one data value
+		// since around 1949 and that is a Fainter-than. Note that currently,
+		// determineMeanSeriesSource() will ignore Fainter-thans, discrepants,
+		// and excluded observations with respect to mean curves. We might want
+		// to revise this. Of course, fainter-thans can later be selected as the
+		// means-source.
+		//
+		// Note: This code is showing its age; &quot;very rare&quot; may have been true before
+		//       observation source plug-ins with non-standard filters. Also, there's
+		//       much cruft in general, e.g. see setMeanSeries() (dbenn)
+<span class="nc bnc" id="L469" title="All 2 branches missed.">		if (seriesNum == NO_SERIES) {</span>
+<span class="nc bnc" id="L470" title="All 2 branches missed.">			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {</span>
+<span class="nc" id="L471">				seriesNum = srcTypeToSeriesNumMap.get(series);</span>
+<span class="nc bnc" id="L472" title="All 2 branches missed.">				if (seriesNumToObSrcListMap.get(seriesNum).size() != 0) {</span>
+<span class="nc" id="L473">				    break;</span>
+				}
+<span class="nc" id="L475">			}</span>
+		}
+
+<span class="nc bnc" id="L478" title="All 2 branches missed.">		assert seriesNum != -1;</span>
+
+<span class="nc" id="L480">		return seriesNum;</span>
+	}
+
+	/**
+	 * Inform the views that the dataset has changed.
+	 */
+	public void update() {
+<span class="nc" id="L487">		this.fireDatasetChanged();</span>
+<span class="nc" id="L488">	}</span>
+	
+	/**
+	 * Listen for discrepant observation change notification and add/remove it
+	 * from the relevant collections. Since a discrepant observation is ignored
+	 * for statistical analysis purposes (see DescStats class), we need to
+	 * re-calculate the means series if the discrepant observation's series type
+	 * is the same as the mean source series type.
+	 */
+	protected Listener&lt;DiscrepantObservationMessage&gt; createDiscrepantChangeListener() {
+
+<span class="nc" id="L499">		final ObservationAndMeanPlotModel model = this;</span>
+
+<span class="nc" id="L501">		return new Listener&lt;DiscrepantObservationMessage&gt;() {</span>
+			public void update(DiscrepantObservationMessage info) {
+<span class="nc" id="L503">				ValidObservation ob = info.getObservation();</span>
+
+				// Did we go to or from being discrepant?
+<span class="nc bnc" id="L506" title="All 2 branches missed.">				if (ob.isDiscrepant()) {</span>
+					// Now marked as discrepant so move observation from
+					// its designated band series to the discrepant series.
+<span class="nc" id="L509">					removeObservationFromSeries(ob, ob.getBand());</span>
+<span class="nc" id="L510">					addObservationToSeries(ob, SeriesType.DISCREPANT);</span>
+				} else {
+					// Was marked as discrepant, now is not, so move
+					// observation from the discrepant series to its
+					// designated band series.
+<span class="nc" id="L515">					removeObservationFromSeries(ob, SeriesType.DISCREPANT);</span>
+<span class="nc" id="L516">					addObservationToSeries(ob, ob.getBand());</span>
+				}
+
+<span class="nc" id="L519">				fireDatasetChanged();</span>
+
+				// If the discrepant observation's band is the source of the
+				// means series, re-compute the means series.
+<span class="nc" id="L523">				if (info.getObservation().getBand() == seriesNumToSrcTypeMap</span>
+<span class="nc bnc" id="L524" title="All 2 branches missed.">						.get(meanSourceSeriesNum)) {</span>
+<span class="nc" id="L525">					model.setMeanSeries(false);</span>
+				}
+<span class="nc" id="L527">			}</span>
+
+			/**
+			 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+			 */
+			public boolean canBeRemoved() {
+<span class="nc" id="L533">				return true;</span>
+			}
+		};
+	}
+
+	/**
+	 * Listen for excluded observation change notification and add/remove it
+	 * from the relevant collections. We need to re-calculate the means series
+	 * if any of the excluded observations' series type is the same as the mean
+	 * source series type.
+	 */
+	protected Listener&lt;ExcludedObservationMessage&gt; createExcludedChangeListener() {
+
+<span class="nc" id="L546">		final ObservationAndMeanPlotModel model = this;</span>
+
+<span class="nc" id="L548">		return new Listener&lt;ExcludedObservationMessage&gt;() {</span>
+
+			@Override
+			public void update(ExcludedObservationMessage info) {
+<span class="nc" id="L552">				List&lt;ValidObservation&gt; obs = info.getObservations();</span>
+<span class="nc" id="L553">				boolean excluded = obs.get(0).isExcluded();</span>
+
+				// Did we go to or from being excluded?
+<span class="nc bnc" id="L556" title="All 2 branches missed.">				if (excluded) {</span>
+<span class="nc bnc" id="L557" title="All 2 branches missed.">					for (ValidObservation ob : info.getObservations()) {</span>
+						// Now marked as excluded so move observation from
+						// its designated band to the excluded series.
+<span class="nc" id="L560">						removeObservationFromSeries(ob, ob.getBand());</span>
+<span class="nc" id="L561">					}</span>
+					// All are going to the same series, so we can do this
+					// en-masse. Note that we cannot do the reverse en-masse!
+<span class="nc" id="L564">					addObservationsToSeries(obs, SeriesType.Excluded);</span>
+				} else {
+					// Was previously marked as excluded, now is not, so move
+					// observation from the excluded series to its
+					// designated series. Reversing observation exclusion is
+					// less efficient than the initial exclusion.
+<span class="nc bnc" id="L570" title="All 2 branches missed.">					for (ValidObservation ob : info.getObservations()) {</span>
+<span class="nc" id="L571">						removeObservationFromSeries(ob, SeriesType.Excluded);</span>
+<span class="nc" id="L572">						addObservationToSeries(ob, ob.getBand());</span>
+<span class="nc" id="L573">					}</span>
+				}
+
+<span class="nc" id="L576">				fireDatasetChanged();</span>
+
+				// If any of the excluded observations bands is the source of
+				// the means series, re-compute the means series.
+<span class="nc bnc" id="L580" title="All 2 branches missed.">				for (ValidObservation ob : info.getObservations()) {</span>
+<span class="nc" id="L581">					if (ob.getBand() == seriesNumToSrcTypeMap</span>
+<span class="nc bnc" id="L582" title="All 2 branches missed.">							.get(meanSourceSeriesNum)) {</span>
+<span class="nc" id="L583">						model.setMeanSeries(false);</span>
+<span class="nc" id="L584">						break;</span>
+					}
+<span class="nc" id="L586">				}</span>
+<span class="nc" id="L587">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L591">				return true;</span>
+			}
+		};
+	}
+
+	/**
+	 * Update the model's fit and residual observation collections.
+	 */
+	public void updateModelSeries(List&lt;ValidObservation&gt; modelObs,
+			List&lt;ValidObservation&gt; residualObs, IModel model) {
+
+		// Add or replace model pointing to continuous function.
+		// if (this.seriesExists(SeriesType.ModelFunction)) {
+		// // Replace it.
+		// this.modelFunction = model.getModelFunction();
+		// } else {
+		// // Add it.
+		// // TODO: create up front like we do with some other series, e.g. in
+		// // obs retriever?
+		// modelFunctionSeriesNum = getNextSeriesNum();
+		//
+		// this.srcTypeToSeriesNumMap.put(SeriesType.ModelFunction,
+		// modelFunctionSeriesNum);
+		//
+		// this.seriesNumToSrcTypeMap.put(modelFunctionSeriesNum,
+		// SeriesType.ModelFunction);
+		//
+		// this.seriesVisibilityMap.put(SeriesType.ModelFunction,
+		// isSeriesVisibleByDefault(SeriesType.ModelFunction));
+		//
+		// this.modelFunction = model.getModelFunction();
+		// }
+
+		// Add or replace a series for the model and make sure
+		// the series is visible.
+<span class="nc bnc" id="L626" title="All 2 branches missed.">		if (this.seriesExists(SeriesType.Model)) {</span>
+<span class="nc" id="L627">			modelSeriesNum = replaceObservationSeries(SeriesType.Model,</span>
+					modelObs);
+		} else {
+<span class="nc" id="L630">			modelSeriesNum = addObservationSeries(SeriesType.Model, modelObs);</span>
+		}
+
+		// Make the model series visible either because this
+		// is its first appearance or because it may have been made
+		// invisible via the change series dialog.
+<span class="nc" id="L636">		this.changeSeriesVisibility(modelSeriesNum, true);</span>
+
+		// Make the model function series visible either because this
+		// is its first appearance or because it may have been made
+		// invisible via the change series dialog.
+		// this.changeSeriesVisibility(modelFunctionSeriesNum, true);
+
+		// TODO: do we really need this? if not, revert means join
+		// handling code
+		// this.addSeriesToBeJoinedVisually(modelSeriesNum);
+
+		// Add or replace a series for the residuals.
+<span class="nc bnc" id="L648" title="All 2 branches missed.">		if (this.seriesExists(SeriesType.Residuals)) {</span>
+<span class="nc" id="L649">			this.replaceObservationSeries(SeriesType.Residuals, residualObs);</span>
+		} else {
+<span class="nc" id="L651">			residualsSeriesNum = addObservationSeries(SeriesType.Residuals,</span>
+					residualObs);
+		}
+
+		// Hide the residuals series initially. We toggle the series
+		// visibility to achieve this since the default is false. That
+		// shouldn't be necessary; investigate.
+		// this.changeSeriesVisibility(residualsSeriesNum, true);
+<span class="nc" id="L659">		changeSeriesVisibility(residualsSeriesNum, false);</span>
+<span class="nc" id="L660">	}</span>
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel#createModelSelectionListener()
+	 */
+	@Override
+	protected Listener&lt;ModelSelectionMessage&gt; createModelSelectionListener() {
+
+<span class="nc" id="L668">		final ObservationAndMeanPlotModel model = this;</span>
+
+<span class="nc" id="L670">		return new Listener&lt;ModelSelectionMessage&gt;() {</span>
+			@Override
+			public void update(ModelSelectionMessage info) {
+<span class="nc" id="L673">				updateModelSeries(info.getModel().getFit(), info.getModel()</span>
+<span class="nc" id="L674">						.getResiduals(), info.getModel());</span>
+
+				// If the means sources series is model or residuals (from
+				// previous modelling operation), re-compute the means series.
+<span class="nc bnc" id="L678" title="All 2 branches missed.">				if (seriesNumToSrcTypeMap.get(meanSourceSeriesNum) == SeriesType.Model</span>
+<span class="nc bnc" id="L679" title="All 2 branches missed.">						|| seriesNumToSrcTypeMap.get(meanSourceSeriesNum) == SeriesType.Residuals) {</span>
+<span class="nc" id="L680">					model.setMeanSeries(false);</span>
+				}
+<span class="nc" id="L682">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L686">				return true;</span>
+			}
+		};
+	}
+
+	protected boolean handleNoFilter(FilteredObservationMessage info) {
+<span class="nc" id="L692">		boolean result = false;</span>
+
+<span class="nc bnc" id="L694" title="All 2 branches missed.">		if (info == FilteredObservationMessage.NO_FILTER) {</span>
+			// No filter, so make the filtered series invisible.
+<span class="nc bnc" id="L696" title="All 2 branches missed.">			if (this.seriesExists(SeriesType.Filtered)) {</span>
+<span class="nc" id="L697">				int num = this.getSrcTypeToSeriesNumMap().get(</span>
+						SeriesType.Filtered);
+<span class="nc" id="L699">				changeSeriesVisibility(num, false);</span>
+			}
+<span class="nc" id="L701">			result = true;</span>
+		}
+
+<span class="nc" id="L704">		return result;</span>
+	}
+
+	public void updateFilteredSeries(List&lt;ValidObservation&gt; obs) {
+<span class="nc bnc" id="L708" title="All 2 branches missed.">		if (this.seriesExists(SeriesType.Filtered)) {</span>
+<span class="nc" id="L709">			filterSeriesNum = replaceObservationSeries(SeriesType.Filtered, obs);</span>
+		} else {
+<span class="nc" id="L711">			filterSeriesNum = addObservationSeries(SeriesType.Filtered, obs);</span>
+		}
+
+		// Make the filter series visible either because this is
+		// its first appearance or because it may have been made
+		// invisible via a previous NO_FILTER message.
+<span class="nc" id="L717">		changeSeriesVisibility(filterSeriesNum, true);</span>
+<span class="nc" id="L718">	}</span>
+
+	@Override
+	public boolean removeAllObservationFromSeries(SeriesType type) {
+<span class="nc" id="L722">		boolean removed = super.removeAllObservationFromSeries(type);</span>
+
+<span class="nc bnc" id="L724" title="All 2 branches missed.">		if (removed) {</span>
+			// If the specified series is the source of the means series,
+			// re-compute the means series.
+<span class="nc bnc" id="L727" title="All 2 branches missed.">			if (type == seriesNumToSrcTypeMap.get(meanSourceSeriesNum)) {</span>
+<span class="nc" id="L728">				setMeanSeries(false);</span>
+			}
+		}
+
+<span class="nc" id="L732">		return removed;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel#createFilteredObservationListener()
+	 */
+	@Override
+	protected Listener&lt;FilteredObservationMessage&gt; createFilteredObservationListener() {
+
+<span class="nc" id="L741">		final ObservationAndMeanPlotModel model = this;</span>
+
+<span class="nc" id="L743">		return new Listener&lt;FilteredObservationMessage&gt;() {</span>
+
+			@Override
+			public void update(FilteredObservationMessage info) {
+<span class="nc bnc" id="L747" title="All 2 branches missed.">				if (!handleNoFilter(info)) {</span>
+					// Convert set of filtered observations to list then add
+					// or replace the filter series.
+<span class="nc" id="L750">					List&lt;ValidObservation&gt; obs = new ArrayList&lt;ValidObservation&gt;(</span>
+<span class="nc" id="L751">							info.getFilteredObs());</span>
+
+<span class="nc" id="L753">					updateFilteredSeries(obs);</span>
+
+					// If the means sources series is filtered (from
+					// previous filtering operation), re-compute the means
+					// series.
+<span class="nc bnc" id="L758" title="All 2 branches missed.">					if (seriesNumToSrcTypeMap.get(meanSourceSeriesNum) == SeriesType.Filtered) {</span>
+<span class="nc" id="L759">						model.setMeanSeries(false);</span>
+					}
+				}
+<span class="nc" id="L762">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L766">				return true;</span>
+			}
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

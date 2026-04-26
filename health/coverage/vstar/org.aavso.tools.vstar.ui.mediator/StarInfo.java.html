@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StarInfo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.mediator</a> &gt; <span class="el_source">StarInfo.java</span></div><h1>StarInfo.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.mediator;
+
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.RAInfo;
+
+/**
+ * This class contains information about a star.
+ * 
+ * Some or all of its members may be absent, so each is null by default.
+ */
+public class StarInfo {
+
+	private AbstractObservationRetriever retriever;
+<span class="fc" id="L32">	private String designation = null;</span>
+<span class="fc" id="L33">	private String auid = null;</span>
+<span class="fc" id="L34">	private Double period = null;</span>
+<span class="fc" id="L35">	private Double epoch = null;</span>
+<span class="fc" id="L36">	private String varType = null;</span>
+<span class="fc" id="L37">	private String spectralType = null;</span>
+<span class="fc" id="L38">	private String discoverer = null;</span>
+<span class="fc" id="L39">	private RAInfo ra = null;</span>
+<span class="fc" id="L40">	private DecInfo dec = null;</span>
+<span class="fc" id="L41">	private Integer obsCount = null;</span>
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param retriever
+	 *            The observation retriever that knows about the source of
+	 *            observations. May be null! setRetriever() can be called after
+	 *            construction.
+	 * @param designation
+	 *            A name or designation for the star; may be null.
+	 * @param auid
+	 *            The star's unique identifier (AAVSO unique ID).
+	 * @param period
+	 *            The star's period, if known.
+	 * @param epoch
+	 *            The star's (corresponding to period for phase plot purposes)
+	 *            epoch, if known, as a Heliocentric Julian Date.
+	 * @param varType
+	 *            The variable's type, if known.
+	 * @param spectralType
+	 *            The spectral type, if known.
+	 * @param discoverer
+	 *            The discoverer of the star, if known.
+	 * @param ra
+	 *            The object's Right Acscension.
+	 * @param dec
+	 *            The object's Declination.
+	 * @param obsCount
+	 *            The count of observations for this object.
+	 */
+	public StarInfo(AbstractObservationRetriever retriever, String designation,
+			String auid, Double period, Double epoch, String varType,
+			String spectralType, String discoverer, RAInfo ra, DecInfo dec,
+<span class="fc" id="L75">			Integer obsCount) {</span>
+<span class="fc" id="L76">		this.retriever = retriever;</span>
+<span class="fc" id="L77">		this.designation = designation != null</span>
+<span class="pc bpc" id="L78" title="2 of 4 branches missed.">				&amp;&amp; designation.trim().length() != 0 ? designation</span>
+<span class="pc" id="L79">				: &quot;Unknown Object&quot;;</span>
+<span class="fc" id="L80">		this.auid = auid;</span>
+<span class="fc" id="L81">		this.period = period;</span>
+<span class="fc" id="L82">		this.epoch = epoch;</span>
+<span class="fc" id="L83">		this.varType = varType;</span>
+<span class="fc" id="L84">		this.spectralType = spectralType;</span>
+<span class="fc" id="L85">		this.discoverer = discoverer;</span>
+<span class="fc" id="L86">		this.ra = ra;</span>
+<span class="fc" id="L87">		this.dec = dec;</span>
+<span class="fc" id="L88">		this.obsCount = obsCount;</span>
+<span class="fc" id="L89">	}</span>
+
+	/**
+	 * Constructor.
+	 * 
+	 * All but designation and AUID are null.
+	 * 
+	 * @param retriever
+	 *            The observation retriever that knows about the source of
+	 *            observations. May be null! setRetriever() can be called after
+	 *            construction.
+	 * @param designation
+	 *            A name or designation for the star.
+	 * @param auid
+	 *            The star's unique identifier (AAVSO unique ID).
+	 */
+	public StarInfo(AbstractObservationRetriever retriever, String designation,
+			String auid) {
+<span class="nc" id="L107">		this(retriever, designation, auid, null, null, null, null, null, null,</span>
+				null, null);
+<span class="nc" id="L109">	}</span>
+
+	/**
+	 * Constructor.
+	 * 
+	 * All but designation is null.
+	 * 
+	 * @param retriever
+	 *            The observation retriever that knows about the source of
+	 *            observations. May be null! setRetriever() can be called after
+	 *            construction.
+	 * @param designation
+	 *            A name or designation for the star.
+	 */
+	public StarInfo(AbstractObservationRetriever retriever, String designation) {
+<span class="nc" id="L124">		this(retriever, designation, null);</span>
+<span class="nc" id="L125">	}</span>
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param designation
+	 *            A name or designation for the star.
+	 * @param auid
+	 *            The star's unique identifier (AAVSO unique ID).
+	 * @param period
+	 *            The star's period, if known.
+	 * @param epoch
+	 *            The star's (corresponding to period for phase plot purposes)
+	 *            epoch, if known, as a Heliocentric Julian Date.
+	 * @param varType
+	 *            The variable's type, if known.
+	 * @param spectralType
+	 *            The spectral type, if known.
+	 * @param discoverer
+	 *            The discoverer of the star, if known.
+	 * @param ra
+	 *            The object's Right Acscension.
+	 * @param dec
+	 *            The object's Declination.
+	 * @param obsCount
+	 *            The count of observations for this object.
+	 */
+	public StarInfo(String designation, String auid, Double period,
+			Double epoch, String varType, String spectralType,
+			String discoverer, RAInfo ra, DecInfo dec, Integer obsCount) {
+<span class="fc" id="L155">		this(null, designation, auid, period, epoch, varType, spectralType,</span>
+				discoverer, ra, dec, obsCount);
+<span class="fc" id="L157">	}</span>
+
+	/**
+	 * Constructor.
+	 * 
+	 * All but designation and AUID are null.
+	 * 
+	 * @param designation
+	 *            A name or designation for the star.
+	 * @param auid
+	 *            The star's unique identifier (AAVSO unique ID).
+	 */
+	public StarInfo(String designation, String auid) {
+<span class="nc" id="L170">		this(null, designation, auid);</span>
+<span class="nc" id="L171">	}</span>
+
+	/**
+	 * @param retriever
+	 *            the retriever to set
+	 */
+	public void setRetriever(AbstractObservationRetriever retriever) {
+<span class="fc" id="L178">		this.retriever = retriever;</span>
+<span class="fc" id="L179">	}</span>
+
+	/**
+	 * @return the retriever
+	 */
+	public AbstractObservationRetriever getRetriever() {
+<span class="nc" id="L185">		return retriever;</span>
+	}
+
+	/**
+	 * @return the designation
+	 */
+	public String getDesignation() {
+<span class="fc" id="L192">		return designation;</span>
+	}
+
+	/**
+	 * @return the auid
+	 */
+	public String getAuid() {
+<span class="fc" id="L199">		return auid;</span>
+	}
+
+	/**
+	 * @return the period
+	 */
+	public Double getPeriod() {
+<span class="nc" id="L206">		return period;</span>
+	}
+
+	/**
+	 * @return the epoch
+	 */
+	public Double getEpoch() {
+<span class="nc" id="L213">		return epoch;</span>
+	}
+
+	/**
+	 * @return the varType
+	 */
+	public String getVarType() {
+<span class="nc" id="L220">		return varType;</span>
+	}
+
+	/**
+	 * @return the spectralType
+	 */
+	public String getSpectralType() {
+<span class="nc" id="L227">		return spectralType;</span>
+	}
+
+	/**
+	 * @return the discoverer
+	 */
+	public String getDiscoverer() {
+<span class="nc" id="L234">		return discoverer;</span>
+	}
+
+	/**
+	 * @return the ra
+	 */
+	public RAInfo getRA() {
+<span class="nc" id="L241">		return ra;</span>
+	}
+
+	/**
+	 * @return the dec
+	 */
+	public DecInfo getDec() {
+<span class="nc" id="L248">		return dec;</span>
+	}
+
+	/**
+	 * @return the obsCount
+	 */
+	public Integer getObsCount() {
+<span class="nc" id="L255">		return obsCount;</span>
+	}
+
+	/**
+	 * @param designation
+	 *            the designation to set
+	 */
+	public void setDesignation(String designation) {
+<span class="nc" id="L263">		this.designation = designation;</span>
+<span class="nc" id="L264">	}</span>
+
+	/**
+	 * @param auid
+	 *            the auid to set
+	 */
+	public void setAuid(String auid) {
+<span class="nc" id="L271">		this.auid = auid;</span>
+<span class="nc" id="L272">	}</span>
+
+	/**
+	 * @param period
+	 *            the period to set
+	 */
+	public void setPeriod(Double period) {
+<span class="nc" id="L279">		this.period = period;</span>
+<span class="nc" id="L280">	}</span>
+
+	/**
+	 * @param epoch
+	 *            the epoch to set
+	 */
+	public void setEpoch(Double epoch) {
+<span class="nc" id="L287">		this.epoch = epoch;</span>
+<span class="nc" id="L288">	}</span>
+
+	/**
+	 * @param varType
+	 *            the varType to set
+	 */
+	public void setVarType(String varType) {
+<span class="nc" id="L295">		this.varType = varType;</span>
+<span class="nc" id="L296">	}</span>
+
+	/**
+	 * @param spectralType
+	 *            the spectralType to set
+	 */
+	public void setSpectralType(String spectralType) {
+<span class="nc" id="L303">		this.spectralType = spectralType;</span>
+<span class="nc" id="L304">	}</span>
+
+	/**
+	 * @param discoverer
+	 *            the discoverer to set
+	 */
+	public void setDiscoverer(String discoverer) {
+<span class="nc" id="L311">		this.discoverer = discoverer;</span>
+<span class="nc" id="L312">	}</span>
+
+	/**
+	 * @param ra
+	 *            the ra to set
+	 */
+	public void setRa(RAInfo ra) {
+<span class="nc" id="L319">		this.ra = ra;</span>
+<span class="nc" id="L320">	}</span>
+
+	/**
+	 * @param dec
+	 *            the dec to set
+	 */
+	public void setDec(DecInfo dec) {
+<span class="nc" id="L327">		this.dec = dec;</span>
+<span class="nc" id="L328">	}</span>
+
+	/**
+	 * @param obsCount the obsCount to set
+	 */
+	public void setObsCount(Integer obsCount) {
+<span class="nc" id="L334">		this.obsCount = obsCount;</span>
+<span class="nc" id="L335">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

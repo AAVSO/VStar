@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ListChangeMessage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.notification</a> &gt; <span class="el_source">ListChangeMessage.java</span></div><h1>ListChangeMessage.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.notification;
+
+import java.util.List;
+
+/**
+ * A message to be sent to listeners of notifying list classes.
+ */
+public class ListChangeMessage&lt;E&gt; {
+<span class="fc" id="L26">	public static int NONE = -1;</span>
+	
+	private ListChangeType type;
+	private List&lt;E&gt; source;
+	private int index;
+	private Object object;
+
+	/**
+	 * Construct a list change message with type, source, and element index.
+	 * 
+	 * @param type List change message type.
+	 * @param source Source list of change.
+	 * @param index Index of element in changed source list.
+	 * @param object The object that was removed, added, or set (may be null).
+	 */
+<span class="fc" id="L41">	public ListChangeMessage(ListChangeType type, List&lt;E&gt; source, int index, Object object) {</span>
+<span class="fc" id="L42">		this.type = type;</span>
+<span class="fc" id="L43">		this.source = source;</span>
+<span class="fc" id="L44">		this.index = index;</span>
+<span class="fc" id="L45">		this.object = object;</span>
+<span class="fc" id="L46">	}</span>
+
+	/**
+	 * Construct a list change message with type, source, and element index.
+	 * 
+	 * @param type List change message type.
+	 * @param source Source list of change.
+	 * @param object The object that was removed, added, or set (may be null).
+	 */
+	public ListChangeMessage(ListChangeType type, List&lt;E&gt; source, Object object) {
+<span class="fc" id="L56">		this(type, source, NONE, object);</span>
+<span class="fc" id="L57">	}</span>
+
+	/**
+	 * Construct a list change message with type, source, and element index.
+	 * 
+	 * @param type List change message type.
+	 * @param source Source list of change.
+	 * @param index Index of element in changed source list.
+	 */
+	public ListChangeMessage(ListChangeType type, List&lt;E&gt; source, int index) {
+<span class="fc" id="L67">		this(type, source, index, null);</span>
+<span class="fc" id="L68">	}</span>
+
+	/**
+	 * Construct a list change message with type, source, and element index.
+	 * 
+	 * @param type List change message type.
+	 * @param source Source list of change.
+	 */
+	public ListChangeMessage(ListChangeType type, List&lt;E&gt; source) {
+<span class="fc" id="L77">		this(type, source, NONE, null);</span>
+<span class="fc" id="L78">	}</span>
+
+	/**
+	 * @return the type
+	 */
+	public ListChangeType getType() {
+<span class="fc" id="L84">		return type;</span>
+	}
+
+	/**
+	 * @return the source
+	 */
+	public List&lt;E&gt; getSource() {
+<span class="fc" id="L91">		return source;</span>
+	}
+
+	/**
+	 * @return the index
+	 */
+	public int getIndex() {
+<span class="fc" id="L98">		return index;</span>
+	}
+
+	/**
+	 * @return the object
+	 */
+	public Object getObject() {
+<span class="fc" id="L105">		return object;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

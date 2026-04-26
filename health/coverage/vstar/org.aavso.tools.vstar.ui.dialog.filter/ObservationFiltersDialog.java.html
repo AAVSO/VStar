@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ObservationFiltersDialog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.filter</a> &gt; <span class="el_source">ObservationFiltersDialog.java</span></div><h1>ObservationFiltersDialog.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2012  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.filter;
+
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.dialog.ITextComponent;
+import org.aavso.tools.vstar.ui.dialog.SeriesTypeCreationDialog;
+import org.aavso.tools.vstar.ui.dialog.TextArea;
+import org.aavso.tools.vstar.ui.dialog.TextDialog;
+import org.aavso.tools.vstar.ui.dialog.TextField;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.util.notification.Listener;
+
+/**
+ * This dialog collects filter information, permitting their selection and
+ * deletion, and most importantly, permitting previously created filters to be
+ * recreated.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class ObservationFiltersDialog extends JDialog implements
+		ListSelectionListener {
+
+	private boolean firstUse;
+
+	private JList filterList;
+	private DefaultListModel filterListModel;
+
+	private Map&lt;String, FilteredObservationMessage&gt; filterMap;
+
+	private JButton selectButton;
+	private JButton showDescriptionButton;
+	private JButton createSeriesButton;
+	private JButton deleteButton;
+
+	/**
+	 * Constructor.
+	 */
+	public ObservationFiltersDialog() {
+<span class="nc" id="L77">		super(DocumentManager.findActiveWindow());</span>
+<span class="nc" id="L78">		this.setTitle(&quot;Filters&quot;);</span>
+<span class="nc" id="L79">		this.setModal(true);</span>
+
+<span class="nc" id="L81">		this.firstUse = true;</span>
+<span class="nc" id="L82">		this.filterMap = new TreeMap&lt;String, FilteredObservationMessage&gt;();</span>
+
+<span class="nc" id="L84">		JPanel topPane = new JPanel();</span>
+<span class="nc" id="L85">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L86">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L88">		topPane.add(createListPane());</span>
+<span class="nc" id="L89">		topPane.add(createButtonPane());</span>
+
+<span class="nc" id="L91">		getContentPane().add(topPane);</span>
+<span class="nc" id="L92">		pack();</span>
+<span class="nc" id="L93">	}</span>
+
+	/**
+	 * Show the dialog. This is intended to be a Singleton class.
+	 */
+	public void showDialog() {
+<span class="nc bnc" id="L99" title="All 2 branches missed.">		if (firstUse) {</span>
+<span class="nc" id="L100">			setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L101">			firstUse = false;</span>
+		}
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		if (filterList.getSelectedIndex() == -1) {</span>
+<span class="nc" id="L105">			filterList.setSelectedIndex(0);</span>
+		}
+
+<span class="nc" id="L108">		this.getRootPane().setDefaultButton(selectButton);</span>
+<span class="nc" id="L109">		this.setVisible(true);</span>
+<span class="nc" id="L110">	}</span>
+
+	private JPanel createListPane() {
+<span class="nc" id="L113">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L114">		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L116">		filterListModel = new DefaultListModel();</span>
+<span class="nc" id="L117">		filterList = new JList(filterListModel);</span>
+<span class="nc" id="L118">		filterList</span>
+<span class="nc" id="L119">				.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);</span>
+<span class="nc" id="L120">		filterList.addListSelectionListener(this);</span>
+<span class="nc" id="L121">		JScrollPane modelListScroller = new JScrollPane(filterList);</span>
+
+<span class="nc" id="L123">		panel.add(modelListScroller);</span>
+
+<span class="nc" id="L125">		return panel;</span>
+	}
+
+	private JPanel createButtonPane() {
+<span class="nc" id="L129">		JPanel panel = new JPanel(new FlowLayout());</span>
+
+<span class="nc" id="L131">		deleteButton = new JButton(&quot;Delete&quot;);</span>
+<span class="nc" id="L132">		deleteButton.addActionListener(createDeleteButtonListener());</span>
+<span class="nc" id="L133">		deleteButton.setEnabled(false);</span>
+<span class="nc" id="L134">		panel.add(deleteButton);</span>
+
+<span class="nc" id="L136">		showDescriptionButton = new JButton(&quot;Show Description&quot;);</span>
+<span class="nc" id="L137">		showDescriptionButton</span>
+<span class="nc" id="L138">				.addActionListener(createShowDescriptionButtonListener());</span>
+<span class="nc" id="L139">		showDescriptionButton.setEnabled(false);</span>
+<span class="nc" id="L140">		panel.add(showDescriptionButton);</span>
+
+<span class="nc" id="L142">		createSeriesButton = new JButton(&quot;Create Series&quot;);</span>
+<span class="nc" id="L143">		createSeriesButton</span>
+<span class="nc" id="L144">				.addActionListener(createCreateSeriesButtonListener());</span>
+<span class="nc" id="L145">		createSeriesButton.setEnabled(false);</span>
+<span class="nc" id="L146">		panel.add(createSeriesButton);</span>
+
+<span class="nc" id="L148">		selectButton = new JButton(&quot;Select&quot;);</span>
+<span class="nc" id="L149">		selectButton.addActionListener(createSelectButtonListener());</span>
+<span class="nc" id="L150">		selectButton.setEnabled(false);</span>
+<span class="nc" id="L151">		panel.add(selectButton);</span>
+
+<span class="nc" id="L153">		this.getRootPane().setDefaultButton(selectButton);</span>
+
+<span class="nc" id="L155">		return panel;</span>
+	}
+
+	// List selection listener to update button states.
+	public void valueChanged(ListSelectionEvent e) {
+<span class="nc bnc" id="L160" title="All 2 branches missed.">		if (e.getValueIsAdjusting() == false) {</span>
+
+<span class="nc bnc" id="L162" title="All 2 branches missed.">			if (filterList.getSelectedIndex() == -1) {</span>
+<span class="nc" id="L163">				selectButton.setEnabled(false);</span>
+<span class="nc" id="L164">				showDescriptionButton.setEnabled(false);</span>
+<span class="nc" id="L165">				deleteButton.setEnabled(false);</span>
+<span class="nc" id="L166">				createSeriesButton.setEnabled(false);</span>
+			} else {
+<span class="nc" id="L168">				selectButton.setEnabled(true);</span>
+<span class="nc" id="L169">				showDescriptionButton.setEnabled(true);</span>
+<span class="nc" id="L170">				deleteButton.setEnabled(true);</span>
+<span class="nc" id="L171">				createSeriesButton.setEnabled(true);</span>
+			}
+		}
+<span class="nc" id="L174">	}</span>
+
+	// Return a listener for the &quot;Select&quot; button.
+	private ActionListener createSelectButtonListener() {
+<span class="nc" id="L178">		final ObservationFiltersDialog me = this;</span>
+<span class="nc" id="L179">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L181">				int selectedModelIndex = filterList.getSelectedIndex();</span>
+<span class="nc" id="L182">				String desc = (String) filterListModel.get(selectedModelIndex);</span>
+<span class="nc" id="L183">				FilteredObservationMessage filterMsg = filterMap.get(desc);</span>
+
+<span class="nc" id="L185">				FilteredObservationMessage newFilterMsg = new FilteredObservationMessage(</span>
+<span class="nc" id="L186">						me, filterMsg.getDescription(),</span>
+<span class="nc" id="L187">						filterMsg.getFilteredObs());</span>
+
+<span class="nc" id="L189">				Mediator.getInstance().getFilteredObservationNotifier()</span>
+<span class="nc" id="L190">						.notifyListeners(newFilterMsg);</span>
+<span class="nc" id="L191">			}</span>
+		};
+	}
+
+	// Return a listener for the &quot;Show Description&quot; button.
+	private ActionListener createShowDescriptionButtonListener() {
+<span class="nc" id="L197">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L199">				int selectedFilterIndex = filterList.getSelectedIndex();</span>
+<span class="nc" id="L200">				String desc = (String) filterListModel.get(selectedFilterIndex);</span>
+<span class="nc" id="L201">				FilteredObservationMessage filterMsg = filterMap.get(desc);</span>
+<span class="nc" id="L202">				List&lt;ITextComponent&lt;String&gt;&gt; fields = new ArrayList&lt;ITextComponent&lt;String&gt;&gt;();</span>
+<span class="nc" id="L203">				fields.add(new TextField(&quot;Name&quot;, filterMsg.getDescription()</span>
+<span class="nc" id="L204">						.getFilterName()));</span>
+<span class="nc" id="L205">				fields.add(new TextArea(&quot;Description&quot;, filterMsg</span>
+<span class="nc" id="L206">						.getDescription().getFilterDescription()));</span>
+<span class="nc" id="L207">				new TextDialog(&quot;Description&quot;, fields);</span>
+<span class="nc" id="L208">			}</span>
+		};
+	}
+
+	// Return a listener for the &quot;Delete&quot; button.
+	private ActionListener createDeleteButtonListener() {
+<span class="nc" id="L214">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L216">				int selectedModelIndex = filterList.getSelectedIndex();</span>
+
+<span class="nc" id="L218">				String desc = (String) filterListModel</span>
+<span class="nc" id="L219">						.remove(selectedModelIndex);</span>
+<span class="nc" id="L220">				filterMap.remove(desc);</span>
+<span class="nc" id="L221">				pack();</span>
+<span class="nc" id="L222">			}</span>
+		};
+	}
+
+	// Return a listener for the &quot;Create Series&quot; button.
+	private ActionListener createCreateSeriesButtonListener() {
+<span class="nc" id="L228">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L230">				int selectedFilterIndex = filterList.getSelectedIndex();</span>
+<span class="nc" id="L231">				String desc = (String) filterListModel.get(selectedFilterIndex);</span>
+<span class="nc" id="L232">				FilteredObservationMessage msg = filterMap.get(desc);</span>
+<span class="nc" id="L233">				List&lt;ValidObservation&gt; obs = new ArrayList&lt;ValidObservation&gt;(</span>
+<span class="nc" id="L234">						msg.getFilteredObs());</span>
+<span class="nc" id="L235">				SeriesTypeCreationDialog dlg = new SeriesTypeCreationDialog(obs);</span>
+<span class="nc" id="L236">				dlg.showDialog();</span>
+<span class="nc" id="L237">			}</span>
+		};
+	}
+
+	/**
+	 * Return a filter listener, the purpose of which is to store new filter
+	 * information.
+	 */
+	public Listener&lt;FilteredObservationMessage&gt; createFilterListener() {
+<span class="nc" id="L246">		final ObservationFiltersDialog me = this;</span>
+<span class="nc" id="L247">		return new Listener&lt;FilteredObservationMessage&gt;() {</span>
+			@Override
+			public void update(FilteredObservationMessage info) {
+<span class="nc bnc" id="L250" title="All 4 branches missed.">				if (info != null &amp;&amp; info.getSource() != me) {</span>
+<span class="nc" id="L251">					String desc = info.getDescription().getFilterName();</span>
+
+					// Remove an existing filter.
+<span class="nc bnc" id="L254" title="All 2 branches missed.">					if (filterMap.containsKey(desc)) {</span>
+<span class="nc" id="L255">						filterMap.remove(desc);</span>
+<span class="nc" id="L256">						filterListModel.removeElement(desc);</span>
+					}
+
+<span class="nc" id="L259">					filterMap.put(desc, info);</span>
+<span class="nc" id="L260">					filterListModel.addElement(desc);</span>
+<span class="nc" id="L261">					pack();</span>
+				}
+<span class="nc" id="L263">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L267">				return false;</span>
+			}
+		};
+	}
+
+	/**
+	 * Return a new star listener, the purpose of which is to clear the
+	 * collections and disable the buttons.
+	 */
+	public Listener&lt;NewStarMessage&gt; createNewStarListener() {
+<span class="nc" id="L277">		return new Listener&lt;NewStarMessage&gt;() {</span>
+			@Override
+			public void update(NewStarMessage info) {
+<span class="nc" id="L280">				filterListModel.clear();</span>
+<span class="nc" id="L281">				pack();</span>
+<span class="nc" id="L282">				filterMap.clear();</span>
+<span class="nc" id="L283">				selectButton.setEnabled(false);</span>
+<span class="nc" id="L284">				deleteButton.setEnabled(false);</span>
+<span class="nc" id="L285">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L289">				return false;</span>
+			}
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

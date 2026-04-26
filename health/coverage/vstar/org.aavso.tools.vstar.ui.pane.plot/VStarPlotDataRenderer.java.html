@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VStarPlotDataRenderer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.pane.plot</a> &gt; <span class="el_source">VStarPlotDataRenderer.java</span></div><h1>VStarPlotDataRenderer.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.pane.plot;
+
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
+
+import org.jfree.chart.LegendItem;
+import org.jfree.chart.renderer.xy.XYErrorRenderer;
+
+/**
+ * This is VStar's plot data-point renderer.
+ * 
+ * We subclass XYErrorRenderer in order to be able to plot error bars.&lt;br/&gt;
+ * TODO: Should we instead use StatisticalLineAndShapeRenderer (at least for
+ * means plot)?
+ */
+@SuppressWarnings(&quot;serial&quot;)
+<span class="nc" id="L34">public class VStarPlotDataRenderer extends XYErrorRenderer {</span>
+
+	/**
+	 * Set the size of the series.
+	 * 
+	 * @param seriesNum
+	 *            The series number.
+	 * @param size
+	 *            The size to set each plot point to for this series.
+	 */
+	public void setSeriesSize(int seriesNum, int size) {
+<span class="nc" id="L45">		Shape datapointShape = new Ellipse2D.Double(-size / 2, -size / 2, size,</span>
+				size);
+<span class="nc" id="L47">		setSeriesShape(seriesNum, datapointShape);</span>
+<span class="nc" id="L48">	}</span>
+
+	/* (non-Javadoc)
+	 * @see org.jfree.chart.renderer.xy.XYLineAndShapeRenderer#getLegendItem(int, int)
+	 */
+	@Override
+	public LegendItem getLegendItem(int dataSetIndex, int seriesNum) {
+		// Only show a legend item for a series for one dataset.
+		// In the case of the light curve plot, there is only one,
+		// whereas in the case of the phase plot there are two.
+<span class="nc" id="L58">		LegendItem item = null;</span>
+
+<span class="nc bnc" id="L60" title="All 2 branches missed.">		if (dataSetIndex == 0) {</span>
+<span class="nc" id="L61">			item = super.getLegendItem(dataSetIndex, seriesNum);</span>
+		}
+		
+<span class="nc" id="L64">		return item;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

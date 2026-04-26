@@ -1,0 +1,1058 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VStarScriptingAPI.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.scripting</a> &gt; <span class="el_source">VStarScriptingAPI.java</span></div><h1>VStarScriptingAPI.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.scripting;
+
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.input.database.VSXWebServiceStarInfoSource;
+import org.aavso.tools.vstar.plugin.InputType;
+import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.plugin.model.impl.ApacheCommonsPolynomialFitCreatorPlugin;
+import org.aavso.tools.vstar.plugin.ob.src.impl.AIDWebServiceObservationSourcePluginBase;
+import org.aavso.tools.vstar.ui.MenuBar;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.ui.mediator.ViewModeType;
+import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.model.IModel;
+import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.period.dcdft.DcDftAnalysisType;
+import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
+import org.aavso.tools.vstar.util.period.wwz.WWZCoordinateType;
+import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
+import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
+/**
+ * This is VStar's scripting Application Programming Interface. An instance of
+ * this class will be passed to scripts.
+ * 
+ * All methods are synchronised to ensure that only one API method is being
+ * called at a time.
+ */
+<span class="nc" id="L73">public class VStarScriptingAPI {</span>
+
+	private Mediator mediator;
+
+	private static VStarScriptingAPI instance;
+
+	private AnalysisTypeChangeMessage analysisTypeMsg;
+
+	/**
+	 * Constructor
+	 */
+<span class="nc" id="L84">	private VStarScriptingAPI() {</span>
+<span class="nc" id="L85">		mediator = Mediator.getInstance();</span>
+<span class="nc" id="L86">		analysisTypeMsg = null;</span>
+<span class="nc" id="L87">		mediator.getAnalysisTypeChangeNotifier().addListener(createAnalysisTypeChangeListener());</span>
+<span class="nc" id="L88">	}</span>
+
+	/**
+	 * Return Singleton.
+	 */
+	public static VStarScriptingAPI getInstance() {
+<span class="nc bnc" id="L94" title="All 2 branches missed.">		if (instance == null) {</span>
+<span class="nc" id="L95">			instance = new VStarScriptingAPI();</span>
+		}
+		
+<span class="nc" id="L98">		return instance;</span>
+	}
+
+	/**
+	 * Return an analysis type change listener.
+	 */
+	private Listener&lt;AnalysisTypeChangeMessage&gt; createAnalysisTypeChangeListener() {
+<span class="nc" id="L105">		return new Listener&lt;AnalysisTypeChangeMessage&gt;() {</span>
+			@Override
+			public void update(AnalysisTypeChangeMessage info) {
+<span class="nc" id="L108">				analysisTypeMsg = info;</span>
+<span class="nc" id="L109">			}</span>
+
+			@Override
+			public boolean canBeRemoved() {
+<span class="nc" id="L113">				return false;</span>
+			}
+		};
+	}
+
+	// ***************************************
+	// ** VStar scripting API methods start **
+	// ***************************************
+
+	/**
+	 * Load a dataset from the specified path. This is equivalent to &quot;File -&gt; New
+	 * Star from File...&quot;
+	 * 
+	 * @param path The path to the file.
+	 */
+	public synchronized void loadFromFile(final String path) {
+<span class="nc" id="L129">		commonLoadFromFile(path, false);</span>
+<span class="nc" id="L130">	}</span>
+
+	/**
+	 * Load a dataset from the specified path, adding it to the existing dataset.
+	 * 
+	 * @param path The path to the file.
+	 */
+	public synchronized void additiveLoadFromFile(final String path) {
+<span class="nc" id="L138">		commonLoadFromFile(path, true);</span>
+<span class="nc" id="L139">	}</span>
+
+	/**
+	 * Load a dataset from the specified URL.
+	 * 
+	 * @param url The URL of the file.
+	 */
+	public synchronized void loadFromURL(final String path) {
+<span class="nc" id="L147">		commonLoadFromURL(path, false);</span>
+<span class="nc" id="L148">	}</span>
+
+	/**
+	 * Load a dataset from the specified path, adding it to the existing dataset.
+	 * 
+	 * @param url The URL of the file.
+	 */
+	public synchronized void additiveLoadFromURL(final String path) {
+<span class="nc" id="L156">		commonLoadFromURL(path, true);</span>
+<span class="nc" id="L157">	}</span>
+
+	/**
+	 * Load a dataset from the specified path using the (possibly partial) plug-in
+	 * name to identify the observation source plug-in to use. This is equivalent to
+	 * plugin display name.
+	 * 
+	 * @param pluginName The sub-string with which to match the plug-in name.
+	 * @param path       The path to the file.
+	 */
+	public synchronized void loadFromFile(final String pluginName, final String path) {
+<span class="nc" id="L168">		commonLoadFromFileOrURLViaPlugin(pluginName, InputType.FILE, path, false);</span>
+<span class="nc" id="L169">	}</span>
+
+	/**
+	 * Load a dataset from the specified path, adding it to the existing dataset
+	 * using the (possibly partial) plug-in name to identify the observation source
+	 * plug-in to use. his is equivalent to plugin display name with the additive
+	 * checkbox selected.
+	 * 
+	 * @param pluginName The sub-string with which to match the plug-in name.
+	 * @param path       The path to the file.
+	 */
+	public synchronized void additiveLoadFromFile(final String pluginName, final String path) {
+<span class="nc" id="L181">		commonLoadFromFileOrURLViaPlugin(pluginName, InputType.FILE, path, true);</span>
+<span class="nc" id="L182">	}</span>
+
+	/**
+	 * Load a dataset from the specified URL using the (possibly partial) plug-in
+	 * name to identify the observation source plug-in to use.
+	 * 
+	 * @param pluginName The sub-string with which to match the plug-in name.
+	 * @param url        The URL.
+	 */
+	public synchronized void loadFromURL(final String pluginName, final String url) {
+<span class="nc" id="L192">		commonLoadFromFileOrURLViaPlugin(pluginName, InputType.URL, url, false);</span>
+<span class="nc" id="L193">	}</span>
+
+	/**
+	 * Load a dataset from the specified URL, adding it to the existing dataset,
+	 * using the (possibly partial) plug-in name to identify the observation source
+	 * plug-in to use.
+	 * 
+	 * @param pluginName The sub-string with which to match the plug-in name.
+	 * @param url        The URL.
+	 */
+	public synchronized void additiveLoadFromURL(final String pluginName, final String url) {
+<span class="nc" id="L204">		commonLoadFromFileOrURLViaPlugin(pluginName, InputType.URL, url, true);</span>
+<span class="nc" id="L205">	}</span>
+
+	/**
+	 * Load a dataset from the AAVSO international database.
+	 * 
+	 * @param name  The name (not AUID) of the object.
+	 * @param minJD The minimum JD of the range to be loaded.
+	 * @param maxJD The maximum JD of the range to be loaded.
+	 */
+	public synchronized void loadFromAID(final String name, double minJD, double maxJD) {
+
+<span class="nc" id="L216">		commonLoadFromAID(name, minJD, maxJD, null, null, false, false);</span>
+<span class="nc" id="L217">	}</span>
+
+	/**
+	 * Load a dataset from the AAVSO international database.
+	 * 
+	 * @param name  The name (not AUID) of the object.
+	 * @param minJD The minimum JD of the range to be loaded.
+	 * @param maxJD The maximum JD of the range to be loaded.
+	 * @param bands A short band name.
+	 * @oaram obscodes A comma-delimited list of observer codes or null for all
+	 *        available observer codes.
+	 * @param loadMinimalFields Load a minimal field subset?
+	 */
+	public synchronized void loadFromAID(final String name, double minJD, double maxJD, String bands, String obscodes,
+			boolean loadMinimalFields) {
+
+<span class="nc" id="L233">		commonLoadFromAID(name, minJD, maxJD, bands, obscodes, loadMinimalFields, false);</span>
+<span class="nc" id="L234">	}</span>
+
+	/**
+	 * Load a dataset from the AAVSO international database, adding it to the
+	 * existing dataset.
+	 * 
+	 * @param name  The name (not AUID) of the object.
+	 * @param minJD The minimum JD of the range to be loaded.
+	 * @param maxJD The maximum JD of the range to be loaded.
+	 */
+	public synchronized void additiveLoadFromAID(final String name, double minJD, double maxJD) {
+
+<span class="nc" id="L246">		commonLoadFromAID(name, minJD, maxJD, null, null, false, true);</span>
+<span class="nc" id="L247">	}</span>
+
+	/**
+	 * Load a dataset from the AAVSO international database, adding it to the
+	 * existing dataset.
+	 * 
+	 * @param name  The name (not AUID) of the object.
+	 * @param minJD The minimum JD of the range to be loaded.
+	 * @param maxJD The maximum JD of the range to be loaded.
+	 * @param bands A short band name.
+	 * @oaram obscodes A comma-delimited list of observer codes or null for all
+	 *        available observer codes.
+	 * @param loadMinimalFields Load a minimal field subset?
+	 */
+	public synchronized void additiveLoadFromAID(final String name, double minJD, double maxJD, String bands,
+			String obscodes, boolean loadMinimalFields) {
+
+<span class="nc" id="L264">		commonLoadFromAID(name, minJD, maxJD, bands, obscodes, loadMinimalFields, true);</span>
+<span class="nc" id="L265">	}</span>
+
+	// TODO: add loadFromAID(name) =&gt; all
+
+	/**
+	 * Return a StarInfo object for named object.
+	 * 
+	 * @param name The name (not AUID) of the object.
+	 * @return The StarInfo object.
+	 */
+	public synchronized StarInfo getStarInfo(String name) {
+<span class="nc" id="L276">		init();</span>
+<span class="nc" id="L277">		VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();</span>
+<span class="nc" id="L278">		return infoSrc.getStarByName(name);</span>
+	}
+
+	/**
+	 * Save the raw or phase plot dataset (according to current mode) to a file of
+	 * rows of values separated by the specified delimiter.
+	 * 
+	 * @param path      The path to the file to save to (as a string).
+	 * @param delimiter The delimiter between data items.
+	 */
+	public synchronized void saveObsList(final String path, String delimiter) {
+<span class="nc" id="L289">		init();</span>
+
+<span class="nc" id="L291">		ObservationSinkPluginBase obSinkPlugin = getObsSinkPlugin(LocaleProps.get(&quot;TEXT_FORMAT_FILE&quot;));</span>
+
+<span class="nc bnc" id="L293" title="All 2 branches missed.">		if (obSinkPlugin != null) {</span>
+<span class="nc" id="L294">			mediator.saveObsListToFile(Mediator.getUI().getComponent(), obSinkPlugin, new File(path), delimiter);</span>
+		}
+
+<span class="nc" id="L297">		mediator.waitForJobCompletion();</span>
+<span class="nc" id="L298">	}</span>
+
+	/**
+	 * Save the raw or phase plot mean list (according to current mode) to a file of
+	 * rows of values separated by the specified delimiter.
+	 * 
+	 * @param path      The path to the file to save to (as a string).
+	 * @param delimiter The delimiter between data items.
+	 */
+	public synchronized void saveMeanList(final String path, String delimiter) {
+<span class="nc" id="L308">		init();</span>
+
+<span class="nc" id="L310">		ObservationSinkPluginBase obSinkPlugin = getObsSinkPlugin(LocaleProps.get(&quot;TEXT_FORMAT_FILE&quot;));</span>
+
+<span class="nc bnc" id="L312" title="All 2 branches missed.">		if (obSinkPlugin != null) {</span>
+<span class="nc" id="L313">			mediator.saveSyntheticObsListToFile(Mediator.getUI().getComponent(), obSinkPlugin,</span>
+					ViewModeType.LIST_MEANS_MODE, new File(path), delimiter);
+		}
+
+<span class="nc" id="L317">		mediator.waitForJobCompletion();</span>
+<span class="nc" id="L318">	}</span>
+
+	/**
+	 * Save the raw or phase plot model list (according to current mode) to a file
+	 * of rows of values separated by the specified delimiter.
+	 * 
+	 * @param path      The path to the file to save to (as a string).
+	 * @param delimiter The delimiter between data items.
+	 */
+	public synchronized void saveModelList(final String path, String delimiter) {
+<span class="nc" id="L328">		init();</span>
+
+<span class="nc" id="L330">		ObservationSinkPluginBase obSinkPlugin = getObsSinkPlugin(LocaleProps.get(&quot;TEXT_FORMAT_FILE&quot;));</span>
+
+<span class="nc bnc" id="L332" title="All 2 branches missed.">		if (obSinkPlugin != null) {</span>
+<span class="nc" id="L333">			mediator.saveSyntheticObsListToFile(Mediator.getUI().getComponent(), obSinkPlugin, ViewModeType.MODEL_MODE,</span>
+					new File(path), delimiter);
+		}
+
+<span class="nc" id="L337">		mediator.waitForJobCompletion();</span>
+<span class="nc" id="L338">	}</span>
+
+	/**
+	 * Save the raw or phase plot residual list (according to current mode) to a
+	 * file of rows of values separated by the specified delimiter.
+	 * 
+	 * @param path      The path to the file to save to (as a string).
+	 * @param delimiter The delimiter between data items.
+	 */
+	public synchronized void saveResidualList(final String path, String delimiter) {
+<span class="nc" id="L348">		init();</span>
+
+<span class="nc" id="L350">		ObservationSinkPluginBase obSinkPlugin = getObsSinkPlugin(LocaleProps.get(&quot;TEXT_FORMAT_FILE&quot;));</span>
+
+<span class="nc bnc" id="L352" title="All 2 branches missed.">		if (obSinkPlugin != null) {</span>
+<span class="nc" id="L353">			mediator.saveSyntheticObsListToFile(Mediator.getUI().getComponent(), obSinkPlugin,</span>
+					ViewModeType.RESIDUALS_MODE, new File(path), delimiter);
+		}
+
+<span class="nc" id="L357">		mediator.waitForJobCompletion();</span>
+<span class="nc" id="L358">	}</span>
+
+	/**
+	 * Save the light curve for the current view mode (raw or phase plot) to a PNG
+	 * image file.
+	 * 
+	 * @param path   The path to the file to save to (as a string).
+	 * @param width  The desired width of the image.
+	 * @param height The desired height of the image.
+	 */
+	public synchronized void saveLightCurve(final String path, int width, int height) {
+<span class="nc" id="L369">		init();</span>
+<span class="nc" id="L370">		mediator.saveCurrentPlotToFile(new File(path), width, height);</span>
+<span class="nc" id="L371">	}</span>
+
+	/**
+	 * Switch to phase plot mode. If no phase plot has been created yet, this will
+	 * open the phase parameter dialog.
+	 */
+	public synchronized void phasePlotMode() {
+<span class="nc" id="L378">		init();</span>
+<span class="nc" id="L379">		mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);</span>
+<span class="nc" id="L380">		mediator.waitForJobCompletion();</span>
+<span class="nc" id="L381">	}</span>
+
+	/**
+	 * Switch to phase raw (light curve) mode.
+	 */
+	public synchronized void lightCurveMode() {
+<span class="nc" id="L387">		init();</span>
+<span class="nc" id="L388">		mediator.changeAnalysisType(AnalysisType.RAW_DATA);</span>
+<span class="nc" id="L389">		mediator.waitForJobCompletion();</span>
+<span class="nc" id="L390">	}</span>
+
+	/**
+	 * Create a phase plot given period and epoch.
+	 * 
+	 * @param period The period on which to fold the data.
+	 * @param epoch  The epoch (first Julian Date) for the phase plot.
+	 */
+	public synchronized void phasePlot(double period, double epoch) {
+<span class="nc" id="L399">		init();</span>
+<span class="nc" id="L400">		mediator.createPhasePlot(period, epoch);</span>
+<span class="nc" id="L401">		mediator.waitForJobCompletion();</span>
+<span class="nc" id="L402">	}</span>
+
+	/**
+	 * Create a polynomial fit model given the specified series and polynomial
+	 * degree.
+	 * 
+	 * @param seriesName Name of series to which polynomial fit should be applied.
+	 * 
+	 * @param degree     The required polynomial degree.
+	 */
+	public synchronized void polyfit(String seriesName, double degree) {
+<span class="nc" id="L413">		modelCreatorCommon(null, ApacheCommonsPolynomialFitCreatorPlugin.class, seriesName, new Double[] { degree });</span>
+<span class="nc" id="L414">	}</span>
+
+	/**
+	 * Create a model given the specified partial plugin name, series and
+	 * parameters.
+	 * 
+	 * @param seriesName Name of series to which the model creation operation should
+	 *                   be applied.
+	 * @param params     Array of parameters; could be of any type.
+	 */
+	public synchronized void createModel(String pluginName, String seriesName, Object[] params) {
+<span class="nc" id="L425">		modelCreatorCommon(pluginName, null, seriesName, params);</span>
+<span class="nc" id="L426">	}</span>
+
+	/**
+	 * Perform DCDFT period analysis with period range.
+	 * 
+	 * @param seriesName The short or long form of the series name, e.g. V or
+	 *                   Johnson V.
+	 * @param lowPeriod  The low value of the period range to search in.
+	 * @param highPeriod The high value of the period range to search in.
+	 * @param resolution The resolution of the search over the range.
+	 * @return An array of top-hits periods.
+	 */
+	public synchronized Double[] dcdftPeriod(String seriesName, double lowPeriod, double highPeriod,
+			double resolution) {
+
+<span class="nc" id="L441">		return dcdftCommon(seriesName, DcDftAnalysisType.PERIOD_RANGE, lowPeriod, highPeriod, resolution);</span>
+	}
+
+	/**
+	 * Perform DCDFT period analysis with frequency range.
+	 * 
+	 * @param seriesName   The short or long form of the series name, e.g. V or
+	 *                     Johnson V.
+	 * @param lowFrequency The low value of the frequency range to search in.
+	 * @param highPeriod   The high value of the frequency range to search in.
+	 * @param resolution   The resolution of the search over the range.
+	 * @return An array of top-hits frequencies.
+	 */
+	public synchronized Double[] dcdftFrequency(String seriesName, double lowFrequency, double highFrequency,
+			double resolution) {
+
+<span class="nc" id="L457">		return dcdftCommon(seriesName, DcDftAnalysisType.FREQUENCY_RANGE, lowFrequency, highFrequency, resolution);</span>
+	}
+
+	/**
+	 * Perform DCDFT period analysis with standard scan.
+	 * 
+	 * @param seriesName The short or long form of the series name, e.g. V or
+	 *                   Johnson V.
+	 * @return An array of top-hits frequencies.
+	 */
+	public synchronized Double[] dcdftStandardScan(String seriesName) {
+
+<span class="nc" id="L469">		return dcdftCommon(seriesName, DcDftAnalysisType.STANDARD_SCAN, 0, 0, 0);</span>
+	}
+
+	/**
+	 * Perform WWZ time-frequency analysis with period range.
+	 * 
+	 * @param seriesName    The short or long form of the series name, e.g. V or
+	 *                      Johnson V.
+	 * @param minPeriod     The low value of the period range to search in.
+	 * @param maxPeriod     The high value of the period range to search in.
+	 * @param periodStep    The resolution of the search over the range.
+	 * @param decay         The wavelet decay constant to use.
+	 * @param timeDivisions The number of time divisions to use.
+	 * @return An array of top-hits periods; may be empty.
+	 */
+	public synchronized Double[][] wwzPeriod(String seriesName, double minPeriod, double maxPeriod, double periodStep,
+			double decay, double timeDivisions) {
+
+<span class="nc" id="L487">		List&lt;ValidObservation&gt; obs = getObsForSeries(seriesName);</span>
+
+<span class="nc" id="L489">		Double[][] results = {};</span>
+
+<span class="nc bnc" id="L491" title="All 2 branches missed.">		if (obs.size() &gt; 0) {</span>
+<span class="nc" id="L492">			WeightedWaveletZTransform wwz = new WeightedWaveletZTransform(obs, decay, timeDivisions);</span>
+
+<span class="nc" id="L494">			wwz.make_freqs_from_period_range(Math.min(minPeriod, maxPeriod), Math.max(minPeriod, maxPeriod),</span>
+					periodStep);
+
+<span class="nc" id="L497">			results = wwzCommon(wwz, WWZCoordinateType.PERIOD);</span>
+		}
+
+<span class="nc" id="L500">		return results;</span>
+	}
+
+	/**
+	 * Perform WWZ time-frequency analysis with period range.
+	 * 
+	 * @param seriesName    The short or long form of the series name, e.g. V or
+	 *                      Johnson V.
+	 * @param minFreq       The low value of the frequency range to search in.
+	 * @param maxFreq       The high value of the frequency range to search in.
+	 * @param freqStep      The resolution of the search over the range.
+	 * @param decay         The wavelet decay constant to use.
+	 * @param timeDivisions The number of time divisions to use.
+	 * @return An array of top-hits frequencies; may be empty.
+	 */
+	public synchronized Double[][] wwzFrequency(String seriesName, double minFreq, double maxFreq, double freqStep,
+			double decay, double timeDivisions) {
+
+<span class="nc" id="L518">		List&lt;ValidObservation&gt; obs = getObsForSeries(seriesName);</span>
+
+<span class="nc" id="L520">		Double[][] results = {};</span>
+
+<span class="nc bnc" id="L522" title="All 2 branches missed.">		if (obs.size() &gt; 0) {</span>
+<span class="nc" id="L523">			WeightedWaveletZTransform wwz = new WeightedWaveletZTransform(obs, decay, timeDivisions);</span>
+
+<span class="nc" id="L525">			wwz.make_freqs_from_freq_range(Math.min(minFreq, maxFreq), Math.max(minFreq, maxFreq), freqStep);</span>
+
+<span class="nc" id="L527">			results = wwzCommon(wwz, WWZCoordinateType.FREQUENCY);</span>
+		}
+
+<span class="nc" id="L530">		return results;</span>
+	}
+
+	/**
+	 * Return the last error.
+	 * 
+	 * @return The error string; may be null.
+	 */
+	public synchronized String getError() {
+<span class="nc" id="L539">		return ScriptRunner.getInstance().getError();</span>
+	}
+
+	/**
+	 * Return the last warning.
+	 * 
+	 * @return The warning string; may be null.
+	 */
+	public synchronized String getWarning() {
+<span class="nc" id="L548">		return ScriptRunner.getInstance().getWarning();</span>
+	}
+
+	/**
+	 * Returns a comma-separated string of series names for the current dataset,
+	 * including bands and synthetic series such as means, model, residuals.
+	 * 
+	 * @return a comma-separated series names
+	 */
+	public synchronized String getSeries() {
+<span class="nc" id="L558">		init();</span>
+<span class="nc" id="L559">		ObservationAndMeanPlotModel model = analysisTypeMsg.getObsAndMeanChartPane().getObsModel();</span>
+
+<span class="nc" id="L561">		String nameStr = &quot;&quot;;</span>
+
+<span class="nc bnc" id="L563" title="All 2 branches missed.">		for (SeriesType type : model.getSeriesKeys()) {</span>
+<span class="nc" id="L564">			nameStr += type.getShortName() + &quot;,&quot;;</span>
+<span class="nc" id="L565">		}</span>
+
+<span class="nc bnc" id="L567" title="All 2 branches missed.">		if (nameStr.lastIndexOf(&quot;,&quot;) != -1) {</span>
+<span class="nc" id="L568">			nameStr = nameStr.substring(0, nameStr.lastIndexOf(&quot;,&quot;));</span>
+		}
+
+<span class="nc" id="L571">		return nameStr;</span>
+	}
+
+	/**
+	 * Returns the time values (e.g. JD, HJD) for the specified series.
+	 * 
+	 * @param seriesName The short or long series name.
+	 * @return An array of time values.
+	 */
+	public double[] getTimes(String seriesName) {
+<span class="nc" id="L581">		List&lt;ValidObservation&gt; obs = getObsForSeries(seriesName);</span>
+
+<span class="nc" id="L583">		List&lt;Double&gt; timeList = obs.stream().map(ob -&gt; ob.getJD()).collect(Collectors.toList());</span>
+
+<span class="nc" id="L585">		double[] times = new double[timeList.size()];</span>
+
+<span class="nc" id="L587">		int i = 0;</span>
+<span class="nc bnc" id="L588" title="All 2 branches missed.">		for (Double time : timeList) {</span>
+<span class="nc" id="L589">			times[i++] = time;</span>
+<span class="nc" id="L590">		}</span>
+
+<span class="nc" id="L592">		return times;</span>
+	}
+
+	/**
+	 * Returns the (standard) phase values for the specified series.
+	 * 
+	 * @param seriesName The short or long series name.
+	 * @return An array of phase values.
+	 */
+	public double[] getPhases(String seriesName) {
+<span class="nc" id="L602">		List&lt;ValidObservation&gt; obs = getObsForSeries(seriesName);</span>
+
+<span class="nc" id="L604">		List&lt;Double&gt; phaseList = obs.stream().map(ob -&gt; ob.getStandardPhase()).collect(Collectors.toList());</span>
+
+<span class="nc" id="L606">		double[] phases = new double[phaseList.size()];</span>
+
+<span class="nc" id="L608">		int i = 0;</span>
+<span class="nc bnc" id="L609" title="All 2 branches missed.">		for (Double phase : phaseList) {</span>
+<span class="nc" id="L610">			phases[i++] = phase;</span>
+<span class="nc" id="L611">		}</span>
+
+<span class="nc" id="L613">		return phases;</span>
+	}
+
+	/**
+	 * Returns the magnitude values for the specified series.
+	 * 
+	 * @param seriesName The short or long series name.
+	 * @return An array of magnitude values.
+	 */
+	public double[] getMags(String seriesName) {
+<span class="nc" id="L623">		List&lt;ValidObservation&gt; obs = getObsForSeries(seriesName);</span>
+
+<span class="nc" id="L625">		List&lt;Double&gt; magList = obs.stream().map(ob -&gt; ob.getMag()).collect(Collectors.toList());</span>
+
+<span class="nc" id="L627">		double[] mags = new double[magList.size()];</span>
+
+<span class="nc" id="L629">		int i = 0;</span>
+<span class="nc bnc" id="L630" title="All 2 branches missed.">		for (Double mag : magList) {</span>
+<span class="nc" id="L631">			mags[i++] = mag;</span>
+<span class="nc" id="L632">		}</span>
+
+<span class="nc" id="L634">		return mags;</span>
+	}
+
+	/**
+	 * Makes the specified series in the current dataset visible. Calling this
+	 * method more than one consecutive time with the same visibility value has no
+	 * effect on the current visibility status of a series.
+	 * 
+	 * @param seriesName The long name (e.g. &quot;Johnson V&quot; not &quot;V&quot;) of the series to
+	 *                   make visible.
+	 */
+	public synchronized void makeVisible(final String seriesName) {
+<span class="nc" id="L646">		init();</span>
+<span class="nc" id="L647">		ObservationAndMeanPlotModel obsPlotModel = analysisTypeMsg.getObsAndMeanChartPane().getObsModel();</span>
+
+<span class="nc bnc" id="L649" title="All 2 branches missed.">		if (SeriesType.exists(seriesName)) {</span>
+<span class="nc" id="L650">			SeriesType series = SeriesType.getSeriesFromDescription(seriesName);</span>
+
+<span class="nc bnc" id="L652" title="All 2 branches missed.">			if (obsPlotModel.getSeriesKeys().contains(series)) {</span>
+<span class="nc" id="L653">				int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(series);</span>
+<span class="nc" id="L654">				obsPlotModel.changeSeriesVisibility(seriesNum, true);</span>
+<span class="nc" id="L655">			} else {</span>
+<span class="nc" id="L656">				ScriptRunner.getInstance().setError(&quot;Series does not exist in loaded dataset: &quot; + seriesName);</span>
+			}
+<span class="nc" id="L658">		} else {</span>
+<span class="nc" id="L659">			ScriptRunner.getInstance().setError(&quot;Unknown series type: &quot; + seriesName);</span>
+		}
+
+<span class="nc" id="L662">		mediator.waitForJobCompletion();</span>
+<span class="nc" id="L663">	}</span>
+
+	// TODO:
+	// - makeInvisible()
+	// - allow AoV, other period search plugins: see
+	// commonLoadFromFileOrURLViaPlugin() re: pattern;
+	// API may need to change to accommodate this, e.g.
+	// a generic way to get results as a collection
+
+	/**
+	 * Create a scatter plot in the named tab.
+	 * 
+	 * @param name   The name of the dataset to create or add to.
+	 * @param xTitle The x axis title.
+	 * @param yTitle The y axis title.
+	 * @param xs     The x values to plot.
+	 * @param ys     The y values to plot.
+	 */
+	public synchronized void scatter(String name, String xTitle, String yTitle, double[] xs, double[] ys) {
+		// TODO: in a future revision, store/get dataset in/from DocumentManager and
+		// fire dataset change if exists when adding new series; also need plot if e.g.
+		// scatter then lines(); also setting renderer for dataset
+<span class="nc" id="L685">		XYSeriesCollection dataset = new XYSeriesCollection();</span>
+
+<span class="nc" id="L687">		XYSeries series = new XYSeries(name);</span>
+<span class="nc bnc" id="L688" title="All 2 branches missed.">		for (int i = 0; i &lt; xs.length; i++) {</span>
+<span class="nc" id="L689">			series.add(xs[i], ys[i]);</span>
+		}
+<span class="nc" id="L691">		dataset.addSeries(series);</span>
+
+<span class="nc" id="L693">		JFreeChart chart = ChartFactory.createScatterPlot(name, xTitle, yTitle, dataset, PlotOrientation.VERTICAL, true,</span>
+				true, true);
+
+<span class="nc" id="L696">		XYPlot plot = (XYPlot) chart.getPlot();</span>
+
+<span class="nc" id="L698">		plot.setBackgroundPaint(new Color(255, 255, 255));</span>
+
+<span class="nc" id="L700">		ChartPanel panel = new ChartPanel(chart);</span>
+
+<span class="nc" id="L702">		Mediator.getUI().addTab(name, ViewModeType.PLOT_OBS_MODE, panel, false);</span>
+<span class="nc" id="L703">	}</span>
+
+	/**
+	 * Pause for the specified number of milliseconds.
+	 * 
+	 * @param millis The time to pause for.
+	 */
+	public synchronized void pause(long millis) {
+		try {
+<span class="nc" id="L712">			Thread.sleep(millis);</span>
+<span class="nc" id="L713">		} catch (InterruptedException e) {</span>
+<span class="nc" id="L714">		}</span>
+<span class="nc" id="L715">	}</span>
+
+	/**
+	 * Exit VStar
+	 */
+	public synchronized void exit() {
+<span class="nc" id="L721">		mediator.quit();</span>
+<span class="nc" id="L722">	}</span>
+
+	// *************************************
+	// ** VStar scripting API methods end **
+	// *************************************
+
+	// Common methods
+
+	/**
+	 * Common dataset file load method.
+	 * 
+	 * @param path       The path to the file or URL.
+	 * @param isAdditive Is this load additive?
+	 */
+	private void commonLoadFromFile(final String path, boolean isAdditive) {
+<span class="nc" id="L737">		init();</span>
+
+<span class="nc" id="L739">		commonLoadFromFileOrURLViaPlugin(MenuBar.NEW_STAR_FROM_FILE, InputType.FILE, path, isAdditive);</span>
+<span class="nc" id="L740">	}</span>
+
+	/**
+	 * Common dataset URL load method.
+	 * 
+	 * @param url        The URL of the file.
+	 * @param isAdditive Is this load additive?
+	 */
+	private void commonLoadFromURL(final String url, boolean isAdditive) {
+<span class="nc" id="L749">		init();</span>
+
+<span class="nc" id="L751">		commonLoadFromFileOrURLViaPlugin(MenuBar.NEW_STAR_FROM_FILE, InputType.URL, url, isAdditive);</span>
+<span class="nc" id="L752">	}</span>
+
+	/**
+	 * Common dataset plug-in load method.
+	 * 
+	 * @param pluginName The sub-string with which to match the plug-in name.
+	 * @param inputType  The input type (e.g. file, URL).
+	 * @param location   The path or URL to the file.
+	 * @param isAdditive Is this load additive?
+	 */
+	private void commonLoadFromFileOrURLViaPlugin(final String pluginName, InputType inputType, final String location,
+			boolean isAdditive) {
+<span class="nc" id="L764">		init();</span>
+
+<span class="nc" id="L766">		ObservationSourcePluginBase obSourcePlugin = null;</span>
+
+<span class="nc bnc" id="L768" title="All 2 branches missed.">		for (ObservationSourcePluginBase plugin : PluginLoader.getObservationSourcePlugins()) {</span>
+<span class="nc bnc" id="L769" title="All 2 branches missed.">			if (plugin.getDisplayName().contains(pluginName)</span>
+<span class="nc bnc" id="L770" title="All 4 branches missed.">					&amp;&amp; (plugin.getInputType() == inputType || plugin.getInputType() == InputType.FILE_OR_URL)) {</span>
+<span class="nc" id="L771">				obSourcePlugin = plugin;</span>
+<span class="nc" id="L772">				break;</span>
+			}
+<span class="nc" id="L774">		}</span>
+
+<span class="nc bnc" id="L776" title="All 2 branches missed.">		if (obSourcePlugin != null) {</span>
+			try {
+<span class="nc bnc" id="L778" title="All 2 branches missed.">				if (inputType == InputType.FILE) {</span>
+<span class="nc" id="L779">					mediator.createObservationArtefactsFromObSourcePlugin(obSourcePlugin, new File(location),</span>
+							isAdditive);
+<span class="nc bnc" id="L781" title="All 2 branches missed.">				} else if (inputType == InputType.URL) {</span>
+<span class="nc" id="L782">					mediator.createObservationArtefactsFromObSourcePlugin(obSourcePlugin, new URL(location),</span>
+							isAdditive);
+
+				}
+<span class="nc" id="L786">			} catch (IOException e) {</span>
+<span class="nc" id="L787">				MessageBox.showErrorDialog(&quot;Load File&quot;, &quot;Cannot load file: &quot; + location);</span>
+<span class="nc" id="L788">			} catch (ObservationReadError e) {</span>
+<span class="nc" id="L789">				MessageBox.showErrorDialog(&quot;Load File&quot;, &quot;Error reading observations from file: &quot; + location</span>
+<span class="nc" id="L790">						+ &quot; (reason: &quot; + e.getLocalizedMessage() + &quot;)&quot;);</span>
+<span class="nc" id="L791">			}</span>
+		} else {
+<span class="nc" id="L793">			MessageBox.showErrorDialog(&quot;Load File&quot;, &quot;No matching observation plugin found '&quot; + pluginName + &quot;'&quot;);</span>
+		}
+
+<span class="nc" id="L796">		mediator.waitForJobCompletion();</span>
+<span class="nc" id="L797">	}</span>
+
+	/**
+	 * Common AID dataset load method.
+	 * 
+	 * @param name  The target name (not AUID).
+	 * @param minJD The minimum JD of the range to be loaded.
+	 * @param maxJD The maximum JD of the range to be loaded.
+	 * @param band  A comma-delimited list of short band names or null for all
+	 *              available bands.
+	 * @oaram obscodes A comma-delimited list of observer codes or null for all
+	 *        available observer codes.
+	 * @param loadMinimalFields Load a minimal field subset?
+	 * @param isAdditive        Is this load additive?
+	 */
+	private void commonLoadFromAID(final String name, double minJD, double maxJD, String bands, String obscodes,
+			boolean loadMinimalFields, boolean isAdditive) {
+<span class="nc" id="L814">		init();</span>
+
+<span class="nc" id="L816">		ObservationSourcePluginBase obSourcePlugin = null;</span>
+
+<span class="nc bnc" id="L818" title="All 2 branches missed.">		for (ObservationSourcePluginBase plugin : PluginLoader.getObservationSourcePlugins()) {</span>
+<span class="nc bnc" id="L819" title="All 2 branches missed.">			if (plugin.getDisplayName().contains(MenuBar.NEW_STAR_FROM_DATABASE)) {</span>
+<span class="nc" id="L820">				obSourcePlugin = plugin;</span>
+<span class="nc" id="L821">				break;</span>
+			}
+<span class="nc" id="L823">		}</span>
+
+<span class="nc bnc" id="L825" title="All 2 branches missed.">		if (obSourcePlugin != null) {</span>
+			try {
+<span class="nc" id="L827">				VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();</span>
+<span class="nc" id="L828">				StarInfo info = infoSrc.getStarByName(name);</span>
+
+<span class="nc" id="L830">				String url = &quot;&quot;;</span>
+
+<span class="nc" id="L832">				AIDWebServiceObservationSourcePluginBase aidPlugin = (AIDWebServiceObservationSourcePluginBase) obSourcePlugin;</span>
+
+<span class="nc bnc" id="L834" title="All 2 branches missed.">				if (bands == null) {</span>
+<span class="nc" id="L835">					url = aidPlugin.createAIDUrlForAUID(info.getAuid(), minJD, maxJD);</span>
+				} else {
+					// TODO: change null and false to use parameters passed in
+<span class="nc" id="L838">					url = aidPlugin.createAIDUrlForAUID(info.getAuid(), minJD, maxJD, bands, null, false);</span>
+				}
+
+<span class="nc" id="L841">				aidPlugin.setUrl(url);</span>
+<span class="nc" id="L842">				aidPlugin.setInfo(info);</span>
+
+<span class="nc" id="L844">				mediator.createObservationArtefactsFromObSourcePlugin(aidPlugin, (URL) null, isAdditive);</span>
+<span class="nc" id="L845">			} catch (IOException e) {</span>
+<span class="nc" id="L846">				MessageBox.showErrorDialog(&quot;Load from AID&quot;, &quot;Cannot load from AID:  &quot; + name);</span>
+<span class="nc" id="L847">			} catch (ObservationReadError e) {</span>
+<span class="nc" id="L848">				MessageBox.showErrorDialog(&quot;Load from AID&quot;,</span>
+<span class="nc" id="L849">						&quot;Error reading observations from AID: &quot; + name + &quot; (reason: &quot; + e.getLocalizedMessage() + &quot;)&quot;);</span>
+<span class="nc" id="L850">			}</span>
+		} else {
+<span class="nc" id="L852">			MessageBox.showErrorDialog(&quot;Load from AID&quot;, &quot;Error initialising load from AID plug-in&quot;);</span>
+		}
+
+<span class="nc" id="L855">		mediator.waitForJobCompletion();</span>
+<span class="nc" id="L856">	}</span>
+
+	/**
+	 * 
+	 * @param pluginName
+	 * @return
+	 */
+	private ObservationSinkPluginBase getObsSinkPlugin(String pluginName) {
+<span class="nc" id="L864">		ObservationSinkPluginBase obSinkPlugin = null;</span>
+
+<span class="nc bnc" id="L866" title="All 2 branches missed.">		for (ObservationSinkPluginBase plugin : PluginLoader.getObservationSinkPlugins()) {</span>
+<span class="nc bnc" id="L867" title="All 2 branches missed.">			if (plugin.getDisplayName().contains(pluginName)) {</span>
+<span class="nc" id="L868">				obSinkPlugin = plugin;</span>
+<span class="nc" id="L869">				break;</span>
+			}
+<span class="nc" id="L871">		}</span>
+
+<span class="nc" id="L873">		return obSinkPlugin;</span>
+	}
+
+	/**
+	 * Perform DCDFT period analysis.
+	 * 
+	 * @param seriesName   The short or long form of the series name, e.g. V or
+	 *                     Johnson V.
+	 * @param analysisType Period range, frequency range, standard scan?
+	 * @param lowPeriod    The low value of the period range to search in.
+	 * @param highPeriod   The high value of the period range to search in.
+	 * @param resolution   The resolution of the search over the range.
+	 * @return An array of top-hits periods or frequencies.
+	 */
+	private synchronized Double[] dcdftCommon(String seriesName, DcDftAnalysisType analysisType, double low,
+			double high, double resolution) {
+
+<span class="nc" id="L890">		init();</span>
+
+<span class="nc" id="L892">		Double[] topHitPeriods = null;</span>
+
+<span class="nc" id="L894">		List&lt;ValidObservation&gt; obs = getObsForSeries(seriesName);</span>
+
+<span class="nc bnc" id="L896" title="All 2 branches missed.">		if (obs.size() &gt; 0) {</span>
+<span class="nc" id="L897">			TSDcDft dcdft = null;</span>
+
+<span class="nc bnc" id="L899" title="All 4 branches missed.">			switch (analysisType) {</span>
+			case PERIOD_RANGE:
+<span class="nc" id="L901">				dcdft = new TSDcDft(obs, DcDftAnalysisType.PERIOD_RANGE);</span>
+<span class="nc" id="L902">				dcdft.setLoPeriodValue(low);</span>
+<span class="nc" id="L903">				dcdft.setHiPeriodValue(high);</span>
+<span class="nc" id="L904">				dcdft.setResolutionValue(resolution);</span>
+<span class="nc" id="L905">				break;</span>
+
+			case FREQUENCY_RANGE:
+<span class="nc" id="L908">				dcdft = new TSDcDft(obs, low, high, resolution);</span>
+<span class="nc" id="L909">				break;</span>
+
+			case STANDARD_SCAN:
+<span class="nc" id="L912">				dcdft = new TSDcDft(obs);</span>
+				break;
+			}
+
+			try {
+<span class="nc" id="L917">				dcdft.execute();</span>
+
+<span class="nc" id="L919">				Map&lt;PeriodAnalysisCoordinateType, List&lt;Double&gt;&gt; topHits = dcdft.getTopHits();</span>
+
+<span class="nc" id="L921">				PeriodAnalysisCoordinateType coordType = null;</span>
+
+<span class="nc bnc" id="L923" title="All 2 branches missed.">				if (analysisType == DcDftAnalysisType.PERIOD_RANGE) {</span>
+<span class="nc" id="L924">					coordType = PeriodAnalysisCoordinateType.PERIOD;</span>
+				} else {
+<span class="nc" id="L926">					coordType = PeriodAnalysisCoordinateType.FREQUENCY;</span>
+				}
+
+				// Get array of top-hit periods or frequencies.
+<span class="nc" id="L930">				topHitPeriods = topHits.get(coordType).toArray(new Double[0]);</span>
+
+<span class="nc" id="L932">			} catch (AlgorithmError e) {</span>
+<span class="nc" id="L933">				ScriptRunner.getInstance().setError(e.getMessage());</span>
+<span class="nc" id="L934">			}</span>
+<span class="nc" id="L935">		} else {</span>
+<span class="nc" id="L936">			ScriptRunner.getInstance().setError(&quot;No observations in series &quot; + seriesName);</span>
+		}
+
+<span class="nc" id="L939">		return topHitPeriods;</span>
+	}
+
+	/**
+	 * Perform WWZ period analysis.
+	 * 
+	 * @param wwz       The initialised (WWZ transform object.
+	 * @param coordType The coordinate type: period or frequency.
+	 * @return An array of top-hits times and periods or frequencies.
+	 */
+	private synchronized Double[][] wwzCommon(WeightedWaveletZTransform wwz, WWZCoordinateType coordType) {
+
+<span class="nc" id="L951">		init();</span>
+
+<span class="nc" id="L953">		Double[][] maximalStats = null;</span>
+
+		try {
+<span class="nc" id="L956">			wwz.execute();</span>
+
+<span class="nc" id="L958">			List&lt;WWZStatistic&gt; maximalStatsList = wwz.getMaximalStats();</span>
+
+<span class="nc" id="L960">			maximalStats = new Double[maximalStatsList.size()][2];</span>
+
+<span class="nc" id="L962">			int i = 0;</span>
+<span class="nc bnc" id="L963" title="All 2 branches missed.">			for (WWZStatistic stat : maximalStatsList) {</span>
+<span class="nc" id="L964">				Double[] pair = new Double[2];</span>
+<span class="nc" id="L965">				pair[0] = stat.getTau();</span>
+
+<span class="nc bnc" id="L967" title="All 3 branches missed.">				switch (coordType) {</span>
+				case FREQUENCY:
+<span class="nc" id="L969">					pair[1] = stat.getFrequency();</span>
+<span class="nc" id="L970">					break;</span>
+				case PERIOD:
+<span class="nc" id="L972">					pair[1] = stat.getPeriod();</span>
+<span class="nc" id="L973">					break;</span>
+				default:
+<span class="nc" id="L975">					throw new IllegalArgumentException(&quot;WWZ: only period or frequency allowed in output&quot;);</span>
+				}
+
+<span class="nc" id="L978">				maximalStats[i++] = pair;</span>
+<span class="nc" id="L979">			}</span>
+<span class="nc" id="L980">		} catch (AlgorithmError e) {</span>
+<span class="nc" id="L981">			ScriptRunner.getInstance().setError(e.getMessage());</span>
+<span class="nc" id="L982">		}</span>
+
+<span class="nc" id="L984">		return maximalStats;</span>
+	}
+
+	/**
+	 * Common model creator plugin method.
+	 * 
+	 * @param seriesName Partial plugin name; may be null.
+	 * @param clazz      Plugin class; may be null.
+	 * @param series     Name of series to which the model creation operation should
+	 *                   be applied.
+	 * @param params     Array of parameters; could be of any type.
+	 */
+	private void modelCreatorCommon(String pluginName, Class&lt;?&gt; clazz, String seriesName, Object[] params) {
+		// It's not okay for them both to be null!
+<span class="nc bnc" id="L998" title="All 4 branches missed.">		assert pluginName != null || clazz != null;</span>
+
+<span class="nc bnc" id="L1000" title="All 2 branches missed.">		for (ModelCreatorPluginBase plugin : PluginLoader.getModelCreatorPlugins()) {</span>
+<span class="nc bnc" id="L1001" title="All 6 branches missed.">			if ((pluginName != null &amp;&amp; plugin.getDisplayName().contains(pluginName))</span>
+<span class="nc bnc" id="L1002" title="All 2 branches missed.">					|| (clazz != null &amp;&amp; plugin.getClass() == clazz)) {</span>
+<span class="nc" id="L1003">				plugin.setParams(params);</span>
+<span class="nc" id="L1004">				List&lt;ValidObservation&gt; obs = getObsForSeries(seriesName);</span>
+<span class="nc" id="L1005">				IModel model = plugin.getModel(obs);</span>
+<span class="nc" id="L1006">				Mediator.getInstance().performModellingOperation(model);</span>
+<span class="nc" id="L1007">				mediator.waitForJobCompletion();</span>
+<span class="nc" id="L1008">				break;</span>
+			}
+<span class="nc" id="L1010">		}</span>
+<span class="nc" id="L1011">	}</span>
+
+	/**
+	 * Given a series name, return a list of observations for the series.
+	 * 
+	 * @param seriesName The short or long form of the series name, e.g. V or
+	 *                   Johnson V.
+	 * @return A list of valid observations for the series; may be empty.
+	 */
+	private List&lt;ValidObservation&gt; getObsForSeries(String seriesName) {
+
+<span class="nc" id="L1022">		List&lt;ValidObservation&gt; obs = Collections.emptyList();</span>
+
+		// Find the requested series...
+<span class="nc" id="L1025">		SeriesType series = SeriesType.getSeriesFromShortName(seriesName);</span>
+
+<span class="nc bnc" id="L1027" title="All 2 branches missed.">		if (series == SeriesType.getDefault()) {</span>
+<span class="nc" id="L1028">			series = SeriesType.getSeriesFromDescription(seriesName);</span>
+		}
+
+		// ...if the user wasn't really asking for the default series name but
+		// we got it anyway, we treat this as an error.
+<span class="nc bnc" id="L1033" title="All 2 branches missed.">		if (series == SeriesType.getDefault()</span>
+<span class="nc bnc" id="L1034" title="All 2 branches missed.">				&amp;&amp; !SeriesType.getDefault().getDescription().equals(seriesName.toLowerCase())) {</span>
+<span class="nc" id="L1035">			ScriptRunner.getInstance().setError(&quot;Unknown series &quot; + seriesName);</span>
+		} else {
+			// ...otherwise, get the observations for the requested series.
+<span class="nc" id="L1038">			obs = mediator.getObservationPlotModel(mediator.getAnalysisType()).getObservations(series);</span>
+
+<span class="nc bnc" id="L1040" title="All 2 branches missed.">			if (obs.size() == 0) {</span>
+<span class="nc" id="L1041">				ScriptRunner.getInstance().setError(&quot;No observations in series &quot; + seriesName);</span>
+			}
+		}
+
+<span class="nc" id="L1045">		return obs;</span>
+	}
+
+	// Helpers
+
+	private void init() {
+<span class="nc" id="L1051">		clearError();</span>
+<span class="nc" id="L1052">	}</span>
+
+	private void clearError() {
+<span class="nc" id="L1055">		ScriptRunner.getInstance().setError(null);</span>
+<span class="nc" id="L1056">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

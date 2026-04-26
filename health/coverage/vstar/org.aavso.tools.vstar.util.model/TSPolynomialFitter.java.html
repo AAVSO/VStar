@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TSPolynomialFitter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.model</a> &gt; <span class="el_source">TSPolynomialFitter.java</span></div><h1>TSPolynomialFitter.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.model;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
+import org.aavso.tools.vstar.util.TSBase;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
+/**
+ * &lt;p&gt;
+ * This is a Java translation of the Fortran polymast subroutine from the
+ * AAVSO's ts1201.f by Matthew Templeton, which in turn was based upon BASIC
+ * code by Grant Foster.
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * As Matt has said, this is a standard polynomial fit of the form:
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * f(x) = sum(ax^n)
+ * &lt;/p&gt;
+ */
+<span class="fc" id="L50">public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {</span>
+
+	private int degree;
+	private int numred;
+
+	private double[] tfit;
+	private double[] xfit;
+
+	private List&lt;ValidObservation&gt; fit;
+	private List&lt;ValidObservation&gt; residuals;
+
+	private Map&lt;String, String&gt; functionStrMap;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param observations
+	 *            The list of observations (a single band makes most sense) to
+	 *            which the polynomial fit is to be applied.
+	 */
+	public TSPolynomialFitter(List&lt;ValidObservation&gt; observations) {
+<span class="fc" id="L71">		super(observations);</span>
+<span class="fc" id="L72">		functionStrMap = new LinkedHashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L73">		degree = 0;</span>
+<span class="fc" id="L74">	}</span>
+
+	@Override
+	public String getDescription() {
+<span class="nc" id="L78">		return LocaleProps.get(&quot;MODEL_INFO_POLYNOMIAL_DEGREE_DESC&quot;) + degree;</span>
+	}
+
+	@Override
+	public String getKind() {
+<span class="nc" id="L83">		return LocaleProps.get(&quot;ANALYSIS_MENU_POLYNOMIAL_FIT&quot;);</span>
+	}
+
+	// TODO: move to plugin for persistence!
+
+	/**
+	 * @see org.aavso.tools.vstar.util.model.IPolynomialFitter#setDegree(int)
+	 */
+	@Override
+	public void setDegree(int degree) {
+<span class="fc" id="L93">		this.degree = degree;</span>
+<span class="fc" id="L94">	}</span>
+
+	@Override
+	public int getMinDegree() {
+<span class="nc" id="L98">		return 0;</span>
+	}
+
+	@Override
+	public int getMaxDegree() {
+		// TODO: make this a preference
+<span class="nc" id="L104">		return 30;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.util.IAlgorithm#execute()
+	 */
+	@Override
+	public void execute() throws AlgorithmError {
+		// Load the observation data and perform a polynomial fitting operation
+		// of the specified degree.
+<span class="fc" id="L114">		load_raw();</span>
+<span class="fc" id="L115">		interrupted = false;</span>
+		try {
+<span class="fc" id="L117">			polymast(degree);</span>
+
+<span class="fc" id="L119">			functionStrMap.put(LocaleProps.get(&quot;MODEL_INFO_FUNCTION_TITLE&quot;),</span>
+<span class="fc" id="L120">					toString());</span>
+
+<span class="fc" id="L122">			functionStrMap.put(LocaleProps.get(&quot;MODEL_INFO_EXCEL_TITLE&quot;),</span>
+<span class="fc" id="L123">					toExcelString());</span>
+
+<span class="fc" id="L125">			functionStrMap.put(LocaleProps.get(&quot;MODEL_INFO_R_TITLE&quot;),</span>
+<span class="fc" id="L126">					toRString());</span>
+<span class="nc" id="L127">		} catch (InterruptedException e) {</span>
+			// Do nothing; just return.
+<span class="fc" id="L129">		}</span>
+<span class="fc" id="L130">	}</span>
+
+	public void interrupt() {
+<span class="nc" id="L133">		interrupted = true;</span>
+<span class="nc" id="L134">	}</span>
+
+	/**
+	 * @see org.aavso.tools.vstar.util.model.IPolynomialFitter#getFit()
+	 */
+	@Override
+	public List&lt;ValidObservation&gt; getFit() {
+<span class="fc" id="L141">		return fit;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.util.model.IPolynomialFitter#getResiduals()
+	 */
+	@Override
+	public List&lt;ValidObservation&gt; getResiduals() {
+<span class="fc" id="L149">		return residuals;</span>
+	}
+
+	void polymast(int polyDeg) throws AlgorithmError, InterruptedException {
+
+		double ds9, dcc, res, dtime, dx;
+		int n, nb;
+
+<span class="fc" id="L157">		statcomp();</span>
+
+<span class="pc bpc" id="L159" title="2 of 4 branches missed.">		assert polyDeg &gt;= 0 &amp;&amp; polyDeg &lt;= 50;</span>
+
+<span class="fc" id="L161">		npoly = polyDeg;</span>
+
+<span class="fc" id="L163">		polyfit();</span>
+
+<span class="fc" id="L165">		ds9 = dvar * ((double) (numact - 1) - (double) (npoly) * dpower);</span>
+<span class="fc" id="L166">		ds9 = ds9 / (double) (numact - 1) / (double) (numact - 1 - npoly);</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">		if (ds9 &lt; 0.0)</span>
+<span class="nc" id="L168">			ds9 = 0.0;</span>
+<span class="fc" id="L169">		ds9 = Math.sqrt(ds9);</span>
+
+		// write(1,230) npoly,dpower,ds9,fprint,numact,dave,dsig,dvar
+		// write(1,292) dt0+tvec(nlolim),dt0+tvec(nuplim),dt0+dtzero
+
+		// Note: save constants
+
+		// write(1,290) fprint,numact,dave,dsig,dvar
+		// write(1,292) dt0+tvec(nlolim),dt0+tvec(nuplim),dt0+dtzero
+		// write(1,211) dtzero+dt0
+		// write(1,212) dpower
+
+<span class="fc bfc" id="L181" title="All 2 branches covered.">		for (n = 0; n &lt;= npoly; n++) {</span>
+<span class="fc" id="L182">			dcc = dcoef[n] / Math.pow(dtscale, n);</span>
+			// write(1,213) n,dcc
+		}
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">		for (n = 1; n &lt;= nbias; n++) {</span>
+			// write(1,214) obias(n),dcoef(npoly+n)
+		}
+
+		// Note: save to file
+
+		// 20 write(1,220) npoly
+		// write(1,290) fprint,numact,dave,dsig,dvar
+		// write(1,292) dt0+tvec(nlolim),dt0+tvec(nuplim),dt0+dtzero
+		// write(1,221) dpower
+
+		// Store the results of the polynomial fit operation as
+		// &quot;fit observations&quot;.
+<span class="fc" id="L198">		fit = new ArrayList&lt;ValidObservation&gt;();</span>
+
+		// TODO: fix wrt locale
+<span class="fc" id="L201">		String comment = &quot;From polynomial fit of degree &quot; + degree;</span>
+
+<span class="fc bfc" id="L203" title="All 2 branches covered.">		for (n = 1; n &lt;= numred; n++) {</span>
+			// write(1,222)tfit(n)+dt0,xfit(n),ds9*sfit(n)
+<span class="fc" id="L205">			ValidObservation fitOb = new ValidObservation();</span>
+<span class="fc" id="L206">			fitOb.setDateInfo(new DateInfo(tfit[n] + dt0));</span>
+			// double uncertainty = ds9*sfit[n]; // TODO: ask Matt about this;
+			// uncertainty?
+<span class="fc" id="L209">			fitOb.setMagnitude(new Magnitude(xfit[n], 0));</span>
+<span class="fc" id="L210">			fitOb.setComments(comment);</span>
+<span class="fc" id="L211">			fitOb.setBand(SeriesType.Model);</span>
+<span class="fc" id="L212">			fit.add(fitOb);</span>
+		}
+
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">		if (fit.isEmpty()) {</span>
+<span class="nc" id="L216">			throw new AlgorithmError(&quot;No observations in fit list.&quot;);</span>
+		}
+
+		// Note: save residuals (to list)
+
+		// 40 write(6,*) 'Residuals filename?'
+		// read*,ftmp;
+		// 41 open(unit=9,file=ftmp,status='unknown',err=42);
+		// 42 write(6,*) 'Could not open file.'
+
+		// Store the residuals resulting from the polynomial fit operation as
+		// &quot;residual observations&quot;.
+<span class="fc" id="L228">		residuals = new ArrayList&lt;ValidObservation&gt;();</span>
+
+<span class="fc bfc" id="L230" title="All 2 branches covered.">		for (n = nlolim; n &lt;= nuplim; n++) {</span>
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">			if (wvec[n] &gt; 0.0) {</span>
+<span class="fc" id="L232">				dtime = tvec[n];</span>
+<span class="fc" id="L233">				dx = smooth(dtime);</span>
+<span class="fc" id="L234">				res = xvec[n] - dx;</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">				for (nb = 1; nb &lt;= nbias; nb++) {</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">					if (obs[n] == obias[nb])</span>
+<span class="nc" id="L237">						res = res - dcoef[npoly + nb];</span>
+				}
+				// write(9,240) tvec(n)+dt0,res
+<span class="fc" id="L240">				ValidObservation residualOb = new ValidObservation();</span>
+<span class="fc" id="L241">				residualOb.setDateInfo(new DateInfo(tvec[n] + dt0));</span>
+<span class="fc" id="L242">				residualOb.setMagnitude(new Magnitude(res, 0));</span>
+<span class="fc" id="L243">				residualOb.setComments(comment);</span>
+<span class="fc" id="L244">				residualOb.setBand(SeriesType.Residuals);</span>
+<span class="fc" id="L245">				residuals.add(residualOb);</span>
+			}
+		}
+
+		// 211 format(7hTime0= ,f12.4)
+		// 212 format(7hPower= ,1pe12.6)
+		// 213 format(i2,1x,1pd24.16)
+		// 214 format(a4,1x,1pd24.16)
+		// 220 format(11hPOLY DEGREE,i2)
+		// 221 format(10h***POWER= ,1pd24.16)
+		// 222 format(f12.4,2(1x,f10.4))
+		// 230 format(4hPOLY,i2,2(1x,f10.4),1x,'File=',a13,'NUM=',i5,' AVE=',
+		// 1 f11.4,' SDV=',f11.4,' VAR=',f11.4);
+		// 231 format(2(1x,f10.4),1x)
+		// 240 format(f12.4,1x,f10.4)
+
+		// 290 format('POLY COEFFICIENTS',/,'File=',a13,'NUM=',i5,' AVE=',f11.4,
+		// 1' SDV=',f11.4,' VAR=',f11.4);
+		// 292 format(' JD ',f12.4,'-',f12.4,' T.AVE=',f12.4)
+<span class="fc" id="L264">	}</span>
+
+	void polyfit() throws InterruptedException {
+<span class="fc" id="L267">		double[] dzeta = new double[101];</span>
+		double d1, d2, tspan, tt, dtime, dt;
+		int n1, n2, nt;
+		int idtime, ntt;
+		double x, xx, dx;
+
+<span class="fc" id="L273">		nfre = 0;</span>
+<span class="fc" id="L274">		project();</span>
+
+<span class="fc bfc" id="L276" title="All 2 branches covered.">		for (n1 = 0; n1 &lt;= npoly; n1++) {</span>
+<span class="fc" id="L277">			d1 = dmat[0][n1];</span>
+<span class="fc" id="L278">			d2 = dmat[npoly - n1][npoly];</span>
+<span class="fc bfc" id="L279" title="All 2 branches covered.">			for (n2 = 1; n2 &lt;= n1; n2++) {</span>
+<span class="fc" id="L280">				d1 = d1 + dmat[n2][n1 - n2];</span>
+<span class="fc" id="L281">				d2 = d2 + dmat[npoly - n1 + n2][npoly - n2];</span>
+			}
+<span class="fc" id="L283">			dzeta[n1] = d1;</span>
+<span class="fc" id="L284">			dzeta[2 * npoly - n1] = d2;</span>
+		}
+
+<span class="fc" id="L287">		tspan = tvec[nuplim] - tvec[nlolim];</span>
+<span class="fc" id="L288">		nt = (int) (Math.log10(tspan)) - 2;</span>
+<span class="fc" id="L289">		tt = Math.pow(10.0, nt);</span>
+<span class="fc" id="L290">		numred = 0;</span>
+<span class="fc" id="L291">		x = tvec[nlolim] / tt;</span>
+<span class="fc" id="L292">		x = tt * ((int) (x) + 1);</span>
+<span class="fc" id="L293">		xx = tvec[nuplim];</span>
+
+<span class="fc" id="L295">		ntt = (int) ((xx - x) / tt) + 1;</span>
+
+<span class="fc" id="L297">		tfit = new double[ntt + 1];</span>
+<span class="fc" id="L298">		xfit = new double[ntt + 1];</span>
+
+<span class="fc bfc" id="L300" title="All 2 branches covered.">		for (idtime = 1; idtime &lt;= ntt; idtime++) {</span>
+<span class="fc" id="L301">			dtime = x + (double) (idtime - 1) * tt;</span>
+<span class="fc" id="L302">			dx = smooth(dtime);</span>
+<span class="fc" id="L303">			numred = numred + 1;</span>
+<span class="fc" id="L304">			tfit[numred] = dtime;</span>
+<span class="fc" id="L305">			xfit[numred] = dx;</span>
+<span class="fc" id="L306">			dt = (dtime - dtzero) / dtscale;</span>
+		}
+<span class="fc" id="L308">	}</span>
+
+	@Override
+	public List&lt;PeriodFitParameters&gt; getParameters() {
+<span class="nc" id="L312">		return null;</span>
+	}
+
+	@Override
+	public boolean hasFuncDesc() {
+<span class="nc" id="L317">		return true;</span>
+	}
+
+	public String toString() {
+<span class="fc" id="L321">		String strRepr = functionStrMap.get(LocaleProps</span>
+<span class="fc" id="L322">				.get(&quot;MODEL_INFO_FUNCTION_TITLE&quot;));</span>
+
+<span class="pc bpc" id="L324" title="1 of 2 branches missed.">		if (strRepr == null) {</span>
+<span class="fc" id="L325">			strRepr = &quot;f(t) = &quot;;</span>
+
+			// sum(a[i]t^n), where n &gt;= 1
+<span class="fc bfc" id="L328" title="All 2 branches covered.">			for (int i = npoly; i &gt;= 1; i--) {</span>
+<span class="fc" id="L329">				strRepr += NumericPrecisionPrefs.formatOther(dcoef[i]) + &quot;(t-&quot;</span>
+<span class="fc" id="L330">						+ getZeroPointOffset() + &quot;)^&quot; + i + &quot; + \n&quot;;</span>
+			}
+
+			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.
+<span class="fc" id="L334">			strRepr += NumericPrecisionPrefs.formatOther(dcoef[0]);</span>
+		}
+
+<span class="fc" id="L337">		return strRepr;</span>
+	}
+
+	private String toExcelString() {
+<span class="fc" id="L341">		String strRepr = functionStrMap.get(LocaleProps</span>
+<span class="fc" id="L342">				.get(&quot;MODEL_INFO_EXCEL_TITLE&quot;));</span>
+
+<span class="pc bpc" id="L344" title="1 of 2 branches missed.">		if (strRepr == null) {</span>
+<span class="fc" id="L345">			strRepr = &quot;=SUM(&quot;;</span>
+
+			// sum(a[i]t^n), where n &gt;= 1
+<span class="fc bfc" id="L348" title="All 2 branches covered.">			for (int i = npoly; i &gt;= 1; i--) {</span>
+<span class="fc" id="L349">				strRepr += NumericPrecisionPrefs.formatOther(dcoef[i]) + &quot;*(A1-&quot;</span>
+<span class="fc" id="L350">						+ getZeroPointOffset() + &quot;)^&quot; + i + &quot;,\n&quot;;</span>
+			}
+
+			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.
+<span class="fc" id="L354">			strRepr += NumericPrecisionPrefs.formatOther(dcoef[0]);</span>
+
+<span class="fc" id="L356">			strRepr += &quot;)&quot;;</span>
+		}
+
+<span class="fc" id="L359">		return strRepr;</span>
+	}
+
+	public String toRString() {
+<span class="fc" id="L363">		String strRepr = functionStrMap.get(LocaleProps</span>
+<span class="fc" id="L364">				.get(&quot;MODEL_INFO_R_TITLE&quot;));</span>
+
+<span class="pc bpc" id="L366" title="1 of 2 branches missed.">		if (strRepr == null) {</span>
+<span class="fc" id="L367">			strRepr = &quot;model &lt;- function(t) &quot;;</span>
+
+			// sum(a[i]t^n), where n &gt;= 1
+<span class="fc bfc" id="L370" title="All 2 branches covered.">			for (int i = npoly; i &gt;= 1; i--) {</span>
+<span class="fc" id="L371">				strRepr += String.format(&quot;%1.20f&quot;, dcoef[i]) + &quot;*(t-&quot;</span>
+<span class="fc" id="L372">						+ getZeroPointOffset() + &quot;)^&quot; + i + &quot; + \n&quot;;</span>
+			}
+
+			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.
+<span class="fc" id="L376">			strRepr += NumericPrecisionPrefs.formatOther(dcoef[0]);</span>
+		}
+
+<span class="fc" id="L379">		return strRepr;</span>
+	}
+
+	@Override
+	public Map&lt;String, String&gt; getFunctionStrings() {
+<span class="nc" id="L384">		return functionStrMap;</span>
+	}
+	
+	@Override
+	public ContinuousModelFunction getModelFunction() {
+<span class="nc" id="L389">		return null;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
