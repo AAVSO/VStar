@@ -5,7 +5,7 @@
     "commit_short": "94b7b824",
     "commit_date": "2026-04-21",
     "generated": "2026-04-25",
-    "path": "javadoc/vstar/snapshot/"
+    "path": "vstar/snapshot/"
   },
   "release": {
     "tag": "2.25.0",
@@ -13,6 +13,6 @@
     "commit_short": "1f94dcb8",
     "commit_date": "2025-05-24",
     "generated": "2026-04-25",
-    "path": "javadoc/vstar/release/"
+    "path": "vstar/release/"
   }
 }
