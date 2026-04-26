@@ -3,18 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VStar - Project Health Dashboard</title>
+<title>VStar &mdash; Project Hub</title>
 <style>
   :root {
     --bg: #0d1117;
     --surface: #161b22;
+    --surface-hover: #1c232c;
     --border: #30363d;
     --text: #e6edf3;
     --text-muted: #8b949e;
     --accent: #58a6ff;
-    --green: #3fb950;
-    --yellow: #d29922;
-    --red: #f85149;
     --header-bg: linear-gradient(135deg, #0d1117 0%, #1a2332 50%, #0d1117 100%);
   }
 
@@ -25,12 +23,15 @@
     background: var(--bg);
     color: var(--text);
     line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   header {
     background: var(--header-bg);
     border-bottom: 1px solid var(--border);
-    padding: 2rem 1rem;
+    padding: 3rem 1rem 2.5rem;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -41,7 +42,7 @@
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: url('img/EpsAur_1_0.jpg') center/cover no-repeat;
-    opacity: 0.15;
+    opacity: 0.18;
     filter: blur(2px);
   }
 
@@ -49,41 +50,42 @@
     position: relative;
     z-index: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 1.25rem;
-    flex-wrap: wrap;
+    gap: 1rem;
   }
 
   .header-content img {
-    width: 64px;
-    height: 64px;
-    filter: drop-shadow(0 0 12px rgba(88, 166, 255, 0.4));
+    width: 80px;
+    height: 80px;
+    filter: drop-shadow(0 0 16px rgba(88, 166, 255, 0.45));
   }
 
   .header-text h1 {
-    font-size: 1.75rem;
+    font-size: 2rem;
     font-weight: 600;
     letter-spacing: -0.02em;
   }
 
   .header-text p {
     color: var(--text-muted);
-    font-size: 0.95rem;
+    font-size: 1rem;
+    margin-top: 0.25rem;
   }
 
   .header-links {
     display: flex;
-    gap: 1.5rem;
-    align-items: center;
-    margin-left: auto;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 0.5rem;
   }
 
   .header-links a {
     color: var(--accent);
     text-decoration: none;
     font-size: 0.85rem;
-    padding: 0.3rem 0.75rem;
+    padding: 0.3rem 0.85rem;
     border: 1px solid var(--border);
     border-radius: 6px;
     transition: border-color 0.15s, background 0.15s;
@@ -95,100 +97,56 @@
   }
 
   main {
-    max-width: 1100px;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 2rem 1rem;
+    padding: 3rem 1rem;
+    flex: 1;
+    width: 100%;
   }
 
-  .grid {
+  .tiles {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.25rem;
-    margin-bottom: 1.25rem;
   }
 
-  .card {
+  .tile {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .card-header {
-    padding: 0.875rem 1.125rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .card-header h2 {
-    font-size: 0.95rem;
-    font-weight: 600;
-  }
-
-  .card-header .updated {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-  }
-
-  .card-body { padding: 1rem 1.125rem; }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.875rem;
-  }
-
-  th, td {
-    padding: 0.5rem 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-  }
-
-  th {
-    color: var(--text-muted);
-    font-weight: 500;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  tr:last-child td { border-bottom: none; }
-
-  .metric-value {
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .highlight { color: var(--accent); }
-
-  .card-footer {
-    padding: 0.625rem 1.125rem;
-    border-top: 1px solid var(--border);
-    font-size: 0.8rem;
-  }
-
-  .card-footer a {
-    color: var(--accent);
+    border-radius: 10px;
+    padding: 1.75rem 1.5rem;
     text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
   }
 
-  .card-footer a:hover { text-decoration: underline; }
-
-  .wide { grid-column: 1 / -1; }
-
-  .status-ok { color: var(--green); }
-  .status-warn { color: var(--yellow); }
-  .status-err { color: var(--red); }
-  .status-na { color: var(--text-muted); }
-
-  .badges {
-    text-align: center;
-    padding: 1.5rem 0 0.5rem;
+  .tile:hover {
+    border-color: var(--accent);
+    background: var(--surface-hover);
   }
 
-  .badges img { margin: 0 0.25rem; }
+  .tile:active { transform: scale(0.99); }
+
+  .tile h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .tile p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .tile .arrow {
+    margin-top: auto;
+    padding-top: 0.5rem;
+    color: var(--accent);
+    font-size: 0.85rem;
+  }
 
   footer {
     text-align: center;
@@ -200,15 +158,6 @@
 
   footer a { color: var(--accent); text-decoration: none; }
   footer a:hover { text-decoration: underline; }
-
-  .loading { color: var(--text-muted); font-style: italic; font-size: 0.85rem; }
-
-  @media (max-width: 600px) {
-    .header-content { flex-direction: column; gap: 0.75rem; }
-    .header-links { margin-left: 0; justify-content: center; }
-    .grid { grid-template-columns: 1fr; }
-    main { padding: 1rem 0.5rem; }
-  }
 </style>
 </head>
 <body>
@@ -217,212 +166,42 @@
   <div class="header-content">
     <img src="img/vstaricon.png" alt="VStar">
     <div class="header-text">
-      <h1>VStar Project Health</h1>
+      <h1>VStar Project Hub</h1>
       <p>Variable star data visualisation and analysis tool &mdash; AAVSO</p>
     </div>
     <nav class="header-links">
       <a href="https://www.aavso.org/vstar">VStar Home</a>
       <a href="https://github.com/AAVSO/VStar">GitHub</a>
-      <a href="javadoc/">Javadoc</a>
     </nav>
   </div>
 </header>
 
 <main>
-  <div class="badges">
-    <a href="https://github.com/AAVSO/VStar/actions/workflows/vstar-UT.yml"><img src="https://github.com/AAVSO/VStar/actions/workflows/vstar-UT.yml/badge.svg" alt="VStar UTs"></a>
-    <a href="https://github.com/AAVSO/VStar/actions/workflows/plugin-UT.yml"><img src="https://github.com/AAVSO/VStar/actions/workflows/plugin-UT.yml/badge.svg" alt="Plugin UTs"></a>
-    <a href="https://github.com/AAVSO/VStar/actions/workflows/spotbugs.yml"><img src="https://github.com/AAVSO/VStar/actions/workflows/spotbugs.yml/badge.svg" alt="SpotBugs"></a>
-    <a href="https://github.com/AAVSO/VStar/actions/workflows/checkerframework.yml"><img src="https://github.com/AAVSO/VStar/actions/workflows/checkerframework.yml/badge.svg" alt="Checker Framework"></a>
-  </div>
+  <div class="tiles">
 
-  <div class="grid">
+    <a class="tile" href="health/">
+      <h2>Project Health</h2>
+      <p>Continuous integration status: VStar and plugin unit tests, code coverage,
+         SpotBugs and Checker Framework static analysis. Refreshed on every push to master.</p>
+      <span class="arrow">View dashboard &rarr;</span>
+    </a>
 
-    <!-- VStar Unit Tests & Coverage -->
-    <div class="card" id="card-coverage">
-      <div class="card-header">
-        <h2>VStar Unit Tests &amp; Coverage</h2>
-        <span class="updated" id="coverage-updated"></span>
-      </div>
-      <div class="card-body">
-        <table>
-          <thead><tr><th>Metric</th><th>Value</th></tr></thead>
-          <tbody id="coverage-body">
-            <tr><td colspan="2" class="loading">Loading...</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card-footer">
-        <a href="coverage/vstar/">Browse VStar UT coverage report</a>
-      </div>
-    </div>
-
-    <!-- Plugin Unit Tests & Coverage -->
-    <div class="card" id="card-plugin-coverage">
-      <div class="card-header">
-        <h2>Plugin Unit Tests &amp; Coverage</h2>
-        <span class="updated" id="plugin-coverage-updated"></span>
-      </div>
-      <div class="card-body">
-        <table>
-          <thead><tr><th>Metric</th><th>Value</th></tr></thead>
-          <tbody id="plugin-coverage-body">
-            <tr><td colspan="2" class="loading">Loading...</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card-footer">
-        <a href="coverage/plugins/">Browse plugin UT coverage report</a>
-      </div>
-    </div>
-
-    <!-- SpotBugs -->
-    <div class="card" id="card-spotbugs">
-      <div class="card-header">
-        <h2>SpotBugs Static Analysis</h2>
-        <span class="updated" id="spotbugs-updated"></span>
-      </div>
-      <div class="card-body">
-        <table>
-          <thead><tr><th>Priority</th><th>Count</th></tr></thead>
-          <tbody id="spotbugs-body">
-            <tr><td colspan="2" class="loading">Loading...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Checker Framework -->
-    <div class="card" id="card-checker">
-      <div class="card-header">
-        <h2>Checker Framework Nullness</h2>
-        <span class="updated" id="checker-updated"></span>
-      </div>
-      <div class="card-body">
-        <table>
-          <thead><tr><th>Metric</th><th>Count</th></tr></thead>
-          <tbody id="checker-body">
-            <tr><td colspan="2" class="loading">Loading...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- API Documentation (Javadoc) -->
-    <div class="card" id="card-javadoc">
-      <div class="card-header">
-        <h2>API Documentation (Javadoc)</h2>
-        <span class="updated" id="javadoc-updated"></span>
-      </div>
-      <div class="card-body">
-        <table>
-          <thead><tr><th>Version</th><th>Source</th></tr></thead>
-          <tbody id="javadoc-body">
-            <tr><td colspan="2" class="loading">Loading...</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card-footer">
-        <a href="javadoc/">Browse Javadoc</a>
-      </div>
-    </div>
-
+    <a class="tile" href="javadoc/">
+      <h2>API Documentation</h2>
+      <p>Javadoc for the latest snapshot release and the most recent stable
+         <code>X.Y.Z</code> release. Published automatically from release tags.</p>
+      <span class="arrow">Browse Javadoc &rarr;</span>
+    </a>
 
   </div>
-
-
 </main>
 
 <footer>
   <p>
     <a href="https://github.com/AAVSO/VStar">AAVSO/VStar</a> &mdash;
-    Data refreshed automatically by GitHub Actions.
+    Site updated automatically by GitHub Actions.
   </p>
 </footer>
-
-<script>
-function statusClass(val, thresholds) {
-  if (val === null || val === undefined) return 'status-na';
-  if (thresholds) {
-    if (val >= thresholds[0]) return 'status-ok';
-    if (val >= thresholds[1]) return 'status-warn';
-    return 'status-err';
-  }
-  return '';
-}
-
-function pctNum(s) {
-  if (!s || s === '—') return null;
-  return parseInt(s.replace('%', ''), 10);
-}
-
-function row(label, value, cls) {
-  return `<tr><td>${label}</td><td class="metric-value ${cls || ''}">${value}</td></tr>`;
-}
-
-async function loadCard(url, id, render) {
-  try {
-    const r = await fetch(url + '?_=' + Date.now());
-    if (!r.ok) throw new Error(r.status);
-    const d = await r.json();
-    document.getElementById(id + '-updated').textContent = d.updated || '';
-    document.getElementById(id + '-body').innerHTML = render(d);
-  } catch {
-    document.getElementById(id + '-body').innerHTML =
-      '<tr><td colspan="2" class="status-na">No data yet</td></tr>';
-  }
-}
-
-function renderCoverage(d) {
-  const lp = pctNum(d.line_coverage);
-  const bp = pctNum(d.branch_coverage);
-  const pass = d.failures === 0 && d.errors === 0;
-  return row('Tests', d.tests) +
-    row('Passed', d.passed, pass ? 'status-ok' : 'status-err') +
-    row('Failures', d.failures, d.failures > 0 ? 'status-err' : '') +
-    row('Errors', d.errors, d.errors > 0 ? 'status-err' : '') +
-    row('Line Coverage', d.line_coverage, statusClass(lp, [60, 40])) +
-    row('Branch Coverage', d.branch_coverage, statusClass(bp, [40, 20]));
-}
-
-function renderSpotBugs(d) {
-  return row('Total', d.total, 'highlight') +
-    row('High', d.high, d.high > 0 ? 'status-err' : 'status-ok') +
-    row('Medium', d.medium, d.medium > 0 ? 'status-warn' : 'status-ok') +
-    row('Low', d.low);
-}
-
-function renderChecker(d) {
-  return row('Total warnings', d.total, 'highlight') +
-    row('Nullness', d.nullness) +
-    row('Initialization', d.init);
-}
-
-function renderJavadoc(d) {
-  let html = '';
-  if (d.snapshot) {
-    const s = d.snapshot;
-    const label = 'snapshot @ ' + (s.commit_short || '?');
-    const meta = (s.commit_date || '') + (s.generated ? ' \u00b7 gen ' + s.generated : '');
-    html += `<tr><td><a href="${s.path || 'javadoc/vstar/snapshot/'}">Snapshot</a></td><td class="metric-value">${label}</td></tr>`;
-    if (meta.trim()) html += `<tr><td colspan="2" class="status-na" style="font-size:0.78rem;">${meta}</td></tr>`;
-  }
-  if (d.release) {
-    const r = d.release;
-    const label = (r.tag || 'release') + (r.commit_short ? ' @ ' + r.commit_short : '');
-    const meta = (r.commit_date || '') + (r.generated ? ' \u00b7 gen ' + r.generated : '');
-    html += `<tr><td><a href="${r.path || 'javadoc/vstar/release/'}">Release</a></td><td class="metric-value">${label}</td></tr>`;
-    if (meta.trim()) html += `<tr><td colspan="2" class="status-na" style="font-size:0.78rem;">${meta}</td></tr>`;
-  }
-  return html || '<tr><td colspan="2" class="status-na">No data yet</td></tr>';
-}
-
-loadCard('data/coverage.json', 'coverage', renderCoverage);
-loadCard('data/plugin-coverage.json', 'plugin-coverage', renderCoverage);
-loadCard('data/spotbugs.json', 'spotbugs', renderSpotBugs);
-loadCard('data/javadoc.json', 'javadoc', renderJavadoc);
-loadCard('data/checker.json', 'checker', renderChecker);
-</script>
 
 </body>
 </html>
