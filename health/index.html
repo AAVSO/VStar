@@ -163,6 +163,39 @@
 
   .highlight { color: var(--accent); }
 
+  /* Issue #579: compact area x {line, branch} matrix embedded inside the
+     coverage card so the tile keeps its 4 test-stats rows on top with a
+     dense 3-row breakdown underneath, rather than ballooning to 10 rows. */
+  .coverage-matrix-row > td { padding: 0; }
+
+  .coverage-matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .coverage-matrix th,
+  .coverage-matrix td {
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .coverage-matrix th {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .coverage-matrix tr:last-child td { border-bottom: none; }
+
+  .coverage-matrix th:first-child,
+  .coverage-matrix td:first-child { text-align: left; }
+
+  .coverage-matrix th:not(:first-child),
+  .coverage-matrix td:not(:first-child) { text-align: right; }
+
   .card-footer {
     padding: 0.625rem 1.125rem;
     border-top: 1px solid var(--border);
@@ -372,6 +405,52 @@ async function loadCard(url, id, render) {
   }
 }
 
+function coverageMatrixCell(value, cls) {
+  return `<td class="metric-value ${cls || ''}">${value || '&mdash;'}</td>`;
+}
+
+function coverageMatrixRow(label, lineVal, lineCls, branchVal, branchCls) {
+  return `<tr>` +
+    `<td>${label}</td>` +
+    coverageMatrixCell(lineVal, lineCls) +
+    coverageMatrixCell(branchVal, branchCls) +
+    `</tr>`;
+}
+
+// Issue #579: embed a 3-row Area x {Line, Branch} matrix inside the
+// outer 2-column tile body via a single colspan=2 cell. Keeps the
+// dashboard structure (one inner table per card) unchanged and avoids
+// the 6-row vertical sprawl the flat presentation produced.
+function coverageMatrix(d) {
+  const lp = pctNum(d.line_coverage);
+  const bp = pctNum(d.branch_coverage);
+  const guiLp = pctNum(d.gui_line_coverage);
+  const guiBp = pctNum(d.gui_branch_coverage);
+
+  const matrix =
+    `<table class="coverage-matrix">` +
+      `<thead><tr>` +
+        `<th>Area</th><th>Line</th><th>Branch</th>` +
+      `</tr></thead>` +
+      `<tbody>` +
+        coverageMatrixRow('Non-GUI',
+            d.line_coverage, statusClass(lp, [60, 40]),
+            d.branch_coverage, statusClass(bp, [40, 20])) +
+        coverageMatrixRow('GUI',
+            d.gui_line_coverage, statusClass(guiLp, [40, 10]),
+            d.gui_branch_coverage, statusClass(guiBp, [30, 5])) +
+        // Combined is intentionally uncoloured: it is the mechanical
+        // merge of the two rows above and applying a threshold here
+        // would double-count the judgement we already made.
+        coverageMatrixRow('Combined',
+            d.combined_line_coverage, '',
+            d.combined_branch_coverage, '') +
+      `</tbody>` +
+    `</table>`;
+
+  return `<tr class="coverage-matrix-row"><td colspan="2">${matrix}</td></tr>`;
+}
+
 function renderCoverage(d) {
   const pass = d.failures === 0 && d.errors === 0;
   let html =
@@ -380,30 +459,12 @@ function renderCoverage(d) {
     row('Failures', d.failures, d.failures > 0 ? 'status-err' : '') +
     row('Errors', d.errors, d.errors > 0 ? 'status-err' : '');
 
-  // Issue #579: when the workflow publishes a GUI vs non-GUI breakdown,
-  // render it so the headline (non-GUI) figure is not artificially
-  // deflated by Swing-coupled code while the GUI deficit stays
-  // visible. Plugin coverage and older data fall through to the
-  // legacy single-row presentation.
+  // When the workflow publishes a GUI vs non-GUI breakdown, render
+  // the compact matrix. Plugin coverage and older data fall through
+  // to the legacy two-row presentation.
   if (d.gui_line_coverage !== undefined ||
       d.combined_line_coverage !== undefined) {
-    const lp = pctNum(d.line_coverage);
-    const bp = pctNum(d.branch_coverage);
-    const guiLp = pctNum(d.gui_line_coverage);
-    const guiBp = pctNum(d.gui_branch_coverage);
-    html +=
-      row('Line coverage (non-GUI)',
-          d.line_coverage, statusClass(lp, [60, 40])) +
-      row('Branch coverage (non-GUI)',
-          d.branch_coverage, statusClass(bp, [40, 20])) +
-      row('Line coverage (GUI)',
-          d.gui_line_coverage || '—', statusClass(guiLp, [40, 10])) +
-      row('Branch coverage (GUI)',
-          d.gui_branch_coverage || '—', statusClass(guiBp, [30, 5])) +
-      row('Line coverage (combined)',
-          d.combined_line_coverage || '—') +
-      row('Branch coverage (combined)',
-          d.combined_branch_coverage || '—');
+    html += coverageMatrix(d);
   } else {
     const lp = pctNum(d.line_coverage);
     const bp = pctNum(d.branch_coverage);
