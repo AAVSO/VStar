@@ -26,7 +26,7 @@ import org.aavso.tools.vstar.data.InvalidObservation;
 /**
  * A table model for invalid observations.
  */
-<span class="nc" id="L29">@SuppressWarnings(&quot;serial&quot;)</span>
+<span class="fc" id="L29">@SuppressWarnings(&quot;serial&quot;)</span>
 public class InvalidObservationTableModel extends AbstractTableModel {
 
 	private final static int COLUMNS = 3;
@@ -43,90 +43,90 @@ public class InvalidObservationTableModel extends AbstractTableModel {
 	 */
 	public InvalidObservationTableModel(
 			List&lt;InvalidObservation&gt; invalidObservations) {
-<span class="nc" id="L46">		super();</span>
-<span class="nc" id="L47">		this.invalidObservations = invalidObservations;</span>
-<span class="nc" id="L48">	}</span>
+<span class="fc" id="L46">		super();</span>
+<span class="fc" id="L47">		this.invalidObservations = invalidObservations;</span>
+<span class="fc" id="L48">	}</span>
 
 	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
-<span class="nc" id="L54">		return COLUMNS;</span>
+<span class="fc" id="L54">		return COLUMNS;</span>
 	}
 
 	/**
 	 * @see javax.swing.table.TableModel#getRowCount()
 	 */
 	public int getRowCount() {
-<span class="nc" id="L61">		return invalidObservations.size();</span>
+<span class="fc" id="L61">		return invalidObservations.size();</span>
 	}
 
 	/**
 	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
-<span class="nc" id="L68">		String columnName = null;</span>
+<span class="fc" id="L68">		String columnName = null;</span>
 		
-<span class="nc bnc" id="L70" title="All 4 branches missed.">		switch (column) {</span>
+<span class="fc bfc" id="L70" title="All 4 branches covered.">		switch (column) {</span>
 		case 0:
-<span class="nc" id="L72">			columnName = &quot;Record&quot;;</span>
-<span class="nc" id="L73">			break;</span>
+<span class="fc" id="L72">			columnName = &quot;Record&quot;;</span>
+<span class="fc" id="L73">			break;</span>
 		case 1:
-<span class="nc" id="L75">			columnName = &quot;Observation&quot;;</span>
-<span class="nc" id="L76">			break;</span>
+<span class="fc" id="L75">			columnName = &quot;Observation&quot;;</span>
+<span class="fc" id="L76">			break;</span>
 		case 2:
-<span class="nc" id="L78">			columnName = &quot;Error&quot;;</span>
+<span class="fc" id="L78">			columnName = &quot;Error&quot;;</span>
 			break;
 		}
 
-<span class="nc" id="L82">		return columnName;</span>
+<span class="fc" id="L82">		return columnName;</span>
 	}
 
 	/**
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
-<span class="nc bnc" id="L89" title="All 2 branches missed.">		assert columnIndex &lt; COLUMNS;</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">		assert columnIndex &lt; COLUMNS;</span>
 
-<span class="nc" id="L91">		Object value = null;</span>
-<span class="nc" id="L92">		InvalidObservation invalidOb = invalidObservations.get(rowIndex);</span>
-<span class="nc bnc" id="L93" title="All 4 branches missed.">		switch (columnIndex) {</span>
+<span class="fc" id="L91">		Object value = null;</span>
+<span class="fc" id="L92">		InvalidObservation invalidOb = invalidObservations.get(rowIndex);</span>
+<span class="pc bpc" id="L93" title="1 of 4 branches missed.">		switch (columnIndex) {</span>
 		case 0:
 			// TODO: we really want to return an integer so that column 
 			// sorting works properly for numbers!
 			//value = String.format(&quot;%d&quot;, invalidOb.getRecordNumber());
-<span class="nc" id="L98">			value = invalidOb.getRecordNumber();</span>
-<span class="nc" id="L99">			break;</span>
+<span class="fc" id="L98">			value = invalidOb.getRecordNumber();</span>
+<span class="fc" id="L99">			break;</span>
 		case 1:
-<span class="nc" id="L101">			value = invalidOb.getInputLine();</span>
-<span class="nc" id="L102">			break;</span>
+<span class="fc" id="L101">			value = invalidOb.getInputLine();</span>
+<span class="fc" id="L102">			break;</span>
 		case 2:
-<span class="nc" id="L104">			value = invalidOb.getError();</span>
+<span class="fc" id="L104">			value = invalidOb.getError();</span>
 			break;
 		}
-<span class="nc" id="L107">		return value;</span>
+<span class="fc" id="L107">		return value;</span>
 	}
 
 	/**
 	 * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
 	 */
 	public Class&lt;?&gt; getColumnClass(int columnIndex) {
-<span class="nc" id="L114">		Class&lt;?&gt; clazz = null;</span>
+<span class="fc" id="L114">		Class&lt;?&gt; clazz = null;</span>
 		
-<span class="nc bnc" id="L116" title="All 4 branches missed.">		switch(columnIndex) {</span>
+<span class="pc bpc" id="L116" title="1 of 4 branches missed.">		switch(columnIndex) {</span>
 		case 0:
 			//clazz = String.class;
-<span class="nc" id="L119">			clazz = Integer.class;</span>
-<span class="nc" id="L120">			break;</span>
+<span class="fc" id="L119">			clazz = Integer.class;</span>
+<span class="fc" id="L120">			break;</span>
 		case 1:
-<span class="nc" id="L122">			clazz = String.class;</span>
-<span class="nc" id="L123">			break;</span>
+<span class="fc" id="L122">			clazz = String.class;</span>
+<span class="fc" id="L123">			break;</span>
 		case 2:
-<span class="nc" id="L125">			clazz = String.class;</span>
+<span class="fc" id="L125">			clazz = String.class;</span>
 			break;
 		}
 		
-<span class="nc" id="L129">		return clazz;</span>
+<span class="fc" id="L129">		return clazz;</span>
 	}	
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

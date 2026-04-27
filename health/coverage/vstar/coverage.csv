@@ -42,7 +42,7 @@ VStar,org.aavso.tools.vstar.plugin.ob.src.impl,UTF8FilteringInputStream,0,20,0,4
 VStar,org.aavso.tools.vstar.plugin.ob.src.impl,AIDWebServiceCSV2ObservationSourcePlugin,99,10,6,0,21,3,5,2,2,2
 VStar,org.aavso.tools.vstar.plugin.ob.src.impl,NodeListSequence,15,0,0,0,5,0,3,0,3,0
 VStar,org.aavso.tools.vstar.plugin.ob.src.impl,AAVSOPhotometryURLObservationSourceBase.AAVSOPhotometryURLSearchParameterDialog,407,0,8,0,84,0,19,0,15,0
-VStar,org.aavso.tools.vstar.ui,NumberSelectionPane.new ChangeListener() {...},16,0,0,0,3,0,2,0,2,0
+VStar,org.aavso.tools.vstar.ui,NumberSelectionPane.new ChangeListener() {...},0,16,0,0,0,3,0,2,0,2
 VStar,org.aavso.tools.vstar.ui,VStar.new Thread.UncaughtExceptionHandler() {...},7,0,0,0,3,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui,VStar.new Runnable() {...},10,0,0,0,3,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui,VStar.new Runnable() {...},5,0,0,0,3,0,2,0,2,0
@@ -123,7 +123,7 @@ VStar,org.aavso.tools.vstar.ui,MenuBar.36.1.new Runnable() {...},11,0,0,0,3,0,2,
 VStar,org.aavso.tools.vstar.ui,MenuBar.36.1.new Runnable() {...},14,0,0,0,3,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui,NamedComponent,33,0,0,0,13,0,5,0,5,0
 VStar,org.aavso.tools.vstar.ui,ToolBar,994,0,42,0,233,0,29,0,8,0
-VStar,org.aavso.tools.vstar.ui,NumberSelectionPane,139,0,8,0,21,0,6,0,2,0
+VStar,org.aavso.tools.vstar.ui,NumberSelectionPane,64,75,4,4,7,14,4,2,0,2
 VStar,org.aavso.tools.vstar.ui.vela,VeLaDialog.new KeyAdapter() {...},60,0,11,0,25,0,10,0,2,0
 VStar,org.aavso.tools.vstar.ui.vela,VeLaDialog,529,0,32,0,126,0,36,0,20,0
 VStar,org.aavso.tools.vstar.util.stats.epoch,AlphaOmegaMeanJDEpochStrategy,2,20,0,0,1,2,1,2,1,2
@@ -312,13 +312,13 @@ VStar,org.aavso.tools.vstar.ui.mediator.message,ExcludedObservationMessage,10,0,
 VStar,org.aavso.tools.vstar.ui.mediator.message,PeriodChangeMessage,10,0,0,0,4,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui.mediator.message,ProgressType,0,45,0,0,0,8,0,1,0,1
 VStar,org.aavso.tools.vstar.ui.mediator.message,SeriesVisibilityChangeMessage,10,0,0,0,4,0,2,0,2,0
-VStar,org.aavso.tools.vstar.ui.mediator.message,ProgressInfo,6,51,0,0,2,13,2,3,2,3
-VStar,org.aavso.tools.vstar.ui.mediator.message,ZoomRequestMessage,10,0,0,0,4,0,2,0,2,0
+VStar,org.aavso.tools.vstar.ui.mediator.message,ProgressInfo,0,57,0,0,0,15,0,5,0,5
+VStar,org.aavso.tools.vstar.ui.mediator.message,ZoomRequestMessage,0,10,0,0,0,4,0,2,0,2
 VStar,org.aavso.tools.vstar.ui.mediator.message,ObservationSelectionMessage,10,0,0,0,4,0,2,0,2,0
-VStar,org.aavso.tools.vstar.ui.mediator.message,PanRequestMessage,10,0,0,0,4,0,2,0,2,0
+VStar,org.aavso.tools.vstar.ui.mediator.message,PanRequestMessage,0,10,0,0,0,4,0,2,0,2
 VStar,org.aavso.tools.vstar.ui.mediator.message,UndoActionMessage,16,0,0,0,6,0,3,0,3,0
 VStar,org.aavso.tools.vstar.ui.mediator.message,HarmonicSearchResultMessage,32,0,0,0,12,0,6,0,6,0
-VStar,org.aavso.tools.vstar.ui.mediator.message,PanType,27,0,0,0,2,0,1,0,1,0
+VStar,org.aavso.tools.vstar.ui.mediator.message,PanType,0,27,0,0,0,2,0,1,0,1
 VStar,org.aavso.tools.vstar.ui.mediator.message,ModelSelectionMessage,10,0,0,0,4,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui.mediator.message,PeriodAnalysisRefinementMessage,22,0,0,0,8,0,4,0,4,0
 VStar,org.aavso.tools.vstar.ui.mediator.message,PeriodAnalysisSelectionMessage,16,0,0,0,6,0,3,0,3,0
@@ -326,8 +326,8 @@ VStar,org.aavso.tools.vstar.ui.mediator.message,PhaseSelectionMessage,22,0,0,0,8
 VStar,org.aavso.tools.vstar.ui.mediator.message,MeanSourceSeriesChangeMessage,10,0,0,0,4,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui.mediator.message,FilteredObservationMessage,39,0,2,0,11,0,5,0,4,0
 VStar,org.aavso.tools.vstar.ui.mediator.message,StopRequestMessage,4,0,0,0,2,0,1,0,1,0
-VStar,org.aavso.tools.vstar.ui.mediator.message,ZoomType,21,0,0,0,2,0,1,0,1,0
-VStar,org.aavso.tools.vstar.ui.mediator.message,MessageBase,16,0,0,0,7,0,4,0,4,0
+VStar,org.aavso.tools.vstar.ui.mediator.message,ZoomType,0,21,0,0,0,2,0,1,0,1
+VStar,org.aavso.tools.vstar.ui.mediator.message,MessageBase,0,16,0,0,0,7,0,4,0,4
 VStar,org.aavso.tools.vstar.ui.mediator.message,PhaseChangeMessage,81,0,6,0,19,0,8,0,5,0
 VStar,org.aavso.tools.vstar.ui.mediator.message,UndoableActionType,55,0,8,0,18,0,9,0,3,0
 VStar,org.aavso.tools.vstar.ui.mediator.message,NewStarMessage,65,0,0,0,24,0,12,0,12,0
@@ -479,7 +479,7 @@ VStar,org.aavso.tools.vstar.plugin.model.impl,ApacheCommonsPolynomialFitCreatorP
 VStar,org.aavso.tools.vstar.plugin.model.impl,ApacheCommonsPolynomialFitCreatorPlugin,220,0,8,0,53,0,17,0,13,0
 VStar,org.aavso.tools.vstar.plugin.model.impl,ApacheCommonsPolynomialFitCreatorPlugin.PolynomialFitModel.new UnivariateRealFunction() {...},37,0,2,0,6,0,3,0,2,0
 VStar,org.aavso.tools.vstar.data,MTypeType,20,32,4,0,9,7,5,2,2,2
-VStar,org.aavso.tools.vstar.data,Observation,6,10,0,0,3,5,2,2,2,2
+VStar,org.aavso.tools.vstar.data,Observation,3,13,0,0,2,6,1,3,1,3
 VStar,org.aavso.tools.vstar.data,MagnitudeModifier,0,21,0,0,0,4,0,1,0,1
 VStar,org.aavso.tools.vstar.data,CommentType,73,417,25,75,48,111,25,53,0,5
 VStar,org.aavso.tools.vstar.data,Property,20,276,11,34,8,83,11,32,0,16
@@ -488,7 +488,7 @@ VStar,org.aavso.tools.vstar.data,ValidationType,70,79,21,11,28,19,18,6,2,2
 VStar,org.aavso.tools.vstar.data,ValidObservation.JDflavour,0,39,0,0,0,5,0,2,0,2
 VStar,org.aavso.tools.vstar.data,Magnitude,86,178,17,17,27,41,17,18,5,13
 VStar,org.aavso.tools.vstar.data,Property.propType,0,33,0,0,0,2,0,1,0,1
-VStar,org.aavso.tools.vstar.data,InvalidObservation,63,0,2,0,20,0,7,0,6,0
+VStar,org.aavso.tools.vstar.data,InvalidObservation,31,32,2,0,8,12,3,4,2,4
 VStar,org.aavso.tools.vstar.data,CommentCodes,45,128,14,18,13,34,12,10,1,5
 VStar,org.aavso.tools.vstar.data,DateInfo,7,92,2,6,4,26,3,9,1,7
 VStar,org.aavso.tools.vstar.data,SeriesType,371,959,60,26,121,144,58,22,21,16
@@ -709,7 +709,7 @@ VStar,org.aavso.tools.vstar.ui.model.list,PhasePlotModelObservationTableModel,79
 VStar,org.aavso.tools.vstar.ui.model.list,ArbitraryFormatPhasePlotColumnInfoSource,85,0,8,0,26,0,12,0,8,0
 VStar,org.aavso.tools.vstar.ui.model.list,RawDataMeanObservationTableModel,95,0,19,0,40,0,21,0,7,0
 VStar,org.aavso.tools.vstar.ui.model.list,WWZDataTableModel,46,0,0,0,14,0,9,0,9,0
-VStar,org.aavso.tools.vstar.ui.model.list,InvalidObservationTableModel,73,0,14,0,32,0,17,0,7,0
+VStar,org.aavso.tools.vstar.ui.model.list,InvalidObservationTableModel,4,69,3,11,0,32,3,14,0,7
 VStar,org.aavso.tools.vstar.ui.model.list,AAVSOFormatRawDataColumnInfoSource,510,0,117,0,185,0,108,0,9,0
 VStar,org.aavso.tools.vstar.ui.model.list,AbstractSyntheticObservationTableModel,46,0,2,0,11,0,5,0,4,0
 VStar,org.aavso.tools.vstar.ui.model.list,PeriodAnalysisDataTableModel,128,0,6,0,25,0,14,0,11,0

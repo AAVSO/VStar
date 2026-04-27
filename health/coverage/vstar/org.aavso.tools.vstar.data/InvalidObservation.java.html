@@ -40,11 +40,11 @@ public class InvalidObservation extends Observation {
 	 *            Does this invalid observation represent a warning or an error?
 	 */
 	public InvalidObservation(String inputLine, String error, boolean isWarning) {
-<span class="nc" id="L43">		super(0);</span>
-<span class="nc" id="L44">		this.inputLine = inputLine;</span>
-<span class="nc" id="L45">		this.error = error;</span>
-<span class="nc" id="L46">		this.isWarning = isWarning;</span>
-<span class="nc" id="L47">	}</span>
+<span class="fc" id="L43">		super(0);</span>
+<span class="fc" id="L44">		this.inputLine = inputLine;</span>
+<span class="fc" id="L45">		this.error = error;</span>
+<span class="fc" id="L46">		this.isWarning = isWarning;</span>
+<span class="fc" id="L47">	}</span>
 
 	/**
 	 * Construct an InvalidObservation that defaults as an error.
@@ -58,18 +58,18 @@ public class InvalidObservation extends Observation {
 	 *            The error message.
 	 */
 	public InvalidObservation(String inputLine, String error) {
-<span class="nc" id="L61">		super(0);</span>
-<span class="nc" id="L62">		this.inputLine = inputLine;</span>
-<span class="nc" id="L63">		this.error = error;</span>
-<span class="nc" id="L64">		this.isWarning = false;</span>
-<span class="nc" id="L65">	}</span>
+<span class="fc" id="L61">		super(0);</span>
+<span class="fc" id="L62">		this.inputLine = inputLine;</span>
+<span class="fc" id="L63">		this.error = error;</span>
+<span class="fc" id="L64">		this.isWarning = false;</span>
+<span class="fc" id="L65">	}</span>
 
 	public String getInputLine() {
-<span class="nc" id="L68">		return inputLine;</span>
+<span class="fc" id="L68">		return inputLine;</span>
 	}
 
 	public String getError() {
-<span class="nc" id="L72">		return error;</span>
+<span class="fc" id="L72">		return error;</span>
 	}
 
 	public boolean isWarning() {
