@@ -100,9 +100,14 @@
     padding: 2rem 1rem;
   }
 
+  /* Issue #579: dashboard moved from a 3-up grid (which left the smaller
+     SpotBugs / Checker tiles as awkward orphans on row 2) to a 2-up grid
+     where the merged Static Analysis card fills row 2 by itself. The min()
+     floor keeps cards from overflowing on very small viewports without
+     needing a separate mobile media-query for the column count. */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr));
     gap: 1.25rem;
     margin-bottom: 1.25rem;
   }
@@ -196,6 +201,59 @@
   .coverage-matrix th:not(:first-child),
   .coverage-matrix td:not(:first-child) { text-align: right; }
 
+  /* Issue #579: merged Static Analysis card. The card always fills the full
+     grid row (so at the 2-col desktop layout it sits alone on row 2 instead
+     of leaving an empty cell), and acts as an inline-size container so the
+     two sub-cards switch between side-by-side and stacked based on the
+     parent card's actual rendered width rather than the viewport width. */
+  .card-static-analysis {
+    grid-column: 1 / -1;
+    container-type: inline-size;
+  }
+
+  .card-split-body {
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .sub-card { display: flex; flex-direction: column; }
+
+  .sub-card + .sub-card { border-top: 1px solid var(--border); }
+
+  .sub-card-header {
+    padding: 0.75rem 1.125rem 0.5rem;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .sub-card-header h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .sub-card-header .updated {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .sub-card-body { padding: 0 1.125rem 0.875rem; flex: 1; }
+
+  /* Switch to side-by-side when the parent card is wide enough to give
+     each sub-card a comfortable column. Below 540 px parent width the
+     sub-cards stack and the divider rotates from a left-border to a
+     top-border. */
+  @container (min-width: 540px) {
+    .card-split-body { grid-template-columns: 1fr 1fr; }
+    .sub-card + .sub-card {
+      border-top: none;
+      border-left: 1px solid var(--border);
+    }
+  }
+
   .card-footer {
     padding: 0.625rem 1.125rem;
     border-top: 1px solid var(--border);
@@ -252,7 +310,6 @@
   @media (max-width: 600px) {
     .header-content { flex-direction: column; gap: 0.75rem; }
     .header-links { margin-left: 0; justify-content: center; }
-    .grid { grid-template-columns: 1fr; }
     main { padding: 1rem 0.5rem; }
   }
 </style>
@@ -328,35 +385,46 @@
       </div>
     </div>
 
-    <!-- SpotBugs -->
-    <div class="card" id="card-spotbugs">
+    <!-- Static Analysis (issue #579 follow-up): SpotBugs and Checker
+         merged into a single tile. Each tool keeps its own data feed
+         and its own *-updated / *-body element so the existing
+         loadCard() calls in the script below work unchanged. -->
+    <div class="card card-static-analysis" id="card-static-analysis">
       <div class="card-header">
-        <h2>SpotBugs Static Analysis</h2>
-        <span class="updated" id="spotbugs-updated"></span>
+        <h2>Static Analysis</h2>
       </div>
-      <div class="card-body">
-        <table>
-          <thead><tr><th>Priority</th><th>Count</th></tr></thead>
-          <tbody id="spotbugs-body">
-            <tr><td colspan="2" class="loading">Loading...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <div class="card-body card-split-body">
 
-    <!-- Checker Framework -->
-    <div class="card" id="card-checker">
-      <div class="card-header">
-        <h2>Checker Framework Nullness</h2>
-        <span class="updated" id="checker-updated"></span>
-      </div>
-      <div class="card-body">
-        <table>
-          <thead><tr><th>Metric</th><th>Count</th></tr></thead>
-          <tbody id="checker-body">
-            <tr><td colspan="2" class="loading">Loading...</td></tr>
-          </tbody>
-        </table>
+        <div class="sub-card" id="sub-spotbugs">
+          <div class="sub-card-header">
+            <h3>SpotBugs</h3>
+            <span class="updated" id="spotbugs-updated"></span>
+          </div>
+          <div class="sub-card-body">
+            <table>
+              <thead><tr><th>Priority</th><th>Count</th></tr></thead>
+              <tbody id="spotbugs-body">
+                <tr><td colspan="2" class="loading">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="sub-card" id="sub-checker">
+          <div class="sub-card-header">
+            <h3>Checker (Nullness)</h3>
+            <span class="updated" id="checker-updated"></span>
+          </div>
+          <div class="sub-card-body">
+            <table>
+              <thead><tr><th>Metric</th><th>Count</th></tr></thead>
+              <tbody id="checker-body">
+                <tr><td colspan="2" class="loading">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
 
