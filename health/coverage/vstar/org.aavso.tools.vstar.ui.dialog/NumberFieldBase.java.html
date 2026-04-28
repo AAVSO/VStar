@@ -56,37 +56,37 @@ public abstract class NumberFieldBase&lt;T extends Number&gt; implements
 	 *            The initial value.
 	 */
 	public NumberFieldBase(NumberFormat numberFormat, String name, T min,
-<span class="nc" id="L59">			T max, T initial) {</span>
-<span class="nc" id="L60">		this.name = name;</span>
-<span class="nc" id="L61">		this.min = min;</span>
-<span class="nc" id="L62">		this.max = max;</span>
-<span class="nc" id="L63">		this.initial = initial;</span>
+<span class="fc" id="L59">			T max, T initial) {</span>
+<span class="fc" id="L60">		this.name = name;</span>
+<span class="fc" id="L61">		this.min = min;</span>
+<span class="fc" id="L62">		this.max = max;</span>
+<span class="fc" id="L63">		this.initial = initial;</span>
 
-<span class="nc bnc" id="L65" title="All 2 branches missed.">		String initialStr = initial == null ? &quot;&quot; : numberFormat.format(initial);</span>
-<span class="nc" id="L66">		textField = new JTextField(initialStr);</span>
-<span class="nc" id="L67">		textField.setBorder(BorderFactory.createTitledBorder(name));</span>
-<span class="nc" id="L68">		textField.setToolTipText(&quot;Enter &quot; + name);</span>
-<span class="nc" id="L69">	}</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">		String initialStr = initial == null ? &quot;&quot; : numberFormat.format(initial);</span>
+<span class="fc" id="L66">		textField = new JTextField(initialStr);</span>
+<span class="fc" id="L67">		textField.setBorder(BorderFactory.createTitledBorder(name));</span>
+<span class="fc" id="L68">		textField.setToolTipText(&quot;Enter &quot; + name);</span>
+<span class="fc" id="L69">	}</span>
 
 	/**
 	 * @return the name
 	 */
 	public String getName() {
-<span class="nc" id="L75">		return name;</span>
+<span class="fc" id="L75">		return name;</span>
 	}
 
 	/**
 	 * @return the min
 	 */
 	public T getMin() {
-<span class="nc" id="L82">		return min;</span>
+<span class="fc" id="L82">		return min;</span>
 	}
 
 	/**
 	 * @return the max
 	 */
 	public T getMax() {
-<span class="nc" id="L89">		return max;</span>
+<span class="fc" id="L89">		return max;</span>
 	}
 
 	/**
@@ -100,7 +100,7 @@ public abstract class NumberFieldBase&lt;T extends Number&gt; implements
 	 * @return the textField
 	 */
 	public JComponent getUIComponent() {
-<span class="nc" id="L103">		return textField;</span>
+<span class="fc" id="L103">		return textField;</span>
 	}
 
 	/**

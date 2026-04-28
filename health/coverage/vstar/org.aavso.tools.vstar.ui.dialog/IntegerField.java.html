@@ -29,7 +29,7 @@ import org.aavso.tools.vstar.vela.VeLaParseError;
  */
 public class IntegerField extends NumberFieldBase&lt;Integer&gt; {
 
-<span class="nc" id="L32">	private final static NumberFormat NUM_FORMAT = NumberFormat.getIntegerInstance();</span>
+<span class="fc" id="L32">	private final static NumberFormat NUM_FORMAT = NumberFormat.getIntegerInstance();</span>
 
 	/**
 	 * Constructor
@@ -42,8 +42,8 @@ public class IntegerField extends NumberFieldBase&lt;Integer&gt; {
 	 * @param initial The initial value.
 	 */
 	public IntegerField(String name, Integer min, Integer max, Integer initial) {
-<span class="nc" id="L45">		super(NUM_FORMAT, name, min, max, initial);</span>
-<span class="nc" id="L46">	}</span>
+<span class="fc" id="L45">		super(NUM_FORMAT, name, min, max, initial);</span>
+<span class="fc" id="L46">	}</span>
 
 	/**
 	 * Get the integer value from the text field, if possible, otherwise return null
@@ -52,19 +52,19 @@ public class IntegerField extends NumberFieldBase&lt;Integer&gt; {
 	 * @return The integer value or null.
 	 */
 	public Integer getValue() {
-<span class="nc" id="L55">		Integer value = null;</span>
+<span class="fc" id="L55">		Integer value = null;</span>
 
 		try {
-<span class="nc" id="L58">			value = (int) NumberParser.parseInteger(textField.getText());</span>
+<span class="fc" id="L58">			value = (int) NumberParser.parseInteger(textField.getText());</span>
 			
 			// In the previous realization, null is assigned to the value if value &lt; min.
 			// Then in the next 'if' the null value is compared with max, this leads to Null Pointer Exception.
 			
-<span class="nc bnc" id="L63" title="All 4 branches missed.">			if (min != null &amp;&amp; value &lt; min) {</span>
+<span class="pc bpc" id="L63" title="2 of 4 branches missed.">			if (min != null &amp;&amp; value &lt; min) {</span>
 <span class="nc" id="L64">				return null;</span>
 			}
 
-<span class="nc bnc" id="L67" title="All 4 branches missed.">			if (max != null &amp;&amp; value &gt; max) {</span>
+<span class="pc bpc" id="L67" title="2 of 4 branches missed.">			if (max != null &amp;&amp; value &gt; max) {</span>
 <span class="nc" id="L68">				return null;</span>
 			}
 <span class="nc" id="L70">		} catch (NumberFormatException e) {</span>
@@ -73,14 +73,14 @@ public class IntegerField extends NumberFieldBase&lt;Integer&gt; {
 			// Nothing to do; return null.
 <span class="nc" id="L74">		} catch (VeLaEvalError e) { // #PMAK#</span>
 			// Nothing to do; return null.
-<span class="nc" id="L76">		}</span>
+<span class="pc" id="L76">		}</span>
 
-<span class="nc" id="L78">		return value;</span>
+<span class="fc" id="L78">		return value;</span>
 	}
 
 	@Override
 	public void setValue(Integer value) {
-<span class="nc bnc" id="L83" title="All 2 branches missed.">		textField.setText(value == null ? &quot;&quot; : value.toString());</span>
-<span class="nc" id="L84">	}</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">		textField.setText(value == null ? &quot;&quot; : value.toString());</span>
+<span class="fc" id="L84">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

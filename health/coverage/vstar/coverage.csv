@@ -210,7 +210,7 @@ VStar,org.aavso.tools.vstar.vela,VeLaBaseListener,69,0,0,0,67,0,67,0,67,0
 VStar,org.aavso.tools.vstar.vela,VeLaParser.LogicalNegationExpressionContext,27,19,5,1,7,4,7,3,4,3
 VStar,org.aavso.tools.vstar.vela,VeLaParser.FactorContext,69,24,5,1,14,5,14,4,11,4
 VStar,org.aavso.tools.vstar.vela,FunctionExecutor,109,218,27,19,28,50,18,18,4,9
-VStar,org.aavso.tools.vstar.vela,VeLaParser,500,2669,20,107,137,563,24,85,4,35
+VStar,org.aavso.tools.vstar.vela,VeLaParser,491,2678,19,108,134,566,23,86,4,35
 VStar,org.aavso.tools.vstar.vela,Operand,295,887,56,114,80,189,56,82,9,29
 VStar,org.aavso.tools.vstar.vela,VeLaParser.BooleanExpressionContext,35,19,5,1,9,4,9,3,6,3
 VStar,org.aavso.tools.vstar.vela,ExpressionVisitor,27,834,6,56,5,154,6,61,0,36
@@ -236,10 +236,10 @@ VStar,org.aavso.tools.vstar.vela,UserDefinedFunctionExecutor,12,151,4,18,3,30,5,
 VStar,org.aavso.tools.vstar.vela,VeLaParser.MultiplicativeExpressionContext,44,19,5,1,11,4,11,3,8,3
 VStar,org.aavso.tools.vstar.vela,JavaMethodExecutor,36,156,7,11,11,38,6,8,1,4
 VStar,org.aavso.tools.vstar.vela,VeLaParser.FormalParameterContext,27,25,5,1,7,5,7,4,4,4
-VStar,org.aavso.tools.vstar.vela,VeLaInterpreter,712,3507,85,305,102,619,80,207,5,59
+VStar,org.aavso.tools.vstar.vela,VeLaInterpreter,705,3514,84,306,101,620,79,208,5,59
 VStar,org.aavso.tools.vstar.vela,AST,354,172,43,11,79,52,34,22,10,19
 VStar,org.aavso.tools.vstar.util.period,PeriodAnalysisCoordinateType,100,79,24,4,32,26,19,7,6,6
-VStar,org.aavso.tools.vstar.ui.dialog,AbstractOkCancelDialog,176,0,2,0,48,0,14,0,13,0
+VStar,org.aavso.tools.vstar.ui.dialog,AbstractOkCancelDialog,29,147,2,0,12,36,5,9,4,9
 VStar,org.aavso.tools.vstar.ui.dialog,DelimitedFieldFileSaveChooser.new ActionListener() {...},12,6,2,0,3,1,2,1,1,1
 VStar,org.aavso.tools.vstar.ui.dialog,PlotControlDialog,544,0,4,0,124,0,19,0,17,0
 VStar,org.aavso.tools.vstar.ui.dialog,AboutBox,485,0,0,0,112,0,5,0,5,0
@@ -267,7 +267,7 @@ VStar,org.aavso.tools.vstar.ui.dialog,StarSelectorDialog.new ActionListener() {.
 VStar,org.aavso.tools.vstar.ui.dialog,StarSelectorDialog.new ActionListener() {...},7,0,0,0,2,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui.dialog,StarSelectorDialog.new DocumentListener() {...},55,0,4,0,19,0,7,0,5,0
 VStar,org.aavso.tools.vstar.ui.dialog,StarSelectorDialog.new ActionListener() {...},33,0,2,0,7,0,3,0,2,0
-VStar,org.aavso.tools.vstar.ui.dialog,NumberFieldBase,68,0,2,0,21,0,12,0,11,0
+VStar,org.aavso.tools.vstar.ui.dialog,NumberFieldBase,19,49,1,1,7,14,7,5,6,5
 VStar,org.aavso.tools.vstar.ui.dialog,AboutBox.new ActionListener() {...},14,0,0,0,4,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui.dialog,TextArea,51,65,4,4,14,18,13,4,9,4
 VStar,org.aavso.tools.vstar.ui.dialog,LoadChooser,125,53,19,7,29,15,19,2,7,1
@@ -289,23 +289,23 @@ VStar,org.aavso.tools.vstar.ui.dialog,PhaseParameterDialog,325,0,24,0,92,0,25,0,
 VStar,org.aavso.tools.vstar.ui.dialog,StarGroupSelectionPane,741,0,110,0,178,0,85,0,30,0
 VStar,org.aavso.tools.vstar.ui.dialog,Checkbox,48,0,2,0,14,0,10,0,9,0
 VStar,org.aavso.tools.vstar.ui.dialog,StarSelectorDialog.UpdateListener,13,0,0,0,4,0,3,0,3,0
-VStar,org.aavso.tools.vstar.ui.dialog,IntegerField,62,0,10,0,16,0,9,0,4,0
-VStar,org.aavso.tools.vstar.ui.dialog,DoubleField,61,0,10,0,15,0,8,0,3,0
-VStar,org.aavso.tools.vstar.ui.dialog,AbstractOkCancelDialog.new ActionListener() {...},10,0,0,0,3,0,2,0,2,0
-VStar,org.aavso.tools.vstar.ui.dialog,AbstractOkCancelDialog.new ActionListener() {...},17,0,0,0,5,0,2,0,2,0
-VStar,org.aavso.tools.vstar.ui.dialog,AbstractOkCancelDialog.new ActionListener() {...},10,0,0,0,3,0,2,0,2,0
-VStar,org.aavso.tools.vstar.ui.dialog,DateToJdDialog,642,0,36,0,132,0,34,0,16,0
+VStar,org.aavso.tools.vstar.ui.dialog,IntegerField,9,53,4,6,5,11,4,5,0,4
+VStar,org.aavso.tools.vstar.ui.dialog,DoubleField,2,59,0,10,1,14,0,8,0,3
+VStar,org.aavso.tools.vstar.ui.dialog,AbstractOkCancelDialog.new ActionListener() {...},4,6,0,0,2,1,1,1,1,1
+VStar,org.aavso.tools.vstar.ui.dialog,AbstractOkCancelDialog.new ActionListener() {...},11,6,0,0,4,1,1,1,1,1
+VStar,org.aavso.tools.vstar.ui.dialog,AbstractOkCancelDialog.new ActionListener() {...},4,6,0,0,2,1,1,1,1,1
+VStar,org.aavso.tools.vstar.ui.dialog,DateToJdDialog,157,485,25,11,39,93,21,13,3,13
 VStar,org.aavso.tools.vstar.ui.dialog,AuthCodeLoginDialog.new ActionListener() {...},10,0,0,0,3,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui.dialog,AuthCodeLoginDialog.new ActionListener() {...},14,0,0,0,3,0,2,0,2,0
-VStar,org.aavso.tools.vstar.ui.dialog,TextField,78,0,4,0,24,0,13,0,11,0
+VStar,org.aavso.tools.vstar.ui.dialog,TextField,30,48,2,2,9,15,8,5,6,5
 VStar,org.aavso.tools.vstar.ui.dialog,DelimitedFieldFileSaveChooser,91,228,10,8,22,47,13,6,6,4
-VStar,org.aavso.tools.vstar.ui.dialog,DateToJdDialog.DoubleFieldSeconds,31,0,2,0,7,0,3,0,2,0
+VStar,org.aavso.tools.vstar.ui.dialog,DateToJdDialog.DoubleFieldSeconds,0,31,0,2,0,7,0,3,0,2
 VStar,org.aavso.tools.vstar.ui.dialog,InfoDialog,410,0,22,0,101,0,15,0,4,0
 VStar,org.aavso.tools.vstar.ui.dialog,SeriesTypeCreationDialog,195,0,4,0,43,0,7,0,5,0
 VStar,org.aavso.tools.vstar.ui.dialog,PhaseDialog,230,0,8,0,55,0,13,0,9,0
 VStar,org.aavso.tools.vstar.ui.dialog,TextAreaTabs,227,0,26,0,48,0,23,0,10,0
-VStar,org.aavso.tools.vstar.ui.dialog,DateToJdDialog.new ActionListener() {...},10,0,0,0,3,0,2,0,2,0
-VStar,org.aavso.tools.vstar.ui.dialog,TextDialog,268,0,20,0,62,0,20,0,10,0
+VStar,org.aavso.tools.vstar.ui.dialog,DateToJdDialog.new ActionListener() {...},4,6,0,0,2,1,1,1,1,1
+VStar,org.aavso.tools.vstar.ui.dialog,TextDialog,56,212,8,12,16,46,10,10,5,5
 VStar,org.aavso.tools.vstar.ui.dialog,LogDialog,214,0,2,0,57,0,6,0,5,0
 VStar,org.aavso.tools.vstar.ui.mediator.message,MultipleObservationSelectionMessage,10,0,0,0,4,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui.mediator.message,ExcludedObservationMessage,10,0,0,0,4,0,2,0,2,0
@@ -337,7 +337,7 @@ VStar,org.aavso.tools.vstar.ui.mediator.message,DiscrepantObservationMessage,10,
 VStar,org.aavso.tools.vstar.ui.mediator.message,ModelCreationMessage,10,0,0,0,4,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui.mediator.message,SeriesCreationMessage,16,0,0,0,6,0,3,0,3,0
 VStar,org.aavso.tools.vstar.input,AbstractObservationRetriever.new Listener() {...},7,6,0,0,3,1,2,1,2,1
-VStar,org.aavso.tools.vstar.input,AbstractObservationRetriever,297,292,51,29,80,73,56,21,26,11
+VStar,org.aavso.tools.vstar.input,AbstractObservationRetriever,292,297,51,29,78,75,55,22,25,12
 VStar,org.aavso.tools.vstar.input.database,Authenticator,117,0,14,0,35,0,11,0,4,0
 VStar,org.aavso.tools.vstar.input.database,VSXWebServiceStarInfoSource,55,203,2,6,14,45,4,7,2,5
 VStar,org.aavso.tools.vstar.input.database,AuthenticationTask,40,0,4,0,13,0,5,0,3,0
@@ -356,7 +356,7 @@ VStar,org.aavso.tools.vstar.ui.dialog.period.refinement,PeriodGatheringPane,176,
 VStar,org.aavso.tools.vstar.ui.dialog.period.refinement,RefinementParameterDialog,160,0,2,0,42,0,8,0,7,0
 VStar,org.aavso.tools.vstar.util.period.wwz,WWZCoordinateType,160,0,26,0,55,0,28,0,6,0
 VStar,org.aavso.tools.vstar.util.period.wwz,WeightedWaveletZTransform.new Callable() {...},0,31,0,0,0,3,0,2,0,2
-VStar,org.aavso.tools.vstar.util.period.wwz,WeightedWaveletZTransform,203,1778,42,130,50,320,47,73,12,22
+VStar,org.aavso.tools.vstar.util.period.wwz,WeightedWaveletZTransform,199,1782,41,131,49,321,46,74,12,22
 VStar,org.aavso.tools.vstar.util.period.wwz,WWZStatistic,202,44,30,0,36,15,24,8,6,8
 VStar,org.aavso.tools.vstar.util.coords,DecInfo,19,73,0,0,3,15,2,4,2,4
 VStar,org.aavso.tools.vstar.util.coords,EpochType,0,15,0,0,0,2,0,1,0,1
@@ -370,12 +370,12 @@ VStar,org.aavso.tools.vstar.ui.pane.list,ObservationListPane.new ActionListener(
 VStar,org.aavso.tools.vstar.ui.pane.list,ObservationListPane.new ActionListener() {...},10,0,0,0,3,0,2,0,2,0
 VStar,org.aavso.tools.vstar.ui.pane.list,ObservationListPane.new ActionListener() {...},48,0,2,0,11,0,3,0,2,0
 VStar,org.aavso.tools.vstar.ui.pane.list,ObservationListPane.new Listener() {...},111,0,10,0,32,0,8,0,3,0
-VStar,org.aavso.tools.vstar.ui.pane.list,VisibleSeriesRowFilter,155,0,16,0,38,0,15,0,7,0
-VStar,org.aavso.tools.vstar.ui.pane.list,VisibleSeriesRowFilter.new Listener() {...},19,0,2,0,5,0,4,0,3,0
-VStar,org.aavso.tools.vstar.ui.pane.list,VisibleSeriesRowFilter.new Listener() {...},19,0,2,0,5,0,4,0,3,0
-VStar,org.aavso.tools.vstar.ui.pane.list,VisibleSeriesRowFilter.new Listener() {...},28,0,2,0,6,0,4,0,3,0
-VStar,org.aavso.tools.vstar.ui.pane.list,VisibleSeriesRowFilter.new Listener() {...},24,0,2,0,6,0,4,0,3,0
-VStar,org.aavso.tools.vstar.ui.pane.list,VisibleSeriesRowFilter.new Listener() {...},28,0,4,0,7,0,5,0,3,0
+VStar,org.aavso.tools.vstar.ui.pane.list,VisibleSeriesRowFilter,21,134,6,10,4,34,4,11,0,7
+VStar,org.aavso.tools.vstar.ui.pane.list,VisibleSeriesRowFilter.new Listener() {...},13,6,2,0,4,1,3,1,2,1
+VStar,org.aavso.tools.vstar.ui.pane.list,VisibleSeriesRowFilter.new Listener() {...},13,6,2,0,4,1,3,1,2,1
+VStar,org.aavso.tools.vstar.ui.pane.list,VisibleSeriesRowFilter.new Listener() {...},22,6,2,0,5,1,3,1,2,1
+VStar,org.aavso.tools.vstar.ui.pane.list,VisibleSeriesRowFilter.new Listener() {...},18,6,2,0,5,1,3,1,2,1
+VStar,org.aavso.tools.vstar.ui.pane.list,VisibleSeriesRowFilter.new Listener() {...},22,6,4,0,6,1,4,1,2,1
 VStar,org.aavso.tools.vstar.ui.pane.list,VeLaListSearchPane.VeLaRowFilter,95,0,8,0,22,0,6,0,2,0
 VStar,org.aavso.tools.vstar.ui.pane.list,ObservationListPane,657,0,28,0,154,0,25,0,11,0
 VStar,org.aavso.tools.vstar.ui.pane.list,SyntheticObservationListPane.new Listener() {...},108,0,10,0,25,0,8,0,3,0
@@ -398,17 +398,17 @@ VStar,org.aavso.tools.vstar.util.stats,BinningResult,75,62,6,0,19,18,6,7,3,7
 VStar,org.aavso.tools.vstar.util.stats,DescStats,95,598,27,51,8,137,27,26,2,12
 VStar,org.aavso.tools.vstar.util.stats,PhaseCalcs,3,67,0,2,1,14,1,4,1,3
 VStar,org.aavso.tools.vstar.util.locale,LocaleProps,35,30,0,2,20,13,5,3,5,2
-VStar,org.aavso.tools.vstar.util.locale,NumberParser,29,31,3,2,9,10,4,3,2,2
+VStar,org.aavso.tools.vstar.util.locale,NumberParser,11,49,2,3,3,16,3,4,1,3
 VStar,org.aavso.tools.vstar.util.help,Help,79,0,6,0,31,0,14,0,11,0
 VStar,org.aavso.tools.vstar.util.help,Help.new Runnable() {...},52,0,4,0,16,0,4,0,2,0
 VStar,org.aavso.tools.vstar.util.prefs,NumericPrecisionPrefs.Type,17,21,4,0,8,2,4,1,1,1
 VStar,org.aavso.tools.vstar.util.prefs,ChartPropertiesPrefs,240,0,14,0,86,0,28,0,21,0
-VStar,org.aavso.tools.vstar.util.prefs,NumericPrecisionPrefs,165,198,11,9,56,55,33,17,24,13
+VStar,org.aavso.tools.vstar.util.prefs,NumericPrecisionPrefs,154,209,10,10,52,59,30,20,22,15
 VStar,org.aavso.tools.vstar.util,AbstractExtremaFinder,361,0,36,0,76,0,30,0,12,0
 VStar,org.aavso.tools.vstar.util,Pair,12,80,6,16,4,23,6,8,0,3
 VStar,org.aavso.tools.vstar.util,EmailUtils,59,0,2,0,16,0,4,0,3,0
 VStar,org.aavso.tools.vstar.util,TSBase,409,1735,62,114,71,258,47,50,0,9
-VStar,org.aavso.tools.vstar.util,ObservationInserter,34,0,0,0,11,0,7,0,7,0
+VStar,org.aavso.tools.vstar.util,ObservationInserter,14,20,0,0,6,5,4,3,4,3
 VStar,org.aavso.tools.vstar.util,ClipboardUtils,16,0,0,0,5,0,2,0,2,0
 VStar,org.aavso.tools.vstar.util,ApacheCommonsDerivativeBasedExtremaFinder,172,0,16,0,42,0,12,0,4,0
 VStar,org.aavso.tools.vstar.util,Logic,3,8,0,4,1,1,1,3,1,1
@@ -492,7 +492,7 @@ VStar,org.aavso.tools.vstar.data,InvalidObservation,31,32,2,0,8,12,3,4,2,4
 VStar,org.aavso.tools.vstar.data,CommentCodes,45,128,14,18,13,34,12,10,1,5
 VStar,org.aavso.tools.vstar.data,DateInfo,7,92,2,6,4,26,3,9,1,7
 VStar,org.aavso.tools.vstar.data,SeriesType,371,959,60,26,121,144,58,22,21,16
-VStar,org.aavso.tools.vstar.data,ValidObservation,1561,790,251,29,344,189,174,67,39,62
+VStar,org.aavso.tools.vstar.data,ValidObservation,1508,843,236,44,332,201,167,74,38,63
 VStar,org.aavso.tools.vstar.auth,Auth0JSONAutheticationSource,88,143,3,3,23,34,3,5,1,4
 VStar,org.aavso.tools.vstar.auth,AAVSOPostUserPassXMLAuthenticationSource,104,105,5,1,30,27,6,3,3,3
 VStar,org.aavso.tools.vstar.auth,VSXWebServiceMemberInfo,0,57,1,3,0,15,1,3,0,2
@@ -652,9 +652,9 @@ VStar,org.aavso.tools.vstar.ui.mediator,Mediator.new Listener() {...},48,0,2,0,1
 VStar,org.aavso.tools.vstar.ui.mediator,Mediator.new Listener() {...},21,6,0,0,7,1,2,1,2,1
 VStar,org.aavso.tools.vstar.ui.mediator,Mediator.new Listener() {...},40,6,4,0,9,1,4,1,2,1
 VStar,org.aavso.tools.vstar.ui.mediator,ViewModeType,89,48,26,0,30,12,18,1,3,1
-VStar,org.aavso.tools.vstar.ui.mediator,Mediator,2752,325,249,3,694,67,232,13,99,12
+VStar,org.aavso.tools.vstar.ui.mediator,Mediator,2735,342,249,3,688,73,226,19,93,18
 VStar,org.aavso.tools.vstar.ui.mediator,AnalysisType,0,15,0,0,0,2,0,1,0,1
-VStar,org.aavso.tools.vstar.ui.mediator,DocumentManager,734,0,68,0,160,0,72,0,37,0
+VStar,org.aavso.tools.vstar.ui.mediator,DocumentManager,720,14,67,1,154,6,70,2,35,2
 VStar,org.aavso.tools.vstar.ui.mediator,DocumentManager.new Listener() {...},23,0,0,0,6,0,3,0,3,0
 VStar,org.aavso.tools.vstar.ui.mediator,DocumentManager.new Listener() {...},13,0,0,0,4,0,3,0,3,0
 VStar,org.aavso.tools.vstar.ui.mediator,StarInfo,94,97,2,2,35,31,24,5,22,5
@@ -701,10 +701,10 @@ VStar,org.aavso.tools.vstar.ui.pane.plot,PhaseAndMeanPlotPane,196,0,8,0,39,0,20,
 VStar,org.aavso.tools.vstar.input.text,ObservationFieldSplitter,32,85,1,9,7,20,1,7,0,3
 VStar,org.aavso.tools.vstar.input.text,ObservationSourceAnalyser,8,195,3,29,0,53,3,22,0,9
 VStar,org.aavso.tools.vstar.input.text,TextFormatObservationReader,111,85,18,12,27,27,17,6,4,4
-VStar,org.aavso.tools.vstar.ui.model.list,SimpleFormatRawDataColumnInfoSource,162,0,28,0,63,0,32,0,9,0
-VStar,org.aavso.tools.vstar.ui.model.list,ValidObservationTableModel,229,0,12,0,58,0,24,0,18,0
-VStar,org.aavso.tools.vstar.ui.model.list,ValidObservationTableModel.new Listener() {...},17,0,0,0,5,0,3,0,3,0
-VStar,org.aavso.tools.vstar.ui.model.list,ValidObservationTableModel.new Listener() {...},12,0,0,0,4,0,3,0,3,0
+VStar,org.aavso.tools.vstar.ui.model.list,SimpleFormatRawDataColumnInfoSource,26,136,8,20,6,57,8,24,2,7
+VStar,org.aavso.tools.vstar.ui.model.list,ValidObservationTableModel,88,141,6,6,25,33,8,16,4,14
+VStar,org.aavso.tools.vstar.ui.model.list,ValidObservationTableModel.new Listener() {...},11,6,0,0,4,1,2,1,2,1
+VStar,org.aavso.tools.vstar.ui.model.list,ValidObservationTableModel.new Listener() {...},6,6,0,0,3,1,2,1,2,1
 VStar,org.aavso.tools.vstar.ui.model.list,PhasePlotModelObservationTableModel,79,0,13,0,27,0,15,0,7,0
 VStar,org.aavso.tools.vstar.ui.model.list,ArbitraryFormatPhasePlotColumnInfoSource,85,0,8,0,26,0,12,0,8,0
 VStar,org.aavso.tools.vstar.ui.model.list,RawDataMeanObservationTableModel,95,0,19,0,40,0,21,0,7,0

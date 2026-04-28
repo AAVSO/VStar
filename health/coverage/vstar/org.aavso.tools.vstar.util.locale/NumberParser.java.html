@@ -97,20 +97,20 @@ import org.aavso.tools.vstar.vela.VeLaParseError;
 	public static long parseInteger(String str) throws VeLaParseError,
 			VeLaEvalError, NumberFormatException {
 
-<span class="nc" id="L100">		Operand operand = vela.expressionToOperand(str);</span>
+<span class="fc" id="L100">		Operand operand = vela.expressionToOperand(str);</span>
 
-<span class="nc" id="L102">		long result = 0;</span>
+<span class="fc" id="L102">		long result = 0;</span>
 
-<span class="nc bnc" id="L104" title="All 2 branches missed.">		switch (operand.getType()) {</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">		switch (operand.getType()) {</span>
 		case INTEGER:
-<span class="nc" id="L106">			result = operand.intVal();</span>
-<span class="nc" id="L107">			break;</span>
+<span class="fc" id="L106">			result = operand.intVal();</span>
+<span class="fc" id="L107">			break;</span>
 
 		default:
 <span class="nc" id="L110">			throw new NumberFormatException();</span>
 		}
 
-<span class="nc" id="L113">		return result;</span>
+<span class="fc" id="L113">		return result;</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

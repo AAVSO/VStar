@@ -566,12 +566,12 @@ public class VeLaInterpreter {
                 } else {
                     // Function?
 <span class="fc" id="L568">                    Optional&lt;List&lt;FunctionExecutor&gt;&gt; funList = lookupFunctions(name);</span>
-<span class="pc bpc" id="L569" title="1 of 2 branches missed.">                    if (funList.isPresent()) {</span>
+<span class="fc bfc" id="L569" title="All 2 branches covered.">                    if (funList.isPresent()) {</span>
                         // The first function in the list is chosen in the
                         // absence of parameter type information.
 <span class="fc" id="L572">                        stack.push(new Operand(Type.FUNCTION, funList.get().get(0)));</span>
                     } else {
-<span class="nc" id="L574">                        throw new VeLaEvalError(&quot;Unknown binding \&quot;&quot; + ast.getToken() + &quot;\&quot;&quot;);</span>
+<span class="fc" id="L574">                        throw new VeLaEvalError(&quot;Unknown binding \&quot;&quot; + ast.getToken() + &quot;\&quot;&quot;);</span>
                     }
                 }
 <span class="fc bfc" id="L577" title="All 2 branches covered.">            } else if (ast.getOp() == Operation.LIST) {</span>

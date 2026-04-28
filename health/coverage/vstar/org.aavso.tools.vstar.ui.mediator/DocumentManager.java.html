@@ -49,7 +49,7 @@ import org.aavso.tools.vstar.util.stats.PhaseCalcs;
  */
 @SuppressWarnings(&quot;serial&quot;)
 public class DocumentManager {
-<span class="nc" id="L52">    private static final DateTimeFormatter MODEL_LABEL_TIME_FORMATTER = DateTimeFormatter.ofPattern(&quot;HH:mm:ss&quot;);</span>
+<span class="fc" id="L52">    private static final DateTimeFormatter MODEL_LABEL_TIME_FORMATTER = DateTimeFormatter.ofPattern(&quot;HH:mm:ss&quot;);</span>
 
     private Mediator mediator;
 
@@ -74,7 +74,7 @@ public class DocumentManager {
 
     private Map&lt;String, String&gt; statsInfo;
 
-<span class="nc" id="L77">    private static int filterNum = 0;</span>
+<span class="fc" id="L77">    private static int filterNum = 0;</span>
 
 <span class="nc" id="L79">    public DocumentManager() {</span>
 <span class="nc" id="L80">        mediator = Mediator.getInstance();</span>
@@ -482,11 +482,11 @@ public class DocumentManager {
      * case where the UI is that of an applet.
      */
     public static Window findActiveWindow() {
-<span class="nc" id="L485">        Window wdw = null;</span>
+<span class="fc" id="L485">        Window wdw = null;</span>
 
-<span class="nc" id="L487">        IMainUI ui = Mediator.getUI();</span>
+<span class="fc" id="L487">        IMainUI ui = Mediator.getUI();</span>
 
-<span class="nc bnc" id="L489" title="All 2 branches missed.">        if (ui != null) {</span>
+<span class="pc bpc" id="L489" title="1 of 2 branches missed.">        if (ui != null) {</span>
 <span class="nc bnc" id="L490" title="All 2 branches missed.">            if (ui.getUiType() == UIType.DESKTOP) {</span>
 <span class="nc bnc" id="L491" title="All 2 branches missed.">                if (Window.getWindows().length &gt; 0) {</span>
 <span class="nc bnc" id="L492" title="All 2 branches missed.">                    for (Window window : Window.getWindows()) {</span>
@@ -506,7 +506,7 @@ public class DocumentManager {
             }
         }
 
-<span class="nc" id="L509">        return wdw;</span>
+<span class="fc" id="L509">        return wdw;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

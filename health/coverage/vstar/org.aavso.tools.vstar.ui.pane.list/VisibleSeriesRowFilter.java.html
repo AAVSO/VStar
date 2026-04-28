@@ -59,44 +59,44 @@ public class VisibleSeriesRowFilter extends RowFilter&lt;IOrderedObservationSour
 	 */
 	public VisibleSeriesRowFilter(ValidObservationTableModel tableModel, Set&lt;SeriesType&gt; visibleSeries,
 			AnalysisType analysisType) {
-<span class="nc" id="L62">		super();</span>
-<span class="nc" id="L63">		this.tableModel = tableModel;</span>
-<span class="nc" id="L64">		this.visibleSeries = visibleSeries;</span>
-<span class="nc" id="L65">		this.filteredObs = null;</span>
-<span class="nc" id="L66">		this.userDefinedObs = new HashMap&lt;SeriesType, List&lt;ValidObservation&gt;&gt;();</span>
-<span class="nc" id="L67">		this.userDefinedObs.putAll(tableModel.getObsSourceListMap());</span>
-<span class="nc" id="L68">		this.analysisType = analysisType;</span>
+<span class="fc" id="L62">		super();</span>
+<span class="fc" id="L63">		this.tableModel = tableModel;</span>
+<span class="fc" id="L64">		this.visibleSeries = visibleSeries;</span>
+<span class="fc" id="L65">		this.filteredObs = null;</span>
+<span class="fc" id="L66">		this.userDefinedObs = new HashMap&lt;SeriesType, List&lt;ValidObservation&gt;&gt;();</span>
+<span class="fc" id="L67">		this.userDefinedObs.putAll(tableModel.getObsSourceListMap());</span>
+<span class="fc" id="L68">		this.analysisType = analysisType;</span>
 
-<span class="nc" id="L70">		Mediator.getInstance().getSeriesVisibilityChangeNotifier().addListener(createSeriesVisibilityChangeListener());</span>
-<span class="nc" id="L71">		Mediator.getInstance().getFilteredObservationNotifier().addListener(createFilteredObservationListener());</span>
-<span class="nc" id="L72">		Mediator.getInstance().getExcludedObservationNotifier().addListener(createExcludedObservationListener());</span>
-<span class="nc" id="L73">		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(createDiscrepantObservationListener());</span>
-<span class="nc" id="L74">		Mediator.getInstance().getSeriesCreationNotifier().addListener(createSeriesCreationListener());</span>
-<span class="nc" id="L75">	}</span>
+<span class="fc" id="L70">		Mediator.getInstance().getSeriesVisibilityChangeNotifier().addListener(createSeriesVisibilityChangeListener());</span>
+<span class="fc" id="L71">		Mediator.getInstance().getFilteredObservationNotifier().addListener(createFilteredObservationListener());</span>
+<span class="fc" id="L72">		Mediator.getInstance().getExcludedObservationNotifier().addListener(createExcludedObservationListener());</span>
+<span class="fc" id="L73">		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(createDiscrepantObservationListener());</span>
+<span class="fc" id="L74">		Mediator.getInstance().getSeriesCreationNotifier().addListener(createSeriesCreationListener());</span>
+<span class="fc" id="L75">	}</span>
 
 	@Override
 	public boolean include(javax.swing.RowFilter.Entry&lt;? extends IOrderedObservationSource, ? extends Integer&gt; entry) {
 
-<span class="nc" id="L80">		boolean visible = false;</span>
+<span class="fc" id="L80">		boolean visible = false;</span>
 
-<span class="nc" id="L82">		int id = entry.getIdentifier();</span>
-<span class="nc" id="L83">		IOrderedObservationSource model = entry.getModel();</span>
-<span class="nc" id="L84">		ValidObservation ob = model.getObservations().get(id);</span>
+<span class="fc" id="L82">		int id = entry.getIdentifier();</span>
+<span class="fc" id="L83">		IOrderedObservationSource model = entry.getModel();</span>
+<span class="fc" id="L84">		ValidObservation ob = model.getObservations().get(id);</span>
 
 		SeriesType series;
 
-<span class="nc bnc" id="L88" title="All 2 branches missed.">		if (ob.isDiscrepant()) {</span>
-<span class="nc" id="L89">			series = SeriesType.DISCREPANT;</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">		} else if (ob.isExcluded()) {</span>
-<span class="nc" id="L91">			series = SeriesType.Excluded;</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">		} else if (ob.getMagnitude().isFainterThan()) {</span>
-<span class="nc" id="L93">			series = SeriesType.FAINTER_THAN;</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">		if (ob.isDiscrepant()) {</span>
+<span class="fc" id="L89">			series = SeriesType.DISCREPANT;</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">		} else if (ob.isExcluded()) {</span>
+<span class="fc" id="L91">			series = SeriesType.Excluded;</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">		} else if (ob.getMagnitude().isFainterThan()) {</span>
+<span class="fc" id="L93">			series = SeriesType.FAINTER_THAN;</span>
 		} else {
-<span class="nc" id="L95">			series = ob.getBand();</span>
+<span class="fc" id="L95">			series = ob.getBand();</span>
 		}
 
-<span class="nc bnc" id="L98" title="All 2 branches missed.">		if (ob.getSeries() == ob.getBand()) {</span>
-<span class="nc" id="L99">			visible = visibleSeries.contains(series);</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">		if (ob.getSeries() == ob.getBand()) {</span>
+<span class="fc" id="L99">			visible = visibleSeries.contains(series);</span>
 		} else {
 <span class="nc" id="L101">			series = ob.getSeries();</span>
 <span class="nc bnc" id="L102" title="All 2 branches missed.">			if (userDefinedObs.containsKey(series)) {</span>
@@ -104,8 +104,8 @@ public class VisibleSeriesRowFilter extends RowFilter&lt;IOrderedObservationSour
 			}
 		}
 
-<span class="nc bnc" id="L107" title="All 2 branches missed.">		if (!visible) {</span>
-<span class="nc bnc" id="L108" title="All 4 branches missed.">			if (visibleSeries.contains(SeriesType.Filtered) &amp;&amp; filteredObs != null) {</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">		if (!visible) {</span>
+<span class="pc bpc" id="L108" title="3 of 4 branches missed.">			if (visibleSeries.contains(SeriesType.Filtered) &amp;&amp; filteredObs != null) {</span>
 				// The observation is not visible because the series to which it belongs
 				// in the plot is not visible currently. It may be filtered however, so check
 				// whether the filtered series is in the set of visible series and whether the
@@ -114,13 +114,13 @@ public class VisibleSeriesRowFilter extends RowFilter&lt;IOrderedObservationSour
 			}
 		}
 
-<span class="nc" id="L117">		return visible;</span>
+<span class="fc" id="L117">		return visible;</span>
 	}
 
 	// Returns a filtered observation listener to update the set of filtered
 	// observations.
 	private Listener&lt;FilteredObservationMessage&gt; createFilteredObservationListener() {
-<span class="nc" id="L123">		return new Listener&lt;FilteredObservationMessage&gt;() {</span>
+<span class="fc" id="L123">		return new Listener&lt;FilteredObservationMessage&gt;() {</span>
 			public void update(FilteredObservationMessage info) {
 <span class="nc bnc" id="L125" title="All 2 branches missed.">				if (Mediator.getInstance().getAnalysisType() == analysisType) {</span>
 <span class="nc bnc" id="L126" title="All 2 branches missed.">					if (info == FilteredObservationMessage.NO_FILTER) {</span>
@@ -142,7 +142,7 @@ public class VisibleSeriesRowFilter extends RowFilter&lt;IOrderedObservationSour
 	// Returns a series visibility change listener to update the visible
 	// series.
 	private Listener&lt;SeriesVisibilityChangeMessage&gt; createSeriesVisibilityChangeListener() {
-<span class="nc" id="L145">		return new Listener&lt;SeriesVisibilityChangeMessage&gt;() {</span>
+<span class="fc" id="L145">		return new Listener&lt;SeriesVisibilityChangeMessage&gt;() {</span>
 			public void update(SeriesVisibilityChangeMessage info) {
 <span class="nc bnc" id="L147" title="All 2 branches missed.">				if (Mediator.getInstance().getAnalysisType() == analysisType) {</span>
 <span class="nc" id="L148">					visibleSeries = info.getVisibleSeries();</span>
@@ -159,7 +159,7 @@ public class VisibleSeriesRowFilter extends RowFilter&lt;IOrderedObservationSour
 	// Returns a series creation listener to trigger a row filtering
 	// operation.
 	protected Listener&lt;SeriesCreationMessage&gt; createSeriesCreationListener() {
-<span class="nc" id="L162">		return new Listener&lt;SeriesCreationMessage&gt;() {</span>
+<span class="fc" id="L162">		return new Listener&lt;SeriesCreationMessage&gt;() {</span>
 			@Override
 			public void update(SeriesCreationMessage info) {
 <span class="nc bnc" id="L165" title="All 2 branches missed.">				if (Mediator.getInstance().getAnalysisType() == analysisType) {</span>
@@ -178,7 +178,7 @@ public class VisibleSeriesRowFilter extends RowFilter&lt;IOrderedObservationSour
 	// Returns an excluded observation listener to trigger a row filtering
 	// operation.
 	private Listener&lt;ExcludedObservationMessage&gt; createExcludedObservationListener() {
-<span class="nc" id="L181">		return new Listener&lt;ExcludedObservationMessage&gt;() {</span>
+<span class="fc" id="L181">		return new Listener&lt;ExcludedObservationMessage&gt;() {</span>
 			@Override
 			public void update(ExcludedObservationMessage info) {
 <span class="nc bnc" id="L184" title="All 2 branches missed.">				if (Mediator.getInstance().getAnalysisType() == analysisType) {</span>
@@ -196,7 +196,7 @@ public class VisibleSeriesRowFilter extends RowFilter&lt;IOrderedObservationSour
 	// Returns a discrepant observation listener to trigger a row filtering
 	// operation.
 	private Listener&lt;DiscrepantObservationMessage&gt; createDiscrepantObservationListener() {
-<span class="nc" id="L199">		return new Listener&lt;DiscrepantObservationMessage&gt;() {</span>
+<span class="fc" id="L199">		return new Listener&lt;DiscrepantObservationMessage&gt;() {</span>
 			@Override
 			public void update(DiscrepantObservationMessage info) {
 <span class="nc bnc" id="L202" title="All 2 branches missed.">				if (Mediator.getInstance().getAnalysisType() == analysisType) {</span>

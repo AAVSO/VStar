@@ -1360,19 +1360,19 @@ public class ValidObservation extends Observation {
 	public int hashCode() {
 <span class="fc" id="L1361">		final int prime = 31;</span>
 <span class="fc" id="L1362">		int result = 1;</span>
-<span class="pc bpc" id="L1363" title="1 of 2 branches missed.">		result = prime * result + ((band == null) ? 0 : band.hashCode());</span>
+<span class="fc bfc" id="L1363" title="All 2 branches covered.">		result = prime * result + ((band == null) ? 0 : band.hashCode());</span>
 <span class="pc bpc" id="L1364" title="1 of 2 branches missed.">		result = prime * result + ((commentCode == null) ? 0 : commentCode.hashCode());</span>
-<span class="pc bpc" id="L1365" title="1 of 2 branches missed.">		result = prime * result + ((dateInfo == null) ? 0 : dateInfo.hashCode());</span>
+<span class="fc bfc" id="L1365" title="All 2 branches covered.">		result = prime * result + ((dateInfo == null) ? 0 : dateInfo.hashCode());</span>
 <span class="pc bpc" id="L1366" title="1 of 2 branches missed.">		result = prime * result + ((details == null) ? 0 : details.hashCode());</span>
-<span class="pc bpc" id="L1367" title="1 of 2 branches missed.">		result = prime * result + (excluded ? 1231 : 1237);</span>
+<span class="fc bfc" id="L1367" title="All 2 branches covered.">		result = prime * result + (excluded ? 1231 : 1237);</span>
 <span class="pc bpc" id="L1368" title="1 of 2 branches missed.">		result = prime * result + ((hJD == null) ? 0 : hJD.hashCode());</span>
 <span class="pc bpc" id="L1369" title="1 of 2 branches missed.">		result = prime * result + ((hqUncertainty == null) ? 0 : hqUncertainty.hashCode());</span>
 <span class="pc bpc" id="L1370" title="1 of 2 branches missed.">		result = prime * result + ((jdFlavour == null) ? 0 : jdFlavour.hashCode());</span>
 <span class="pc bpc" id="L1371" title="1 of 2 branches missed.">		result = prime * result + ((mType == null) ? 0 : mType.hashCode());</span>
-<span class="pc bpc" id="L1372" title="1 of 2 branches missed.">		result = prime * result + ((magnitude == null) ? 0 : magnitude.hashCode());</span>
+<span class="fc bfc" id="L1372" title="All 2 branches covered.">		result = prime * result + ((magnitude == null) ? 0 : magnitude.hashCode());</span>
 <span class="pc bpc" id="L1373" title="1 of 2 branches missed.">		result = prime * result + ((obsType == null) ? 0 : obsType.hashCode());</span>
 <span class="pc bpc" id="L1374" title="1 of 2 branches missed.">		result = prime * result + ((previousCyclePhase == null) ? 0 : previousCyclePhase.hashCode());</span>
-<span class="pc bpc" id="L1375" title="1 of 2 branches missed.">		result = prime * result + ((series == null) ? 0 : series.hashCode());</span>
+<span class="fc bfc" id="L1375" title="All 2 branches covered.">		result = prime * result + ((series == null) ? 0 : series.hashCode());</span>
 <span class="pc bpc" id="L1376" title="1 of 2 branches missed.">		result = prime * result + ((standardPhase == null) ? 0 : standardPhase.hashCode());</span>
 <span class="pc bpc" id="L1377" title="1 of 2 branches missed.">		result = prime * result + (transformed ? 1231 : 1237);</span>
 <span class="fc bfc" id="L1378" title="All 2 branches covered.">		result = prime * result + ((validationType == null) ? 0 : validationType.hashCode());</span>
@@ -1381,28 +1381,28 @@ public class ValidObservation extends Observation {
 
 	@Override
 	public boolean equals(Object obj) {
-<span class="nc bnc" id="L1384" title="All 2 branches missed.">		if (this == obj)</span>
-<span class="nc" id="L1385">			return true;</span>
-<span class="nc bnc" id="L1386" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="fc bfc" id="L1384" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L1385">			return true;</span>
+<span class="pc bpc" id="L1386" title="1 of 2 branches missed.">		if (obj == null)</span>
 <span class="nc" id="L1387">			return false;</span>
-<span class="nc bnc" id="L1388" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="pc bpc" id="L1388" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
 <span class="nc" id="L1389">			return false;</span>
-<span class="nc" id="L1390">		ValidObservation other = (ValidObservation) obj;</span>
-<span class="nc bnc" id="L1391" title="All 2 branches missed.">		if (band == null) {</span>
+<span class="fc" id="L1390">		ValidObservation other = (ValidObservation) obj;</span>
+<span class="pc bpc" id="L1391" title="1 of 2 branches missed.">		if (band == null) {</span>
 <span class="nc bnc" id="L1392" title="All 2 branches missed.">			if (other.band != null)</span>
 <span class="nc" id="L1393">				return false;</span>
-<span class="nc bnc" id="L1394" title="All 2 branches missed.">		} else if (!band.equals(other.band))</span>
+<span class="pc bpc" id="L1394" title="1 of 2 branches missed.">		} else if (!band.equals(other.band))</span>
 <span class="nc" id="L1395">			return false;</span>
-<span class="nc bnc" id="L1396" title="All 2 branches missed.">		if (commentCode == null) {</span>
-<span class="nc bnc" id="L1397" title="All 2 branches missed.">			if (other.commentCode != null)</span>
+<span class="pc bpc" id="L1396" title="1 of 2 branches missed.">		if (commentCode == null) {</span>
+<span class="pc bpc" id="L1397" title="1 of 2 branches missed.">			if (other.commentCode != null)</span>
 <span class="nc" id="L1398">				return false;</span>
 <span class="nc bnc" id="L1399" title="All 2 branches missed.">		} else if (!commentCode.equals(other.commentCode))</span>
 <span class="nc" id="L1400">			return false;</span>
-<span class="nc bnc" id="L1401" title="All 2 branches missed.">		if (dateInfo == null) {</span>
+<span class="pc bpc" id="L1401" title="1 of 2 branches missed.">		if (dateInfo == null) {</span>
 <span class="nc bnc" id="L1402" title="All 2 branches missed.">			if (other.dateInfo != null)</span>
 <span class="nc" id="L1403">				return false;</span>
-<span class="nc bnc" id="L1404" title="All 2 branches missed.">		} else if (!dateInfo.equals(other.dateInfo))</span>
-<span class="nc" id="L1405">			return false;</span>
+<span class="pc bpc" id="L1404" title="1 of 2 branches missed.">		} else if (!dateInfo.equals(other.dateInfo))</span>
+<span class="fc" id="L1405">			return false;</span>
 <span class="nc bnc" id="L1406" title="All 2 branches missed.">		if (details == null) {</span>
 <span class="nc bnc" id="L1407" title="All 2 branches missed.">			if (other.details != null)</span>
 <span class="nc" id="L1408">				return false;</span>

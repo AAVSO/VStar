@@ -158,11 +158,11 @@ import java.util.prefs.Preferences;
 	// Magnitude
 
 	public static String formatMag(double num) {
-<span class="nc" id="L161">		return getMagOutputFormat().format(num);</span>
+<span class="fc" id="L161">		return getMagOutputFormat().format(num);</span>
 	}
 
 	public static DecimalFormat getMagOutputFormat() {
-<span class="nc" id="L165">		return getOutputFormat(magDecimalPlaces, Type.MAG);</span>
+<span class="fc" id="L165">		return getOutputFormat(magDecimalPlaces, Type.MAG);</span>
 	}
 	
 	public static String formatMagLocaleIndependent(double num) {
@@ -242,10 +242,10 @@ import java.util.prefs.Preferences;
 	private static DecimalFormat getOutputFormat(int decimalPlaces, Type type) {
 <span class="fc" id="L243">		Map&lt;Integer, DecimalFormat&gt; formats = null;</span>
 
-<span class="pc bpc" id="L245" title="2 of 4 branches missed.">		switch (type) {</span>
+<span class="pc bpc" id="L245" title="1 of 4 branches missed.">		switch (type) {</span>
 		case MAG:
-<span class="nc" id="L247">			formats = magOutputFormats;</span>
-<span class="nc" id="L248">			break;</span>
+<span class="fc" id="L247">			formats = magOutputFormats;</span>
+<span class="fc" id="L248">			break;</span>
 		case TIME:
 <span class="fc" id="L250">			formats = timeOutputFormats;</span>
 <span class="fc" id="L251">			break;</span>

@@ -33,9 +33,9 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
  */
 public class ObservationInserter extends AbstractObservationRetriever {
 
-<span class="nc" id="L36">	public ObservationInserter() {</span>
-<span class="nc" id="L37">		validObservations = new ArrayList&lt;ValidObservation&gt;();</span>
-<span class="nc" id="L38">	}</span>
+<span class="fc" id="L36">	public ObservationInserter() {</span>
+<span class="fc" id="L37">		validObservations = new ArrayList&lt;ValidObservation&gt;();</span>
+<span class="fc" id="L38">	}</span>
 
 <span class="nc" id="L40">	public ObservationInserter(List&lt;ValidObservation&gt; observations) {</span>
 <span class="nc" id="L41">		validObservations = new ArrayList&lt;ValidObservation&gt;(observations);</span>
@@ -49,8 +49,8 @@ public class ObservationInserter extends AbstractObservationRetriever {
 	 * @return The complete updated list of observations.
 	 */
 	public List&lt;ValidObservation&gt; addValidObservations(List&lt;ValidObservation&gt; observations) {
-<span class="nc" id="L52">		observations.stream().forEach(ob -&gt; addValidObservation(ob));</span>
-<span class="nc" id="L53">		return getValidObservations();</span>
+<span class="fc" id="L52">		observations.stream().forEach(ob -&gt; addValidObservation(ob));</span>
+<span class="fc" id="L53">		return getValidObservations();</span>
 	}
 
 	@Override

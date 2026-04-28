@@ -57,47 +57,47 @@ public class DateToJdDialog extends AbstractOkCancelDialog {
 	 * Constructor
 	 */
 	public DateToJdDialog(String title) {
-<span class="nc" id="L60">		super(title);</span>
+<span class="fc" id="L60">		super(title);</span>
 		
-<span class="nc" id="L62">		Container contentPane = this.getContentPane();</span>
+<span class="fc" id="L62">		Container contentPane = this.getContentPane();</span>
 
-<span class="nc" id="L64">		JPanel topPane = new JPanel();</span>
-<span class="nc" id="L65">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
-<span class="nc" id="L66">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
-<span class="nc" id="L67">		topPane.add(createDatePane());</span>
-<span class="nc" id="L68">		topPane.add(createButtonPaneX());</span>
-<span class="nc" id="L69">		topPane.add(createButtonPane());</span>
+<span class="fc" id="L64">		JPanel topPane = new JPanel();</span>
+<span class="fc" id="L65">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="fc" id="L66">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+<span class="fc" id="L67">		topPane.add(createDatePane());</span>
+<span class="fc" id="L68">		topPane.add(createButtonPaneX());</span>
+<span class="fc" id="L69">		topPane.add(createButtonPane());</span>
 		
-<span class="nc" id="L71">		contentPane.add(topPane);</span>
+<span class="fc" id="L71">		contentPane.add(topPane);</span>
 		
-<span class="nc" id="L73">		setCurrentTime();			</span>
+<span class="fc" id="L73">		setCurrentTime();			</span>
 	    
-<span class="nc" id="L75">		this.pack();</span>
-<span class="nc" id="L76">	}</span>
+<span class="fc" id="L75">		this.pack();</span>
+<span class="fc" id="L76">	}</span>
 	
 	private JPanel createDatePane() {
-<span class="nc" id="L79">		JPanel panel = new JPanel(new FlowLayout());</span>
+<span class="fc" id="L79">		JPanel panel = new JPanel(new FlowLayout());</span>
 
-<span class="nc" id="L81">		yearField = new IntegerField(&quot;Year&quot;, MIN_YEAR, MAX_YEAR, 0);</span>
-<span class="nc" id="L82">		panel.add(setNumberFieldColumns(yearField, 5));</span>
+<span class="fc" id="L81">		yearField = new IntegerField(&quot;Year&quot;, MIN_YEAR, MAX_YEAR, 0);</span>
+<span class="fc" id="L82">		panel.add(setNumberFieldColumns(yearField, 5));</span>
 		
-<span class="nc" id="L84">		monthField = new IntegerField(&quot;Mon&quot;, 1, 12, 0);</span>
-<span class="nc" id="L85">		panel.add(setNumberFieldColumns(monthField, 4));</span>
+<span class="fc" id="L84">		monthField = new IntegerField(&quot;Mon&quot;, 1, 12, 0);</span>
+<span class="fc" id="L85">		panel.add(setNumberFieldColumns(monthField, 4));</span>
 		
-<span class="nc" id="L87">		dayField = new IntegerField(&quot;Day&quot;, 1, 31, 0);</span>
-<span class="nc" id="L88">		panel.add(setNumberFieldColumns(dayField, 4));</span>
+<span class="fc" id="L87">		dayField = new IntegerField(&quot;Day&quot;, 1, 31, 0);</span>
+<span class="fc" id="L88">		panel.add(setNumberFieldColumns(dayField, 4));</span>
 		
-<span class="nc" id="L90">		panel.add(new JLabel(&quot;  &quot;));</span>
+<span class="fc" id="L90">		panel.add(new JLabel(&quot;  &quot;));</span>
 		
-<span class="nc" id="L92">		hourField = new IntegerField(&quot;Hr&quot;, 0, 23, 0);</span>
-<span class="nc" id="L93">		panel.add(setNumberFieldColumns(hourField, 4));</span>
+<span class="fc" id="L92">		hourField = new IntegerField(&quot;Hr&quot;, 0, 23, 0);</span>
+<span class="fc" id="L93">		panel.add(setNumberFieldColumns(hourField, 4));</span>
 		
-<span class="nc" id="L95">		minField = new IntegerField(&quot;Min&quot;, 0, 59, 0);</span>
-<span class="nc" id="L96">		panel.add(setNumberFieldColumns(minField, 4));</span>
+<span class="fc" id="L95">		minField = new IntegerField(&quot;Min&quot;, 0, 59, 0);</span>
+<span class="fc" id="L96">		panel.add(setNumberFieldColumns(minField, 4));</span>
 		
-<span class="nc" id="L98">		secField = new DoubleFieldSeconds(&quot;Sec&quot;, 0.0, 59.99, 0.00);</span>
-<span class="nc" id="L99">		panel.add(setNumberFieldColumns(secField, 5));</span>
-<span class="nc" id="L100">		return panel;</span>
+<span class="fc" id="L98">		secField = new DoubleFieldSeconds(&quot;Sec&quot;, 0.0, 59.99, 0.00);</span>
+<span class="fc" id="L99">		panel.add(setNumberFieldColumns(secField, 5));</span>
+<span class="fc" id="L100">		return panel;</span>
 	}
 
 	protected void cancelAction() {
@@ -114,18 +114,18 @@ public class DateToJdDialog extends AbstractOkCancelDialog {
 <span class="nc" id="L114">	}</span>
 	
 	private JPanel createButtonPaneX() {
-<span class="nc" id="L117">		JPanel panel = new JPanel(new BorderLayout());</span>
+<span class="fc" id="L117">		JPanel panel = new JPanel(new BorderLayout());</span>
 		
-<span class="nc" id="L119">		JButton timeNowButton = new JButton(&quot;Current Time (UT)&quot;);			</span>
-<span class="nc" id="L120">		timeNowButton.addActionListener(createTimeNowButtonListener());</span>
-<span class="nc" id="L121">		panel.add(timeNowButton, BorderLayout.LINE_END);</span>
+<span class="fc" id="L119">		JButton timeNowButton = new JButton(&quot;Current Time (UT)&quot;);			</span>
+<span class="fc" id="L120">		timeNowButton.addActionListener(createTimeNowButtonListener());</span>
+<span class="fc" id="L121">		panel.add(timeNowButton, BorderLayout.LINE_END);</span>
 		
-<span class="nc" id="L123">		return panel;</span>
+<span class="fc" id="L123">		return panel;</span>
 	}
 	
 	// Return a listener for the &quot;Now&quot; button.
 	private ActionListener createTimeNowButtonListener() {
-<span class="nc" id="L128">		return new ActionListener() {</span>
+<span class="fc" id="L128">		return new ActionListener() {</span>
 			public void actionPerformed(ActionEvent e) {
 <span class="nc" id="L130">				setCurrentTime();</span>
 <span class="nc" id="L131">			}</span>
@@ -133,52 +133,52 @@ public class DateToJdDialog extends AbstractOkCancelDialog {
 	}
 	
 	private JTextField setNumberFieldColumns(NumberFieldBase&lt;?&gt; field, int columns) {
-<span class="nc" id="L136">		JTextField textField = (JTextField)(field.getUIComponent());</span>
-<span class="nc" id="L137">		textField.setColumns(columns);</span>
-<span class="nc" id="L138">		return textField;</span>
+<span class="fc" id="L136">		JTextField textField = (JTextField)(field.getUIComponent());</span>
+<span class="fc" id="L137">		textField.setColumns(columns);</span>
+<span class="fc" id="L138">		return textField;</span>
 	}
 
 	public void setJD(double jd) {
-<span class="nc" id="L142">		setDateFromJd(jd);</span>
-<span class="nc" id="L143">	}</span>
+<span class="fc" id="L142">		setDateFromJd(jd);</span>
+<span class="fc" id="L143">	}</span>
 	
 	public Double getJD() {
-<span class="nc" id="L146">		return getJdFromDate();</span>
+<span class="fc" id="L146">		return getJdFromDate();</span>
 	}
 	
 	// Set form fields to values corresponding to the current time
 	private void setCurrentTime() {
-<span class="nc" id="L151">		double jd = julianDayNow();</span>
-<span class="nc" id="L152">		setDateFromJd(jd);			</span>
-<span class="nc" id="L153">	}</span>
+<span class="fc" id="L151">		double jd = julianDayNow();</span>
+<span class="fc" id="L152">		setDateFromJd(jd);			</span>
+<span class="fc" id="L153">	}</span>
 
 	private void setDateFromJd(Double jd) {
-<span class="nc" id="L156">		yearField.setValue(null);</span>
-<span class="nc" id="L157">		monthField.setValue(null);</span>
-<span class="nc" id="L158">		dayField.setValue(null);</span>
-<span class="nc" id="L159">		hourField.setValue(null);</span>
-<span class="nc" id="L160">		minField.setValue(null);</span>
-<span class="nc" id="L161">		secField.setValue(null);</span>
+<span class="fc" id="L156">		yearField.setValue(null);</span>
+<span class="fc" id="L157">		monthField.setValue(null);</span>
+<span class="fc" id="L158">		dayField.setValue(null);</span>
+<span class="fc" id="L159">		hourField.setValue(null);</span>
+<span class="fc" id="L160">		minField.setValue(null);</span>
+<span class="fc" id="L161">		secField.setValue(null);</span>
 		
-<span class="nc bnc" id="L163" title="All 2 branches missed.">		if (jd == null) return; </span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">		if (jd == null) return; </span>
 		
-<span class="nc" id="L165">		YMD ymd = AbstractDateUtil.getInstance().jdToYMD(jd);</span>
+<span class="fc" id="L165">		YMD ymd = AbstractDateUtil.getInstance().jdToYMD(jd);</span>
 
-<span class="nc" id="L167">		int year = ymd.getYear();</span>
-<span class="nc" id="L168">		int month = ymd.getMonth();</span>
-<span class="nc" id="L169">		double day = ymd.getDay();</span>
-<span class="nc" id="L170">		int iday = (int)day;</span>
+<span class="fc" id="L167">		int year = ymd.getYear();</span>
+<span class="fc" id="L168">		int month = ymd.getMonth();</span>
+<span class="fc" id="L169">		double day = ymd.getDay();</span>
+<span class="fc" id="L170">		int iday = (int)day;</span>
 		
-<span class="nc" id="L172">		int hour = (int)((day - iday) * 24.0);</span>
-<span class="nc" id="L173">		int min = (int)((day - iday - hour / 24.0) * 24.0 * 60.0);</span>
-<span class="nc" id="L174">		double sec = ((day - iday - hour / 24.0 - min / 24.0 / 60.0) * 24.0 * 60.0 * 60.0);</span>
+<span class="fc" id="L172">		int hour = (int)((day - iday) * 24.0);</span>
+<span class="fc" id="L173">		int min = (int)((day - iday - hour / 24.0) * 24.0 * 60.0);</span>
+<span class="fc" id="L174">		double sec = ((day - iday - hour / 24.0 - min / 24.0 / 60.0) * 24.0 * 60.0 * 60.0);</span>
 
 		// round seconds to 0.01, like in the input field.
-<span class="nc" id="L177">		double rsec = Math.round(sec * 100.0) / 100.0;</span>
+<span class="fc" id="L177">		double rsec = Math.round(sec * 100.0) / 100.0;</span>
 		
 		// After rounding, rsec can be up to 60.00.
 		// This is a fix for the case when rounded seconds = 60: 
-<span class="nc bnc" id="L181" title="All 2 branches missed.">		if (rsec &gt; 59.99) {</span>
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">		if (rsec &gt; 59.99) {</span>
 			// Create LocalDateTime object using integer number of seconds. 
 <span class="nc" id="L183">			LocalDateTime aTime = LocalDateTime.of(year, month, iday, hour, min, 59);</span>
 			// Add 1 second.
@@ -192,83 +192,83 @@ public class DateToJdDialog extends AbstractOkCancelDialog {
 <span class="nc" id="L192">			rsec = aTime.getSecond(); // should be 0 </span>
 		}
 		
-<span class="nc" id="L195">		yearField.setValue(year);</span>
-<span class="nc" id="L196">		monthField.setValue(month);</span>
-<span class="nc" id="L197">		dayField.setValue(iday);</span>
-<span class="nc" id="L198">		hourField.setValue(hour);</span>
-<span class="nc" id="L199">		minField.setValue(min);</span>
-<span class="nc" id="L200">		secField.setValue(rsec);</span>
-<span class="nc" id="L201">	}</span>
+<span class="fc" id="L195">		yearField.setValue(year);</span>
+<span class="fc" id="L196">		monthField.setValue(month);</span>
+<span class="fc" id="L197">		dayField.setValue(iday);</span>
+<span class="fc" id="L198">		hourField.setValue(hour);</span>
+<span class="fc" id="L199">		minField.setValue(min);</span>
+<span class="fc" id="L200">		secField.setValue(rsec);</span>
+<span class="fc" id="L201">	}</span>
 	
 	private Double getJdFromDate() {
 		
-<span class="nc" id="L205">		Integer year =	getAndCheck(yearField);</span>
-<span class="nc bnc" id="L206" title="All 2 branches missed.">		if (year == null) return null;</span>
+<span class="fc" id="L205">		Integer year =	getAndCheck(yearField);</span>
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">		if (year == null) return null;</span>
 		
-<span class="nc" id="L208">		Integer month = getAndCheck(monthField);</span>
-<span class="nc bnc" id="L209" title="All 2 branches missed.">		if (month == null) return null;</span>
+<span class="fc" id="L208">		Integer month = getAndCheck(monthField);</span>
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">		if (month == null) return null;</span>
 		
-<span class="nc" id="L211">		Integer day = getAndCheck(dayField);</span>
-<span class="nc" id="L212">		YearMonth yearMonthObject = YearMonth.of(year, month);</span>
-<span class="nc" id="L213">		int daysInMonth = yearMonthObject.lengthOfMonth();</span>
-<span class="nc bnc" id="L214" title="All 2 branches missed.">		if (day &gt; daysInMonth) {</span>
+<span class="fc" id="L211">		Integer day = getAndCheck(dayField);</span>
+<span class="fc" id="L212">		YearMonth yearMonthObject = YearMonth.of(year, month);</span>
+<span class="fc" id="L213">		int daysInMonth = yearMonthObject.lengthOfMonth();</span>
+<span class="pc bpc" id="L214" title="1 of 2 branches missed.">		if (day &gt; daysInMonth) {</span>
 <span class="nc" id="L215">			MessageBox.showErrorDialog(this, &quot;Error&quot;, dayField.getName() + &quot;: Invalid number of days in the month!&quot;);</span>
 <span class="nc" id="L216">			(dayField.getUIComponent()).requestFocus();</span>
 <span class="nc" id="L217">			((JTextField)(dayField.getUIComponent())).selectAll();</span>
 <span class="nc" id="L218">			day = null;</span>
 		}
-<span class="nc bnc" id="L220" title="All 2 branches missed.">		if (day == null) return null;</span>
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">		if (day == null) return null;</span>
 		
-<span class="nc" id="L222">		Integer hour = getAndCheck(hourField);</span>
-<span class="nc bnc" id="L223" title="All 2 branches missed.">		if (hour == null) return null;</span>
+<span class="fc" id="L222">		Integer hour = getAndCheck(hourField);</span>
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">		if (hour == null) return null;</span>
 
-<span class="nc" id="L225">		Integer min = getAndCheck(minField);</span>
-<span class="nc bnc" id="L226" title="All 2 branches missed.">		if (min == null) return null;</span>
+<span class="fc" id="L225">		Integer min = getAndCheck(minField);</span>
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">		if (min == null) return null;</span>
 
-<span class="nc" id="L228">		Double sec = getAndCheck(secField);</span>
-<span class="nc bnc" id="L229" title="All 2 branches missed.">		if (sec == null) return null;</span>
+<span class="fc" id="L228">		Double sec = getAndCheck(secField);</span>
+<span class="pc bpc" id="L229" title="1 of 2 branches missed.">		if (sec == null) return null;</span>
 
-<span class="nc" id="L231">		double dday = day + hour / 24.0 + min / 24.0 / 60.0 + sec / 24.0 / 60.0 / 60.0;   </span>
-<span class="nc" id="L232">		double jd = AbstractDateUtil.getInstance().calendarToJD(year, month, dday);</span>
+<span class="fc" id="L231">		double dday = day + hour / 24.0 + min / 24.0 / 60.0 + sec / 24.0 / 60.0 / 60.0;   </span>
+<span class="fc" id="L232">		double jd = AbstractDateUtil.getInstance().calendarToJD(year, month, dday);</span>
 		
-<span class="nc" id="L234">		return jd;</span>
+<span class="fc" id="L234">		return jd;</span>
 	}
 	
 	// Get value of IntegerField, show message in case of error and set focus to the field
 	private Integer getAndCheck(IntegerField input) {
 		Integer i;
 		try {
-<span class="nc" id="L241">			i = input.getValue();</span>
+<span class="fc" id="L241">			i = input.getValue();</span>
 <span class="nc" id="L242">		} catch (Exception e) {</span>
 			// We should never be here as soon as getValue catches parseInteger() exceptions.  
 <span class="nc" id="L244">			i = null;</span>
-<span class="nc" id="L245">		}</span>
-<span class="nc bnc" id="L246" title="All 2 branches missed.">		if (i == null) {</span>
+<span class="fc" id="L245">		}</span>
+<span class="pc bpc" id="L246" title="1 of 2 branches missed.">		if (i == null) {</span>
 <span class="nc" id="L247">			MessageBox.showErrorDialog(this, &quot;Error&quot;, input.getName() + &quot;: Invalid value!\n&quot; +</span>
 					&quot;Value must be integer.\n&quot; +
 <span class="nc" id="L249">					numberFieldInfo(input));				</span>
 <span class="nc" id="L250">			(input.getUIComponent()).requestFocus();</span>
 <span class="nc" id="L251">			((JTextField)(input.getUIComponent())).selectAll();</span>
 		}
-<span class="nc" id="L253">		return i;</span>
+<span class="fc" id="L253">		return i;</span>
 	}
 
 	// Get value of DoubleField, show message in case of error and set focus to the field
 	private Double getAndCheck(DoubleField input) {
 		Double d;
 		try {
-<span class="nc" id="L260">			d = input.getValue();</span>
+<span class="fc" id="L260">			d = input.getValue();</span>
 <span class="nc" id="L261">		} catch (Exception e) {</span>
 			// We should never be here as soon as getValue catches catches all possible exceptions.  
 <span class="nc" id="L263">			d = null;</span>
-<span class="nc" id="L264">		}</span>
-<span class="nc bnc" id="L265" title="All 2 branches missed.">		if (d == null) {</span>
+<span class="fc" id="L264">		}</span>
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">		if (d == null) {</span>
 <span class="nc" id="L266">			MessageBox.showErrorDialog(this, &quot;Error&quot;, input.getName() + &quot;: Invalid value!\n&quot; +</span>
 <span class="nc" id="L267">					numberFieldInfo(input));				</span>
 <span class="nc" id="L268">			(input.getUIComponent()).requestFocus();</span>
 <span class="nc" id="L269">			((JTextField)(input.getUIComponent())).selectAll();</span>
 		}
-<span class="nc" id="L271">		return d;</span>
+<span class="fc" id="L271">		return d;</span>
 	}
 	
 	private String numberFieldInfo(NumberFieldBase&lt;?&gt; field) {
@@ -285,7 +285,7 @@ public class DateToJdDialog extends AbstractOkCancelDialog {
 	// Current Julian Day value
     private static double julianDayNow()
     {
-<span class="nc" id="L288">        return Instant.now().getEpochSecond() / (24.0 * 60.0 * 60.0) + JAVA_EPOCH_JD;</span>
+<span class="fc" id="L288">        return Instant.now().getEpochSecond() / (24.0 * 60.0 * 60.0) + JAVA_EPOCH_JD;</span>
     }
 
 	/*
@@ -293,17 +293,17 @@ public class DateToJdDialog extends AbstractOkCancelDialog {
 	 */
 	private class DoubleFieldSeconds extends DoubleField {
 	
-<span class="nc" id="L296">		private DecimalFormat format = new DecimalFormat(&quot;#.##&quot;);</span>
+<span class="fc" id="L296">		private DecimalFormat format = new DecimalFormat(&quot;#.##&quot;);</span>
 		
-<span class="nc" id="L298">		public DoubleFieldSeconds(String name, Double min, Double max, Double initial) {</span>
-<span class="nc" id="L299">			super(name, min, max, initial);</span>
-<span class="nc" id="L300">			setValue(initial); // special formatting</span>
-<span class="nc" id="L301">		}</span>
+<span class="fc" id="L298">		public DoubleFieldSeconds(String name, Double min, Double max, Double initial) {</span>
+<span class="fc" id="L299">			super(name, min, max, initial);</span>
+<span class="fc" id="L300">			setValue(initial); // special formatting</span>
+<span class="fc" id="L301">		}</span>
 	
 		@Override
 		public void setValue(Double value) {
-<span class="nc bnc" id="L305" title="All 2 branches missed.">			textField.setText(value == null ? &quot;&quot; : format.format(value));</span>
-<span class="nc" id="L306">		}</span>
+<span class="fc bfc" id="L305" title="All 2 branches covered.">			textField.setText(value == null ? &quot;&quot; : format.format(value));</span>
+<span class="fc" id="L306">		}</span>
 		
 	}
 	

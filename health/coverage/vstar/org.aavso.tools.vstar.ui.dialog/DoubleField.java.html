@@ -43,9 +43,9 @@ public class DoubleField extends NumberFieldBase&lt;Double&gt; {
 	 *            The initial value.
 	 */
 	public DoubleField(String name, Double min, Double max, Double initial) {
-<span class="nc" id="L46">		super(NumericPrecisionPrefs.getOtherOutputFormat(), name, min, max,</span>
+<span class="fc" id="L46">		super(NumericPrecisionPrefs.getOtherOutputFormat(), name, min, max,</span>
 				initial);
-<span class="nc" id="L48">	}</span>
+<span class="fc" id="L48">	}</span>
 
 	/**
 	 * Get the double value from the text field, if possible, otherwise return
@@ -54,37 +54,37 @@ public class DoubleField extends NumberFieldBase&lt;Double&gt; {
 	 * @return The double value or null.
 	 */
 	public Double getValue() {
-<span class="nc" id="L57">		Double value = null;</span>
+<span class="fc" id="L57">		Double value = null;</span>
 
 		try {
-<span class="nc" id="L60">			value = NumberParser.parseDouble(textField.getText());</span>
+<span class="fc" id="L60">			value = NumberParser.parseDouble(textField.getText());</span>
 
 			// In the previous realization, null is assigned to the value if value &lt; min.
 			// Then in the next 'if' the null value is compared with max, this leads to Null Pointer Exception.
 			
-<span class="nc bnc" id="L65" title="All 4 branches missed.">			if (min != null &amp;&amp; value &lt; min) {</span>
-<span class="nc" id="L66">				return null;</span>
+<span class="fc bfc" id="L65" title="All 4 branches covered.">			if (min != null &amp;&amp; value &lt; min) {</span>
+<span class="fc" id="L66">				return null;</span>
 			}
 
-<span class="nc bnc" id="L69" title="All 4 branches missed.">			if (max != null &amp;&amp; value &gt; max) {</span>
-<span class="nc" id="L70">				return null;</span>
+<span class="fc bfc" id="L69" title="All 4 branches covered.">			if (max != null &amp;&amp; value &gt; max) {</span>
+<span class="fc" id="L70">				return null;</span>
 			}
 <span class="nc" id="L72">		} catch (NumberFormatException e) {</span>
 			// Nothing to do; return null.
-<span class="nc" id="L74">		} catch (VeLaParseError e) { // #PMAK#</span>
+<span class="fc" id="L74">		} catch (VeLaParseError e) { // #PMAK#</span>
 			// Nothing to do; return null.
-<span class="nc" id="L76">		} catch (VeLaEvalError e) { // #PMAK#</span>
+<span class="fc" id="L76">		} catch (VeLaEvalError e) { // #PMAK#</span>
 			// Nothing to do; return null.
-<span class="nc" id="L78">		}</span>
+<span class="pc" id="L78">		}</span>
 		
-<span class="nc" id="L80">		return value;</span>
+<span class="fc" id="L80">		return value;</span>
 	}
 
 	@Override
 	public void setValue(Double value) {
 		//textField.setText(value.toString());
 		//locale-specific version (PMAK): identical to setting _initial_ value (see constructor).
-<span class="nc bnc" id="L87" title="All 2 branches missed.">		textField.setText(value == null ? &quot;&quot; : NumericPrecisionPrefs.getOtherOutputFormat().format(value));</span>
-<span class="nc" id="L88">	}</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">		textField.setText(value == null ? &quot;&quot; : NumericPrecisionPrefs.getOtherOutputFormat().format(value));</span>
+<span class="fc" id="L88">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
