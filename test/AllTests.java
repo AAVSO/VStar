@@ -60,7 +60,10 @@ import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialogTest;
 import org.aavso.tools.vstar.ui.dialog.DateToJdDialogTest;
 import org.aavso.tools.vstar.ui.dialog.DoubleFieldTest;
 import org.aavso.tools.vstar.ui.dialog.TextDialogTest;
+import org.aavso.tools.vstar.ui.model.list.AbstractSyntheticObservationTableModelTest;
+import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModelTest;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModelTest;
+import org.aavso.tools.vstar.ui.model.list.WWZDataTableModelTest;
 import org.aavso.tools.vstar.ui.pane.list.VisibleSeriesRowFilterTest;
 import org.aavso.tools.vstar.vela.VeLaTest;
 
@@ -125,6 +128,9 @@ public class AllTests {
 
 		// GUI-coverage tests (issue #579, prong C).
 		suite.addTestSuite(ValidObservationTableModelTest.class);
+		suite.addTestSuite(PeriodAnalysisDataTableModelTest.class);
+		suite.addTestSuite(WWZDataTableModelTest.class);
+		suite.addTestSuite(AbstractSyntheticObservationTableModelTest.class);
 		suite.addTestSuite(VisibleSeriesRowFilterTest.class);
 		suite.addTestSuite(DateToJdDialogTest.class);
 		suite.addTestSuite(TextDialogTest.class);
