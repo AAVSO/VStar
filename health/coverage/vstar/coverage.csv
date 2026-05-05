@@ -125,7 +125,8 @@ VStar,org.aavso.tools.vstar.ui,NamedComponent,33,0,0,0,13,0,5,0,5,0
 VStar,org.aavso.tools.vstar.ui,ToolBar,994,0,42,0,233,0,29,0,8,0
 VStar,org.aavso.tools.vstar.ui,NumberSelectionPane,64,75,4,4,7,14,4,2,0,2
 VStar,org.aavso.tools.vstar.ui.vela,VeLaDialog.new KeyAdapter() {...},60,0,11,0,25,0,10,0,2,0
-VStar,org.aavso.tools.vstar.ui.vela,VeLaDialog,529,0,32,0,126,0,36,0,20,0
+VStar,org.aavso.tools.vstar.ui.vela,VeLaDialog.new DocumentListener() {...},24,0,0,0,9,0,5,0,5,0
+VStar,org.aavso.tools.vstar.ui.vela,VeLaDialog,585,0,38,0,143,0,42,0,23,0
 VStar,org.aavso.tools.vstar.util.stats.epoch,AlphaOmegaMeanJDEpochStrategy,2,20,0,0,1,2,1,2,1,2
 VStar,org.aavso.tools.vstar.util.stats.epoch,MinMagEpochStrategy,6,37,1,5,1,10,2,5,1,3
 VStar,org.aavso.tools.vstar.util.stats.epoch,MaxMagEpochStrategy,6,37,1,5,1,10,2,5,1,3
