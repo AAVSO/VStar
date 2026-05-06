@@ -225,15 +225,17 @@ def emit_github_output(
     the original combined number for continuity if anyone wants it.
     """
     pairs = [
+        # Non-GUI headline: integer precision keeps badge text stable.
         ("line_cov", non_gui.line.percent_int()),
         ("branch_cov", non_gui.branch.percent_int()),
         ("method_cov", non_gui.method.percent_int()),
-        ("gui_line_cov", gui.line.percent_int()),
-        ("gui_branch_cov", gui.branch.percent_int()),
-        ("gui_method_cov", gui.method.percent_int()),
-        ("all_line_cov", total.line.percent_int()),
-        ("all_branch_cov", total.branch.percent_int()),
-        ("all_method_cov", total.method.percent_int()),
+        # GUI and combined: one-decimal so small test additions are visible.
+        ("gui_line_cov", gui.line.percent()),
+        ("gui_branch_cov", gui.branch.percent()),
+        ("gui_method_cov", gui.method.percent()),
+        ("all_line_cov", total.line.percent()),
+        ("all_branch_cov", total.branch.percent()),
+        ("all_method_cov", total.method.percent()),
         ("non_gui_lines_total", str(non_gui.line.total)),
         ("gui_lines_total", str(gui.line.total)),
         ("all_lines_total", str(total.line.total)),
