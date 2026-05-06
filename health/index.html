@@ -453,7 +453,7 @@ function statusClass(val, thresholds) {
 
 function pctNum(s) {
   if (!s || s === '—') return null;
-  return parseInt(s.replace('%', ''), 10);
+  return parseFloat(s.replace('%', ''));
 }
 
 function row(label, value, cls) {
