@@ -46,17 +46,17 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	 */
 	public PeriodAnalysisDataTableModel(
 			PeriodAnalysisCoordinateType[] columnTypes,
-<span class="nc" id="L49">			Map&lt;PeriodAnalysisCoordinateType, List&lt;Double&gt;&gt; data) {</span>
-<span class="nc" id="L50">		this.columnTypes = columnTypes;</span>
-<span class="nc" id="L51">		this.data = data;</span>
-<span class="nc" id="L52">	}</span>
+<span class="fc" id="L49">			Map&lt;PeriodAnalysisCoordinateType, List&lt;Double&gt;&gt; data) {</span>
+<span class="fc" id="L50">		this.columnTypes = columnTypes;</span>
+<span class="fc" id="L51">		this.data = data;</span>
+<span class="fc" id="L52">	}</span>
 
 	/**
 	 * @return a mapping from period analysis coordinate type to a list of
 	 *         values of that type.
 	 */
 	public Map&lt;PeriodAnalysisCoordinateType, List&lt;Double&gt;&gt; getData() {
-<span class="nc" id="L59">		return data;</span>
+<span class="fc" id="L59">		return data;</span>
 	}
 
 	/**
@@ -68,16 +68,16 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	 *            values of that type.
 	 */
 	public void setData(Map&lt;PeriodAnalysisCoordinateType, List&lt;Double&gt;&gt; data) {
-<span class="nc" id="L71">		this.data = data;</span>
-<span class="nc" id="L72">		fireTableDataChanged();</span>
-<span class="nc" id="L73">	}</span>
+<span class="fc" id="L71">		this.data = data;</span>
+<span class="fc" id="L72">		fireTableDataChanged();</span>
+<span class="fc" id="L73">	}</span>
 
 	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
 		// column: coordinate type (freq, period, power, ampl[, selected])
-<span class="nc" id="L80">		return data.keySet().size();</span>
+<span class="fc" id="L80">		return data.keySet().size();</span>
 	}
 
 	/**
@@ -86,21 +86,21 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	public int getRowCount() {
 		// Arbitrarily choose one coordinate and ask how many data-points
 		// it has (same for all coordinates).
-<span class="nc" id="L89">		return data.get(columnTypes[0]).size();</span>
+<span class="fc" id="L89">		return data.get(columnTypes[0]).size();</span>
 	}
 
 	/**
 	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
-<span class="nc" id="L96">		return columnTypes[column].getDescription();</span>
+<span class="fc" id="L96">		return columnTypes[column].getDescription();</span>
 	}
 
 	/**
 	 * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
 	 */
 	public Class&lt;?&gt; getColumnClass(int columnIndex) {
-<span class="nc" id="L103">		return String.class;</span>
+<span class="fc" id="L103">		return String.class;</span>
 	}
 
 	/**
@@ -109,10 +109,10 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		// column: coordinate type (freq, period, power, ampl[, selected])
 		// row: value within the chosen coordinate's list
-<span class="nc" id="L112">		PeriodAnalysisCoordinateType columnType = columnTypes[columnIndex];</span>
-<span class="nc" id="L113">		double val = data.get(columnType).get(rowIndex);</span>
+<span class="fc" id="L112">		PeriodAnalysisCoordinateType columnType = columnTypes[columnIndex];</span>
+<span class="fc" id="L113">		double val = data.get(columnType).get(rowIndex);</span>
 
-<span class="nc" id="L115">		return NumericPrecisionPrefs.formatOther(val);</span>
+<span class="fc" id="L115">		return NumericPrecisionPrefs.formatOther(val);</span>
 	}
 
 	/**
@@ -123,15 +123,15 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	 * @return The period value.
 	 */
 	public Object getPeriodValueInRow(int rowIndex) {
-<span class="nc" id="L126">		Object period = null;</span>
+<span class="fc" id="L126">		Object period = null;</span>
 
-<span class="nc bnc" id="L128" title="All 2 branches missed.">		for (int i = 0; i &lt; columnTypes.length; i++) {</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">			if (columnTypes[i] == PeriodAnalysisCoordinateType.PERIOD) {</span>
-<span class="nc" id="L130">				period = getValueAt(rowIndex, i);</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">		for (int i = 0; i &lt; columnTypes.length; i++) {</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">			if (columnTypes[i] == PeriodAnalysisCoordinateType.PERIOD) {</span>
+<span class="fc" id="L130">				period = getValueAt(rowIndex, i);</span>
 			}
 		}
 
-<span class="nc" id="L134">		return period;</span>
+<span class="fc" id="L134">		return period;</span>
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	 * @return The frequency value.
 	 */
 	public Double getFrequencyValueInRow(int rowIndex) {
-<span class="nc" id="L145">		return data.get(PeriodAnalysisCoordinateType.FREQUENCY).get(rowIndex);</span>
+<span class="fc" id="L145">		return data.get(PeriodAnalysisCoordinateType.FREQUENCY).get(rowIndex);</span>
 	}
 
 	/**
@@ -156,12 +156,12 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 
 		// TODO: why not just use a map rather than PeriodAnalysisDataPoint?
 		
-<span class="nc" id="L159">		double[] values = new double[columnTypes.length];</span>
-<span class="nc bnc" id="L160" title="All 2 branches missed.">		for (int i=0;i&lt;columnTypes.length;i++) {</span>
-<span class="nc" id="L161">			values[i] = data.get(columnTypes[i]).get(rowIndex);</span>
+<span class="fc" id="L159">		double[] values = new double[columnTypes.length];</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">		for (int i=0;i&lt;columnTypes.length;i++) {</span>
+<span class="fc" id="L161">			values[i] = data.get(columnTypes[i]).get(rowIndex);</span>
 		}
 				
-<span class="nc" id="L164">		return new PeriodAnalysisDataPoint(columnTypes, values);</span>
+<span class="fc" id="L164">		return new PeriodAnalysisDataPoint(columnTypes, values);</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

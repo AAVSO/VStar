@@ -28,7 +28,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * 
  * The model is notified of wholesale mean data change.
  */
-<span class="nc" id="L31">@SuppressWarnings(&quot;serial&quot;)</span>
+<span class="fc" id="L31">@SuppressWarnings(&quot;serial&quot;)</span>
 public class PhasePlotMeanObservationTableModel extends
 		AbstractMeanObservationTableModel {
 
@@ -46,65 +46,65 @@ public class PhasePlotMeanObservationTableModel extends
 	 *            updated later via this class's listener interface.
 	 */
 	public PhasePlotMeanObservationTableModel(List&lt;ValidObservation&gt; meanObsData) {
-<span class="nc" id="L49">		super(meanObsData);</span>
-<span class="nc" id="L50">	}</span>
+<span class="fc" id="L49">		super(meanObsData);</span>
+<span class="fc" id="L50">	}</span>
 
 	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
-<span class="nc" id="L56">		return COLUMN_COUNT;</span>
+<span class="fc" id="L56">		return COLUMN_COUNT;</span>
 	}
 
 	/**
 	 * @see javax.swing.table.TableModel#getRowCount()
 	 */
 	public int getRowCount() {
-<span class="nc" id="L63">		return obs.size();</span>
+<span class="fc" id="L63">		return obs.size();</span>
 	}
 
 	/**
 	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
-<span class="nc bnc" id="L70" title="All 2 branches missed.">		assert column &lt; COLUMN_COUNT;</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">		assert column &lt; COLUMN_COUNT;</span>
 
-<span class="nc" id="L72">		String columnName = null;</span>
+<span class="fc" id="L72">		String columnName = null;</span>
 
-<span class="nc bnc" id="L74" title="All 4 branches missed.">		switch (column) {</span>
+<span class="pc bpc" id="L74" title="1 of 4 branches missed.">		switch (column) {</span>
 		case PHASE_COLUMN:
-<span class="nc" id="L76">			columnName = &quot;Phase&quot;;</span>
-<span class="nc" id="L77">			break;</span>
+<span class="fc" id="L76">			columnName = &quot;Phase&quot;;</span>
+<span class="fc" id="L77">			break;</span>
 		case MEAN_COLUMN:
-<span class="nc" id="L79">			columnName = &quot;Mean Magnitude&quot;;</span>
-<span class="nc" id="L80">			break;</span>
+<span class="fc" id="L79">			columnName = &quot;Mean Magnitude&quot;;</span>
+<span class="fc" id="L80">			break;</span>
 		case STDERR_COLUMN:
-<span class="nc" id="L82">			columnName = &quot;Standard Error of the Average&quot;;</span>
+<span class="fc" id="L82">			columnName = &quot;Standard Error of the Average&quot;;</span>
 			break;
 		}
 
-<span class="nc" id="L86">		return columnName;</span>
+<span class="fc" id="L86">		return columnName;</span>
 	}
 
 	/**
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
-<span class="nc bnc" id="L93" title="All 2 branches missed.">		assert columnIndex &lt; COLUMN_COUNT;</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		assert columnIndex &lt; COLUMN_COUNT;</span>
 
-<span class="nc" id="L95">		ValidObservation ob = obs.get(rowIndex);</span>
+<span class="fc" id="L95">		ValidObservation ob = obs.get(rowIndex);</span>
 
-<span class="nc" id="L97">		Object value = null;</span>
+<span class="fc" id="L97">		Object value = null;</span>
 
-<span class="nc bnc" id="L99" title="All 4 branches missed.">		switch (columnIndex) {</span>
+<span class="pc bpc" id="L99" title="2 of 4 branches missed.">		switch (columnIndex) {</span>
 		case PHASE_COLUMN:
-<span class="nc" id="L101">			value = NumericPrecisionPrefs.formatTime(ob.getStandardPhase());</span>
-<span class="nc" id="L102">			break;</span>
+<span class="fc" id="L101">			value = NumericPrecisionPrefs.formatTime(ob.getStandardPhase());</span>
+<span class="fc" id="L102">			break;</span>
 		case MEAN_COLUMN:
 			// The mean magnitude.
-<span class="nc" id="L105">			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()</span>
-<span class="nc" id="L106">					.getMagValue());</span>
-<span class="nc" id="L107">			break;</span>
+<span class="fc" id="L105">			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()</span>
+<span class="fc" id="L106">					.getMagValue());</span>
+<span class="fc" id="L107">			break;</span>
 		case STDERR_COLUMN:
 			// The standard error of the average.
 <span class="nc" id="L110">			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()</span>
@@ -112,7 +112,7 @@ public class PhasePlotMeanObservationTableModel extends
 			break;
 		}
 
-<span class="nc" id="L115">		return value;</span>
+<span class="fc" id="L115">		return value;</span>
 	}
 
 	/**

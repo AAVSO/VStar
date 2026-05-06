@@ -22,16 +22,16 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 /**
  * Period analysis coordinate type.
  */
-<span class="nc" id="L25">public enum WWZCoordinateType {</span>
+<span class="fc" id="L25">public enum WWZCoordinateType {</span>
 
-<span class="nc" id="L27">	TAU(0), FREQUENCY(1), PERIOD(2), WWZ(3), SEMI_AMPLITUDE(4), MEAN_MAG(5), EFFECTIVE_NUM_DATA(</span>
+<span class="fc" id="L27">	TAU(0), FREQUENCY(1), PERIOD(2), WWZ(3), SEMI_AMPLITUDE(4), MEAN_MAG(5), EFFECTIVE_NUM_DATA(</span>
 			6);
 
 	private int id;
 
-<span class="nc" id="L32">	private WWZCoordinateType(int id) {</span>
-<span class="nc" id="L33">		this.id = id;</span>
-<span class="nc" id="L34">	}</span>
+<span class="fc" id="L32">	private WWZCoordinateType(int id) {</span>
+<span class="fc" id="L33">		this.id = id;</span>
+<span class="fc" id="L34">	}</span>
 
 	/**
 	 * @return the id
@@ -48,65 +48,65 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 	 * @return The corresponding type.
 	 */
 	public static WWZCoordinateType getTypeFromId(int id) {
-<span class="nc" id="L51">		WWZCoordinateType type = null;</span>
-<span class="nc bnc" id="L52" title="All 8 branches missed.">		switch (id) {</span>
+<span class="fc" id="L51">		WWZCoordinateType type = null;</span>
+<span class="pc bpc" id="L52" title="1 of 8 branches missed.">		switch (id) {</span>
 		case 0:
-<span class="nc" id="L54">			type = TAU;</span>
-<span class="nc" id="L55">			break;</span>
+<span class="fc" id="L54">			type = TAU;</span>
+<span class="fc" id="L55">			break;</span>
 		case 1:
-<span class="nc" id="L57">			type = FREQUENCY;</span>
-<span class="nc" id="L58">			break;</span>
+<span class="fc" id="L57">			type = FREQUENCY;</span>
+<span class="fc" id="L58">			break;</span>
 		case 2:
-<span class="nc" id="L60">			type = PERIOD;</span>
-<span class="nc" id="L61">			break;</span>
+<span class="fc" id="L60">			type = PERIOD;</span>
+<span class="fc" id="L61">			break;</span>
 		case 3:
-<span class="nc" id="L63">			type = WWZ;</span>
-<span class="nc" id="L64">			break;</span>
+<span class="fc" id="L63">			type = WWZ;</span>
+<span class="fc" id="L64">			break;</span>
 		case 4:
-<span class="nc" id="L66">			type = SEMI_AMPLITUDE;</span>
-<span class="nc" id="L67">			break;</span>
+<span class="fc" id="L66">			type = SEMI_AMPLITUDE;</span>
+<span class="fc" id="L67">			break;</span>
 		case 5:
-<span class="nc" id="L69">			type = MEAN_MAG;</span>
-<span class="nc" id="L70">			break;</span>
+<span class="fc" id="L69">			type = MEAN_MAG;</span>
+<span class="fc" id="L70">			break;</span>
 		case 6:
-<span class="nc" id="L72">			type = EFFECTIVE_NUM_DATA;</span>
+<span class="fc" id="L72">			type = EFFECTIVE_NUM_DATA;</span>
 			break;
 		}
 
-<span class="nc bnc" id="L76" title="All 2 branches missed.">		assert type != null;</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">		assert type != null;</span>
 
-<span class="nc" id="L78">		return type;</span>
+<span class="fc" id="L78">		return type;</span>
 	}
 
 	@Override
 	public String toString() {
-<span class="nc" id="L83">		String str = null;</span>
+<span class="fc" id="L83">		String str = null;</span>
 
-<span class="nc bnc" id="L85" title="All 8 branches missed.">		switch (this) {</span>
+<span class="pc bpc" id="L85" title="1 of 8 branches missed.">		switch (this) {</span>
 		case TAU:
-<span class="nc" id="L87">			str = LocaleProps.get(&quot;TIME_COORD&quot;);</span>
-<span class="nc" id="L88">			break;</span>
+<span class="fc" id="L87">			str = LocaleProps.get(&quot;TIME_COORD&quot;);</span>
+<span class="fc" id="L88">			break;</span>
 		case FREQUENCY:
-<span class="nc" id="L90">			str = LocaleProps.get(&quot;FREQUENCY_COORD&quot;);</span>
-<span class="nc" id="L91">			break;</span>
+<span class="fc" id="L90">			str = LocaleProps.get(&quot;FREQUENCY_COORD&quot;);</span>
+<span class="fc" id="L91">			break;</span>
 		case PERIOD:
-<span class="nc" id="L93">			str = LocaleProps.get(&quot;PERIOD_COORD&quot;);</span>
-<span class="nc" id="L94">			break;</span>
+<span class="fc" id="L93">			str = LocaleProps.get(&quot;PERIOD_COORD&quot;);</span>
+<span class="fc" id="L94">			break;</span>
 		case WWZ:
-<span class="nc" id="L96">			str = &quot;WWZ&quot;;</span>
-<span class="nc" id="L97">			break;</span>
+<span class="fc" id="L96">			str = &quot;WWZ&quot;;</span>
+<span class="fc" id="L97">			break;</span>
 		case SEMI_AMPLITUDE:
-<span class="nc" id="L99">			str = LocaleProps.get(&quot;SEMI_AMPLITUDE_COORD&quot;);</span>
-<span class="nc" id="L100">			break;</span>
+<span class="fc" id="L99">			str = LocaleProps.get(&quot;SEMI_AMPLITUDE_COORD&quot;);</span>
+<span class="fc" id="L100">			break;</span>
 		case MEAN_MAG:
-<span class="nc" id="L102">			str = LocaleProps.get(&quot;MEAN_MAG_COORD&quot;);</span>
-<span class="nc" id="L103">			break;</span>
+<span class="fc" id="L102">			str = LocaleProps.get(&quot;MEAN_MAG_COORD&quot;);</span>
+<span class="fc" id="L103">			break;</span>
 		case EFFECTIVE_NUM_DATA:
-<span class="nc" id="L105">			str = LocaleProps.get(&quot;EFFECTIVE_NUM_DATA_COORD&quot;);</span>
+<span class="fc" id="L105">			str = LocaleProps.get(&quot;EFFECTIVE_NUM_DATA_COORD&quot;);</span>
 			break;
 		}
 
-<span class="nc" id="L109">		return str;</span>
+<span class="fc" id="L109">		return str;</span>
 	}
 
 	public String getDescription() {

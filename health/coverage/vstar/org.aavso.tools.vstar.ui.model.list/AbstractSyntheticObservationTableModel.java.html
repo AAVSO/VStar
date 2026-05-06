@@ -32,11 +32,11 @@ public abstract class AbstractSyntheticObservationTableModel extends
 	 *            by subclasses.
 	 */
 	public AbstractSyntheticObservationTableModel(List&lt;ValidObservation&gt; obs) {
-<span class="nc" id="L35">		super();</span>
-<span class="nc" id="L36">		this.obs = obs;</span>
-<span class="nc" id="L37">		this.observationToRowIndexMap = new WeakHashMap&lt;ValidObservation, Integer&gt;();</span>
-<span class="nc" id="L38">		populateObsToRowMap();</span>
-<span class="nc" id="L39">	}</span>
+<span class="fc" id="L35">		super();</span>
+<span class="fc" id="L36">		this.obs = obs;</span>
+<span class="fc" id="L37">		this.observationToRowIndexMap = new WeakHashMap&lt;ValidObservation, Integer&gt;();</span>
+<span class="fc" id="L38">		populateObsToRowMap();</span>
+<span class="fc" id="L39">	}</span>
 
 	/**
 	 * Returns the row index (0..n-1) given an observation.
@@ -46,7 +46,7 @@ public abstract class AbstractSyntheticObservationTableModel extends
 	 * @return The observation's row index.
 	 */
 	public Integer getRowIndexFromObservation(ValidObservation ob) {
-<span class="nc" id="L49">		return observationToRowIndexMap.get(ob);</span>
+<span class="fc" id="L49">		return observationToRowIndexMap.get(ob);</span>
 	}
 
 	/**
@@ -55,7 +55,7 @@ public abstract class AbstractSyntheticObservationTableModel extends
 	 * @return the obs
 	 */
 	public List&lt;ValidObservation&gt; getObs() {
-<span class="nc" id="L58">		return obs;</span>
+<span class="fc" id="L58">		return obs;</span>
 	}
 
 	/**
@@ -84,12 +84,12 @@ public abstract class AbstractSyntheticObservationTableModel extends
 	public abstract Class&lt;?&gt; getColumnClass(int columnIndex);
 
 	protected void populateObsToRowMap() {
-<span class="nc" id="L87">		this.observationToRowIndexMap.clear();</span>
+<span class="fc" id="L87">		this.observationToRowIndexMap.clear();</span>
 
-<span class="nc bnc" id="L89" title="All 2 branches missed.">		for (int i = 0; i &lt; obs.size(); i++) {</span>
-<span class="nc" id="L90">			this.observationToRowIndexMap.put(obs.get(i), i);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">		for (int i = 0; i &lt; obs.size(); i++) {</span>
+<span class="fc" id="L90">			this.observationToRowIndexMap.put(obs.get(i), i);</span>
 		}
-<span class="nc" id="L92">	}</span>
+<span class="fc" id="L92">	}</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

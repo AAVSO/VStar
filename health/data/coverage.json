@@ -1,14 +1,14 @@
 {
-  "updated": "2026-05-05",
+  "updated": "2026-05-06",
   "java_version": "17",
-  "tests": 825,
-  "passed": 825,
+  "tests": 879,
+  "passed": 879,
   "failures": 0,
   "errors": 0,
-  "line_coverage": "53%",
-  "branch_coverage": "45%",
-  "gui_line_coverage": "6%",
-  "gui_branch_coverage": "5%",
-  "combined_line_coverage": "30%",
-  "combined_branch_coverage": "30%"
+  "line_coverage": "55%",
+  "branch_coverage": "46%",
+  "gui_line_coverage": "7.4%",
+  "gui_branch_coverage": "5.7%",
+  "combined_line_coverage": "31.8%",
+  "combined_branch_coverage": "31.3%"
 }

@@ -14,19 +14,19 @@ Package                                             Lines  Line% Branch  Brch% M
 ...data.validation                                    391  93.1%    108  72.2%     79  88.6%
 ...ui.undo                                             74   0.0%     24   0.0%     25   0.0%
 ...vela                                              3441  68.6%   1336  60.1%    756  52.8%
-...util.period                                         58  44.8%     28  14.3%     12  50.0%
+...util.period                                         58  46.6%     28  14.3%     12  58.3%
 ...ui.dialog                                         2304  15.5%    576  13.2%    435  14.9%
 ...ui.mediator.message                                212  19.8%     16   0.0%     89  18.0%
 ...input                                              156  48.1%     80  36.2%     40  32.5%
 ...input.database                                     113  39.8%     26  23.1%     17  29.4%
 ...ui.dialog.period.wwz                               344   0.0%     60   0.0%     46   0.0%
 ...ui.dialog.period.refinement                         97   0.0%      8   0.0%     21   0.0%
-...util.period.wwz                                    478  70.5%    228  57.0%     56  57.1%
+...util.period.wwz                                    478  81.2%    228  65.8%     56  66.1%
 ...util.coords                                         36  83.3%    NaN    n/a     13  69.2%
 ...scripting                                          350   0.0%     97   0.0%     69   0.0%
 ...ui.pane.list                                       484   7.0%    104   9.6%     87  13.8%
 ...util.notification                                  105  41.9%     36  27.8%     44  36.4%
-...util.stats                                         203  86.2%     86  61.6%     31  80.6%
+...util.stats                                         203  88.2%     86  61.6%     31  80.6%
 ...util.locale                                         52  55.8%      7  71.4%     11  45.5%
 ...util.help                                           46   0.0%     10   0.0%     13   0.0%
 ...util.prefs                                         207  29.5%     38  26.3%     60  26.7%
@@ -38,7 +38,7 @@ Package                                             Lines  Line% Branch  Brch% M
 ...plugin.period                                      139   1.4%     24   0.0%     45   2.2%
 ...plugin.period.impl                                 230   0.0%     34   0.0%     46   0.0%
 ...plugin.model.impl                                  142   0.0%     38   0.0%     30   0.0%
-...data                                              1356  55.5%    645  38.8%    219  66.7%
+...data                                              1356  55.5%    645  38.9%    219  66.7%
 ...auth                                               129  58.9%     16  43.8%     13  69.2%
 ...ui.dialog.model                                    396   0.0%     90   0.0%     60   0.0%
 ...util.period.dcdft                                  412  76.7%    166  63.3%     52  63.5%
@@ -57,8 +57,8 @@ Package                                             Lines  Line% Branch  Brch% M
 ...util.discrepant                                     60   0.0%      2   0.0%     12   0.0%
 ...ui.pane.plot                                       430   0.0%    160   0.0%     92   0.0%
 ...input.text                                         134  74.6%     72  69.4%     20  80.0%
-...ui.model.list                                      705  17.3%    305  12.1%    141  21.3%
+...ui.model.list                                      705  41.0%    305  26.2%    141  59.6%
 ...ui.dialog.filter                                   350   0.0%     74   0.0%     62   0.0%
 -------------------------------------------------- ------ ------ ------ ------ ------ ------
-TOTAL                                               23619  30.8%   7361  30.4%   4618  27.1%
+TOTAL                                               23619  31.8%   7361  31.3%   4618  28.4%
 

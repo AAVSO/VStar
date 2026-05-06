@@ -47,16 +47,16 @@ public class WWZDataTableModel extends AbstractTableModel {
 	 *            The WWZ algorithm object.
 	 */
 	public WWZDataTableModel(List&lt;WWZStatistic&gt; stats,
-<span class="nc" id="L50">			WeightedWaveletZTransform wwt) {</span>
-<span class="nc" id="L51">		this.stats = stats;</span>
-<span class="nc" id="L52">		this.wwt = wwt;</span>
-<span class="nc" id="L53">	}</span>
+<span class="fc" id="L50">			WeightedWaveletZTransform wwt) {</span>
+<span class="fc" id="L51">		this.stats = stats;</span>
+<span class="fc" id="L52">		this.wwt = wwt;</span>
+<span class="fc" id="L53">	}</span>
 
 	/**
 	 * @return the stats
 	 */
 	public List&lt;WWZStatistic&gt; getStats() {
-<span class="nc" id="L59">		return stats;</span>
+<span class="fc" id="L59">		return stats;</span>
 	}
 
 	/**
@@ -70,37 +70,37 @@ public class WWZDataTableModel extends AbstractTableModel {
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
-<span class="nc" id="L73">		return WWZCoordinateType.values().length;</span>
+<span class="fc" id="L73">		return WWZCoordinateType.values().length;</span>
 	}
 
 	/**
 	 * @see javax.swing.table.TableModel#getRowCount()
 	 */
 	public int getRowCount() {
-<span class="nc" id="L80">		return stats.size();</span>
+<span class="fc" id="L80">		return stats.size();</span>
 	}
 
 	/**
 	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
-<span class="nc" id="L87">		return WWZCoordinateType.getTypeFromId(column).toString();</span>
+<span class="fc" id="L87">		return WWZCoordinateType.getTypeFromId(column).toString();</span>
 	}
 
 	/**
 	 * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
 	 */
 	public Class&lt;?&gt; getColumnClass(int columnIndex) {
-<span class="nc" id="L94">		return String.class;</span>
+<span class="fc" id="L94">		return String.class;</span>
 	}
 
 	/**
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
-<span class="nc" id="L101">		double value = stats.get(rowIndex).getValue(</span>
-<span class="nc" id="L102">				WWZCoordinateType.getTypeFromId(columnIndex));</span>
-<span class="nc" id="L103">		return NumericPrecisionPrefs.formatOther(value);</span>
+<span class="fc" id="L101">		double value = stats.get(rowIndex).getValue(</span>
+<span class="fc" id="L102">				WWZCoordinateType.getTypeFromId(columnIndex));</span>
+<span class="fc" id="L103">		return NumericPrecisionPrefs.formatOther(value);</span>
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class WWZDataTableModel extends AbstractTableModel {
 	 * @return The data point (a WWZ statistic in this case).
 	 */
 	public WWZStatistic getDataPointFromRow(int rowIndex) {
-<span class="nc" id="L114">		return stats.get(rowIndex);</span>
+<span class="fc" id="L114">		return stats.get(rowIndex);</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

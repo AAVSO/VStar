@@ -29,7 +29,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * The model is notified of model selection in order to update its data. The
  * data is updated according to the type specified in the constructor.
  */
-<span class="nc" id="L32">@SuppressWarnings(&quot;serial&quot;)</span>
+<span class="fc" id="L32">@SuppressWarnings(&quot;serial&quot;)</span>
 public class PhasePlotModelObservationTableModel extends
 		AbstractModelObservationTableModel {
 
@@ -47,8 +47,8 @@ public class PhasePlotModelObservationTableModel extends
 	 */
 	public PhasePlotModelObservationTableModel(List&lt;ValidObservation&gt; obs,
 			SeriesType seriesType) {
-<span class="nc" id="L50">		super(obs, seriesType);</span>
-<span class="nc" id="L51">	}</span>
+<span class="fc" id="L50">		super(obs, seriesType);</span>
+<span class="fc" id="L51">	}</span>
 
 	/**
 	 * 
@@ -77,7 +77,7 @@ public class PhasePlotModelObservationTableModel extends
 	 */
 	@Override
 	public int getColumnCount() {
-<span class="nc" id="L80">		return COLUMN_COUNT;</span>
+<span class="fc" id="L80">		return COLUMN_COUNT;</span>
 	}
 
 	/**
@@ -86,20 +86,20 @@ public class PhasePlotModelObservationTableModel extends
 	 */
 	@Override
 	public String getColumnName(int column) {
-<span class="nc bnc" id="L89" title="All 2 branches missed.">		assert column &lt; COLUMN_COUNT;</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">		assert column &lt; COLUMN_COUNT;</span>
 
-<span class="nc" id="L91">		String columnName = null;</span>
+<span class="fc" id="L91">		String columnName = null;</span>
 
-<span class="nc bnc" id="L93" title="All 3 branches missed.">		switch (column) {</span>
+<span class="pc bpc" id="L93" title="1 of 3 branches missed.">		switch (column) {</span>
 		case PHASE_COLUMN:
-<span class="nc" id="L95">			columnName = &quot;Phase&quot;;</span>
-<span class="nc" id="L96">			break;</span>
+<span class="fc" id="L95">			columnName = &quot;Phase&quot;;</span>
+<span class="fc" id="L96">			break;</span>
 		case MAG_COLUMN:
-<span class="nc" id="L98">			columnName = &quot;Magnitude&quot;;</span>
+<span class="fc" id="L98">			columnName = &quot;Magnitude&quot;;</span>
 			break;
 		}
 
-<span class="nc" id="L102">		return columnName;</span>
+<span class="fc" id="L102">		return columnName;</span>
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class PhasePlotModelObservationTableModel extends
 	 */
 	@Override
 	public int getRowCount() {
-<span class="nc" id="L111">		return obs.size() * 2;</span>
+<span class="fc" id="L111">		return obs.size() * 2;</span>
 	}
 
 	/**
@@ -117,23 +117,23 @@ public class PhasePlotModelObservationTableModel extends
 	 */
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-<span class="nc bnc" id="L120" title="All 2 branches missed.">		assert columnIndex &lt; COLUMN_COUNT;</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">		assert columnIndex &lt; COLUMN_COUNT;</span>
 
-<span class="nc" id="L122">		ValidObservation ob = obs.get(rowIndex % obs.size());</span>
+<span class="fc" id="L122">		ValidObservation ob = obs.get(rowIndex % obs.size());</span>
 
-<span class="nc" id="L124">		Object value = null;</span>
+<span class="fc" id="L124">		Object value = null;</span>
 
-<span class="nc bnc" id="L126" title="All 3 branches missed.">		switch (columnIndex) {</span>
+<span class="pc bpc" id="L126" title="2 of 3 branches missed.">		switch (columnIndex) {</span>
 		case PHASE_COLUMN:
-<span class="nc" id="L128">			value = NumericPrecisionPrefs.formatTime(ob.getStandardPhase());</span>
-<span class="nc" id="L129">			break;</span>
+<span class="fc" id="L128">			value = NumericPrecisionPrefs.formatTime(ob.getStandardPhase());</span>
+<span class="fc" id="L129">			break;</span>
 		case MAG_COLUMN:
 <span class="nc" id="L131">			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()</span>
 <span class="nc" id="L132">					.getMagValue());</span>
 			break;
 		}
 
-<span class="nc" id="L136">		return value;</span>
+<span class="fc" id="L136">		return value;</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

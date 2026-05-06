@@ -29,7 +29,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * The model is notified of model selection in order to update its data. The
  * data is updated according to the type specified in the constructor.
  */
-<span class="nc" id="L32">@SuppressWarnings(&quot;serial&quot;)</span>
+<span class="fc" id="L32">@SuppressWarnings(&quot;serial&quot;)</span>
 public class RawDataModelObservationTableModel extends
 		AbstractModelObservationTableModel {
 
@@ -48,8 +48,8 @@ public class RawDataModelObservationTableModel extends
 	 */
 	public RawDataModelObservationTableModel(List&lt;ValidObservation&gt; obs,
 			SeriesType seriesType) {
-<span class="nc" id="L51">		super(obs, seriesType);</span>
-<span class="nc" id="L52">	}</span>
+<span class="fc" id="L51">		super(obs, seriesType);</span>
+<span class="fc" id="L52">	}</span>
 
 	/**
 	 * 
@@ -81,7 +81,7 @@ public class RawDataModelObservationTableModel extends
 	 */
 	@Override
 	public int getColumnCount() {
-<span class="nc" id="L84">		return COLUMN_COUNT;</span>
+<span class="fc" id="L84">		return COLUMN_COUNT;</span>
 	}
 
 	/**
@@ -90,23 +90,23 @@ public class RawDataModelObservationTableModel extends
 	 */
 	@Override
 	public String getColumnName(int column) {
-<span class="nc bnc" id="L93" title="All 2 branches missed.">		assert column &lt; COLUMN_COUNT;</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		assert column &lt; COLUMN_COUNT;</span>
 
-<span class="nc" id="L95">		String columnName = null;</span>
+<span class="fc" id="L95">		String columnName = null;</span>
 
-<span class="nc bnc" id="L97" title="All 4 branches missed.">		switch (column) {</span>
+<span class="pc bpc" id="L97" title="1 of 4 branches missed.">		switch (column) {</span>
 		case JD_COLUMN:
-<span class="nc" id="L99">			columnName = &quot;Julian Day&quot;;</span>
-<span class="nc" id="L100">			break;</span>
+<span class="fc" id="L99">			columnName = &quot;Julian Day&quot;;</span>
+<span class="fc" id="L100">			break;</span>
 		case CALDATE_COLUMN:
-<span class="nc" id="L102">			columnName = &quot;Calendar Date&quot;;</span>
-<span class="nc" id="L103">			break;</span>
+<span class="fc" id="L102">			columnName = &quot;Calendar Date&quot;;</span>
+<span class="fc" id="L103">			break;</span>
 		case MAG_COLUMN:
-<span class="nc" id="L105">			columnName = &quot;Magnitude&quot;;</span>
+<span class="fc" id="L105">			columnName = &quot;Magnitude&quot;;</span>
 			break;
 		}
 
-<span class="nc" id="L109">		return columnName;</span>
+<span class="fc" id="L109">		return columnName;</span>
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class RawDataModelObservationTableModel extends
 	 */
 	@Override
 	public int getRowCount() {
-<span class="nc" id="L118">		return obs.size();</span>
+<span class="fc" id="L118">		return obs.size();</span>
 	}
 
 	/**
@@ -124,27 +124,27 @@ public class RawDataModelObservationTableModel extends
 	 */
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-<span class="nc bnc" id="L127" title="All 2 branches missed.">		assert columnIndex &lt; COLUMN_COUNT;</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">		assert columnIndex &lt; COLUMN_COUNT;</span>
 
-<span class="nc" id="L129">		ValidObservation ob = obs.get(rowIndex);</span>
+<span class="fc" id="L129">		ValidObservation ob = obs.get(rowIndex);</span>
 
-<span class="nc" id="L131">		Object value = null;</span>
+<span class="fc" id="L131">		Object value = null;</span>
 
-<span class="nc bnc" id="L133" title="All 4 branches missed.">		switch (columnIndex) {</span>
+<span class="pc bpc" id="L133" title="2 of 4 branches missed.">		switch (columnIndex) {</span>
 		case JD_COLUMN:
-<span class="nc" id="L135">			value = NumericPrecisionPrefs.formatTime(ob.getDateInfo()</span>
-<span class="nc" id="L136">					.getJulianDay());</span>
-<span class="nc" id="L137">			break;</span>
+<span class="fc" id="L135">			value = NumericPrecisionPrefs.formatTime(ob.getDateInfo()</span>
+<span class="fc" id="L136">					.getJulianDay());</span>
+<span class="fc" id="L137">			break;</span>
 		case CALDATE_COLUMN:
 <span class="nc" id="L139">			value = ob.getDateInfo().getCalendarDate();</span>
 <span class="nc" id="L140">			break;</span>
 		case MAG_COLUMN:
-<span class="nc" id="L142">			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()</span>
-<span class="nc" id="L143">					.getMagValue());</span>
+<span class="fc" id="L142">			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()</span>
+<span class="fc" id="L143">					.getMagValue());</span>
 			break;
 		}
 
-<span class="nc" id="L147">		return value;</span>
+<span class="fc" id="L147">		return value;</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
