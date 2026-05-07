@@ -47,7 +47,7 @@ public class Help {
 	 * Open the VStar manual page.
 	 */
 	public static void openVStarManual() {
-		openHelpURLInWebBrowser("https://github.com/AAVSO/VStar/blob/master/doc/user_manual/VStarUserManual.pdf");
+		openHelpURLInWebBrowser("https://aavso.github.io/VStar/docs/vstar/release/user_manual/VStarUserManual.pdf");
 	}
 
 	/**
@@ -61,7 +61,7 @@ public class Help {
 	 * Plug-in help
 	 */
 	public static void openPluginHelp(String plugin_doc_name) {
-		String urlStr = "https://github.com/AAVSO/VStar/tree/master/plugin/doc/";
+		String urlStr = "https://aavso.github.io/VStar/docs/vstar/release/plugin/";
 		if (plugin_doc_name != null) {
 			// plugin_doc_name can be a file name (without path) resided in the base plug-in doc directory.
 			// In this case it may contain spaces and other special characters.

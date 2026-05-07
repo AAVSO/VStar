@@ -1,0 +1,453 @@
+# Build VStar documentation and publish it to the gh-pages branch under
+#   docs/vstar/snapshot/  -- from the snapshot release tag
+#   docs/vstar/release/   -- from the latest semantic-version tag
+#
+# Publishes:
+#   docs/vstar/{snapshot,release}/user_manual/VStarUserManual.pdf
+#   docs/vstar/{snapshot,release}/plugin/*.pdf  (plugin docs + plugin dev guide)
+#
+# Triggers:
+#   - Any GitHub release publish (snapshot release or stable X.Y.Z release)
+#   - Manual dispatch (with optional choice of which set to refresh)
+#
+# See: https://github.com/AAVSO/VStar/issues/592
+
+name: Docs
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Which doc set(s) to refresh'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - snapshot
+          - release
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    name: Publish documentation PDFs
+
+    steps:
+    - name: Decide which targets to build
+      id: targets
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          T="${{ inputs.target }}"
+        else
+          T="both"
+        fi
+        case "$T" in
+          snapshot) BUILD_SNAPSHOT=true; BUILD_RELEASE=false ;;
+          release)  BUILD_SNAPSHOT=false; BUILD_RELEASE=true ;;
+          both|*)   BUILD_SNAPSHOT=true; BUILD_RELEASE=true ;;
+        esac
+        echo "build_snapshot=$BUILD_SNAPSHOT" >> "$GITHUB_OUTPUT"
+        echo "build_release=$BUILD_RELEASE" >> "$GITHUB_OUTPUT"
+        echo "Targets: snapshot=$BUILD_SNAPSHOT release=$BUILD_RELEASE"
+
+    - name: Resolve snapshot ref
+      id: snapref
+      if: steps.targets.outputs.build_snapshot == 'true'
+      run: |
+        if git ls-remote --tags https://github.com/${{ github.repository }}.git refs/tags/snapshot | grep -q .; then
+          echo "ref=refs/tags/snapshot" >> "$GITHUB_OUTPUT"
+        else
+          echo "ref=refs/heads/master" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Resolve latest stable release tag
+      id: relref
+      if: steps.targets.outputs.build_release == 'true'
+      run: |
+        TAG=$(git ls-remote --tags https://github.com/${{ github.repository }}.git \
+          | awk '{print $2}' \
+          | sed 's|refs/tags/||;s|\^{}||' \
+          | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+          | sort -V \
+          | tail -1)
+        if [ -z "$TAG" ]; then
+          echo "No semantic-version tag found; skipping release docs."
+          echo "found=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "Latest stable release tag: $TAG"
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+        fi
+
+    # ---------- Snapshot ----------
+    - name: Checkout snapshot source
+      if: steps.targets.outputs.build_snapshot == 'true'
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ steps.snapref.outputs.ref }}
+        path: src_snapshot
+
+    - name: Capture snapshot metadata
+      if: steps.targets.outputs.build_snapshot == 'true'
+      id: snapmeta
+      working-directory: src_snapshot
+      run: |
+        SHA=$(git rev-parse HEAD)
+        SHORT=$(git rev-parse --short=8 HEAD)
+        CDATE=$(git log -1 --format=%cI HEAD | cut -dT -f1)
+        echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+        echo "short=$SHORT" >> "$GITHUB_OUTPUT"
+        echo "cdate=$CDATE" >> "$GITHUB_OUTPUT"
+
+    # ---------- Release ----------
+    - name: Checkout release source
+      if: steps.targets.outputs.build_release == 'true' && steps.relref.outputs.found == 'true'
+      uses: actions/checkout@v4
+      with:
+        ref: refs/tags/${{ steps.relref.outputs.tag }}
+        path: src_release
+
+    - name: Capture release metadata
+      if: steps.targets.outputs.build_release == 'true' && steps.relref.outputs.found == 'true'
+      id: relmeta
+      working-directory: src_release
+      run: |
+        SHA=$(git rev-parse HEAD)
+        SHORT=$(git rev-parse --short=8 HEAD)
+        CDATE=$(git log -1 --format=%cI HEAD | cut -dT -f1)
+        echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+        echo "short=$SHORT" >> "$GITHUB_OUTPUT"
+        echo "cdate=$CDATE" >> "$GITHUB_OUTPUT"
+
+    # ---------- Publish to gh-pages ----------
+    - name: Checkout gh-pages
+      uses: actions/checkout@v4
+      with:
+        ref: gh-pages
+        path: _site
+
+    - name: Stage docs into gh-pages worktree
+      run: |
+        DATE=$(date -u +%Y-%m-%d)
+        mkdir -p _site/docs/vstar _site/docs/data
+
+        if [ "${{ steps.targets.outputs.build_snapshot }}" = "true" ]; then
+          rm -rf _site/docs/vstar/snapshot
+          mkdir -p _site/docs/vstar/snapshot/user_manual
+          mkdir -p _site/docs/vstar/snapshot/plugin
+          if [ -f src_snapshot/doc/user_manual/VStarUserManual.pdf ]; then
+            cp src_snapshot/doc/user_manual/VStarUserManual.pdf \
+               _site/docs/vstar/snapshot/user_manual/
+          fi
+          if ls src_snapshot/plugin/doc/*.pdf 1>/dev/null 2>&1; then
+            cp src_snapshot/plugin/doc/*.pdf \
+               _site/docs/vstar/snapshot/plugin/
+          fi
+        fi
+
+        if [ "${{ steps.targets.outputs.build_release }}" = "true" ] && \
+           [ "${{ steps.relref.outputs.found }}" = "true" ]; then
+          rm -rf _site/docs/vstar/release
+          mkdir -p _site/docs/vstar/release/user_manual
+          mkdir -p _site/docs/vstar/release/plugin
+          if [ -f src_release/doc/user_manual/VStarUserManual.pdf ]; then
+            cp src_release/doc/user_manual/VStarUserManual.pdf \
+               _site/docs/vstar/release/user_manual/
+          fi
+          if ls src_release/plugin/doc/*.pdf 1>/dev/null 2>&1; then
+            cp src_release/plugin/doc/*.pdf \
+               _site/docs/vstar/release/plugin/
+          fi
+        fi
+
+        # Write (or refresh) the docs landing page.
+        cat > _site/docs/index.html <<'HTML'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VStar &mdash; Documentation</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --header-bg: linear-gradient(135deg, #0d1117 0%, #1a2332 50%, #0d1117 100%);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  header h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; }
+
+  header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+  header .home-link {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  header .home-link:hover { text-decoration: underline; }
+
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1rem; }
+
+  h2.section {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin: 2rem 0 0.75rem;
+  }
+
+  h2.section:first-child { margin-top: 0; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.2rem; }
+
+  .card .meta { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.75rem; }
+
+  .links { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+  .links a {
+    display: inline-block;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border: 1px solid var(--border);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .links a:hover { border-color: var(--accent); background: rgba(88,166,255,0.1); }
+
+  .note { color: var(--text-muted); font-size: 0.8rem; margin-top: 1.5rem; text-align: center; }
+
+  footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>VStar &mdash; Documentation</h1>
+  <p>User manual, plugin development guide, and individual plugin docs</p>
+  <a class="home-link" href="../">&larr; Back to VStar Project Hub</a>
+</header>
+
+<main>
+
+  <h2 class="section">Snapshot (development)</h2>
+
+  <div class="card">
+    <h3>User Manual</h3>
+    <div class="meta" id="snapshot-meta">Loading&hellip;</div>
+    <div class="links">
+      <a href="vstar/snapshot/user_manual/VStarUserManual.pdf">Open PDF</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Plugin Development Guide</h3>
+    <div class="links">
+      <a href="vstar/snapshot/plugin/vstar_plugin_dev.pdf">Open PDF</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Plugin Docs</h3>
+    <div class="links">
+      <a href="vstar/snapshot/plugin/">Browse all plugin docs &rarr;</a>
+    </div>
+  </div>
+
+  <h2 class="section">Latest stable release</h2>
+
+  <div class="card">
+    <h3>User Manual</h3>
+    <div class="meta" id="release-meta">Loading&hellip;</div>
+    <div class="links">
+      <a href="vstar/release/user_manual/VStarUserManual.pdf">Open PDF</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Plugin Development Guide</h3>
+    <div class="links">
+      <a href="vstar/release/plugin/vstar_plugin_dev.pdf">Open PDF</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Plugin Docs</h3>
+    <div class="links">
+      <a href="vstar/release/plugin/">Browse all plugin docs &rarr;</a>
+    </div>
+  </div>
+
+  <p class="note">
+    Snapshot docs track the latest <code>snapshot</code> release tag.
+    Release docs track the latest semantic-version tag (e.g.&nbsp;<code>X.Y.Z</code>).
+    Both are refreshed automatically by GitHub Actions.
+  </p>
+
+</main>
+
+<footer>
+  <p><a href="https://github.com/AAVSO/VStar">AAVSO/VStar</a> &mdash; Published by the <code>docs</code> workflow.</p>
+</footer>
+
+<script>
+async function loadMeta() {
+  try {
+    const r = await fetch('data/docs.json?_=' + Date.now());
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    if (d.snapshot) {
+      const s = d.snapshot;
+      document.getElementById('snapshot-meta').textContent =
+        'Commit ' + (s.commit_short || '') +
+        (s.commit_date ? ' \u00b7 ' + s.commit_date : '') +
+        (s.generated   ? ' \u00b7 generated ' + s.generated : '');
+    }
+    if (d.release) {
+      const rv = d.release;
+      document.getElementById('release-meta').textContent =
+        (rv.tag ? rv.tag + ' \u00b7 ' : '') +
+        'Commit ' + (rv.commit_short || '') +
+        (rv.commit_date ? ' \u00b7 ' + rv.commit_date : '') +
+        (rv.generated   ? ' \u00b7 generated ' + rv.generated : '');
+    }
+  } catch {
+    document.getElementById('snapshot-meta').textContent = 'No metadata yet';
+    document.getElementById('release-meta').textContent = 'No metadata yet';
+  }
+}
+loadMeta();
+</script>
+
+</body>
+</html>
+HTML
+
+        # Merge new metadata with existing data/docs.json so a snapshot-only or
+        # release-only run doesn't clobber the other set.
+        python3 - "$DATE" \
+          "${{ steps.targets.outputs.build_snapshot }}" \
+          "${{ steps.snapmeta.outputs.sha }}" \
+          "${{ steps.snapmeta.outputs.short }}" \
+          "${{ steps.snapmeta.outputs.cdate }}" \
+          "${{ steps.targets.outputs.build_release }}" \
+          "${{ steps.relref.outputs.found }}" \
+          "${{ steps.relref.outputs.tag }}" \
+          "${{ steps.relmeta.outputs.sha }}" \
+          "${{ steps.relmeta.outputs.short }}" \
+          "${{ steps.relmeta.outputs.cdate }}" <<'PY'
+        import json, os, sys
+        date, do_snap, s_sha, s_short, s_cdate, do_rel, rel_found, r_tag, r_sha, r_short, r_cdate = sys.argv[1:]
+        path = "_site/docs/data/docs.json"
+        try:
+            with open(path) as f:
+                data = json.load(f)
+        except (OSError, ValueError):
+            data = {}
+        data["updated"] = date
+        if do_snap == "true":
+            data["snapshot"] = {
+                "commit": s_sha, "commit_short": s_short,
+                "commit_date": s_cdate, "generated": date,
+                "path": "vstar/snapshot/",
+            }
+        if do_rel == "true" and rel_found == "true":
+            data["release"] = {
+                "tag": r_tag, "commit": r_sha, "commit_short": r_short,
+                "commit_date": r_cdate, "generated": date,
+                "path": "vstar/release/",
+            }
+        with open(path, "w") as f:
+            json.dump(data, f, indent=2)
+            f.write("\n")
+        print(json.dumps(data, indent=2))
+        PY
+
+    - name: Commit and push to gh-pages
+      working-directory: _site
+      run: |
+        DATE=$(date -u +%Y-%m-%d)
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git config user.name "github-actions[bot]"
+        git add -A
+        if git diff --cached --quiet; then
+          echo "No documentation changes to publish."
+          exit 0
+        fi
+        SUMMARY="Update docs"
+        if [ "${{ steps.targets.outputs.build_snapshot }}" = "true" ] && [ "${{ steps.targets.outputs.build_release }}" = "true" ]; then
+          SUMMARY="Update docs (snapshot ${{ steps.snapmeta.outputs.short }} + release ${{ steps.relref.outputs.tag }})"
+        elif [ "${{ steps.targets.outputs.build_snapshot }}" = "true" ]; then
+          SUMMARY="Update snapshot docs (${{ steps.snapmeta.outputs.short }})"
+        elif [ "${{ steps.targets.outputs.build_release }}" = "true" ]; then
+          SUMMARY="Update release docs (${{ steps.relref.outputs.tag }})"
+        fi
+        git commit -m "${SUMMARY} [${DATE}]"
+        for i in 1 2 3; do
+          git pull --rebase origin gh-pages && git push origin gh-pages && break
+          echo "Push attempt $i failed, retrying in $((i * 5))s..."
+          sleep $((i * 5))
+        done
+
+    - name: Step summary
+      if: always()
+      run: |
+        cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+        ## Documentation publication
+
+        | Set | Built | Source |
+        |-----|-------|--------|
+        | snapshot | ${{ steps.targets.outputs.build_snapshot }} | ${{ steps.snapmeta.outputs.short }} (${{ steps.snapmeta.outputs.cdate }}) |
+        | release  | ${{ steps.targets.outputs.build_release }} (${{ steps.relref.outputs.found }}) | ${{ steps.relref.outputs.tag }} @ ${{ steps.relmeta.outputs.short }} (${{ steps.relmeta.outputs.cdate }}) |
+
+        Published to: https://aavso.github.io/VStar/docs/
+        EOF
