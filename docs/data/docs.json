@@ -6,5 +6,13 @@
     "commit_date": "2026-05-07",
     "generated": "2026-05-07",
     "path": "vstar/snapshot/"
+  },
+  "release": {
+    "tag": "2.25.0",
+    "commit": "c19cba7f1c2822f9bbdb0ed7373c0cbf7d136115",
+    "commit_short": "c19cba7f",
+    "commit_date": "2025-05-25",
+    "generated": "2026-05-07",
+    "path": "vstar/release/"
   }
 }
