@@ -155,6 +155,22 @@
     font-size: 0.85rem;
   }
 
+  .tile-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tile-links a {
+    color: var(--accent);
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
+  .tile-links a:hover { text-decoration: underline; }
+
   footer {
     text-align: center;
     padding: 2rem 1rem;
@@ -177,7 +193,7 @@
       <p>Variable star data visualisation and analysis tool &mdash; AAVSO</p>
     </div>
     <nav class="header-links">
-      <a href="https://www.aavso.org/vstar">AAVSO VStar Home</a>
+      <a href="https://www.aavso.org/vstar">VStar Home</a>
       <a href="https://github.com/AAVSO/VStar">GitHub</a>
       <a href="https://github.com/AAVSO/VStar/wiki">VStar Wiki</a>
     </nav>
@@ -194,13 +210,15 @@
       <span class="arrow">View dashboard &rarr;</span>
     </a>
 
-    <a class="tile" href="docs/">
+    <div class="tile">
       <h2>Documentation</h2>
-      <p>User manual, plugin development guide, and individual plugin docs for the
-         latest snapshot and most recent stable <code>X.Y.Z</code> release.
+      <p>User manual, plugin development guide, and individual plugin docs.
          Published automatically from release tags.</p>
-      <span class="arrow">Browse docs &rarr;</span>
-    </a>
+      <div class="tile-links">
+        <a href="docs/vstar/snapshot/">Snapshot &rarr;</a>
+        <a href="docs/vstar/release/">Latest release &rarr;</a>
+      </div>
+    </div>
 
     <a class="tile" href="javadoc/">
       <h2>API Documentation</h2>
