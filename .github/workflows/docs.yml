@@ -206,6 +206,133 @@ jobs:
         print(json.dumps(data, indent=2))
         PY
 
+    - name: Generate per-set and plugin index pages
+      run: |
+        python3 - \
+          "${{ steps.targets.outputs.build_snapshot }}" \
+          "${{ steps.snapmeta.outputs.short }}" \
+          "${{ steps.snapmeta.outputs.cdate }}" \
+          "${{ steps.targets.outputs.build_release }}" \
+          "${{ steps.relref.outputs.found }}" \
+          "${{ steps.relref.outputs.tag }}" \
+          "${{ steps.relmeta.outputs.short }}" \
+          "${{ steps.relmeta.outputs.cdate }}" <<'PY'
+        import sys, os, glob, html as he
+        do_snap, s_short, s_cdate, do_rel, rel_found, r_tag, r_short, r_cdate = sys.argv[1:]
+
+        CSS = """
+          :root { --bg:#0d1117; --surface:#161b22; --border:#30363d;
+                  --text:#e6edf3; --text-muted:#8b949e; --accent:#58a6ff;
+                  --header-bg:linear-gradient(135deg,#0d1117 0%,#1a2332 50%,#0d1117 100%); }
+          * { margin:0; padding:0; box-sizing:border-box; }
+          body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+                 background:var(--bg); color:var(--text); line-height:1.6; }
+          header { background:var(--header-bg); border-bottom:1px solid var(--border);
+                   padding:2rem 1rem; text-align:center; }
+          header h1 { font-size:1.5rem; font-weight:600; letter-spacing:-0.02em; }
+          header p { color:var(--text-muted); font-size:0.9rem; margin-top:0.25rem; }
+          header .home-link { display:inline-block; margin-top:0.75rem; font-size:0.85rem;
+                              color:var(--accent); text-decoration:none; }
+          header .home-link:hover { text-decoration:underline; }
+          main { max-width:760px; margin:0 auto; padding:2rem 1rem; }
+          .card { background:var(--surface); border:1px solid var(--border); border-radius:8px;
+                  padding:1.25rem 1.5rem; margin-bottom:0.75rem; }
+          .card h2 { font-size:1rem; font-weight:600; margin-bottom:0.2rem; }
+          .card .meta { color:var(--text-muted); font-size:0.8rem; margin-bottom:0.75rem; }
+          .links { display:flex; flex-wrap:wrap; gap:0.5rem; }
+          .links a { display:inline-block; color:var(--accent); text-decoration:none;
+                     font-size:0.85rem; border:1px solid var(--border); padding:0.35rem 0.75rem;
+                     border-radius:6px; transition:border-color .15s,background .15s; }
+          .links a:hover { border-color:var(--accent); background:rgba(88,166,255,0.1); }
+          ul.plugin-list { list-style:none; padding:0; }
+          ul.plugin-list li { margin-bottom:0.4rem; }
+          ul.plugin-list a { color:var(--accent); text-decoration:none; font-size:0.9rem; }
+          ul.plugin-list a:hover { text-decoration:underline; }
+          .note { color:var(--text-muted); font-size:0.8rem; margin-top:1.5rem; text-align:center; }
+          footer { text-align:center; padding:2rem 1rem; color:var(--text-muted);
+                   font-size:0.8rem; border-top:1px solid var(--border); }
+          footer a { color:var(--accent); text-decoration:none; }
+          footer a:hover { text-decoration:underline; }
+        """
+
+        def set_index(label, meta):
+            meta_html = f'<div class="meta">{he.escape(meta)}</div>' if meta else ''
+            return f"""<!DOCTYPE html>
+        <html lang="en">
+        <head><meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>VStar Documentation &mdash; {he.escape(label)}</title>
+        <style>{CSS}</style></head>
+        <body>
+        <header>
+          <h1>VStar Documentation &mdash; {he.escape(label)}</h1>
+          {meta_html}
+          <a class="home-link" href="../../">&larr; Back to Documentation</a>
+        </header>
+        <main>
+          <div class="card">
+            <h2>User Manual</h2>
+            <div class="links"><a href="user_manual/VStarUserManual.pdf">Open PDF</a></div>
+          </div>
+          <div class="card">
+            <h2>Plugin Development Guide</h2>
+            <div class="links"><a href="plugin/vstar_plugin_dev.pdf">Open PDF</a></div>
+          </div>
+          <div class="card">
+            <h2>Plugin Docs</h2>
+            <div class="links"><a href="plugin/">Browse all plugin docs &rarr;</a></div>
+          </div>
+        </main>
+        <footer><p><a href="https://github.com/AAVSO/VStar">AAVSO/VStar</a> &mdash;
+        Published by the <code>docs</code> workflow.</p></footer>
+        </body></html>"""
+
+        def plugin_index(label, pdf_names):
+            items = '\n'.join(
+                f'    <li><a href="{he.escape(n)}">{he.escape(n)}</a></li>'
+                for n in sorted(pdf_names)
+            )
+            return f"""<!DOCTYPE html>
+        <html lang="en">
+        <head><meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>VStar Plugin Docs &mdash; {he.escape(label)}</title>
+        <style>{CSS}</style></head>
+        <body>
+        <header>
+          <h1>VStar Plugin Docs &mdash; {he.escape(label)}</h1>
+          <a class="home-link" href="../">&larr; Back to {he.escape(label)} docs</a>
+        </header>
+        <main>
+          <div class="card">
+            <h2>Plugin documents</h2>
+            <ul class="plugin-list">
+        {items}
+            </ul>
+          </div>
+        </main>
+        <footer><p><a href="https://github.com/AAVSO/VStar">AAVSO/VStar</a> &mdash;
+        Published by the <code>docs</code> workflow.</p></footer>
+        </body></html>"""
+
+        sets = []
+        if do_snap == 'true':
+            meta = f'Commit {s_short} \u00b7 {s_cdate}' if s_short else ''
+            sets.append(('snapshot', 'Snapshot', meta))
+        if do_rel == 'true' and rel_found == 'true':
+            meta = f'{r_tag} \u00b7 Commit {r_short} \u00b7 {r_cdate}' if r_short else ''
+            sets.append(('release', 'Latest stable release', meta))
+
+        for set_name, label, meta in sets:
+            base = f'_site/docs/vstar/{set_name}'
+            with open(f'{base}/index.html', 'w') as fh:
+                fh.write(set_index(label, meta))
+            pdf_names = [os.path.basename(p)
+                         for p in glob.glob(f'{base}/plugin/*.pdf')]
+            with open(f'{base}/plugin/index.html', 'w') as fh:
+                fh.write(plugin_index(label, pdf_names))
+        PY
+
     - name: Commit and push to gh-pages
       working-directory: _site
       run: |
