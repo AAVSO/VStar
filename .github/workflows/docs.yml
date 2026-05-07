@@ -126,12 +126,6 @@ jobs:
         echo "cdate=$CDATE" >> "$GITHUB_OUTPUT"
 
     # ---------- Publish to gh-pages ----------
-    - name: Checkout master for page templates
-      uses: actions/checkout@v4
-      with:
-        ref: refs/heads/master
-        path: src_main
-
     - name: Checkout gh-pages
       uses: actions/checkout@v4
       with:
@@ -171,9 +165,6 @@ jobs:
                _site/docs/vstar/release/plugin/
           fi
         fi
-
-        # Write (or refresh) the docs landing page from the template in master.
-        cp src_main/.github/pages/docs-index.html _site/docs/index.html
 
         # Merge new metadata with existing data/docs.json so a snapshot-only or
         # release-only run doesn't clobber the other set.
