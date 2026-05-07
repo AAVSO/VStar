@@ -3,7 +3,7 @@
 #   javadoc/vstar/release/   -- from the latest semantic-version tag
 #
 # Triggers:
-#   - Any GitHub release publish (snapshot daily release or stable X.Y.Z release)
+#   - Any GitHub release publish (snapshot release or stable X.Y.Z release)
 #   - Manual dispatch (with optional choice of which set to refresh)
 #
 # See: https://github.com/AAVSO/VStar/issues/578
@@ -69,7 +69,7 @@ jobs:
       id: snapref
       if: steps.targets.outputs.build_snapshot == 'true'
       run: |
-        # Prefer the dedicated 'snapshot' tag (moved by daily-release.yml);
+        # Prefer the dedicated 'snapshot' tag (moved by snapshot-release.yml);
         # fall back to master if the tag is missing for any reason.
         if git ls-remote --tags https://github.com/${{ github.repository }}.git refs/tags/snapshot | grep -q .; then
           echo "ref=refs/tags/snapshot" >> "$GITHUB_OUTPUT"

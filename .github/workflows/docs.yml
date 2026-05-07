@@ -7,7 +7,7 @@
 #   docs/vstar/{snapshot,release}/plugin/*.pdf  (plugin docs + plugin dev guide)
 #
 # Triggers:
-#   - Any GitHub release publish (snapshot daily release or stable X.Y.Z release)
+#   - Any GitHub release publish (snapshot release or stable X.Y.Z release)
 #   - Manual dispatch (with optional choice of which set to refresh)
 #
 # See: https://github.com/AAVSO/VStar/issues/592
