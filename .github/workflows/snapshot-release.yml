@@ -79,17 +79,21 @@ jobs:
       run: |
         mkdir -p _site/grammar
         cp /tmp/rrd-antlr4/target/output/VeLa/index.html _site/grammar/VeLa.html
-    - name: Commit and push VeLa grammar diagram to gh-pages
+    - name: Deploy plugins to gh-pages (snapshot)
+      run: |
+        mkdir -p _site/plugins/snapshot
+        unzip -q plugin/vstar-plugins.zip -d _site/plugins/snapshot/
+    - name: Commit and push to gh-pages
       working-directory: _site
       run: |
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git config user.name "github-actions[bot]"
-        git add grammar/VeLa.html
+        git add -A
         if git diff --cached --quiet; then
-          echo "No VeLa grammar diagram changes to publish."
+          echo "No changes to publish."
           exit 0
         fi
-        git commit -m "Update VeLa grammar railroad diagram"
+        git commit -m "Update VeLa grammar diagram and snapshot plugins"
         for i in 1 2 3; do
           git pull --rebase origin gh-pages && git push origin gh-pages && break
           echo "Push attempt $i failed, retrying in $((i * 5))s..."
@@ -103,4 +107,3 @@ jobs:
         files: |
             vstar-bash.zip
             vstar-win.zip
-            plugin/vstar-plugins.zip

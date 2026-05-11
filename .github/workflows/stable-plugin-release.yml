@@ -1,0 +1,70 @@
+# This workflow builds the VStar plugins for a stable release and deploys
+# them to gh-pages under plugins/<version>/.
+#
+# Triggered by pushing a version tag of the form <major>.<minor>.<patch>,
+# e.g. git tag 2.25.0 && git push origin 2.25.0
+# Can also be triggered manually via workflow_dispatch with a version input.
+#
+# See: https://github.com/AAVSO/VStar/issues/589
+
+name: Stable Plugin Release
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    name: Stable plugin release
+
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    - name: Get version
+      id: version
+      run: echo "version=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+    - name: Create plugin dir
+      run: mkdir -p ~/vstar_plugins
+    - name: Create plugin libs dir
+      run: mkdir -p ~/vstar_plugin_libs
+    - name: Build plugins archive
+      run: |
+        cd plugin
+        ant -noinput -buildfile build.xml aavso
+    - name: Checkout gh-pages
+      uses: actions/checkout@v4
+      with:
+        ref: gh-pages
+        path: _site
+    - name: Deploy plugins to gh-pages
+      run: |
+        VERSION=${{ steps.version.outputs.version }}
+        mkdir -p _site/plugins/$VERSION
+        unzip -q plugin/vstar-plugins.zip -d _site/plugins/$VERSION/
+    - name: Commit and push plugins to gh-pages
+      working-directory: _site
+      run: |
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git config user.name "github-actions[bot]"
+        git add -A
+        if git diff --cached --quiet; then
+          echo "No plugin changes to publish."
+          exit 0
+        fi
+        git commit -m "Deploy plugins for ${{ steps.version.outputs.version }}"
+        for i in 1 2 3; do
+          git pull --rebase origin gh-pages && git push origin gh-pages && break
+          echo "Push attempt $i failed, retrying in $((i * 5))s..."
+          sleep $((i * 5))
+        done
