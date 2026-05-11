@@ -781,8 +781,8 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 						}
 <span class="fc" id="L782">						dpower = dpower + (dcoef[n1] * dvec[n1]);</span>
 
-<span class="pc bpc" id="L784" title="1 of 2 branches missed.">						if (interrupted) {</span>
-<span class="nc" id="L785">							throw new InterruptedException();</span>
+<span class="fc bfc" id="L784" title="All 2 branches covered.">						if (interrupted) {</span>
+<span class="fc" id="L785">							throw new InterruptedException();</span>
 						}
 					}
 <span class="fc" id="L788">					dpower = dpower - (davew * davew);</span>
