@@ -1,5 +1,5 @@
-# This workflow builds the VStar plugins for a stable release and deploys
-# them to gh-pages under plugins/<version>/.
+# This workflow downloads the plugin archive from an existing stable release
+# and deploys it to gh-pages under plugins/<version>/.
 #
 # Triggered by pushing a version tag of the form <major>.<minor>.<patch>,
 # e.g. git tag 2.25.0 && git push origin 2.25.0
@@ -37,22 +37,10 @@ jobs:
         else
           echo "version=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
         fi
-    - uses: actions/checkout@v4
-      with:
-        ref: ${{ steps.version.outputs.version }}
-    - name: Set up Java
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-    - name: Create plugin dir
-      run: mkdir -p ~/vstar_plugins
-    - name: Create plugin libs dir
-      run: mkdir -p ~/vstar_plugin_libs
-    - name: Build plugins archive
-      run: |
-        cd plugin
-        ant -noinput -buildfile build.xml aavso
+    - name: Download plugin archive from release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: gh release download ${{ steps.version.outputs.version }} --repo ${{ github.repository }} --pattern "vstar-plugins.zip"
     - name: Checkout gh-pages
       uses: actions/checkout@v4
       with:
@@ -62,7 +50,7 @@ jobs:
       run: |
         VERSION=${{ steps.version.outputs.version }}
         mkdir -p _site/plugins/$VERSION
-        unzip -q plugin/vstar-plugins.zip -d _site/plugins/$VERSION/
+        unzip -q vstar-plugins.zip -d _site/plugins/$VERSION/
     - name: Commit and push plugins to gh-pages
       working-directory: _site
       run: |
