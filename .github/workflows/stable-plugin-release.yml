@@ -40,7 +40,7 @@ jobs:
     - name: Download plugin archive from release
       env:
         GH_TOKEN: ${{ github.token }}
-      run: gh release download ${{ steps.version.outputs.version }} --repo ${{ github.repository }} --pattern "vstar-plugins.zip"
+      run: gh release download ${{ steps.version.outputs.version }} --repo ${{ github.repository }} --pattern "vstar-plugins-*.zip"
     - name: Checkout gh-pages
       uses: actions/checkout@v4
       with:
@@ -50,7 +50,7 @@ jobs:
       run: |
         VERSION=${{ steps.version.outputs.version }}
         mkdir -p _site/plugins/$VERSION
-        unzip -q vstar-plugins.zip -d _site/plugins/$VERSION/
+        unzip -q vstar-plugins-*.zip -d _site/plugins/$VERSION/
     - name: Commit and push plugins to gh-pages
       working-directory: _site
       run: |
