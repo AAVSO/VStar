@@ -1,0 +1,42 @@
+org.aavso.tools.vstar.external.plugin.AAVSOnetEpochPhotometryObservationSource.jar
+org.aavso.tools.vstar.external.plugin.AAVSOPhotometrySearchExportFormatObservationSource.jar
+org.aavso.tools.vstar.external.plugin.AAVSOUploadFileFormatObservationSource.jar
+org.aavso.tools.vstar.external.plugin.AoVPeriodSearch.jar => org.aavso.tools.vstar.external.lib.PiecewiseLinearModel.jar
+org.aavso.tools.vstar.external.plugin.DFTandSpectralWindow.jar
+org.aavso.tools.vstar.external.plugin.ApacheCommonsLoessFitter.jar
+org.aavso.tools.vstar.external.plugin.APASSEpochPhotometryObservationSource.jar
+org.aavso.tools.vstar.external.plugin.ASASObservationSource.jar
+org.aavso.tools.vstar.external.plugin.ASASSNObservationSource.jar
+org.aavso.tools.vstar.external.plugin.BMinusVObservationSource.jar
+org.aavso.tools.vstar.external.plugin.CatalinaSkySurveyObservationSource.jar
+org.aavso.tools.vstar.external.plugin.CurrentModeANOVATool.jar
+org.aavso.tools.vstar.external.plugin.DASCHObservationSource.jar
+org.aavso.tools.vstar.external.plugin.DescStatsBySeries.jar
+org.aavso.tools.vstar.external.plugin.FlexibleTextFileFormatObservationSource.jar
+org.aavso.tools.vstar.external.plugin.FlexibleTextFileFormatObservationSink.jar
+org.aavso.tools.vstar.external.plugin.VSXquery.jar
+org.aavso.tools.vstar.external.plugin.VeLaObSource.jar
+org.aavso.tools.vstar.external.plugin.FourierModelCreator.jar
+org.aavso.tools.vstar.external.plugin.HJDConverter.jar => org.aavso.tools.vstar.external.lib.ConvertHelper.jar
+org.aavso.tools.vstar.external.plugin.BJDConverter.jar => org.aavso.tools.vstar.external.lib.ConvertHelper.jar,json.jar
+org.aavso.tools.vstar.external.plugin.HipparcosObservationSource.jar
+org.aavso.tools.vstar.external.plugin.JDToDateTool.jar
+org.aavso.tools.vstar.external.plugin.JDtoBJDTool.jar => org.aavso.tools.vstar.external.lib.ConvertHelper.jar,json.jar
+org.aavso.tools.vstar.external.plugin.MagnitudeAndTimeShifter.jar
+org.aavso.tools.vstar.external.plugin.MeanTimeBetweenSelectionTool.jar
+org.aavso.tools.vstar.external.plugin.NSVSObservationSource.jar
+org.aavso.tools.vstar.external.plugin.ObserverListFilter.jar
+org.aavso.tools.vstar.external.plugin.ObserversBySeries.jar
+org.aavso.tools.vstar.external.plugin.PeriodLuminosityDistanceCalculator.jar
+org.aavso.tools.vstar.external.plugin.PiecewiseLinearMeanSeriesModel.jar => org.aavso.tools.vstar.external.lib.PiecewiseLinearModel.jar
+org.aavso.tools.vstar.external.plugin.SuperWASPFITSObservationSource.jar => tamfits.jar
+org.aavso.tools.vstar.external.plugin.VeLaModelCreator.jar
+org.aavso.tools.vstar.external.plugin.VeLaObservationTransformer.jar
+org.aavso.tools.vstar.external.plugin.JulianDateObservationsFilter.jar
+org.aavso.tools.vstar.external.plugin.ZTFObSource.jar => org.aavso.tools.vstar.external.lib.ZTFObSourceBase.jar
+org.aavso.tools.vstar.external.plugin.ZTFFileObSource.jar => org.aavso.tools.vstar.external.lib.ZTFObSourceBase.jar
+org.aavso.tools.vstar.external.plugin.GAIADR2XformObSource.jar => org.aavso.tools.vstar.external.lib.GaiaObSourceBase.jar
+org.aavso.tools.vstar.external.plugin.GAIADR2XformFileObSource.jar => org.aavso.tools.vstar.external.lib.GaiaObSourceBase.jar
+org.aavso.tools.vstar.external.plugin.KeplerFITSObservationSource.jar => tamfits.jar,org.aavso.tools.vstar.external.lib.TESSObservationRetrieverBase.jar
+org.aavso.tools.vstar.external.plugin.LightKurveFITSObservationSource.jar => tamfits.jar,org.aavso.tools.vstar.external.lib.TESSObservationRetrieverBase.jar
+org.aavso.tools.vstar.external.plugin.QLPFITSObservationSource.jar => tamfits.jar,org.aavso.tools.vstar.external.lib.TESSObservationRetrieverBase.jar
