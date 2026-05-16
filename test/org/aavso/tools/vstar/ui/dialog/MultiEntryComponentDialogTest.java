@@ -38,10 +38,6 @@ import junit.framework.TestCase;
  * - When okAction() SUCCEEDS it calls dispose() internally; the test
  *   must NOT call dispose() a second time to avoid a double-dispose crash.
  *
- * NOTE: These tests hang on macOS when run via Ant outside the EDT (a
- * macOS AppKit/main-thread constraint). They pass correctly under
- * Linux with {@code xvfb-run} as used in CI.
- *
  * Part of issue #579 (GUI code coverage).
  */
 public class MultiEntryComponentDialogTest extends TestCase {

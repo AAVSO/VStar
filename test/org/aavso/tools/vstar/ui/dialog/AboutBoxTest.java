@@ -28,10 +28,6 @@ import junit.framework.TestCase;
  * (show=false) to build the dialog without displaying it, avoiding the
  * {@code Mediator.getUI()} call and the blocking {@code setVisible(true)}.
  *
- * NOTE: These tests hang on macOS when run via Ant outside the EDT (a
- * macOS AppKit/main-thread constraint). They pass correctly under
- * Linux with {@code xvfb-run} as used in CI.
- *
  * Part of issue #579 (GUI code coverage).
  */
 public class AboutBoxTest extends TestCase {
