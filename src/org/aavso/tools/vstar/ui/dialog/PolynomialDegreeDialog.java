@@ -51,6 +51,15 @@ public class PolynomialDegreeDialog extends AbstractOkCancelDialog implements
 	 *            The maximum degree value.
 	 */
 	public PolynomialDegreeDialog(int minDegree, int maxDegree) {
+		this(minDegree, maxDegree, true);
+	}
+
+	/**
+	 * Package-private constructor that optionally suppresses display.
+	 * Pass {@code show=false} to build without calling
+	 * {@code Mediator.getUI()} or {@code setVisible(true)}.
+	 */
+	PolynomialDegreeDialog(int minDegree, int maxDegree, boolean show) {
 		super(LocaleProps.get("POLYNOMIAL_DEGREE_DLG_TITLE"));
 
 		degree = (maxDegree - minDegree) / 2;
@@ -69,8 +78,10 @@ public class PolynomialDegreeDialog extends AbstractOkCancelDialog implements
 		contentPane.add(topPane);
 
 		this.pack();
-		setLocationRelativeTo(Mediator.getUI().getContentPane());
-		this.setVisible(true);
+		if (show) {
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
+			this.setVisible(true);
+		}
 	}
 
 	/**
