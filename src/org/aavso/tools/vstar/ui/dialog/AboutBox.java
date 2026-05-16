@@ -54,12 +54,12 @@ public class AboutBox extends JDialog {
     }
 
     /**
-     * Package-private constructor used by tests.
      * Pass {@code show=false} to build the dialog without displaying it.
      * When false, UI panel and image-resource loading are skipped entirely,
      * avoiding both the {@code Mediator.getUI()} call and the blocking
      * {@code setVisible(true)}. {@code getAboutBoxText()}, title, and
      * modal state are all fully initialised regardless.
+     * Package-private so tests can construct without display.
      */
     AboutBox(boolean show) {
         super(DocumentManager.findActiveWindow());

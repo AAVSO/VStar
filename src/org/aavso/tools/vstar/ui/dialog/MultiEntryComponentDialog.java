@@ -65,10 +65,10 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	}
 
 	/**
-	 * Package-private constructor used by tests.
 	 * Pass {@code show=false} to build the dialog without displaying it,
 	 * avoiding the {@code Mediator.getUI()} call and the blocking
 	 * {@code setVisible(true)}.
+	 * Package-private so tests can construct without display.
 	 */
 	MultiEntryComponentDialog(String title,
 			String helpTopic,
