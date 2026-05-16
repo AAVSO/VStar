@@ -56,9 +56,11 @@ import org.aavso.tools.vstar.util.stats.DescStatsTest;
 import org.aavso.tools.vstar.util.stats.PhaseCalcsTest;
 import org.aavso.tools.vstar.util.stats.anova.CommonsMathAnovaTest;
 import org.aavso.tools.vstar.util.stats.anova.EpsAurVisJD2454700ToJD2455000AnovaTest;
+import org.aavso.tools.vstar.ui.dialog.AboutBoxTest;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialogTest;
 import org.aavso.tools.vstar.ui.dialog.DateToJdDialogTest;
 import org.aavso.tools.vstar.ui.dialog.DoubleFieldTest;
+import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialogTest;
 import org.aavso.tools.vstar.ui.dialog.TextDialogTest;
 import org.aavso.tools.vstar.ui.model.list.AbstractSyntheticObservationTableModelTest;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModelTest;
@@ -135,7 +137,9 @@ public class AllTests {
 		suite.addTestSuite(DateToJdDialogTest.class);
 		suite.addTestSuite(TextDialogTest.class);
 		suite.addTestSuite(AbstractOkCancelDialogTest.class);
+		suite.addTestSuite(AboutBoxTest.class);
 		suite.addTestSuite(DoubleFieldTest.class);
+		suite.addTestSuite(MultiEntryComponentDialogTest.class);
 		// $JUnit-END$
 		
 		return suite;

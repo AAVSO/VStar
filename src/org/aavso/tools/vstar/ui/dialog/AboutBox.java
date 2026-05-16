@@ -50,24 +50,39 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 public class AboutBox extends JDialog {
 
     public AboutBox() {
+        this(true);
+    }
+
+    /**
+     * Pass {@code show=false} to build the dialog without displaying it.
+     * When false, UI panel and image-resource loading are skipped entirely,
+     * avoiding both the {@code Mediator.getUI()} call and the blocking
+     * {@code setVisible(true)}. {@code getAboutBoxText()}, title, and
+     * modal state are all fully initialised regardless.
+     * Package-private so tests can construct without display.
+     */
+    AboutBox(boolean show) {
         super(DocumentManager.findActiveWindow());
         this.setTitle("About VStar");
         this.setModal(true);
+        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        Container contentPane = this.getContentPane();
+        if (show) {
+            Container contentPane = this.getContentPane();
 
-        JPanel topPane = new JPanel();
-        topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-        topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            JPanel topPane = new JPanel();
+            topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+            topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        topPane.add(createMainPane());
-        topPane.add(createButtonPane());
+            topPane.add(createMainPane());
+            topPane.add(createButtonPane());
 
-        contentPane.add(topPane);
+            contentPane.add(topPane);
 
-        this.pack();
-        this.setLocationRelativeTo(Mediator.getUI().getContentPane());
-        this.setVisible(true);
+            this.pack();
+            this.setLocationRelativeTo(Mediator.getUI().getContentPane());
+            this.setVisible(true);
+        }
     }
 
     private Component createMainPane() {
