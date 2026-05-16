@@ -113,7 +113,7 @@ public abstract class NumberFieldBase&lt;T extends Number&gt; implements
 
 	@Override
 	public String getStringValue() {
-<span class="nc" id="L116">		return textField.getText();</span>
+<span class="fc" id="L116">		return textField.getText();</span>
 	}
 
 	public void addActionListener(ActionListener l) {
@@ -122,17 +122,17 @@ public abstract class NumberFieldBase&lt;T extends Number&gt; implements
 
 	@Override
 	public boolean canBeEmpty() {
-<span class="nc" id="L125">		return false;</span>
+<span class="fc" id="L125">		return false;</span>
 	}
 
 	@Override
 	public boolean isReadOnly() {
-<span class="nc" id="L130">		return false;</span>
+<span class="fc" id="L130">		return false;</span>
 	}
 
 	@Override
 	public void setEditable(boolean state) {
 		// Always editable otherwise a TextField should be used!
-<span class="nc" id="L136">	}</span>
+<span class="fc" id="L136">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

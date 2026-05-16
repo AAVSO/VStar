@@ -43,7 +43,7 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 
 	private List&lt;ITextComponent&lt;?&gt;&gt; fields;
 	
-<span class="nc" id="L46">	private String helpTopic = null;</span>
+<span class="fc" id="L46">	private String helpTopic = null;</span>
 
 	/**
 	 * Constructor
@@ -60,39 +60,54 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	public MultiEntryComponentDialog(String title,
 			String helpTopic,			
 			List&lt;ITextComponent&lt;?&gt;&gt; fields,
-			Optional&lt;JComponent&gt; additionalUIComponent
-			) {
-<span class="nc" id="L65">		super(title);</span>
-<span class="nc" id="L66">		this.fields = fields;</span>
+			Optional&lt;JComponent&gt; additionalUIComponent) {
+<span class="nc" id="L64">		this(title, helpTopic, fields, additionalUIComponent, true);</span>
+<span class="nc" id="L65">	}</span>
 
-<span class="nc" id="L68">		Container contentPane = this.getContentPane();</span>
+	/**
+	 * Pass {@code show=false} to build the dialog without displaying it,
+	 * avoiding the {@code Mediator.getUI()} call and the blocking
+	 * {@code setVisible(true)}.
+	 * Package-private so tests can construct without display.
+	 */
+	MultiEntryComponentDialog(String title,
+			String helpTopic,
+			List&lt;ITextComponent&lt;?&gt;&gt; fields,
+			Optional&lt;JComponent&gt; additionalUIComponent,
+			boolean show) {
+<span class="fc" id="L78">		super(title);</span>
+<span class="fc" id="L79">		this.fields = fields;</span>
 
-<span class="nc" id="L70">		JPanel topPane = new JPanel();</span>
-<span class="nc" id="L71">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
-<span class="nc" id="L72">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+<span class="fc" id="L81">		Container contentPane = this.getContentPane();</span>
 
-<span class="nc" id="L74">		topPane.add(createParameterPane());</span>
+<span class="fc" id="L83">		JPanel topPane = new JPanel();</span>
+<span class="fc" id="L84">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="fc" id="L85">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
 
-<span class="nc bnc" id="L76" title="All 2 branches missed.">		if (additionalUIComponent.isPresent()) {</span>
-<span class="nc" id="L77">			topPane.add(additionalUIComponent.get());</span>
+<span class="fc" id="L87">		topPane.add(createParameterPane());</span>
+
+<span class="fc bfc" id="L89" title="All 2 branches covered.">		if (additionalUIComponent.isPresent()) {</span>
+<span class="fc" id="L90">			topPane.add(additionalUIComponent.get());</span>
 		}
 
-<span class="nc bnc" id="L80" title="All 4 branches missed.">		if (helpTopic == null || &quot;&quot;.equals(helpTopic)) {</span>
+<span class="pc bpc" id="L93" title="1 of 4 branches missed.">		if (helpTopic == null || &quot;&quot;.equals(helpTopic)) {</span>
 			// OK, Cancel
-<span class="nc" id="L82">			topPane.add(createButtonPane());</span>
+<span class="fc" id="L95">			topPane.add(createButtonPane());</span>
 		} else {
 			// OK, Cancel, Help
-<span class="nc" id="L85">			topPane.add(createButtonPane2());</span>
-<span class="nc" id="L86">			this.helpTopic = helpTopic;</span>
+<span class="fc" id="L98">			topPane.add(createButtonPane2());</span>
+<span class="fc" id="L99">			this.helpTopic = helpTopic;</span>
 		}
 
-<span class="nc" id="L89">		contentPane.add(topPane);</span>
+<span class="fc" id="L102">		contentPane.add(topPane);</span>
 
-<span class="nc" id="L91">		this.pack();</span>
-<span class="nc" id="L92">		setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
-<span class="nc" id="L93">		this.setVisible(true);</span>
-<span class="nc" id="L94">	}</span>
-	
+<span class="fc" id="L104">		this.pack();</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">		if (show) {</span>
+<span class="nc" id="L106">			setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L107">			this.setVisible(true);</span>
+		}
+<span class="fc" id="L109">	}</span>
+
 	/**
 	 * Constructor
 	 * 
@@ -108,8 +123,8 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	public MultiEntryComponentDialog(String title,
 			List&lt;ITextComponent&lt;?&gt;&gt; fields,
 			Optional&lt;JComponent&gt; additionalUIComponent) {
-<span class="nc" id="L111">		this(title, null, fields, additionalUIComponent);</span>
-<span class="nc" id="L112">	}</span>
+<span class="nc" id="L126">		this(title, null, fields, additionalUIComponent);</span>
+<span class="nc" id="L127">	}</span>
 
 	/**
 	 * Constructor
@@ -121,8 +136,8 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	 */
 	public MultiEntryComponentDialog(String title,
 			List&lt;ITextComponent&lt;?&gt;&gt; fields) {
-<span class="nc" id="L124">		this(title, fields, Optional.empty());</span>
-<span class="nc" id="L125">	}</span>
+<span class="nc" id="L139">		this(title, fields, Optional.empty());</span>
+<span class="nc" id="L140">	}</span>
 
 	/**
 	 * Constructor
@@ -133,8 +148,8 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	 *            The variable list of fields.
 	 */
 	public MultiEntryComponentDialog(String title, ITextComponent&lt;?&gt;... fields) {
-<span class="nc" id="L136">		this(title, Arrays.asList(fields), Optional.empty());</span>
-<span class="nc" id="L137">	}</span>
+<span class="nc" id="L151">		this(title, Arrays.asList(fields), Optional.empty());</span>
+<span class="nc" id="L152">	}</span>
 
 	/**
 	 * Constructor
@@ -147,21 +162,21 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	 *            The help topic: an absolute URL or a plug-in doc name. 
 	 */
 	public MultiEntryComponentDialog(String title, String helpTopic, ITextComponent&lt;?&gt;... fields) {
-<span class="nc" id="L150">		this(title, helpTopic, Arrays.asList(fields), Optional.empty());</span>
-<span class="nc" id="L151">	}</span>
+<span class="nc" id="L165">		this(title, helpTopic, Arrays.asList(fields), Optional.empty());</span>
+<span class="nc" id="L166">	}</span>
 	
 	// Add the fields.
 	private JPanel createParameterPane() {
-<span class="nc" id="L155">		JPanel panel = new JPanel();</span>
-<span class="nc" id="L156">		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));</span>
+<span class="fc" id="L170">		JPanel panel = new JPanel();</span>
+<span class="fc" id="L171">		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));</span>
 
-<span class="nc bnc" id="L158" title="All 2 branches missed.">		for (ITextComponent&lt;?&gt; field : fields) {</span>
-<span class="nc bnc" id="L159" title="All 2 branches missed.">			field.setEditable(!field.isReadOnly());</span>
-<span class="nc" id="L160">			panel.add(field.getUIComponent());</span>
-<span class="nc" id="L161">			panel.add(Box.createRigidArea(new Dimension(75, 10)));</span>
-<span class="nc" id="L162">		}</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">		for (ITextComponent&lt;?&gt; field : fields) {</span>
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">			field.setEditable(!field.isReadOnly());</span>
+<span class="fc" id="L175">			panel.add(field.getUIComponent());</span>
+<span class="fc" id="L176">			panel.add(Box.createRigidArea(new Dimension(75, 10)));</span>
+<span class="fc" id="L177">		}</span>
 
-<span class="nc" id="L164">		return panel;</span>
+<span class="fc" id="L179">		return panel;</span>
 	}
 
 	/**
@@ -169,8 +184,8 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	 */
 	@Override
 	protected void helpAction() {
-<span class="nc" id="L172">		Help.openPluginHelp(helpTopic);</span>
-<span class="nc" id="L173">	}</span>
+<span class="nc" id="L187">		Help.openPluginHelp(helpTopic);</span>
+<span class="nc" id="L188">	}</span>
 	
 	/**
 	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
@@ -178,51 +193,51 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	@Override
 	protected void cancelAction() {
 		// Nothing to do.
-<span class="nc" id="L181">	}</span>
+<span class="fc" id="L196">	}</span>
 
 	/**
 	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
 	 */
 	@Override
 	protected void okAction() {
-<span class="nc" id="L188">		boolean ok = true;</span>
+<span class="fc" id="L203">		boolean ok = true;</span>
 
 		// If there is a field that is returning a null value or a field that
 		// cannot be empty, but is, we cannot dismiss the dialog. Asking whether
 		// a field value is null is OK because if it's a string, that can never
 		// be the case and if it's a numeric field, it can be.
-<span class="nc bnc" id="L194" title="All 2 branches missed.">		for (ITextComponent&lt;?&gt; field : fields) {</span>
-<span class="nc bnc" id="L195" title="All 4 branches missed.">			if (field.getValue() == null || !field.canBeEmpty()</span>
-<span class="nc bnc" id="L196" title="All 2 branches missed.">					&amp;&amp; field.getStringValue().trim().length() == 0) {</span>
+<span class="fc bfc" id="L209" title="All 2 branches covered.">		for (ITextComponent&lt;?&gt; field : fields) {</span>
+<span class="pc bpc" id="L210" title="2 of 4 branches missed.">			if (field.getValue() == null || !field.canBeEmpty()</span>
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">					&amp;&amp; field.getStringValue().trim().length() == 0) {</span>
 
-<span class="nc" id="L198">				String errorMessage = &quot;Invalid value entered in &quot; + field.getName() + &quot;.&quot;;</span>
+<span class="nc" id="L213">				String errorMessage = &quot;Invalid value entered in &quot; + field.getName() + &quot;.&quot;;</span>
 
-<span class="nc bnc" id="L200" title="All 2 branches missed.">				if (field instanceof NumberFieldBase&lt;?&gt;)</span>
-<span class="nc" id="L201">					errorMessage += &quot;\n&quot; + numberFieldInfo((NumberFieldBase&lt;?&gt;)field);</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">				if (field instanceof NumberFieldBase&lt;?&gt;)</span>
+<span class="nc" id="L216">					errorMessage += &quot;\n&quot; + numberFieldInfo((NumberFieldBase&lt;?&gt;)field);</span>
 
-<span class="nc" id="L203">				MessageBox.showErrorDialog(this, getTitle(), errorMessage);</span>
+<span class="nc" id="L218">				MessageBox.showErrorDialog(this, getTitle(), errorMessage);</span>
 
-<span class="nc" id="L205">				ok = false;</span>
-<span class="nc" id="L206">				break;</span>
+<span class="nc" id="L220">				ok = false;</span>
+<span class="nc" id="L221">				break;</span>
 			}
-<span class="nc" id="L208">		}</span>
+<span class="fc" id="L223">		}</span>
 
-<span class="nc bnc" id="L210" title="All 2 branches missed.">		if (ok) {</span>
-<span class="nc" id="L211">			cancelled = false;</span>
-<span class="nc" id="L212">			setVisible(false);</span>
-<span class="nc" id="L213">			dispose();</span>
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">		if (ok) {</span>
+<span class="fc" id="L226">			cancelled = false;</span>
+<span class="fc" id="L227">			setVisible(false);</span>
+<span class="fc" id="L228">			dispose();</span>
 		}
-<span class="nc" id="L215">	}</span>
+<span class="fc" id="L230">	}</span>
 	
 	private String numberFieldInfo(NumberFieldBase&lt;?&gt; field) {
-<span class="nc" id="L218">		String s = &quot;&quot;;</span>
-<span class="nc bnc" id="L219" title="All 4 branches missed.">		if (field.getMin() == null &amp;&amp; field.getMax() != null)</span>
-<span class="nc" id="L220">			s = &quot;Only values &lt;= &quot; + field.getMax() + &quot; allowed.&quot;;</span>
-<span class="nc bnc" id="L221" title="All 4 branches missed.">		else if (field.getMin() != null &amp;&amp; field.getMax() == null)</span>
-<span class="nc" id="L222">			s = &quot;Only values &gt;= &quot; + field.getMin() + &quot; allowed.&quot;;</span>
-<span class="nc bnc" id="L223" title="All 4 branches missed.">		else if (field.getMin() != null &amp;&amp; field.getMax() != null)</span>
-<span class="nc" id="L224">			s = &quot;Only values between &quot; + field.getMin() + &quot; and &quot; + field.getMax() + &quot; allowed.&quot;;</span>
-<span class="nc" id="L225">		return s; </span>
+<span class="nc" id="L233">		String s = &quot;&quot;;</span>
+<span class="nc bnc" id="L234" title="All 4 branches missed.">		if (field.getMin() == null &amp;&amp; field.getMax() != null)</span>
+<span class="nc" id="L235">			s = &quot;Only values &lt;= &quot; + field.getMax() + &quot; allowed.&quot;;</span>
+<span class="nc bnc" id="L236" title="All 4 branches missed.">		else if (field.getMin() != null &amp;&amp; field.getMax() == null)</span>
+<span class="nc" id="L237">			s = &quot;Only values &gt;= &quot; + field.getMin() + &quot; allowed.&quot;;</span>
+<span class="nc bnc" id="L238" title="All 4 branches missed.">		else if (field.getMin() != null &amp;&amp; field.getMax() != null)</span>
+<span class="nc" id="L239">			s = &quot;Only values between &quot; + field.getMin() + &quot; and &quot; + field.getMax() + &quot; allowed.&quot;;</span>
+<span class="nc" id="L240">		return s; </span>
 	}
 
 }

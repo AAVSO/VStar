@@ -50,104 +50,119 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 public class AboutBox extends JDialog {
 
     public AboutBox() {
-<span class="nc" id="L53">        super(DocumentManager.findActiveWindow());</span>
-<span class="nc" id="L54">        this.setTitle(&quot;About VStar&quot;);</span>
-<span class="nc" id="L55">        this.setModal(true);</span>
+<span class="nc" id="L53">        this(true);</span>
+<span class="nc" id="L54">    }</span>
 
-<span class="nc" id="L57">        Container contentPane = this.getContentPane();</span>
+    /**
+     * Pass {@code show=false} to build the dialog without displaying it.
+     * When false, UI panel and image-resource loading are skipped entirely,
+     * avoiding both the {@code Mediator.getUI()} call and the blocking
+     * {@code setVisible(true)}. {@code getAboutBoxText()}, title, and
+     * modal state are all fully initialised regardless.
+     * Package-private so tests can construct without display.
+     */
+    AboutBox(boolean show) {
+<span class="fc" id="L65">        super(DocumentManager.findActiveWindow());</span>
+<span class="fc" id="L66">        this.setTitle(&quot;About VStar&quot;);</span>
+<span class="fc" id="L67">        this.setModal(true);</span>
+<span class="fc" id="L68">        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);</span>
 
-<span class="nc" id="L59">        JPanel topPane = new JPanel();</span>
-<span class="nc" id="L60">        topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
-<span class="nc" id="L61">        topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (show) {</span>
+<span class="nc" id="L71">            Container contentPane = this.getContentPane();</span>
 
-<span class="nc" id="L63">        topPane.add(createMainPane());</span>
-<span class="nc" id="L64">        topPane.add(createButtonPane());</span>
+<span class="nc" id="L73">            JPanel topPane = new JPanel();</span>
+<span class="nc" id="L74">            topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L75">            topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
 
-<span class="nc" id="L66">        contentPane.add(topPane);</span>
+<span class="nc" id="L77">            topPane.add(createMainPane());</span>
+<span class="nc" id="L78">            topPane.add(createButtonPane());</span>
 
-<span class="nc" id="L68">        this.pack();</span>
-<span class="nc" id="L69">        this.setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
-<span class="nc" id="L70">        this.setVisible(true);</span>
-<span class="nc" id="L71">    }</span>
+<span class="nc" id="L80">            contentPane.add(topPane);</span>
+
+<span class="nc" id="L82">            this.pack();</span>
+<span class="nc" id="L83">            this.setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L84">            this.setVisible(true);</span>
+        }
+<span class="fc" id="L86">    }</span>
 
     private Component createMainPane() {
-<span class="nc" id="L74">        JPanel topPanel = new JPanel();</span>
-<span class="nc" id="L75">        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.LINE_AXIS));</span>
+<span class="nc" id="L89">        JPanel topPanel = new JPanel();</span>
+<span class="nc" id="L90">        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.LINE_AXIS));</span>
 
-<span class="nc" id="L77">        JPanel iconPanel = new JPanel();</span>
-<span class="nc" id="L78">        iconPanel.setLayout(new BoxLayout(iconPanel, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L92">        JPanel iconPanel = new JPanel();</span>
+<span class="nc" id="L93">        iconPanel.setLayout(new BoxLayout(iconPanel, BoxLayout.PAGE_AXIS));</span>
 
-<span class="nc" id="L80">        Icon camargo = ResourceAccessor.getIconResource(&quot;/images/EpsAur_1_0.jpg&quot;);</span>
-<span class="nc" id="L81">        JLabel camargoLabel = new JLabel(camargo);</span>
-<span class="nc" id="L82">        JPanel camargoPanel = new JPanel(new BorderLayout());</span>
-<span class="nc" id="L83">        camargoPanel.add(camargoLabel, BorderLayout.CENTER);</span>
-<span class="nc" id="L84">        iconPanel.add(camargoPanel);</span>
+<span class="nc" id="L95">        Icon camargo = ResourceAccessor.getIconResource(&quot;/images/EpsAur_1_0.jpg&quot;);</span>
+<span class="nc" id="L96">        JLabel camargoLabel = new JLabel(camargo);</span>
+<span class="nc" id="L97">        JPanel camargoPanel = new JPanel(new BorderLayout());</span>
+<span class="nc" id="L98">        camargoPanel.add(camargoLabel, BorderLayout.CENTER);</span>
+<span class="nc" id="L99">        iconPanel.add(camargoPanel);</span>
 
-<span class="nc" id="L86">        iconPanel.add(Box.createRigidArea(new Dimension(75, 1)));</span>
+<span class="nc" id="L101">        iconPanel.add(Box.createRigidArea(new Dimension(75, 1)));</span>
 
-<span class="nc" id="L88">        Icon pose = ResourceAccessor.getIconResource(&quot;/images/vstar_pose1.jpg&quot;);</span>
-<span class="nc" id="L89">        JLabel poseLabel = new JLabel(pose);</span>
-<span class="nc" id="L90">        JPanel posePanel = new JPanel(new BorderLayout());</span>
-<span class="nc" id="L91">        posePanel.add(poseLabel, BorderLayout.CENTER);</span>
-<span class="nc" id="L92">        iconPanel.add(posePanel);</span>
+<span class="nc" id="L103">        Icon pose = ResourceAccessor.getIconResource(&quot;/images/vstar_pose1.jpg&quot;);</span>
+<span class="nc" id="L104">        JLabel poseLabel = new JLabel(pose);</span>
+<span class="nc" id="L105">        JPanel posePanel = new JPanel(new BorderLayout());</span>
+<span class="nc" id="L106">        posePanel.add(poseLabel, BorderLayout.CENTER);</span>
+<span class="nc" id="L107">        iconPanel.add(posePanel);</span>
 
-<span class="nc" id="L94">        iconPanel.add(Box.createRigidArea(new Dimension(75, 1)));</span>
+<span class="nc" id="L109">        iconPanel.add(Box.createRigidArea(new Dimension(75, 1)));</span>
 
-<span class="nc" id="L96">        Icon thieme = ResourceAccessor.getIconResource(&quot;/images/tenstar_artist_conception1.jpg&quot;);</span>
-<span class="nc" id="L97">        JLabel thiemeLabel = new JLabel(thieme);</span>
-<span class="nc" id="L98">        JPanel thiemePanel = new JPanel(new BorderLayout());</span>
-<span class="nc" id="L99">        thiemePanel.add(thiemeLabel, BorderLayout.CENTER);</span>
-<span class="nc" id="L100">        iconPanel.add(thiemePanel);</span>
+<span class="nc" id="L111">        Icon thieme = ResourceAccessor.getIconResource(&quot;/images/tenstar_artist_conception1.jpg&quot;);</span>
+<span class="nc" id="L112">        JLabel thiemeLabel = new JLabel(thieme);</span>
+<span class="nc" id="L113">        JPanel thiemePanel = new JPanel(new BorderLayout());</span>
+<span class="nc" id="L114">        thiemePanel.add(thiemeLabel, BorderLayout.CENTER);</span>
+<span class="nc" id="L115">        iconPanel.add(thiemePanel);</span>
 
-<span class="nc" id="L102">        iconPanel.add(Box.createRigidArea(new Dimension(75, 1)));</span>
+<span class="nc" id="L117">        iconPanel.add(Box.createRigidArea(new Dimension(75, 1)));</span>
 
-<span class="nc" id="L104">        Icon nsf = ResourceAccessor.getIconResource(&quot;/images/nsf1.jpg&quot;);</span>
-<span class="nc" id="L105">        JLabel nsfLabel = new JLabel(nsf);</span>
+<span class="nc" id="L119">        Icon nsf = ResourceAccessor.getIconResource(&quot;/images/nsf1.jpg&quot;);</span>
+<span class="nc" id="L120">        JLabel nsfLabel = new JLabel(nsf);</span>
 
-<span class="nc" id="L107">        Icon cs = ResourceAccessor.getIconResource(&quot;/images/citizen_sky.png&quot;);</span>
-<span class="nc" id="L108">        JLabel csLabel = new JLabel(cs);</span>
+<span class="nc" id="L122">        Icon cs = ResourceAccessor.getIconResource(&quot;/images/citizen_sky.png&quot;);</span>
+<span class="nc" id="L123">        JLabel csLabel = new JLabel(cs);</span>
 
-<span class="nc" id="L110">        Icon aavso = ResourceAccessor.getIconResource(&quot;/images/aavso.jpg&quot;);</span>
-<span class="nc" id="L111">        JLabel aavsoLabel = new JLabel(aavso);</span>
+<span class="nc" id="L125">        Icon aavso = ResourceAccessor.getIconResource(&quot;/images/aavso.jpg&quot;);</span>
+<span class="nc" id="L126">        JLabel aavsoLabel = new JLabel(aavso);</span>
 
-<span class="nc" id="L113">        JPanel orgPanel = new JPanel(new BorderLayout());</span>
-<span class="nc" id="L114">        orgPanel.add(csLabel, BorderLayout.LINE_START);</span>
-<span class="nc" id="L115">        orgPanel.add(nsfLabel, BorderLayout.CENTER);</span>
-<span class="nc" id="L116">        orgPanel.add(aavsoLabel, BorderLayout.LINE_END);</span>
-<span class="nc" id="L117">        iconPanel.add(orgPanel);</span>
+<span class="nc" id="L128">        JPanel orgPanel = new JPanel(new BorderLayout());</span>
+<span class="nc" id="L129">        orgPanel.add(csLabel, BorderLayout.LINE_START);</span>
+<span class="nc" id="L130">        orgPanel.add(nsfLabel, BorderLayout.CENTER);</span>
+<span class="nc" id="L131">        orgPanel.add(aavsoLabel, BorderLayout.LINE_END);</span>
+<span class="nc" id="L132">        iconPanel.add(orgPanel);</span>
 
-<span class="nc" id="L119">        topPanel.add(iconPanel);</span>
+<span class="nc" id="L134">        topPanel.add(iconPanel);</span>
 
-<span class="nc" id="L121">        topPanel.add(Box.createRigidArea(new Dimension(25, 1)));</span>
+<span class="nc" id="L136">        topPanel.add(Box.createRigidArea(new Dimension(25, 1)));</span>
 
-<span class="nc" id="L123">        JTextArea textArea = new JTextArea();</span>
-<span class="nc" id="L124">        textArea.setBorder(BorderFactory.createEtchedBorder());</span>
-<span class="nc" id="L125">        textArea.setEditable(false);</span>
-<span class="nc" id="L126">        textArea.setText(getAboutBoxText());</span>
-<span class="nc" id="L127">        topPanel.add(textArea);</span>
+<span class="nc" id="L138">        JTextArea textArea = new JTextArea();</span>
+<span class="nc" id="L139">        textArea.setBorder(BorderFactory.createEtchedBorder());</span>
+<span class="nc" id="L140">        textArea.setEditable(false);</span>
+<span class="nc" id="L141">        textArea.setText(getAboutBoxText());</span>
+<span class="nc" id="L142">        topPanel.add(textArea);</span>
 
-<span class="nc" id="L129">        return new JScrollPane(topPanel);</span>
+<span class="nc" id="L144">        return new JScrollPane(topPanel);</span>
     }
 
     private JPanel createButtonPane() {
-<span class="nc" id="L133">        JPanel panel = new JPanel(new BorderLayout());</span>
+<span class="nc" id="L148">        JPanel panel = new JPanel(new BorderLayout());</span>
 
-<span class="nc" id="L135">        JButton dismissButton = new JButton(&quot;Dismiss&quot;);</span>
-<span class="nc" id="L136">        dismissButton.addActionListener(createDismissButtonListener());</span>
-<span class="nc" id="L137">        panel.add(dismissButton, BorderLayout.LINE_END);</span>
+<span class="nc" id="L150">        JButton dismissButton = new JButton(&quot;Dismiss&quot;);</span>
+<span class="nc" id="L151">        dismissButton.addActionListener(createDismissButtonListener());</span>
+<span class="nc" id="L152">        panel.add(dismissButton, BorderLayout.LINE_END);</span>
 
-<span class="nc" id="L139">        this.getRootPane().setDefaultButton(dismissButton);</span>
+<span class="nc" id="L154">        this.getRootPane().setDefaultButton(dismissButton);</span>
 
-<span class="nc" id="L141">        return panel;</span>
+<span class="nc" id="L156">        return panel;</span>
     }
 
     // Return a listener for the &quot;Dismiss&quot; button.
     protected ActionListener createDismissButtonListener() {
-<span class="nc" id="L146">        return new ActionListener() {</span>
+<span class="nc" id="L161">        return new ActionListener() {</span>
             public void actionPerformed(ActionEvent e) {
-<span class="nc" id="L148">                setVisible(false);</span>
-<span class="nc" id="L149">                dispose();</span>
-<span class="nc" id="L150">            }</span>
+<span class="nc" id="L163">                setVisible(false);</span>
+<span class="nc" id="L164">                dispose();</span>
+<span class="nc" id="L165">            }</span>
         };
     }
 
@@ -166,69 +181,69 @@ public class AboutBox extends JDialog {
     // part by grant No. 000379097 from the National Science Foundation.&quot;
 
     public String getAboutBoxText() {
-<span class="nc" id="L169">        StringBuffer strBuf = new StringBuffer();</span>
-<span class="nc" id="L170">        strBuf.append(&quot;VStar &quot;);</span>
-<span class="nc" id="L171">        strBuf.append(ResourceAccessor.getVersionString());</span>
-<span class="nc" id="L172">        strBuf.append(&quot; (git rev. &quot;);</span>
-<span class="nc" id="L173">        strBuf.append(ResourceAccessor.getRevNum());</span>
-<span class="nc" id="L174">        strBuf.append(&quot;) &quot;);</span>
-<span class="nc" id="L175">        strBuf.append(ResourceAccessor.getBuildTimeStamp());</span>
-<span class="nc" id="L176">        strBuf.append(&quot;\n\n&quot;);</span>
+<span class="fc" id="L184">        StringBuffer strBuf = new StringBuffer();</span>
+<span class="fc" id="L185">        strBuf.append(&quot;VStar &quot;);</span>
+<span class="fc" id="L186">        strBuf.append(ResourceAccessor.getVersionString());</span>
+<span class="fc" id="L187">        strBuf.append(&quot; (git rev. &quot;);</span>
+<span class="fc" id="L188">        strBuf.append(ResourceAccessor.getRevNum());</span>
+<span class="fc" id="L189">        strBuf.append(&quot;) &quot;);</span>
+<span class="fc" id="L190">        strBuf.append(ResourceAccessor.getBuildTimeStamp());</span>
+<span class="fc" id="L191">        strBuf.append(&quot;\n\n&quot;);</span>
 
-<span class="nc" id="L178">        strBuf.append(&quot;A variable star observation data analysis tool\n&quot;);</span>
-<span class="nc" id="L179">        strBuf.append(&quot;developed for the American Association of Variable\n&quot;);</span>
-<span class="nc" id="L180">        strBuf.append(&quot;Star Observers (http://www.aavso.org)\n&quot;);</span>
-<span class="nc" id="L181">        strBuf.append(&quot;as part of the Citizen Sky Project.\n\n&quot;);</span>
+<span class="fc" id="L193">        strBuf.append(&quot;A variable star observation data analysis tool\n&quot;);</span>
+<span class="fc" id="L194">        strBuf.append(&quot;developed for the American Association of Variable\n&quot;);</span>
+<span class="fc" id="L195">        strBuf.append(&quot;Star Observers (http://www.aavso.org)\n&quot;);</span>
+<span class="fc" id="L196">        strBuf.append(&quot;as part of the Citizen Sky Project.\n\n&quot;);</span>
 
-<span class="nc" id="L183">        strBuf.append(&quot;This project was funded in part by grant No.\n&quot;);</span>
-<span class="nc" id="L184">        strBuf.append(&quot;000379097 from the National Science Foundation.\n\n&quot;);</span>
+<span class="fc" id="L198">        strBuf.append(&quot;This project was funded in part by grant No.\n&quot;);</span>
+<span class="fc" id="L199">        strBuf.append(&quot;000379097 from the National Science Foundation.\n\n&quot;);</span>
 
-<span class="nc" id="L186">        strBuf.append(&quot;Illustrations of Epsilon Aurigae are by Citizen Sky\n&quot;);</span>
-<span class="nc" id="L187">        strBuf.append(&quot;participants Nico Camargo and Brian Thieme.\n\n&quot;);</span>
+<span class="fc" id="L201">        strBuf.append(&quot;Illustrations of Epsilon Aurigae are by Citizen Sky\n&quot;);</span>
+<span class="fc" id="L202">        strBuf.append(&quot;participants Nico Camargo and Brian Thieme.\n\n&quot;);</span>
 
-<span class="nc" id="L189">        strBuf.append(&quot;Lead Developer: David Benn\n&quot;);</span>
-<span class="nc" id="L190">        strBuf.append(&quot;Contact: vstar@aavso.org\n&quot;);</span>
-<span class="nc" id="L191">        strBuf.append(&quot;License: GNU Affero General Public License v3\n\n&quot;);</span>
+<span class="fc" id="L204">        strBuf.append(&quot;Lead Developer: David Benn\n&quot;);</span>
+<span class="fc" id="L205">        strBuf.append(&quot;Contact: vstar@aavso.org\n&quot;);</span>
+<span class="fc" id="L206">        strBuf.append(&quot;License: GNU Affero General Public License v3\n\n&quot;);</span>
 
-<span class="nc" id="L193">        strBuf.append(&quot;Thanks to AAVSO staff past and present for their\n&quot;);</span>
-<span class="nc" id="L194">        strBuf.append(&quot;support: Sara Beck, Arne Henden, Aaron Price,\n&quot;);</span>
-<span class="nc" id="L195">        strBuf.append(&quot;Doc Kinne, Rebecca Turner, Elizabeth Waagen,\n&quot;);</span>
-<span class="nc" id="L196">        strBuf.append(&quot;Stella Kafka, Brian Kloppenborg, Matt\n&quot;);</span>
-<span class="nc" id="L197">        strBuf.append(&quot;Templeton, Sebasti\u00E1n Otero, Bert Pablo,\n&quot;);</span>
-<span class="nc" id="L198">        strBuf.append(&quot;Mike Simonsen.\n\n&quot;);</span>
+<span class="fc" id="L208">        strBuf.append(&quot;Thanks to AAVSO staff past and present for their\n&quot;);</span>
+<span class="fc" id="L209">        strBuf.append(&quot;support: Sara Beck, Arne Henden, Aaron Price,\n&quot;);</span>
+<span class="fc" id="L210">        strBuf.append(&quot;Doc Kinne, Rebecca Turner, Elizabeth Waagen,\n&quot;);</span>
+<span class="fc" id="L211">        strBuf.append(&quot;Stella Kafka, Brian Kloppenborg, Matt\n&quot;);</span>
+<span class="fc" id="L212">        strBuf.append(&quot;Templeton, Sebasti\u00E1n Otero, Bert Pablo,\n&quot;);</span>
+<span class="fc" id="L213">        strBuf.append(&quot;Mike Simonsen.\n\n&quot;);</span>
 
-<span class="nc" id="L200">        strBuf.append(&quot;As guide, domain expert, AAVSO liason, mentor,\n&quot;);</span>
-<span class="nc" id="L201">        strBuf.append(&quot;friend and advocate, Sara Beck was always there.\n\n&quot;);</span>
+<span class="fc" id="L215">        strBuf.append(&quot;As guide, domain expert, AAVSO liason, mentor,\n&quot;);</span>
+<span class="fc" id="L216">        strBuf.append(&quot;friend and advocate, Sara Beck was always there.\n\n&quot;);</span>
 
-<span class="nc" id="L203">        strBuf.append(&quot;Thanks to Grant Foster, developer of the first\n&quot;);</span>
-<span class="nc" id="L204">        strBuf.append(&quot;VSTAR program, for conversations, and for his book:\n&quot;);</span>
-<span class="nc" id="L205">        strBuf.append(&quot;\&quot;Analyzing Light Curves: A Practical Guide\&quot;.\n\n&quot;);</span>
+<span class="fc" id="L218">        strBuf.append(&quot;Thanks to Grant Foster, developer of the first\n&quot;);</span>
+<span class="fc" id="L219">        strBuf.append(&quot;VSTAR program, for conversations, and for his book:\n&quot;);</span>
+<span class="fc" id="L220">        strBuf.append(&quot;\&quot;Analyzing Light Curves: A Practical Guide\&quot;.\n\n&quot;);</span>
 
-<span class="nc" id="L207">        strBuf.append(&quot;Thanks also to Nico Camargo for his beautiful\n&quot;);</span>
-<span class="nc" id="L208">        strBuf.append(&quot;toolbar icons, to the Citizen Sky VStar Software\n&quot;);</span>
-<span class="nc" id="L209">        strBuf.append(&quot;Development team, to Michael Umbricht for early\n&quot;);</span>
-<span class="nc" id="L210">        strBuf.append(&quot;testing, advocacy, and conversations over beer.\n\n&quot;);</span>
+<span class="fc" id="L222">        strBuf.append(&quot;Thanks also to Nico Camargo for his beautiful\n&quot;);</span>
+<span class="fc" id="L223">        strBuf.append(&quot;toolbar icons, to the Citizen Sky VStar Software\n&quot;);</span>
+<span class="fc" id="L224">        strBuf.append(&quot;Development team, to Michael Umbricht for early\n&quot;);</span>
+<span class="fc" id="L225">        strBuf.append(&quot;testing, advocacy, and conversations over beer.\n\n&quot;);</span>
 
-<span class="nc" id="L212">        strBuf.append(&quot;For bug reports and fixes, documentation, plug-in\n&quot;);</span>
-<span class="nc" id="L213">        strBuf.append(&quot;development, testing, and enthusiasm, thanks to\n&quot;);</span>
-<span class="nc" id="L214">        strBuf.append(&quot;Maksym Pyatnytskyy, Cliff Kotnik, Sam Lee, Dave\n&quot;);</span>
-<span class="nc" id="L215">        strBuf.append(&quot;Hinzel, Adam Weber, Paul York, Michelle Dadighat,\n&quot;);</span>
-<span class="nc" id="L216">        strBuf.append(&quot;Doug Welch, Ken Mogul, Alan Plummer, Mark\n&quot;);</span>
-<span class="nc" id="L217">        strBuf.append(&quot;Blackford.\n\n&quot;);</span>
+<span class="fc" id="L227">        strBuf.append(&quot;For bug reports and fixes, documentation, plug-in\n&quot;);</span>
+<span class="fc" id="L228">        strBuf.append(&quot;development, testing, and enthusiasm, thanks to\n&quot;);</span>
+<span class="fc" id="L229">        strBuf.append(&quot;Maksym Pyatnytskyy, Cliff Kotnik, Sam Lee, Dave\n&quot;);</span>
+<span class="fc" id="L230">        strBuf.append(&quot;Hinzel, Adam Weber, Paul York, Michelle Dadighat,\n&quot;);</span>
+<span class="fc" id="L231">        strBuf.append(&quot;Doug Welch, Ken Mogul, Alan Plummer, Mark\n&quot;);</span>
+<span class="fc" id="L232">        strBuf.append(&quot;Blackford.\n\n&quot;);</span>
 
-<span class="nc" id="L219">        strBuf.append(&quot;Thanks to Patrick Wils who made web service\n&quot;);</span>
-<span class="nc" id="L220">        strBuf.append(&quot;access to the AAVSO International Database\n&quot;);</span>
-<span class="nc" id="L221">        strBuf.append(&quot;possible.\n\n&quot;);</span>
+<span class="fc" id="L234">        strBuf.append(&quot;Thanks to Patrick Wils who made web service\n&quot;);</span>
+<span class="fc" id="L235">        strBuf.append(&quot;access to the AAVSO International Database\n&quot;);</span>
+<span class="fc" id="L236">        strBuf.append(&quot;possible.\n\n&quot;);</span>
 
-<span class="nc" id="L223">        strBuf.append(&quot;Thanks to JoDee Baker, Brad Walter, and Aritra Das\n&quot;);</span>
-<span class="nc" id="L224">        strBuf.append(&quot;for their CHOICE course work, questions &amp; feedback.\n\n&quot;);</span>
+<span class="fc" id="L238">        strBuf.append(&quot;Thanks to JoDee Baker, Brad Walter, and Aritra Das\n&quot;);</span>
+<span class="fc" id="L239">        strBuf.append(&quot;for their CHOICE course work, questions &amp; feedback.\n\n&quot;);</span>
 
-<span class="nc" id="L226">        strBuf.append(&quot;Finally, thanks Arne, for the conversation at NACAA\n&quot;);</span>
-<span class="nc" id="L227">        strBuf.append(&quot;2008 that got the ball rolling, ongoing interest,\n&quot;);</span>
-<span class="nc" id="L228">        strBuf.append(&quot;and the 2011 AAVSO Director's Award. Thanks also to\n&quot;);</span>
-<span class="nc" id="L229">        strBuf.append(&quot;Stella and AAVSO for the 2019 Merit Award.&quot;);</span>
+<span class="fc" id="L241">        strBuf.append(&quot;Finally, thanks Arne, for the conversation at NACAA\n&quot;);</span>
+<span class="fc" id="L242">        strBuf.append(&quot;2008 that got the ball rolling, ongoing interest,\n&quot;);</span>
+<span class="fc" id="L243">        strBuf.append(&quot;and the 2011 AAVSO Director's Award. Thanks also to\n&quot;);</span>
+<span class="fc" id="L244">        strBuf.append(&quot;Stella and AAVSO for the 2019 Merit Award.&quot;);</span>
 
-<span class="nc" id="L231">        return strBuf.toString();</span>
+<span class="fc" id="L246">        return strBuf.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
