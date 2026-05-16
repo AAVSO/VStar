@@ -60,8 +60,21 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	public MultiEntryComponentDialog(String title,
 			String helpTopic,			
 			List<ITextComponent<?>> fields,
-			Optional<JComponent> additionalUIComponent
-			) {
+			Optional<JComponent> additionalUIComponent) {
+		this(title, helpTopic, fields, additionalUIComponent, true);
+	}
+
+	/**
+	 * Package-private constructor used by tests.
+	 * Pass {@code show=false} to build the dialog without displaying it,
+	 * avoiding the {@code Mediator.getUI()} call and the blocking
+	 * {@code setVisible(true)}.
+	 */
+	MultiEntryComponentDialog(String title,
+			String helpTopic,
+			List<ITextComponent<?>> fields,
+			Optional<JComponent> additionalUIComponent,
+			boolean show) {
 		super(title);
 		this.fields = fields;
 
@@ -89,10 +102,12 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 		contentPane.add(topPane);
 
 		this.pack();
-		setLocationRelativeTo(Mediator.getUI().getContentPane());
-		this.setVisible(true);
+		if (show) {
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
+			this.setVisible(true);
+		}
 	}
-	
+
 	/**
 	 * Constructor
 	 * 
