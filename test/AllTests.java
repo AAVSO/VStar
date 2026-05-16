@@ -59,8 +59,14 @@ import org.aavso.tools.vstar.util.stats.anova.EpsAurVisJD2454700ToJD2455000Anova
 import org.aavso.tools.vstar.ui.dialog.AboutBoxTest;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialogTest;
 import org.aavso.tools.vstar.ui.dialog.DateToJdDialogTest;
+import org.aavso.tools.vstar.ui.dialog.DiscrepantReportDialogTest;
 import org.aavso.tools.vstar.ui.dialog.DoubleFieldTest;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialogTest;
+import org.aavso.tools.vstar.ui.dialog.PeriodAnalysisPluginDialogsTest;
+import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialogTest;
+import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialogTest;
+import org.aavso.tools.vstar.ui.dialog.RadioButtonDialogTest;
+import org.aavso.tools.vstar.ui.dialog.SeriesTypeCreationDialogTest;
 import org.aavso.tools.vstar.ui.dialog.TextDialogTest;
 import org.aavso.tools.vstar.ui.model.list.AbstractSyntheticObservationTableModelTest;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModelTest;
@@ -140,6 +146,12 @@ public class AllTests {
 		suite.addTestSuite(AboutBoxTest.class);
 		suite.addTestSuite(DoubleFieldTest.class);
 		suite.addTestSuite(MultiEntryComponentDialogTest.class);
+		suite.addTestSuite(PolynomialDegreeDialogTest.class);
+		suite.addTestSuite(RadioButtonDialogTest.class);
+		suite.addTestSuite(DiscrepantReportDialogTest.class);
+		suite.addTestSuite(PhaseParameterDialogTest.class);
+		suite.addTestSuite(SeriesTypeCreationDialogTest.class);
+		suite.addTestSuite(PeriodAnalysisPluginDialogsTest.class);
 		// $JUnit-END$
 		
 		return suite;

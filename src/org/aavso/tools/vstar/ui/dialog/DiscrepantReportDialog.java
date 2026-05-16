@@ -58,6 +58,15 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 	 *            The observation to be reported as discrepant.
 	 */
 	public DiscrepantReportDialog(String auid, ValidObservation ob) {
+		this(auid, ob, true);
+	}
+
+	/**
+	 * Package-private constructor that optionally suppresses display.
+	 * Pass {@code show=false} to build without calling
+	 * {@code Mediator.getUI()} or {@code setVisible(true)}.
+	 */
+	DiscrepantReportDialog(String auid, ValidObservation ob, boolean show) {
 		super("AAVSO Discrepant Report");
 		this.auid = auid;
 		this.name = ob.getName();
@@ -84,8 +93,10 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 		contentPane.add(topPane);
 
 		this.pack();
-		setLocationRelativeTo(Mediator.getUI().getContentPane());
-		this.setVisible(true);
+		if (show) {
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
+			this.setVisible(true);
+		}
 	}
 
 	public String getComments() {

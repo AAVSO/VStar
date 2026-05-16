@@ -55,6 +55,16 @@ public class RadioButtonDialog extends AbstractOkCancelDialog implements ActionL
 	 */
 	public RadioButtonDialog(String title, Collection<String> options,
 			String initialOption) {
+		this(title, options, initialOption, true);
+	}
+
+	/**
+	 * Package-private constructor that optionally suppresses display.
+	 * Pass {@code show=false} to build without calling
+	 * {@code Mediator.getUI()} or {@code setVisible(true)}.
+	 */
+	RadioButtonDialog(String title, Collection<String> options,
+			String initialOption, boolean show) {
 		super(title);
 
 		this.options = options;
@@ -75,8 +85,10 @@ public class RadioButtonDialog extends AbstractOkCancelDialog implements ActionL
 		contentPane.add(topPane);
 
 		this.pack();
-		setLocationRelativeTo(Mediator.getUI().getContentPane());
-		this.setVisible(true);
+		if (show) {
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
+			this.setVisible(true);
+		}
 	}
 
 	/**
