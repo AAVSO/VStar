@@ -65,36 +65,36 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	 * Constructor.
 	 */
 	public PhaseParameterDialog() {
-<span class="nc" id="L68">		super(LocaleProps.get(&quot;PHASE_PARAMETER_DLG_PHASE_TITLE&quot;));</span>
+<span class="fc" id="L68">		super(LocaleProps.get(&quot;PHASE_PARAMETER_DLG_PHASE_TITLE&quot;));</span>
 
-<span class="nc" id="L70">		period = 0;</span>
-<span class="nc" id="L71">		epoch = 0;</span>
+<span class="fc" id="L70">		period = 0;</span>
+<span class="fc" id="L71">		epoch = 0;</span>
 
-<span class="nc" id="L73">		firstUse = true;</span>
+<span class="fc" id="L73">		firstUse = true;</span>
 
-<span class="nc" id="L75">		epochStrategy = new AlphaOmegaMeanJDEpochStrategy();</span>
+<span class="fc" id="L75">		epochStrategy = new AlphaOmegaMeanJDEpochStrategy();</span>
 
-<span class="nc" id="L77">		Container contentPane = this.getContentPane();</span>
+<span class="fc" id="L77">		Container contentPane = this.getContentPane();</span>
 
-<span class="nc" id="L79">		JPanel topPane = new JPanel();</span>
-<span class="nc" id="L80">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
-<span class="nc" id="L81">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+<span class="fc" id="L79">		JPanel topPane = new JPanel();</span>
+<span class="fc" id="L80">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="fc" id="L81">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
 
 		// Period
-<span class="nc" id="L84">		topPane.add(createPeriodFieldPane());</span>
+<span class="fc" id="L84">		topPane.add(createPeriodFieldPane());</span>
 
 		// Epoch
-<span class="nc" id="L87">		topPane.add(Box.createRigidArea(new Dimension(75, 10)));</span>
-<span class="nc" id="L88">		topPane.add(createEpochFieldPane());</span>
+<span class="fc" id="L87">		topPane.add(Box.createRigidArea(new Dimension(75, 10)));</span>
+<span class="fc" id="L88">		topPane.add(createEpochFieldPane());</span>
 
 		// OK, Cancel
-<span class="nc" id="L91">		topPane.add(createButtonPane());</span>
+<span class="fc" id="L91">		topPane.add(createButtonPane());</span>
 
-<span class="nc" id="L93">		contentPane.add(topPane);</span>
+<span class="fc" id="L93">		contentPane.add(topPane);</span>
 
-<span class="nc" id="L95">		this.pack();</span>
-<span class="nc" id="L96">		periodField.requestFocusInWindow();</span>
-<span class="nc" id="L97">	}</span>
+<span class="fc" id="L95">		this.pack();</span>
+<span class="fc" id="L96">		periodField.requestFocusInWindow();</span>
+<span class="fc" id="L97">	}</span>
 
 	/**
 	 * Show the dialog. TODO: this is on the base class! refactor!
@@ -110,36 +110,36 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 <span class="nc" id="L110">	}</span>
 
 	private JPanel createPeriodFieldPane() {
-<span class="nc" id="L113">		JPanel panel = new JPanel();</span>
+<span class="fc" id="L113">		JPanel panel = new JPanel();</span>
 
-<span class="nc" id="L115">		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
-<span class="nc" id="L116">		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps</span>
-<span class="nc" id="L117">				.get(&quot;PHASE_PARAMETER_DLG_PERIOD&quot;)</span>
-<span class="nc" id="L118">				+ &quot; (&quot; + LocaleProps.get(&quot;PHASE_PARAMETER_DLG_DAYS&quot;) + &quot;)&quot;));</span>
+<span class="fc" id="L115">		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
+<span class="fc" id="L116">		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps</span>
+<span class="fc" id="L117">				.get(&quot;PHASE_PARAMETER_DLG_PERIOD&quot;)</span>
+<span class="fc" id="L118">				+ &quot; (&quot; + LocaleProps.get(&quot;PHASE_PARAMETER_DLG_DAYS&quot;) + &quot;)&quot;));</span>
 
-<span class="nc" id="L120">		periodField = new JTextField();</span>
+<span class="fc" id="L120">		periodField = new JTextField();</span>
 		// periodField.setToolTipText(&quot;Enter period in days&quot;);
 		// periodField.addPropertyChangeListener(this);
-<span class="nc" id="L123">		panel.add(periodField);</span>
+<span class="fc" id="L123">		panel.add(periodField);</span>
 
-<span class="nc" id="L125">		return panel;</span>
+<span class="fc" id="L125">		return panel;</span>
 	}
 
 	private JPanel createEpochFieldPane() {
-<span class="nc" id="L129">		JPanel panel = new JPanel();</span>
+<span class="fc" id="L129">		JPanel panel = new JPanel();</span>
 
-<span class="nc" id="L131">		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
+<span class="fc" id="L131">		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
 		// TODO: show &quot;(JD/HJD)&quot;?
-<span class="nc" id="L133">		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps</span>
-<span class="nc" id="L134">				.get(&quot;PHASE_PARAMETER_DLG_EPOCH&quot;)</span>
-<span class="nc" id="L135">				+ &quot; (&quot; + LocaleProps.get(&quot;JD&quot;) + &quot;)&quot;));</span>
+<span class="fc" id="L133">		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps</span>
+<span class="fc" id="L134">				.get(&quot;PHASE_PARAMETER_DLG_EPOCH&quot;)</span>
+<span class="fc" id="L135">				+ &quot; (&quot; + LocaleProps.get(&quot;JD&quot;) + &quot;)&quot;));</span>
 
-<span class="nc" id="L137">		epochField = new JTextField();</span>
+<span class="fc" id="L137">		epochField = new JTextField();</span>
 		// epochField.setToolTipText(&quot;Enter epoch as JD&quot;);
 		// epochField.addPropertyChangeListener(this);
-<span class="nc" id="L140">		panel.add(epochField);</span>
+<span class="fc" id="L140">		panel.add(epochField);</span>
 
-<span class="nc" id="L142">		return panel;</span>
+<span class="fc" id="L142">		return panel;</span>
 	}
 
 	/**
@@ -195,14 +195,14 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	 * @return the period
 	 */
 	public double getPeriod() {
-<span class="nc" id="L198">		return period;</span>
+<span class="fc" id="L198">		return period;</span>
 	}
 
 	/**
 	 * @return the epoch
 	 */
 	public double getEpoch() {
-<span class="nc" id="L205">		return epoch;</span>
+<span class="fc" id="L205">		return epoch;</span>
 	}
 
 	/**
@@ -212,8 +212,8 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	 *            the period to set
 	 */
 	public void setPeriodField(double period) {
-<span class="nc" id="L215">		this.periodField.setText(NumericPrecisionPrefs.formatOther(period));</span>
-<span class="nc" id="L216">	}</span>
+<span class="fc" id="L215">		this.periodField.setText(NumericPrecisionPrefs.formatOther(period));</span>
+<span class="fc" id="L216">	}</span>
 
 	/**
 	 * Set the epoch field.
@@ -222,8 +222,8 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	 *            the epoch to set
 	 */
 	public void setEpochField(double epoch) {
-<span class="nc" id="L225">		this.epochField.setText(NumericPrecisionPrefs.formatTime(epoch));</span>
-<span class="nc" id="L226">	}</span>
+<span class="fc" id="L225">		this.epochField.setText(NumericPrecisionPrefs.formatTime(epoch));</span>
+<span class="fc" id="L226">	}</span>
 
 	/**
 	 * Update from new star message. We either want to clear the fields or if

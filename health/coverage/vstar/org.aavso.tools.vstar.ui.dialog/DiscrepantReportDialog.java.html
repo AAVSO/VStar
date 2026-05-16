@@ -58,102 +58,113 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 	 *            The observation to be reported as discrepant.
 	 */
 	public DiscrepantReportDialog(String auid, ValidObservation ob) {
-<span class="nc" id="L61">		super(&quot;AAVSO Discrepant Report&quot;);</span>
-<span class="nc" id="L62">		this.auid = auid;</span>
-<span class="nc" id="L63">		this.name = ob.getName();</span>
-<span class="nc" id="L64">		this.uniqueId = ob.getRecordNumber();</span>
-<span class="nc" id="L65">		this.jd = ob.getJD();</span>
-<span class="nc" id="L66">		this.magnitude = ob.getMag();</span>
+<span class="nc" id="L61">		this(auid, ob, true);</span>
+<span class="nc" id="L62">	}</span>
 
-<span class="nc" id="L68">		Container contentPane = this.getContentPane();</span>
+	/**
+	 * Package-private constructor that optionally suppresses display.
+	 * Pass {@code show=false} to build without calling
+	 * {@code Mediator.getUI()} or {@code setVisible(true)}.
+	 */
+	DiscrepantReportDialog(String auid, ValidObservation ob, boolean show) {
+<span class="fc" id="L70">		super(&quot;AAVSO Discrepant Report&quot;);</span>
+<span class="fc" id="L71">		this.auid = auid;</span>
+<span class="fc" id="L72">		this.name = ob.getName();</span>
+<span class="fc" id="L73">		this.uniqueId = ob.getRecordNumber();</span>
+<span class="fc" id="L74">		this.jd = ob.getJD();</span>
+<span class="fc" id="L75">		this.magnitude = ob.getMag();</span>
 
-<span class="nc" id="L70">		JPanel topPane = new JPanel();</span>
-<span class="nc" id="L71">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
-<span class="nc" id="L72">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+<span class="fc" id="L77">		Container contentPane = this.getContentPane();</span>
 
-<span class="nc" id="L74">		topPane.add(createQuestionPane());</span>
-<span class="nc" id="L75">		topPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
-<span class="nc" id="L76">		topPane.add(createDicrepantInfoPane());</span>
-<span class="nc" id="L77">		topPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
-<span class="nc" id="L78">		topPane.add(createCommentsPane());</span>
-<span class="nc" id="L79">		topPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+<span class="fc" id="L79">		JPanel topPane = new JPanel();</span>
+<span class="fc" id="L80">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="fc" id="L81">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="fc" id="L83">		topPane.add(createQuestionPane());</span>
+<span class="fc" id="L84">		topPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+<span class="fc" id="L85">		topPane.add(createDicrepantInfoPane());</span>
+<span class="fc" id="L86">		topPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+<span class="fc" id="L87">		topPane.add(createCommentsPane());</span>
+<span class="fc" id="L88">		topPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
 
 		// OK, Cancel
-<span class="nc" id="L82">		topPane.add(createButtonPane());</span>
+<span class="fc" id="L91">		topPane.add(createButtonPane());</span>
 
-<span class="nc" id="L84">		contentPane.add(topPane);</span>
+<span class="fc" id="L93">		contentPane.add(topPane);</span>
 
-<span class="nc" id="L86">		this.pack();</span>
-<span class="nc" id="L87">		setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
-<span class="nc" id="L88">		this.setVisible(true);</span>
-<span class="nc" id="L89">	}</span>
+<span class="fc" id="L95">		this.pack();</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">		if (show) {</span>
+<span class="nc" id="L97">			setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L98">			this.setVisible(true);</span>
+		}
+<span class="fc" id="L100">	}</span>
 
 	public String getComments() {
-<span class="nc" id="L92">		return commentsField.getText();</span>
+<span class="fc" id="L103">		return commentsField.getText();</span>
 	}
 
 	private JPanel createQuestionPane() {
-<span class="nc" id="L96">		JPanel panel = new JPanel();</span>
+<span class="fc" id="L107">		JPanel panel = new JPanel();</span>
 
-<span class="nc" id="L98">		panel.add(new JLabel(&quot;Submit Report to AAVSO?&quot;),</span>
+<span class="fc" id="L109">		panel.add(new JLabel(&quot;Submit Report to AAVSO?&quot;),</span>
 				BorderLayout.LINE_START);
 
-<span class="nc" id="L101">		return panel;</span>
+<span class="fc" id="L112">		return panel;</span>
 	}
 
 	private JPanel createDicrepantInfoPane() {
-<span class="nc" id="L105">		JPanel panel = new JPanel();</span>
-<span class="nc" id="L106">		panel.setBorder(BorderFactory</span>
-<span class="nc" id="L107">				.createTitledBorder(&quot;Discrepant Observation Details&quot;));</span>
+<span class="fc" id="L116">		JPanel panel = new JPanel();</span>
+<span class="fc" id="L117">		panel.setBorder(BorderFactory</span>
+<span class="fc" id="L118">				.createTitledBorder(&quot;Discrepant Observation Details&quot;));</span>
 
-<span class="nc" id="L109">		JTextArea details = new JTextArea();</span>
-<span class="nc" id="L110">		details.setEditable(false);</span>
+<span class="fc" id="L120">		JTextArea details = new JTextArea();</span>
+<span class="fc" id="L121">		details.setEditable(false);</span>
 
-<span class="nc" id="L112">		String text = &quot;&quot;;</span>
-<span class="nc" id="L113">		text += &quot;AUID: &quot; + auid;</span>
-<span class="nc" id="L114">		text += &quot;\nName: &quot; + name;</span>
-<span class="nc" id="L115">		text += &quot;\nJD: &quot; + jd;</span>
-<span class="nc" id="L116">		text += &quot;\nMag: &quot; + magnitude;</span>
+<span class="fc" id="L123">		String text = &quot;&quot;;</span>
+<span class="fc" id="L124">		text += &quot;AUID: &quot; + auid;</span>
+<span class="fc" id="L125">		text += &quot;\nName: &quot; + name;</span>
+<span class="fc" id="L126">		text += &quot;\nJD: &quot; + jd;</span>
+<span class="fc" id="L127">		text += &quot;\nMag: &quot; + magnitude;</span>
 
-<span class="nc" id="L118">		details.setText(text);</span>
+<span class="fc" id="L129">		details.setText(text);</span>
 
-<span class="nc" id="L120">		panel.add(details);</span>
+<span class="fc" id="L131">		panel.add(details);</span>
 
-<span class="nc" id="L122">		return panel;</span>
+<span class="fc" id="L133">		return panel;</span>
 	}
 
 	private JPanel createCommentsPane() {
-<span class="nc" id="L126">		JPanel panel = new JPanel();</span>
-<span class="nc" id="L127">		panel</span>
-<span class="nc" id="L128">				.setBorder(BorderFactory</span>
-<span class="nc" id="L129">						.createTitledBorder(&quot;Comments (optional)&quot;));</span>
+<span class="fc" id="L137">		JPanel panel = new JPanel();</span>
+<span class="fc" id="L138">		panel</span>
+<span class="fc" id="L139">				.setBorder(BorderFactory</span>
+<span class="fc" id="L140">						.createTitledBorder(&quot;Comments (optional)&quot;));</span>
 
-<span class="nc" id="L131">		commentsField = new JTextField(20);</span>
-<span class="nc" id="L132">		commentsField</span>
-<span class="nc" id="L133">				.setToolTipText(&quot;Enter comments to be included in discrepant report.&quot;);</span>
-<span class="nc" id="L134">		panel.add(commentsField);</span>
+<span class="fc" id="L142">		commentsField = new JTextField(20);</span>
+<span class="fc" id="L143">		commentsField</span>
+<span class="fc" id="L144">				.setToolTipText(&quot;Enter comments to be included in discrepant report.&quot;);</span>
+<span class="fc" id="L145">		panel.add(commentsField);</span>
 
-<span class="nc" id="L136">		return panel;</span>
+<span class="fc" id="L147">		return panel;</span>
 	}
 
 	@Override
 	protected void cancelAction() {
 		// Nothing to do.
-<span class="nc" id="L142">	}</span>
+<span class="fc" id="L153">	}</span>
 
 	@Override
 	protected void okAction() {
-<span class="nc bnc" id="L146" title="All 2 branches missed.">		if (getComments().length() &gt; MAX_COMMENT_LENGTH) {</span>
-<span class="nc" id="L147">			MessageBox.showErrorDialog(&quot;Comment&quot;,</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">		if (getComments().length() &gt; MAX_COMMENT_LENGTH) {</span>
+<span class="nc" id="L158">			MessageBox.showErrorDialog(&quot;Comment&quot;,</span>
 					&quot;Discrepant observation comment length exceeds &quot;
 							+ MAX_COMMENT_LENGTH + &quot; characters (&quot;
-<span class="nc" id="L150">							+ getComments().length() + &quot;).&quot;);</span>
+<span class="nc" id="L161">							+ getComments().length() + &quot;).&quot;);</span>
 		} else {
 			// TODO: this should be the base class implementation of okAction().
-<span class="nc" id="L153">			cancelled = false;</span>
-<span class="nc" id="L154">			setVisible(false);</span>
-<span class="nc" id="L155">			dispose();</span>
+<span class="nc" id="L164">			cancelled = false;</span>
+<span class="nc" id="L165">			setVisible(false);</span>
+<span class="nc" id="L166">			dispose();</span>
 		}
-<span class="nc" id="L157">	}</span>
+<span class="nc" id="L168">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -51,27 +51,38 @@ public class PolynomialDegreeDialog extends AbstractOkCancelDialog implements
 	 *            The maximum degree value.
 	 */
 	public PolynomialDegreeDialog(int minDegree, int maxDegree) {
-<span class="nc" id="L54">		super(LocaleProps.get(&quot;POLYNOMIAL_DEGREE_DLG_TITLE&quot;));</span>
+<span class="nc" id="L54">		this(minDegree, maxDegree, true);</span>
+<span class="nc" id="L55">	}</span>
 
-<span class="nc" id="L56">		degree = (maxDegree - minDegree) / 2;</span>
+	/**
+	 * Package-private constructor that optionally suppresses display.
+	 * Pass {@code show=false} to build without calling
+	 * {@code Mediator.getUI()} or {@code setVisible(true)}.
+	 */
+	PolynomialDegreeDialog(int minDegree, int maxDegree, boolean show) {
+<span class="fc" id="L63">		super(LocaleProps.get(&quot;POLYNOMIAL_DEGREE_DLG_TITLE&quot;));</span>
 
-<span class="nc" id="L58">		Container contentPane = this.getContentPane();</span>
+<span class="fc" id="L65">		degree = (maxDegree - minDegree) / 2;</span>
 
-<span class="nc" id="L60">		JPanel topPane = new JPanel();</span>
-<span class="nc" id="L61">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
-<span class="nc" id="L62">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+<span class="fc" id="L67">		Container contentPane = this.getContentPane();</span>
 
-<span class="nc" id="L64">		topPane.add(createPolynomialDegreePane(minDegree, maxDegree));</span>
+<span class="fc" id="L69">		JPanel topPane = new JPanel();</span>
+<span class="fc" id="L70">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="fc" id="L71">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="fc" id="L73">		topPane.add(createPolynomialDegreePane(minDegree, maxDegree));</span>
 
 		// OK, Cancel
-<span class="nc" id="L67">		topPane.add(createButtonPane());</span>
+<span class="fc" id="L76">		topPane.add(createButtonPane());</span>
 
-<span class="nc" id="L69">		contentPane.add(topPane);</span>
+<span class="fc" id="L78">		contentPane.add(topPane);</span>
 
-<span class="nc" id="L71">		this.pack();</span>
-<span class="nc" id="L72">		setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
-<span class="nc" id="L73">		this.setVisible(true);</span>
-<span class="nc" id="L74">	}</span>
+<span class="fc" id="L80">		this.pack();</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">		if (show) {</span>
+<span class="nc" id="L82">			setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L83">			this.setVisible(true);</span>
+		}
+<span class="fc" id="L85">	}</span>
 
 	/**
 	 * Returns the currently selected degree value.
@@ -79,44 +90,44 @@ public class PolynomialDegreeDialog extends AbstractOkCancelDialog implements
 	 * @return the degree
 	 */
 	public int getDegree() {
-<span class="nc" id="L82">		return degree;</span>
+<span class="fc" id="L93">		return degree;</span>
 	}
 
 	private Component createPolynomialDegreePane(int minDegree, int maxDegree) {
-<span class="nc" id="L86">		JPanel panel = new JPanel();</span>
-<span class="nc" id="L87">		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
-<span class="nc" id="L88">		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps</span>
-<span class="nc" id="L89">				.get(&quot;SELECT_POLYNOMIAL_DEGREE_TITLE&quot;)));</span>
+<span class="fc" id="L97">		JPanel panel = new JPanel();</span>
+<span class="fc" id="L98">		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
+<span class="fc" id="L99">		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps</span>
+<span class="fc" id="L100">				.get(&quot;SELECT_POLYNOMIAL_DEGREE_TITLE&quot;)));</span>
 
-<span class="nc" id="L91">		JSlider degreeSlider = new JSlider(JSlider.HORIZONTAL, minDegree,</span>
+<span class="fc" id="L102">		JSlider degreeSlider = new JSlider(JSlider.HORIZONTAL, minDegree,</span>
 				maxDegree, degree);
 
-<span class="nc" id="L94">		degreeSlider.setMajorTickSpacing((maxDegree - minDegree) / 10);</span>
-<span class="nc" id="L95">		degreeSlider.setMinorTickSpacing(1);</span>
-<span class="nc" id="L96">		degreeSlider.setPaintTicks(true);</span>
-<span class="nc" id="L97">		degreeSlider.setPaintLabels(true);</span>
+<span class="fc" id="L105">		degreeSlider.setMajorTickSpacing((maxDegree - minDegree) / 10);</span>
+<span class="fc" id="L106">		degreeSlider.setMinorTickSpacing(1);</span>
+<span class="fc" id="L107">		degreeSlider.setPaintTicks(true);</span>
+<span class="fc" id="L108">		degreeSlider.setPaintLabels(true);</span>
 
-<span class="nc" id="L99">		degreeSlider.addChangeListener(this);</span>
+<span class="fc" id="L110">		degreeSlider.addChangeListener(this);</span>
 
-<span class="nc" id="L101">		panel.add(degreeSlider);</span>
+<span class="fc" id="L112">		panel.add(degreeSlider);</span>
 
-<span class="nc" id="L103">		degreeLabel = new JLabel(degree + &quot;&quot;);</span>
-<span class="nc" id="L104">		degreeLabel.setBorder(BorderFactory.createEtchedBorder());</span>
-<span class="nc" id="L105">		panel.add(degreeLabel);</span>
+<span class="fc" id="L114">		degreeLabel = new JLabel(degree + &quot;&quot;);</span>
+<span class="fc" id="L115">		degreeLabel.setBorder(BorderFactory.createEtchedBorder());</span>
+<span class="fc" id="L116">		panel.add(degreeLabel);</span>
 
-<span class="nc" id="L107">		return panel;</span>
+<span class="fc" id="L118">		return panel;</span>
 	}
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-<span class="nc" id="L112">		JSlider slider = (JSlider) e.getSource();</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">		if (!slider.getValueIsAdjusting()) {</span>
-<span class="nc" id="L114">			degree = slider.getValue();</span>
-<span class="nc" id="L115">			degreeLabel.setText(degree + &quot;&quot;);</span>
+<span class="nc" id="L123">		JSlider slider = (JSlider) e.getSource();</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">		if (!slider.getValueIsAdjusting()) {</span>
+<span class="nc" id="L125">			degree = slider.getValue();</span>
+<span class="nc" id="L126">			degreeLabel.setText(degree + &quot;&quot;);</span>
 		} else {
-<span class="nc" id="L117">			degreeLabel.setText(slider.getValue() + &quot;&quot;);</span>
+<span class="nc" id="L128">			degreeLabel.setText(slider.getValue() + &quot;&quot;);</span>
 		}
-<span class="nc" id="L119">	}</span>
+<span class="nc" id="L130">	}</span>
 
 	/**
 	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
@@ -124,7 +135,7 @@ public class PolynomialDegreeDialog extends AbstractOkCancelDialog implements
 	@Override
 	protected void cancelAction() {
 		// Nothing to do.
-<span class="nc" id="L127">	}</span>
+<span class="fc" id="L138">	}</span>
 
 	/**
 	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
@@ -132,9 +143,9 @@ public class PolynomialDegreeDialog extends AbstractOkCancelDialog implements
 	@Override
 	protected void okAction() {
 		// TODO: this should be the base class implementation of okAction().
-<span class="nc" id="L135">		cancelled = false;</span>
-<span class="nc" id="L136">		setVisible(false);</span>
-<span class="nc" id="L137">		dispose();</span>
-<span class="nc" id="L138">	}</span>
+<span class="fc" id="L146">		cancelled = false;</span>
+<span class="fc" id="L147">		setVisible(false);</span>
+<span class="fc" id="L148">		dispose();</span>
+<span class="fc" id="L149">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
