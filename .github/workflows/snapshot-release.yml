@@ -82,7 +82,7 @@ jobs:
     - name: Deploy plugins to gh-pages (snapshot)
       run: |
         mkdir -p _site/plugins/snapshot
-        unzip -q plugin/vstar-plugins.zip -d _site/plugins/snapshot/
+        unzip -o -q plugin/vstar-plugins.zip -d _site/plugins/snapshot/
     - name: Commit and push to gh-pages
       working-directory: _site
       run: |
