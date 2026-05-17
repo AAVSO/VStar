@@ -77,6 +77,9 @@ import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModelTest;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModelTest;
 import org.aavso.tools.vstar.ui.model.list.WWZDataTableModelTest;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModelTest;
+import org.aavso.tools.vstar.ui.pane.list.ListSearchPaneTest;
+import org.aavso.tools.vstar.ui.pane.list.ObservationListPaneTest;
+import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPaneTest;
 import org.aavso.tools.vstar.ui.pane.list.VisibleSeriesRowFilterTest;
 import org.aavso.tools.vstar.vela.VeLaTest;
 
@@ -144,6 +147,9 @@ public class AllTests {
 		suite.addTestSuite(PeriodAnalysisDataTableModelTest.class);
 		suite.addTestSuite(WWZDataTableModelTest.class);
 		suite.addTestSuite(AbstractSyntheticObservationTableModelTest.class);
+		suite.addTestSuite(ListSearchPaneTest.class);
+		suite.addTestSuite(ObservationListPaneTest.class);
+		suite.addTestSuite(SyntheticObservationListPaneTest.class);
 		suite.addTestSuite(VisibleSeriesRowFilterTest.class);
 		suite.addTestSuite(DateToJdDialogTest.class);
 		suite.addTestSuite(TextDialogTest.class);
