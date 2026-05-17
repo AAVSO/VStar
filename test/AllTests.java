@@ -61,6 +61,7 @@ import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialogTest;
 import org.aavso.tools.vstar.ui.dialog.DateToJdDialogTest;
 import org.aavso.tools.vstar.ui.dialog.DiscrepantReportDialogTest;
 import org.aavso.tools.vstar.ui.dialog.DoubleFieldTest;
+import org.aavso.tools.vstar.ui.dialog.FileExtensionFilterTest;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialogTest;
 import org.aavso.tools.vstar.ui.dialog.PeriodAnalysisPluginDialogsTest;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialogTest;
@@ -145,6 +146,7 @@ public class AllTests {
 		suite.addTestSuite(AbstractOkCancelDialogTest.class);
 		suite.addTestSuite(AboutBoxTest.class);
 		suite.addTestSuite(DoubleFieldTest.class);
+		suite.addTestSuite(FileExtensionFilterTest.class);
 		suite.addTestSuite(MultiEntryComponentDialogTest.class);
 		suite.addTestSuite(PolynomialDegreeDialogTest.class);
 		suite.addTestSuite(RadioButtonDialogTest.class);
