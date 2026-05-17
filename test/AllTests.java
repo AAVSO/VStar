@@ -62,6 +62,7 @@ import org.aavso.tools.vstar.ui.dialog.DateToJdDialogTest;
 import org.aavso.tools.vstar.ui.dialog.DiscrepantReportDialogTest;
 import org.aavso.tools.vstar.ui.dialog.DoubleFieldTest;
 import org.aavso.tools.vstar.ui.dialog.FileExtensionFilterTest;
+import org.aavso.tools.vstar.ui.dialog.InfoDialogTest;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialogTest;
 import org.aavso.tools.vstar.ui.dialog.PeriodAnalysisPluginDialogsTest;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialogTest;
@@ -69,10 +70,13 @@ import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialogTest;
 import org.aavso.tools.vstar.ui.dialog.RadioButtonDialogTest;
 import org.aavso.tools.vstar.ui.dialog.SeriesTypeCreationDialogTest;
 import org.aavso.tools.vstar.ui.dialog.TextDialogTest;
+import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPaneTest;
+import org.aavso.tools.vstar.ui.model.list.AAVSOFormatRawDataColumnInfoSourceTest;
 import org.aavso.tools.vstar.ui.model.list.AbstractSyntheticObservationTableModelTest;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModelTest;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModelTest;
 import org.aavso.tools.vstar.ui.model.list.WWZDataTableModelTest;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModelTest;
 import org.aavso.tools.vstar.ui.pane.list.VisibleSeriesRowFilterTest;
 import org.aavso.tools.vstar.vela.VeLaTest;
 
@@ -154,6 +158,10 @@ public class AllTests {
 		suite.addTestSuite(PhaseParameterDialogTest.class);
 		suite.addTestSuite(SeriesTypeCreationDialogTest.class);
 		suite.addTestSuite(PeriodAnalysisPluginDialogsTest.class);
+		suite.addTestSuite(InfoDialogTest.class);
+		suite.addTestSuite(AAVSOFormatRawDataColumnInfoSourceTest.class);
+		suite.addTestSuite(ObservationAndMeanPlotModelTest.class);
+		suite.addTestSuite(PeriodAnalysis2DChartPaneTest.class);
 		// $JUnit-END$
 		
 		return suite;
