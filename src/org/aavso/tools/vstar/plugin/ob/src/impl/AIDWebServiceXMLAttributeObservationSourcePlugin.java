@@ -47,6 +47,7 @@ import org.xml.sax.SAXException;
  * This intrinsic observation source plug-in retrieves AID observations via the
  * VSX web service.
  */
+@Deprecated
 public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 		AIDWebServiceObservationSourcePluginBase {
 
