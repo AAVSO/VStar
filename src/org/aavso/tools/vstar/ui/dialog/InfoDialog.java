@@ -55,32 +55,50 @@ public class InfoDialog extends JDialog implements ActionListener {
 	 *            The loaded star messages.
 	 */
 	public InfoDialog(List<NewStarMessage> newStarMessages) {
+		this(newStarMessages, true);
+	}
+
+	/**
+	 * Package-private constructor that allows tests to build the dialog without
+	 * displaying it. When {@code show} is {@code false} all Swing setup,
+	 * {@code setLocationRelativeTo}, and {@code setVisible(true)} are skipped so
+	 * that the dialog can be constructed without a live {@code Mediator} UI.
+	 *
+	 * @param newStarMessages
+	 *            The loaded star messages (ignored when show is false).
+	 * @param show
+	 *            {@code true} to build and display normally; {@code false} for
+	 *            tests.
+	 */
+	InfoDialog(List<NewStarMessage> newStarMessages, boolean show) {
 		super(DocumentManager.findActiveWindow());
 		this.setTitle("Information");
 
-		JPanel topPane = new JPanel();
-		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		if (show) {
+			JPanel topPane = new JPanel();
+			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		JScrollPane scrollPane = new JScrollPane(
-				createInfoPanel(newStarMessages));
-		topPane.add(scrollPane);
+			JScrollPane scrollPane = new JScrollPane(
+					createInfoPanel(newStarMessages));
+			topPane.add(scrollPane);
 
-		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
+			topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 
-		JPanel buttonPane = new JPanel();
-		JButton dismissButton = new JButton("Dismiss");
-		dismissButton.addActionListener(this);
-		buttonPane.add(dismissButton, BorderLayout.CENTER);
-		topPane.add(buttonPane);
+			JPanel buttonPane = new JPanel();
+			JButton dismissButton = new JButton("Dismiss");
+			dismissButton.addActionListener(this);
+			buttonPane.add(dismissButton, BorderLayout.CENTER);
+			topPane.add(buttonPane);
 
-		this.getContentPane().add(topPane);
+			this.getContentPane().add(topPane);
 
-		this.getRootPane().setDefaultButton(dismissButton);
+			this.getRootPane().setDefaultButton(dismissButton);
 
-		this.pack();
-		this.setLocationRelativeTo(Mediator.getUI().getContentPane());
-		this.setVisible(true);
+			this.pack();
+			this.setLocationRelativeTo(Mediator.getUI().getContentPane());
+			this.setVisible(true);
+		}
 	}
 
 	/**

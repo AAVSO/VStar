@@ -174,4 +174,12 @@ public class ValidObservationTableModelTest extends TestCase {
 		assertTrue(result.contains(ob1));
 		assertTrue(result.contains(ob2));
 	}
+
+	public void testGetColumnInfoSource() {
+		assertNotNull(model.getColumnInfoSource());
+	}
+
+	public void testGetObsInserter() {
+		assertNotNull(model.getObsInserter());
+	}
 }
