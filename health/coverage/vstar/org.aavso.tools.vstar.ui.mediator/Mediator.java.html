@@ -393,8 +393,8 @@ import org.jfree.chart.JFreeChart;
     public NewStarMessage getLatestNewStarMessage() {
 <span class="fc" id="L394">        NewStarMessage msg = null;</span>
 
-<span class="pc bpc" id="L396" title="1 of 2 branches missed.">        if (!newStarMessageList.isEmpty()) {</span>
-<span class="nc" id="L397">            msg = newStarMessageList.get(newStarMessageList.size() - 1);</span>
+<span class="fc bfc" id="L396" title="All 2 branches covered.">        if (!newStarMessageList.isEmpty()) {</span>
+<span class="fc" id="L397">            msg = newStarMessageList.get(newStarMessageList.size() - 1);</span>
         }
 
 <span class="fc" id="L400">        return msg;</span>
@@ -404,7 +404,7 @@ import org.jfree.chart.JFreeChart;
      * @return the newStarMessageList
      */
     public List&lt;NewStarMessage&gt; getNewStarMessageList() {
-<span class="nc" id="L407">        return newStarMessageList;</span>
+<span class="fc" id="L407">        return newStarMessageList;</span>
     }
 
     /**
@@ -490,7 +490,7 @@ import org.jfree.chart.JFreeChart;
      * @return the observationSelectionNotifier
      */
     public Notifier&lt;ObservationSelectionMessage&gt; getObservationSelectionNotifier() {
-<span class="nc" id="L493">        return observationSelectionNotifier;</span>
+<span class="fc" id="L493">        return observationSelectionNotifier;</span>
     }
 
     /**
@@ -560,7 +560,7 @@ import org.jfree.chart.JFreeChart;
      * @return the modelSelectionNofitier
      */
     public Notifier&lt;ModelSelectionMessage&gt; getModelSelectionNofitier() {
-<span class="nc" id="L563">        return modelSelectionNofitier;</span>
+<span class="fc" id="L563">        return modelSelectionNofitier;</span>
     }
 
     /**

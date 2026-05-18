@@ -62,8 +62,8 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	public static final int TOP_HIT_SERIES = 0;
 	public static final int DATA_SERIES = 1;
 
-<span class="nc" id="L65">	private static int DEFAULT_CHART_PANEL_WIDTH = 680;</span>
-<span class="nc" id="L66">	private static int DEFAULT_CHART_PANEL_HEIGHT = 420;	</span>
+<span class="fc" id="L65">	private static int DEFAULT_CHART_PANEL_WIDTH = 680;</span>
+<span class="fc" id="L66">	private static int DEFAULT_CHART_PANEL_HEIGHT = 420;	</span>
 	
 	private ChartPanel chartPanel;
 	private JFreeChart chart;
@@ -75,7 +75,7 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	private Listener&lt;PeriodAnalysisRefinementMessage&gt; periodAnalysisRefinementListener;
 	private Listener&lt;HarmonicSearchResultMessage&gt; harmonicSearchListener;
 	
-<span class="nc" id="L78">	private String chartPaneID = null;</span>
+<span class="fc" id="L78">	private String chartPaneID = null;</span>
 
 	/**
 	 * Constructor
@@ -90,25 +90,25 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	 */
 	public PeriodAnalysis2DChartPane(JFreeChart chart,
 			PeriodAnalysis2DPlotModel model, boolean permitLogarithmic) {
-<span class="nc" id="L93">		super();</span>
+<span class="fc" id="L93">		super();</span>
 
-<span class="nc" id="L95">		this.chart = chart;</span>
-<span class="nc" id="L96">		this.model = model;</span>
-<span class="nc" id="L97">		this.permitLogarithmic = permitLogarithmic;</span>
+<span class="fc" id="L95">		this.chart = chart;</span>
+<span class="fc" id="L96">		this.model = model;</span>
+<span class="fc" id="L97">		this.permitLogarithmic = permitLogarithmic;</span>
 
-<span class="nc" id="L99">		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));</span>
-<span class="nc" id="L100">		this.setBorder(BorderFactory.createEtchedBorder());</span>
+<span class="fc" id="L99">		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));</span>
+<span class="fc" id="L100">		this.setBorder(BorderFactory.createEtchedBorder());</span>
 
-<span class="nc" id="L102">		chartPanel = new ChartPanel(chart);</span>
-<span class="nc" id="L103">		this.add(chartPanel);</span>
+<span class="fc" id="L102">		chartPanel = new ChartPanel(chart);</span>
+<span class="fc" id="L103">		this.add(chartPanel);</span>
 
-<span class="nc" id="L105">		this.add(createControlPanel());</span>
+<span class="fc" id="L105">		this.add(createControlPanel());</span>
 
-<span class="nc" id="L107">		configureChart();</span>
+<span class="fc" id="L107">		configureChart();</span>
 
-<span class="nc" id="L109">		chartPanel.addChartMouseListener(this);</span>
-<span class="nc" id="L110">		model.addChangeListener(this);</span>
-<span class="nc" id="L111">	}</span>
+<span class="fc" id="L109">		chartPanel.addChartMouseListener(this);</span>
+<span class="fc" id="L110">		model.addChangeListener(this);</span>
+<span class="fc" id="L111">	}</span>
 
 	@Override
 	public Dimension getPreferredSize() {
@@ -116,37 +116,37 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	}	
 	
 	public void setChartPaneID(String chartPaneID) {
-<span class="nc" id="L119">		this.chartPaneID = chartPaneID;</span>
-<span class="nc" id="L120">	}</span>
+<span class="fc" id="L119">		this.chartPaneID = chartPaneID;</span>
+<span class="fc" id="L120">	}</span>
 	
 	public String getChartPaneID() {
-<span class="nc" id="L123">		return chartPaneID;</span>
+<span class="fc" id="L123">		return chartPaneID;</span>
 	}
 	
 	/**
 	 * @return the chart
 	 */
 	public JFreeChart getChart() {
-<span class="nc" id="L130">		return chart;</span>
+<span class="fc" id="L130">		return chart;</span>
 	}
 
 	/**
 	 * @return the model
 	 */
 	public PeriodAnalysis2DPlotModel getModel() {
-<span class="nc" id="L137">		return model;</span>
+<span class="fc" id="L137">		return model;</span>
 	}
 
 	// Create and return a component that permits the &quot;is logarithmic&quot; and
 	// &quot;show top hits&quot; properties of the model to be toggled.
 	private JPanel createControlPanel() {
-<span class="nc" id="L143">		JPanel panel = new JPanel();</span>
+<span class="fc" id="L143">		JPanel panel = new JPanel();</span>
 
-<span class="nc bnc" id="L145" title="All 2 branches missed.">		if (permitLogarithmic) {</span>
-<span class="nc" id="L146">			final JCheckBox logarithmicCheckBox = new JCheckBox(LocaleProps</span>
-<span class="nc" id="L147">					.get(&quot;LOGARITHMIC_CHECKBOX&quot;));</span>
-<span class="nc" id="L148">			logarithmicCheckBox.setSelected(model.isLogarithmic());</span>
-<span class="nc" id="L149">			logarithmicCheckBox.addActionListener(new ActionListener() {</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">		if (permitLogarithmic) {</span>
+<span class="fc" id="L146">			final JCheckBox logarithmicCheckBox = new JCheckBox(LocaleProps</span>
+<span class="fc" id="L147">					.get(&quot;LOGARITHMIC_CHECKBOX&quot;));</span>
+<span class="fc" id="L148">			logarithmicCheckBox.setSelected(model.isLogarithmic());</span>
+<span class="fc" id="L149">			logarithmicCheckBox.addActionListener(new ActionListener() {</span>
 				@Override
 				public void actionPerformed(ActionEvent event) {
 <span class="nc" id="L152">					for (int modelNum = 0; modelNum &lt; chart.getXYPlot()</span>
@@ -160,16 +160,16 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 					}
 <span class="nc" id="L161">				}</span>
 			});
-<span class="nc" id="L163">			panel.add(logarithmicCheckBox, BorderLayout.CENTER);</span>
+<span class="fc" id="L163">			panel.add(logarithmicCheckBox, BorderLayout.CENTER);</span>
 		}
 
 		// Add a checkbox to toggle top hits series visibility.
-<span class="nc" id="L167">		final JCheckBox showTopHitsCheckBox = new JCheckBox(LocaleProps</span>
-<span class="nc" id="L168">				.get(&quot;SHOW_TOP_HITS_CHECKBOX&quot;));</span>
-<span class="nc" id="L169">		showTopHitsCheckBox.setSelected(true);</span>
-<span class="nc" id="L170">		final XYItemRenderer renderer = chart.getXYPlot().getRenderer();</span>
-<span class="nc" id="L171">		renderer.setSeriesVisible(TOP_HIT_SERIES, true);</span>
-<span class="nc" id="L172">		showTopHitsCheckBox.addActionListener(new ActionListener() {</span>
+<span class="fc" id="L167">		final JCheckBox showTopHitsCheckBox = new JCheckBox(LocaleProps</span>
+<span class="fc" id="L168">				.get(&quot;SHOW_TOP_HITS_CHECKBOX&quot;));</span>
+<span class="fc" id="L169">		showTopHitsCheckBox.setSelected(true);</span>
+<span class="fc" id="L170">		final XYItemRenderer renderer = chart.getXYPlot().getRenderer();</span>
+<span class="fc" id="L171">		renderer.setSeriesVisible(TOP_HIT_SERIES, true);</span>
+<span class="fc" id="L172">		showTopHitsCheckBox.addActionListener(new ActionListener() {</span>
 			@Override
 			public void actionPerformed(ActionEvent event) {
 <span class="nc" id="L175">				for (int modelNum = 0; modelNum &lt; chart.getXYPlot()</span>
@@ -181,20 +181,20 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 				}
 <span class="nc" id="L182">			}</span>
 		});
-<span class="nc" id="L184">		panel.add(showTopHitsCheckBox);</span>
+<span class="fc" id="L184">		panel.add(showTopHitsCheckBox);</span>
 
-<span class="nc" id="L186">		return panel;</span>
+<span class="fc" id="L186">		return panel;</span>
 	}
 
 	private void configureChart() {
-<span class="nc" id="L190">		chart.getXYPlot().setBackgroundPaint(Color.WHITE);</span>
+<span class="fc" id="L190">		chart.getXYPlot().setBackgroundPaint(Color.WHITE);</span>
 
-<span class="nc" id="L192">		chart.getXYPlot().setDomainCrosshairValue(0);</span>
-<span class="nc" id="L193">		chart.getXYPlot().setRangeCrosshairValue(0);</span>
+<span class="fc" id="L192">		chart.getXYPlot().setDomainCrosshairValue(0);</span>
+<span class="fc" id="L193">		chart.getXYPlot().setRangeCrosshairValue(0);</span>
 
-<span class="nc" id="L195">		chart.getXYPlot().setDomainCrosshairVisible(true);</span>
-<span class="nc" id="L196">		chart.getXYPlot().setRangeCrosshairVisible(true);</span>
-<span class="nc" id="L197">	}</span>
+<span class="fc" id="L195">		chart.getXYPlot().setDomainCrosshairVisible(true);</span>
+<span class="fc" id="L196">		chart.getXYPlot().setRangeCrosshairVisible(true);</span>
+<span class="fc" id="L197">	}</span>
 
 	public void chartMouseClicked(ChartMouseEvent event) {
 		// The cross-hair appears if the user clicks the chart even if there is no

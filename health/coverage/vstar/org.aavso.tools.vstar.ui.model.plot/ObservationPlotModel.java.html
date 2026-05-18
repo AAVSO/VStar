@@ -50,7 +50,7 @@ import org.jfree.data.xy.AbstractIntervalXYDataset;
  * class for ObservationAndMeanPlot. The two could be merged with the latter
  * assuming the current class's name.
  */
-<span class="nc" id="L53">@SuppressWarnings(&quot;serial&quot;)</span>
+<span class="fc" id="L53">@SuppressWarnings(&quot;serial&quot;)</span>
 abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 		implements ISeriesInfoProvider {
 
@@ -119,10 +119,10 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	protected SeriesType lastSinglySelectedSeries;
 
 	// Particular series numbers to be used by listener code.
-<span class="nc" id="L122">	protected int modelSeriesNum = NO_SERIES;</span>
-<span class="nc" id="L123">	protected int modelFunctionSeriesNum = NO_SERIES;</span>
-<span class="nc" id="L124">	protected int residualsSeriesNum = NO_SERIES;</span>
-<span class="nc" id="L125">	protected int filterSeriesNum = NO_SERIES;</span>
+<span class="fc" id="L122">	protected int modelSeriesNum = NO_SERIES;</span>
+<span class="fc" id="L123">	protected int modelFunctionSeriesNum = NO_SERIES;</span>
+<span class="fc" id="L124">	protected int residualsSeriesNum = NO_SERIES;</span>
+<span class="fc" id="L125">	protected int filterSeriesNum = NO_SERIES;</span>
 
 	/**
 	 * Common constructor.
@@ -131,20 +131,20 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 *            A coordinate and error source.
 	 */
 	private ObservationPlotModel(ICoordSource coordSrc) {
-<span class="nc" id="L134">		super();</span>
-<span class="nc" id="L135">		this.coordSrc = coordSrc;</span>
-<span class="nc" id="L136">		this.seriesNum = 0;</span>
-<span class="nc" id="L137">		this.seriesNumToSrcTypeMap = new HashMap&lt;Integer, SeriesType&gt;();</span>
-<span class="nc" id="L138">		this.srcTypeToSeriesNumMap = new TreeMap&lt;SeriesType, Integer&gt;();</span>
-<span class="nc" id="L139">		this.seriesVisibilityMap = new HashMap&lt;SeriesType, Boolean&gt;();</span>
-<span class="nc" id="L140">		this.seriesNumToObSrcListMap = new HashMap&lt;Integer, List&lt;ValidObservation&gt;&gt;();</span>
-<span class="nc" id="L141">		this.atLeastOneVisualBandPresent = false;</span>
-<span class="nc" id="L142">		this.seriesToBeJoinedVisually = new HashSet&lt;Integer&gt;();</span>
-<span class="nc" id="L143">		this.lastSinglySelectedSeries = null;</span>
+<span class="fc" id="L134">		super();</span>
+<span class="fc" id="L135">		this.coordSrc = coordSrc;</span>
+<span class="fc" id="L136">		this.seriesNum = 0;</span>
+<span class="fc" id="L137">		this.seriesNumToSrcTypeMap = new HashMap&lt;Integer, SeriesType&gt;();</span>
+<span class="fc" id="L138">		this.srcTypeToSeriesNumMap = new TreeMap&lt;SeriesType, Integer&gt;();</span>
+<span class="fc" id="L139">		this.seriesVisibilityMap = new HashMap&lt;SeriesType, Boolean&gt;();</span>
+<span class="fc" id="L140">		this.seriesNumToObSrcListMap = new HashMap&lt;Integer, List&lt;ValidObservation&gt;&gt;();</span>
+<span class="fc" id="L141">		this.atLeastOneVisualBandPresent = false;</span>
+<span class="fc" id="L142">		this.seriesToBeJoinedVisually = new HashSet&lt;Integer&gt;();</span>
+<span class="fc" id="L143">		this.lastSinglySelectedSeries = null;</span>
 
-<span class="nc" id="L145">		Mediator.getInstance().getSeriesCreationNotifier()</span>
-<span class="nc" id="L146">				.addListener(createSeriesCreationListener());</span>
-<span class="nc" id="L147">	}</span>
+<span class="fc" id="L145">		Mediator.getInstance().getSeriesCreationNotifier()</span>
+<span class="fc" id="L146">				.addListener(createSeriesCreationListener());</span>
+<span class="fc" id="L147">	}</span>
 
 	/**
 	 * Constructor (for light curve plots).
@@ -162,13 +162,13 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 			Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; obsSourceListMap,
 			ICoordSource coordSrc, Comparator&lt;ValidObservation&gt; obComparator) {
 
-<span class="nc" id="L165">		this(coordSrc);</span>
+<span class="fc" id="L165">		this(coordSrc);</span>
 
-<span class="nc" id="L167">		this.obComparator = obComparator;</span>
+<span class="fc" id="L167">		this.obComparator = obComparator;</span>
 
-<span class="nc bnc" id="L169" title="All 2 branches missed.">		for (SeriesType type : obsSourceListMap.keySet()) {</span>
-<span class="nc" id="L170">			addObservationSeries(type, obsSourceListMap.get(type));</span>
-<span class="nc" id="L171">		}</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">		for (SeriesType type : obsSourceListMap.keySet()) {</span>
+<span class="fc" id="L170">			addObservationSeries(type, obsSourceListMap.get(type));</span>
+<span class="fc" id="L171">		}</span>
 
 		// We should only make &quot;unspecified&quot; band-based observations visible
 		// by default only if one of the visual bands is *not* present.
@@ -179,7 +179,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 		// we make all series from the dataset visible.
 		// See
 		// https://sourceforge.net/tracker/?func=detail&amp;aid=3188139&amp;group_id=263306&amp;atid=1152052
-<span class="nc bnc" id="L182" title="All 2 branches missed.">		if (atLeastOneVisualBandPresent) {</span>
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">		if (atLeastOneVisualBandPresent) {</span>
 <span class="nc bnc" id="L183" title="All 2 branches missed.">			if (srcTypeToSeriesNumMap.containsKey(SeriesType.Unspecified)) {</span>
 <span class="nc bnc" id="L184" title="All 2 branches missed.">				if (seriesVisibilityMap.get(SeriesType.Unspecified) == true) {</span>
 <span class="nc" id="L185">					seriesVisibilityMap.put(SeriesType.Unspecified, false);</span>
@@ -187,22 +187,22 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 			}
 		} else {
 			// Make all series visible.
-<span class="nc bnc" id="L190" title="All 2 branches missed.">			for (SeriesType type : obsSourceListMap.keySet()) {</span>
-<span class="nc" id="L191">				seriesVisibilityMap.put(type, true);</span>
-<span class="nc" id="L192">			}</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">			for (SeriesType type : obsSourceListMap.keySet()) {</span>
+<span class="fc" id="L191">				seriesVisibilityMap.put(type, true);</span>
+<span class="fc" id="L192">			}</span>
 		}
 
 		// If any series is empty initially (e.g. discrepant or excluded), make
 		// the series not visible.
-<span class="nc bnc" id="L197" title="All 2 branches missed.">		for (SeriesType type : obsSourceListMap.keySet()) {</span>
-<span class="nc" id="L198">			int num = srcTypeToSeriesNumMap.get(type);</span>
-<span class="nc bnc" id="L199" title="All 2 branches missed.">			if (seriesNumToObSrcListMap.get(num).isEmpty()) {</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">		for (SeriesType type : obsSourceListMap.keySet()) {</span>
+<span class="fc" id="L198">			int num = srcTypeToSeriesNumMap.get(type);</span>
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">			if (seriesNumToObSrcListMap.get(num).isEmpty()) {</span>
 <span class="nc" id="L200">				seriesVisibilityMap.put(type, false);</span>
 			}
-<span class="nc" id="L202">		}</span>
+<span class="fc" id="L202">		}</span>
 
-<span class="nc" id="L204">		fireDatasetChanged();</span>
-<span class="nc" id="L205">	}</span>
+<span class="fc" id="L204">		fireDatasetChanged();</span>
+<span class="fc" id="L205">	}</span>
 
 	/**
 	 * Constructor (for phase plots).
@@ -225,9 +225,9 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 			ICoordSource coordSrc, Comparator&lt;ValidObservation&gt; obComparator,
 			Map&lt;SeriesType, Boolean&gt; seriesVisibilityMap) {
 
-<span class="nc" id="L228">		this(obsSourceListMap, coordSrc, obComparator);</span>
+<span class="fc" id="L228">		this(obsSourceListMap, coordSrc, obComparator);</span>
 
-<span class="nc bnc" id="L230" title="All 2 branches missed.">		if (seriesVisibilityMap != null) {</span>
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">		if (seriesVisibilityMap != null) {</span>
 <span class="nc bnc" id="L231" title="All 2 branches missed.">			for (SeriesType seriesType : seriesVisibilityMap.keySet()) {</span>
 <span class="nc" id="L232">				Integer seriesNum = srcTypeToSeriesNumMap.get(seriesType);</span>
 				// A series number may not be available yet, specifically for
@@ -238,7 +238,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 				}
 <span class="nc" id="L239">			}</span>
 		}
-<span class="nc" id="L241">	}</span>
+<span class="fc" id="L241">	}</span>
 
 	/**
 	 * Add an observation series.
@@ -255,19 +255,19 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 */
 	public int addObservationSeries(SeriesType type, List&lt;ValidObservation&gt; obs) {
 
-<span class="nc bnc" id="L258" title="All 2 branches missed.">		assert this.srcTypeToSeriesNumMap.get(type) == null;</span>
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">		assert this.srcTypeToSeriesNumMap.get(type) == null;</span>
 
-<span class="nc" id="L260">		int seriesNum = this.getNextSeriesNum();</span>
+<span class="fc" id="L260">		int seriesNum = this.getNextSeriesNum();</span>
 
-<span class="nc" id="L262">		this.srcTypeToSeriesNumMap.put(type, seriesNum);</span>
-<span class="nc" id="L263">		this.seriesNumToObSrcListMap.put(seriesNum, obs);</span>
-<span class="nc" id="L264">		this.seriesNumToSrcTypeMap.put(seriesNum, type);</span>
-<span class="nc" id="L265">		this.seriesVisibilityMap.put(type, isSeriesVisibleByDefault(type));</span>
+<span class="fc" id="L262">		this.srcTypeToSeriesNumMap.put(type, seriesNum);</span>
+<span class="fc" id="L263">		this.seriesNumToObSrcListMap.put(seriesNum, obs);</span>
+<span class="fc" id="L264">		this.seriesNumToSrcTypeMap.put(seriesNum, type);</span>
+<span class="fc" id="L265">		this.seriesVisibilityMap.put(type, isSeriesVisibleByDefault(type));</span>
 
-<span class="nc" id="L267">		assert (this.seriesNumToObSrcListMap.size() == this.seriesNumToSrcTypeMap</span>
-<span class="nc bnc" id="L268" title="All 2 branches missed.">				.size());</span>
+<span class="pc" id="L267">		assert (this.seriesNumToObSrcListMap.size() == this.seriesNumToSrcTypeMap</span>
+<span class="pc bpc" id="L268" title="1 of 2 branches missed.">				.size());</span>
 
-<span class="nc" id="L270">		return seriesNum;</span>
+<span class="fc" id="L270">		return seriesNum;</span>
 	}
 
 	/**
@@ -477,7 +477,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 * @see org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#getSeriesCount()
 	 */
 	public int getSeriesCount() {
-<span class="nc" id="L480">		return this.seriesNumToObSrcListMap.size();</span>
+<span class="fc" id="L480">		return this.seriesNumToObSrcListMap.size();</span>
 	}
 
 	/**
@@ -503,7 +503,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 * @see org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#seriesExists(org.aavso.tools.vstar.data.SeriesType)
 	 */
 	public boolean seriesExists(SeriesType type) {
-<span class="nc" id="L506">		return this.srcTypeToSeriesNumMap.containsKey(type);</span>
+<span class="fc" id="L506">		return this.srcTypeToSeriesNumMap.containsKey(type);</span>
 	}
 
 	@Override
@@ -517,21 +517,21 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 * @return The number of observations (items) in the requested series.
 	 */
 	public int getItemCount(int series) {
-<span class="nc" id="L520">		return coordSrc.getItemCount(series, seriesNumToObSrcListMap);</span>
+<span class="fc" id="L520">		return coordSrc.getItemCount(series, seriesNumToObSrcListMap);</span>
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getX(int, int)
 	 */
 	public Number getX(int series, int item) {
-<span class="nc" id="L527">		return coordSrc.getXCoord(series, item, this.seriesNumToObSrcListMap);</span>
+<span class="fc" id="L527">		return coordSrc.getXCoord(series, item, this.seriesNumToObSrcListMap);</span>
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getY(int, int)
 	 */
 	public Number getY(int series, int item) {
-<span class="nc" id="L534">		return getMagAsYCoord(series, coordSrc.getActualYItemNum(series, item,</span>
+<span class="fc" id="L534">		return getMagAsYCoord(series, coordSrc.getActualYItemNum(series, item,</span>
 				seriesNumToObSrcListMap));
 	}
 
@@ -585,7 +585,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	// Helpers
 
 	protected int getNextSeriesNum() {
-<span class="nc" id="L588">		return seriesNum++;</span>
+<span class="fc" id="L588">		return seriesNum++;</span>
 	}
 
 	/**
@@ -598,8 +598,8 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 * @return The magnitude value.
 	 */
 	public double getMagAsYCoord(int series, int item) {
-<span class="nc" id="L601">		return this.seriesNumToObSrcListMap.get(series).get(item)</span>
-<span class="nc" id="L602">				.getMagnitude().getMagValue();</span>
+<span class="fc" id="L601">		return this.seriesNumToObSrcListMap.get(series).get(item)</span>
+<span class="fc" id="L602">				.getMagnitude().getMagValue();</span>
 	}
 
 	/**
@@ -615,23 +615,23 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 * @return The error value associated with the mean.
 	 */
 	public double getMagError(int series, int item) {
-<span class="nc" id="L618">		double error = 0;</span>
+<span class="fc" id="L618">		double error = 0;</span>
 
 		// If the HQ uncertainty field is non-null, use that, otherwise
 		// use the uncertainty value, which may be zero, in which case
 		// the error will be zero.
 
-<span class="nc" id="L624">		Double hqUncertainty = this.seriesNumToObSrcListMap.get(series)</span>
-<span class="nc" id="L625">				.get(item).getHqUncertainty();</span>
+<span class="fc" id="L624">		Double hqUncertainty = this.seriesNumToObSrcListMap.get(series)</span>
+<span class="fc" id="L625">				.get(item).getHqUncertainty();</span>
 
-<span class="nc bnc" id="L627" title="All 4 branches missed.">		if (hqUncertainty != null &amp;&amp; hqUncertainty != 0) {</span>
+<span class="pc bpc" id="L627" title="3 of 4 branches missed.">		if (hqUncertainty != null &amp;&amp; hqUncertainty != 0) {</span>
 <span class="nc" id="L628">			error = hqUncertainty;</span>
 		} else {
-<span class="nc" id="L630">			error = this.seriesNumToObSrcListMap.get(series).get(item)</span>
-<span class="nc" id="L631">					.getMagnitude().getUncertainty();</span>
+<span class="fc" id="L630">			error = this.seriesNumToObSrcListMap.get(series).get(item)</span>
+<span class="fc" id="L631">					.getMagnitude().getUncertainty();</span>
 		}
 
-<span class="nc" id="L634">		return error;</span>
+<span class="fc" id="L634">		return error;</span>
 	}
 
 	/**
@@ -646,7 +646,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 *             if series or item are out of range.
 	 */
 	public ValidObservation getValidObservation(int series, int item) {
-<span class="nc" id="L649">		return coordSrc.getValidObservation(series, item,</span>
+<span class="fc" id="L649">		return coordSrc.getValidObservation(series, item,</span>
 				seriesNumToObSrcListMap);
 	}
 
@@ -661,7 +661,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 * @return the srcTypeToSeriesNumMap
 	 */
 	public Map&lt;SeriesType, Integer&gt; getSrcTypeToSeriesNumMap() {
-<span class="nc" id="L664">		return srcTypeToSeriesNumMap;</span>
+<span class="fc" id="L664">		return srcTypeToSeriesNumMap;</span>
 	}
 
 	/**
@@ -675,7 +675,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 * @return the seriesVisibilityMap
 	 */
 	public Map&lt;SeriesType, Boolean&gt; getSeriesVisibilityMap() {
-<span class="nc" id="L678">		return seriesVisibilityMap;</span>
+<span class="fc" id="L678">		return seriesVisibilityMap;</span>
 	}
 
 	/**
@@ -703,39 +703,39 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 * @return Whether or not the series should be visible by default.
 	 */
 	public boolean isSeriesVisibleByDefault(SeriesType series) {
-<span class="nc" id="L706">		boolean visible = false;</span>
+<span class="fc" id="L706">		boolean visible = false;</span>
 
 		// TODO: We could delegate &quot;is visible&quot; to SeriesType which
 		// could also be used by means plot model code.
 
-<span class="nc bnc" id="L711" title="All 2 branches missed.">		if (series != SeriesType.Excluded) {</span>
+<span class="pc bpc" id="L711" title="1 of 2 branches missed.">		if (series != SeriesType.Excluded) {</span>
 			// Visual bands.
-<span class="nc bnc" id="L713" title="All 2 branches missed.">			visible |= series == SeriesType.Visual;</span>
-<span class="nc bnc" id="L714" title="All 2 branches missed.">			visible |= series == SeriesType.Johnson_V;</span>
+<span class="pc bpc" id="L713" title="1 of 2 branches missed.">			visible |= series == SeriesType.Visual;</span>
+<span class="pc bpc" id="L714" title="1 of 2 branches missed.">			visible |= series == SeriesType.Johnson_V;</span>
 
-<span class="nc bnc" id="L716" title="All 4 branches missed.">			if (!atLeastOneVisualBandPresent &amp;&amp; visible) {</span>
+<span class="pc bpc" id="L716" title="2 of 4 branches missed.">			if (!atLeastOneVisualBandPresent &amp;&amp; visible) {</span>
 <span class="nc" id="L717">				atLeastOneVisualBandPresent = true;</span>
 			}
 
 			// We also allow for unspecified series type, e.g. since the
 			// source could be from a simple observation file where no band
 			// is specified.
-<span class="nc bnc" id="L723" title="All 2 branches missed.">			visible |= series == SeriesType.Unspecified;</span>
+<span class="fc bfc" id="L723" title="All 2 branches covered.">			visible |= series == SeriesType.Unspecified;</span>
 
 			// Finally, if observations come from an external source (via a
 			// plugin), make a series visible by default.
-<span class="nc" id="L727">			NewStarMessage msg = Mediator.getInstance()</span>
-<span class="nc" id="L728">					.getLatestNewStarMessage();</span>
-<span class="nc bnc" id="L729" title="All 2 branches missed.">			visible |= msg.getNewStarType() == NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;</span>
+<span class="fc" id="L727">			NewStarMessage msg = Mediator.getInstance()</span>
+<span class="fc" id="L728">					.getLatestNewStarMessage();</span>
+<span class="pc bpc" id="L729" title="1 of 2 branches missed.">			visible |= msg.getNewStarType() == NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;</span>
 		}
 
-<span class="nc" id="L732">		return visible;</span>
+<span class="fc" id="L732">		return visible;</span>
 	}
 	
 	// Returns a series creation listener, adding a new observation series to
 	// the plot, and making it visible.
 	protected Listener&lt;SeriesCreationMessage&gt; createSeriesCreationListener() {
-<span class="nc" id="L738">		return new Listener&lt;SeriesCreationMessage&gt;() {</span>
+<span class="fc" id="L738">		return new Listener&lt;SeriesCreationMessage&gt;() {</span>
 
 			@Override
 			public void update(SeriesCreationMessage info) {

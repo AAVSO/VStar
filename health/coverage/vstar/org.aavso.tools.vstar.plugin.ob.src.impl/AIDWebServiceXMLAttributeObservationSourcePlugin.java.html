@@ -47,59 +47,60 @@ import org.xml.sax.SAXException;
  * This intrinsic observation source plug-in retrieves AID observations via the
  * VSX web service.
  */
+@Deprecated
 public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 		AIDWebServiceObservationSourcePluginBase {
 
 	public AIDWebServiceXMLAttributeObservationSourcePlugin() {
-<span class="fc" id="L54">		super(&quot;api.object&quot;, &quot;&amp;att&quot;);</span>
-<span class="fc" id="L55">	}</span>
+<span class="fc" id="L55">		super(&quot;api.object&quot;, &quot;&amp;att&quot;);</span>
+<span class="fc" id="L56">	}</span>
 
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
-<span class="fc" id="L59">		return new VSXAIDAttributeObservationRetriever();</span>
+<span class="fc" id="L60">		return new VSXAIDAttributeObservationRetriever();</span>
 	}
 
 	@Override
 	protected String addURLs(String auid) {
-<span class="nc" id="L64">		String urlStr = null;</span>
+<span class="nc" id="L65">		String urlStr = null;</span>
 
 		// Create a list of URLs with different series for the same target
 		// and time range.
-<span class="nc bnc" id="L68" title="All 2 branches missed.">		for (SeriesType series : starSelector.getSelectedSeries()) {</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">		for (SeriesType series : starSelector.getSelectedSeries()) {</span>
 
-<span class="nc bnc" id="L70" title="All 2 branches missed.">			if (starSelector.wantAllData()) {</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">			if (starSelector.wantAllData()) {</span>
 				// Request all AID data for object for requested series.
-<span class="nc" id="L72">				urlStr = createAIDUrlForAUID(auid);</span>
+<span class="nc" id="L73">				urlStr = createAIDUrlForAUID(auid);</span>
 			} else {
 				// Request AID data for object over a range and for the
 				// zeroth requested series.
-<span class="nc" id="L76">				urlStr = createAIDUrlForAUID(auid, starSelector.getMinDate()</span>
-<span class="nc" id="L77">						.getJulianDay(), starSelector.getMaxDate()</span>
-<span class="nc" id="L78">						.getJulianDay(), series.getShortName(), null, false);</span>
+<span class="nc" id="L77">				urlStr = createAIDUrlForAUID(auid, starSelector.getMinDate()</span>
+<span class="nc" id="L78">						.getJulianDay(), starSelector.getMaxDate()</span>
+<span class="nc" id="L79">						.getJulianDay(), series.getShortName(), null, false);</span>
 			}
 
-<span class="nc" id="L81">			urlStrs.add(urlStr);</span>
-<span class="nc" id="L82">		}</span>
+<span class="nc" id="L82">			urlStrs.add(urlStr);</span>
+<span class="nc" id="L83">		}</span>
 
-<span class="nc" id="L84">		return urlStr;</span>
+<span class="nc" id="L85">		return urlStr;</span>
 	}
 
 	class VSXAIDAttributeObservationRetriever extends
 			AbstractObservationRetriever {
 
-<span class="fc" id="L90">		public VSXAIDAttributeObservationRetriever() {</span>
-<span class="fc" id="L91">			super(getVelaFilterStr());</span>
-<span class="fc" id="L92">			info.setRetriever(this);</span>
-<span class="fc" id="L93">		}</span>
+<span class="fc" id="L91">		public VSXAIDAttributeObservationRetriever() {</span>
+<span class="fc" id="L92">			super(getVelaFilterStr());</span>
+<span class="fc" id="L93">			info.setRetriever(this);</span>
+<span class="fc" id="L94">		}</span>
 
 		@Override
 		public StarInfo getStarInfo() {
-<span class="nc" id="L97">			return info;</span>
+<span class="nc" id="L98">			return info;</span>
 		}
 
 		@Override
 		public Integer getNumberOfRecords() throws ObservationReadError {
-<span class="nc" id="L102">			return info.getObsCount();</span>
+<span class="nc" id="L103">			return info.getObsCount();</span>
 		}
 
 		@Override
@@ -108,59 +109,59 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 
 			// Iterate over each series-based URL reading observations over
 			// potentially many &quot;pages&quot; for each URL.
-<span class="fc bfc" id="L111" title="All 2 branches covered.">			for (String urlStr : urlStrs) {</span>
-<span class="fc" id="L112">				Integer pageNum = 1;</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">			for (String urlStr : urlStrs) {</span>
+<span class="fc" id="L113">				Integer pageNum = 1;</span>
 
 				do {
 					try {
-<span class="fc" id="L116">						String currUrlStr = urlStr;</span>
-<span class="pc bpc" id="L117" title="1 of 2 branches missed.">						if (pageNum != null) {</span>
-<span class="fc" id="L118">							currUrlStr += &quot;&amp;page=&quot; + pageNum;</span>
+<span class="fc" id="L117">						String currUrlStr = urlStr;</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">						if (pageNum != null) {</span>
+<span class="fc" id="L119">							currUrlStr += &quot;&amp;page=&quot; + pageNum;</span>
 						}
 
-<span class="fc" id="L121">						URL vsxUrl = new URL(currUrlStr);</span>
+<span class="fc" id="L122">						URL vsxUrl = new URL(currUrlStr);</span>
 
 						DocumentBuilderFactory factory = DocumentBuilderFactory
-<span class="fc" id="L124">								.newInstance();</span>
-<span class="fc" id="L125">						DocumentBuilder builder = factory.newDocumentBuilder();</span>
+<span class="fc" id="L125">								.newInstance();</span>
+<span class="fc" id="L126">						DocumentBuilder builder = factory.newDocumentBuilder();</span>
 
-<span class="fc" id="L127">						InputStream stream = new UTF8FilteringInputStream(</span>
-<span class="fc" id="L128">								vsxUrl.openStream());</span>
-<span class="fc" id="L129">						Document document = builder.parse(stream);</span>
+<span class="fc" id="L128">						InputStream stream = new UTF8FilteringInputStream(</span>
+<span class="fc" id="L129">								vsxUrl.openStream());</span>
+<span class="fc" id="L130">						Document document = builder.parse(stream);</span>
 
-<span class="fc" id="L131">						document.getDocumentElement().normalize();</span>
+<span class="fc" id="L132">						document.getDocumentElement().normalize();</span>
 
-<span class="fc" id="L133">						pageNum = requestObservationDetails(document, pageNum);</span>
+<span class="fc" id="L134">						pageNum = requestObservationDetails(document, pageNum);</span>
 
-<span class="nc" id="L135">					} catch (MalformedURLException e) {</span>
-<span class="nc" id="L136">						throw new ObservationReadError(</span>
+<span class="nc" id="L136">					} catch (MalformedURLException e) {</span>
+<span class="nc" id="L137">						throw new ObservationReadError(</span>
 								&quot;Unable to obtain information for &quot;
-<span class="nc" id="L138">										+ info.getDesignation());</span>
-<span class="nc" id="L139">					} catch (ParserConfigurationException e) {</span>
-<span class="nc" id="L140">						throw new ObservationReadError(</span>
+<span class="nc" id="L139">										+ info.getDesignation());</span>
+<span class="nc" id="L140">					} catch (ParserConfigurationException e) {</span>
+<span class="nc" id="L141">						throw new ObservationReadError(</span>
 								&quot;Unable to obtain information for &quot;
-<span class="nc" id="L142">										+ info.getDesignation());</span>
-<span class="nc" id="L143">					} catch (SAXException e) {</span>
-<span class="nc" id="L144">						throw new ObservationReadError(</span>
+<span class="nc" id="L143">										+ info.getDesignation());</span>
+<span class="nc" id="L144">					} catch (SAXException e) {</span>
+<span class="nc" id="L145">						throw new ObservationReadError(</span>
 								&quot;Unable to obtain information for &quot;
-<span class="nc" id="L146">										+ info.getDesignation());</span>
-<span class="nc" id="L147">					} catch (IOException e) {</span>
-<span class="nc" id="L148">						throw new ObservationReadError(</span>
+<span class="nc" id="L147">										+ info.getDesignation());</span>
+<span class="nc" id="L148">					} catch (IOException e) {</span>
+<span class="nc" id="L149">						throw new ObservationReadError(</span>
 								&quot;Unable to obtain information for &quot;
-<span class="nc" id="L150">										+ info.getDesignation());</span>
-<span class="fc" id="L151">					}</span>
-<span class="pc bpc" id="L152" title="3 of 4 branches missed.">				} while (pageNum != null &amp;&amp; !interrupted);</span>
-<span class="fc" id="L153">			}</span>
-<span class="fc" id="L154">		}</span>
+<span class="nc" id="L151">										+ info.getDesignation());</span>
+<span class="fc" id="L152">					}</span>
+<span class="pc bpc" id="L153" title="3 of 4 branches missed.">				} while (pageNum != null &amp;&amp; !interrupted);</span>
+<span class="fc" id="L154">			}</span>
+<span class="fc" id="L155">		}</span>
 
 		@Override
 		public String getSourceType() {
-<span class="nc" id="L158">			return LocaleProps.get(&quot;DATABASE_OBS_SOURCE&quot;);</span>
+<span class="nc" id="L159">			return LocaleProps.get(&quot;DATABASE_OBS_SOURCE&quot;);</span>
 		}
 
 		@Override
 		public String getSourceName() {
-<span class="nc" id="L163">			return info.getDesignation();</span>
+<span class="nc" id="L164">			return info.getDesignation();</span>
 		}
 
 		// Helpers
@@ -183,46 +184,46 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 			// Has an observation count been supplied?
 			// If so, more observations remain than the ones about to be
 			// retrieved here.
-<span class="fc" id="L186">			Integer obsCount = null;</span>
+<span class="fc" id="L187">			Integer obsCount = null;</span>
 
-<span class="fc" id="L188">			NodeList dataNodes = document.getElementsByTagName(&quot;Data&quot;);</span>
+<span class="fc" id="L189">			NodeList dataNodes = document.getElementsByTagName(&quot;Data&quot;);</span>
 
-<span class="pc bpc" id="L190" title="1 of 2 branches missed.">			if (dataNodes.getLength() == 1) {</span>
-<span class="fc" id="L191">				Element dataElt = (Element) dataNodes.item(0);</span>
-<span class="fc" id="L192">				String count = dataElt.getAttribute(&quot;Count&quot;);</span>
-<span class="pc bpc" id="L193" title="2 of 4 branches missed.">				if (count != null &amp;&amp; count.trim().length() != 0) {</span>
-<span class="nc" id="L194">					obsCount = Integer.parseInt(count);</span>
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">			if (dataNodes.getLength() == 1) {</span>
+<span class="fc" id="L192">				Element dataElt = (Element) dataNodes.item(0);</span>
+<span class="fc" id="L193">				String count = dataElt.getAttribute(&quot;Count&quot;);</span>
+<span class="pc bpc" id="L194" title="2 of 4 branches missed.">				if (count != null &amp;&amp; count.trim().length() != 0) {</span>
+<span class="nc" id="L195">					obsCount = Integer.parseInt(count);</span>
 				}
 			}
 
-<span class="pc bpc" id="L198" title="1 of 2 branches missed.">			if (obsCount == null) {</span>
-<span class="fc" id="L199">				pageNum = null;</span>
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">			if (obsCount == null) {</span>
+<span class="fc" id="L200">				pageNum = null;</span>
 			}
 
-<span class="fc" id="L202">			NodeList obsNodes = document.getElementsByTagName(&quot;Observation&quot;);</span>
+<span class="fc" id="L203">			NodeList obsNodes = document.getElementsByTagName(&quot;Observation&quot;);</span>
 
-<span class="fc bfc" id="L204" title="All 2 branches covered.">			for (int i = 0; i &lt; obsNodes.getLength(); i++) {</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">			for (int i = 0; i &lt; obsNodes.getLength(); i++) {</span>
 
-<span class="pc bpc" id="L206" title="1 of 2 branches missed.">				if (interrupted)</span>
-<span class="nc" id="L207">					break;</span>
+<span class="pc bpc" id="L207" title="1 of 2 branches missed.">				if (interrupted)</span>
+<span class="nc" id="L208">					break;</span>
 
-<span class="fc" id="L209">				NamedNodeMap obsDetails = obsNodes.item(i).getAttributes();</span>
+<span class="fc" id="L210">				NamedNodeMap obsDetails = obsNodes.item(i).getAttributes();</span>
 
-<span class="fc" id="L211">				ValidObservation ob = retrieveObservation(new NamedNodeMapSequence(</span>
+<span class="fc" id="L212">				ValidObservation ob = retrieveObservation(new NamedNodeMapSequence(</span>
 						obsDetails));
 
-<span class="pc bpc" id="L214" title="1 of 2 branches missed.">				if (ob != null) {</span>
-<span class="fc" id="L215">					collectObservation(ob);</span>
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">				if (ob != null) {</span>
+<span class="fc" id="L216">					collectObservation(ob);</span>
 				}
 
-<span class="fc" id="L218">				incrementProgress();</span>
+<span class="fc" id="L219">				incrementProgress();</span>
 			}
 
-<span class="pc bpc" id="L221" title="1 of 2 branches missed.">			if (pageNum != null) {</span>
-<span class="nc" id="L222">				pageNum++;</span>
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">			if (pageNum != null) {</span>
+<span class="nc" id="L223">				pageNum++;</span>
 			}
 
-<span class="fc" id="L225">			return pageNum;</span>
+<span class="fc" id="L226">			return pageNum;</span>
 		}
 
 		/**
@@ -238,136 +239,136 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 		private ValidObservation retrieveObservation(INodeSequence obsDetails)
 				throws ObservationReadError {
 
-<span class="fc" id="L241">			Integer id = null;</span>
-<span class="fc" id="L242">			Double jd = null;</span>
-<span class="fc" id="L243">			Double mag = null;</span>
-<span class="fc" id="L244">			Double error = 0.0;</span>
-<span class="fc" id="L245">			SeriesType band = null;</span>
-<span class="fc" id="L246">			String obscode = null;</span>
-<span class="fc" id="L247">			String obsType = null;</span>
-<span class="fc" id="L248">			ValidationType valType = null;</span>
-<span class="fc" id="L249">			String comp1 = null;</span>
-<span class="fc" id="L250">			String comp2 = null;</span>
-<span class="fc" id="L251">			String kMag = null;</span>
-<span class="fc" id="L252">			String charts = null;</span>
-<span class="fc" id="L253">			String commentCode = null;</span>
-<span class="fc" id="L254">			String comments = null;</span>
-<span class="fc" id="L255">			boolean transformed = false;</span>
-<span class="fc" id="L256">			boolean fainterThan = false;</span>
-<span class="fc" id="L257">			boolean isUncertain = false;</span>
-<span class="fc" id="L258">			DateInfo hJD = null;</span>
-<span class="fc" id="L259">			String airmass = null;</span>
-<span class="fc" id="L260">			String group = null;</span>
-<span class="fc" id="L261">			MTypeType mType = null;</span>
-<span class="fc" id="L262">			String credit = null;</span>
-<span class="fc" id="L263">			String pubref = null;</span>
-<span class="fc" id="L264">			String digitizer = null;</span>
-<span class="fc" id="L265">			String name = info.getDesignation();</span>
+<span class="fc" id="L242">			Integer id = null;</span>
+<span class="fc" id="L243">			Double jd = null;</span>
+<span class="fc" id="L244">			Double mag = null;</span>
+<span class="fc" id="L245">			Double error = 0.0;</span>
+<span class="fc" id="L246">			SeriesType band = null;</span>
+<span class="fc" id="L247">			String obscode = null;</span>
+<span class="fc" id="L248">			String obsType = null;</span>
+<span class="fc" id="L249">			ValidationType valType = null;</span>
+<span class="fc" id="L250">			String comp1 = null;</span>
+<span class="fc" id="L251">			String comp2 = null;</span>
+<span class="fc" id="L252">			String kMag = null;</span>
+<span class="fc" id="L253">			String charts = null;</span>
+<span class="fc" id="L254">			String commentCode = null;</span>
+<span class="fc" id="L255">			String comments = null;</span>
+<span class="fc" id="L256">			boolean transformed = false;</span>
+<span class="fc" id="L257">			boolean fainterThan = false;</span>
+<span class="fc" id="L258">			boolean isUncertain = false;</span>
+<span class="fc" id="L259">			DateInfo hJD = null;</span>
+<span class="fc" id="L260">			String airmass = null;</span>
+<span class="fc" id="L261">			String group = null;</span>
+<span class="fc" id="L262">			MTypeType mType = null;</span>
+<span class="fc" id="L263">			String credit = null;</span>
+<span class="fc" id="L264">			String pubref = null;</span>
+<span class="fc" id="L265">			String digitizer = null;</span>
+<span class="fc" id="L266">			String name = info.getDesignation();</span>
 
-<span class="fc bfc" id="L267" title="All 2 branches covered.">			for (int j = 0; j &lt; obsDetails.getLength(); j++) {</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">			for (int j = 0; j &lt; obsDetails.getLength(); j++) {</span>
 
-<span class="pc bpc" id="L269" title="1 of 2 branches missed.">				if (interrupted)</span>
-<span class="nc" id="L270">					break;</span>
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">				if (interrupted)</span>
+<span class="nc" id="L271">					break;</span>
 
-<span class="fc" id="L272">				Node detailNode = obsDetails.item(j);</span>
-<span class="fc" id="L273">				String nodeName = detailNode.getNodeName();</span>
-<span class="fc" id="L274">				String nodeValue = detailNode.getTextContent();</span>
+<span class="fc" id="L273">				Node detailNode = obsDetails.item(j);</span>
+<span class="fc" id="L274">				String nodeName = detailNode.getNodeName();</span>
+<span class="fc" id="L275">				String nodeValue = detailNode.getTextContent();</span>
 
-<span class="fc bfc" id="L276" title="All 2 branches covered.">				if (&quot;Id&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L277">					id = Integer.parseInt(nodeValue);</span>
-<span class="fc bfc" id="L278" title="All 2 branches covered.">				} else if (&quot;JD&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L279">					jd = getPossiblyNullDouble(nodeValue);</span>
-<span class="fc bfc" id="L280" title="All 2 branches covered.">				} else if (&quot;Mag&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L281">					mag = getPossiblyNullDouble(nodeValue);</span>
-<span class="fc bfc" id="L282" title="All 2 branches covered.">				} else if (&quot;uncertainty&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L283">					error = getPossiblyNullDouble(nodeValue);</span>
-<span class="pc bpc" id="L284" title="1 of 2 branches missed.">				} else if (&quot;uncertain&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="nc" id="L285">					isUncertain = Boolean.parseBoolean(nodeValue);</span>
-<span class="fc bfc" id="L286" title="All 2 branches covered.">				} else if (&quot;fainterthan&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L287">					fainterThan = Boolean.parseBoolean(nodeValue);</span>
-<span class="fc bfc" id="L288" title="All 2 branches covered.">				} else if (&quot;band&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L289">					band = SeriesType.getSeriesFromShortName(nodeValue);</span>
-<span class="fc bfc" id="L290" title="All 2 branches covered.">				} else if (&quot;transformed&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L291">					transformed = &quot;true&quot;.equalsIgnoreCase(nodeValue);</span>
-<span class="fc bfc" id="L292" title="All 2 branches covered.">				} else if (&quot;airmass&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L293">					airmass = nodeValue;</span>
-<span class="fc bfc" id="L294" title="All 2 branches covered.">				} else if (&quot;comp1&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L295">					comp1 = nodeValue;</span>
-<span class="fc bfc" id="L296" title="All 2 branches covered.">				} else if (&quot;comp2&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L297">					comp2 = nodeValue;</span>
-<span class="fc bfc" id="L298" title="All 2 branches covered.">				} else if (&quot;KMag&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L299">					kMag = nodeValue;</span>
-<span class="fc bfc" id="L300" title="All 2 branches covered.">				} else if (&quot;hjd&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L301">					Double hjd = getPossiblyNullDouble(nodeValue);</span>
-<span class="pc bpc" id="L302" title="1 of 2 branches missed.">					if (hjd != null) {</span>
-<span class="fc" id="L303">						hJD = new DateInfo(hjd);</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">				if (&quot;Id&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L278">					id = Integer.parseInt(nodeValue);</span>
+<span class="fc bfc" id="L279" title="All 2 branches covered.">				} else if (&quot;JD&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L280">					jd = getPossiblyNullDouble(nodeValue);</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">				} else if (&quot;Mag&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L282">					mag = getPossiblyNullDouble(nodeValue);</span>
+<span class="fc bfc" id="L283" title="All 2 branches covered.">				} else if (&quot;uncertainty&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L284">					error = getPossiblyNullDouble(nodeValue);</span>
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">				} else if (&quot;uncertain&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="nc" id="L286">					isUncertain = Boolean.parseBoolean(nodeValue);</span>
+<span class="fc bfc" id="L287" title="All 2 branches covered.">				} else if (&quot;fainterthan&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L288">					fainterThan = Boolean.parseBoolean(nodeValue);</span>
+<span class="fc bfc" id="L289" title="All 2 branches covered.">				} else if (&quot;band&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L290">					band = SeriesType.getSeriesFromShortName(nodeValue);</span>
+<span class="fc bfc" id="L291" title="All 2 branches covered.">				} else if (&quot;transformed&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L292">					transformed = &quot;true&quot;.equalsIgnoreCase(nodeValue);</span>
+<span class="fc bfc" id="L293" title="All 2 branches covered.">				} else if (&quot;airmass&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L294">					airmass = nodeValue;</span>
+<span class="fc bfc" id="L295" title="All 2 branches covered.">				} else if (&quot;comp1&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L296">					comp1 = nodeValue;</span>
+<span class="fc bfc" id="L297" title="All 2 branches covered.">				} else if (&quot;comp2&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L298">					comp2 = nodeValue;</span>
+<span class="fc bfc" id="L299" title="All 2 branches covered.">				} else if (&quot;KMag&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L300">					kMag = nodeValue;</span>
+<span class="fc bfc" id="L301" title="All 2 branches covered.">				} else if (&quot;hjd&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L302">					Double hjd = getPossiblyNullDouble(nodeValue);</span>
+<span class="pc bpc" id="L303" title="1 of 2 branches missed.">					if (hjd != null) {</span>
+<span class="fc" id="L304">						hJD = new DateInfo(hjd);</span>
 					}
-<span class="fc bfc" id="L305" title="All 2 branches covered.">				} else if (&quot;group&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L306">					group = nodeValue;</span>
-<span class="fc bfc" id="L307" title="All 2 branches covered.">				} else if (&quot;obscode&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L308">					obscode = nodeValue;</span>
-<span class="fc bfc" id="L309" title="All 2 branches covered.">				} else if (&quot;obstype&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L310">					obsType = nodeValue;</span>
-<span class="fc bfc" id="L311" title="All 2 branches covered.">				} else if (&quot;charts&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L312">					charts = nodeValue;</span>
-<span class="fc bfc" id="L313" title="All 2 branches covered.">				} else if (&quot;commentcode&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L314">					commentCode = nodeValue;</span>
-<span class="fc bfc" id="L315" title="All 2 branches covered.">				} else if (&quot;comments&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L316">					comments = nodeValue;</span>
-<span class="fc bfc" id="L317" title="All 2 branches covered.">				} else if (&quot;valflag&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L318">					valType = getValidationType(nodeValue);</span>
-<span class="fc bfc" id="L319" title="All 2 branches covered.">				} else if (&quot;mtype&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L320">					mType = getMType(nodeValue);</span>
-<span class="fc bfc" id="L321" title="All 2 branches covered.">				} else if (&quot;credit&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L322">					credit = nodeValue;</span>
-<span class="pc bpc" id="L323" title="1 of 2 branches missed.">				} else if (&quot;pubref&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="nc" id="L324">					pubref = nodeValue;</span>
-<span class="pc bpc" id="L325" title="1 of 2 branches missed.">				} else if (&quot;digitizer&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="nc" id="L326">					digitizer = nodeValue;</span>
-<span class="fc bfc" id="L327" title="All 2 branches covered.">				} else if (&quot;name&quot;.equalsIgnoreCase(nodeName)) {</span>
-<span class="fc" id="L328">					name = nodeValue;</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">				} else if (&quot;group&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L307">					group = nodeValue;</span>
+<span class="fc bfc" id="L308" title="All 2 branches covered.">				} else if (&quot;obscode&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L309">					obscode = nodeValue;</span>
+<span class="fc bfc" id="L310" title="All 2 branches covered.">				} else if (&quot;obstype&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L311">					obsType = nodeValue;</span>
+<span class="fc bfc" id="L312" title="All 2 branches covered.">				} else if (&quot;charts&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L313">					charts = nodeValue;</span>
+<span class="fc bfc" id="L314" title="All 2 branches covered.">				} else if (&quot;commentcode&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L315">					commentCode = nodeValue;</span>
+<span class="fc bfc" id="L316" title="All 2 branches covered.">				} else if (&quot;comments&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L317">					comments = nodeValue;</span>
+<span class="fc bfc" id="L318" title="All 2 branches covered.">				} else if (&quot;valflag&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L319">					valType = getValidationType(nodeValue);</span>
+<span class="fc bfc" id="L320" title="All 2 branches covered.">				} else if (&quot;mtype&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L321">					mType = getMType(nodeValue);</span>
+<span class="fc bfc" id="L322" title="All 2 branches covered.">				} else if (&quot;credit&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L323">					credit = nodeValue;</span>
+<span class="pc bpc" id="L324" title="1 of 2 branches missed.">				} else if (&quot;pubref&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="nc" id="L325">					pubref = nodeValue;</span>
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">				} else if (&quot;digitizer&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="nc" id="L327">					digitizer = nodeValue;</span>
+<span class="fc bfc" id="L328" title="All 2 branches covered.">				} else if (&quot;name&quot;.equalsIgnoreCase(nodeName)) {</span>
+<span class="fc" id="L329">					name = nodeValue;</span>
 				}
 			}
 
-<span class="fc" id="L332">			ValidObservation ob = null;</span>
+<span class="fc" id="L333">			ValidObservation ob = null;</span>
 
-<span class="pc bpc" id="L334" title="5 of 10 branches missed.">			if (id != null &amp;&amp; jd != null &amp;&amp; mag != null &amp;&amp; error != null</span>
+<span class="pc bpc" id="L335" title="5 of 10 branches missed.">			if (id != null &amp;&amp; jd != null &amp;&amp; mag != null &amp;&amp; error != null</span>
 					&amp;&amp; valType != ValidationType.BAD) {
 
-<span class="fc" id="L337">				ob = new ValidObservation();</span>
+<span class="fc" id="L338">				ob = new ValidObservation();</span>
 
-<span class="pc bpc" id="L339" title="1 of 2 branches missed.">				if (id != null) {</span>
-<span class="fc" id="L340">					ob.setRecordNumber(id);</span>
+<span class="pc bpc" id="L340" title="1 of 2 branches missed.">				if (id != null) {</span>
+<span class="fc" id="L341">					ob.setRecordNumber(id);</span>
 				}
 
-<span class="fc" id="L343">				ob.setDateInfo(new DateInfo(jd));</span>
-<span class="fc" id="L344">				ob.setMagnitude(getMagnitude(mag, error, fainterThan,</span>
+<span class="fc" id="L344">				ob.setDateInfo(new DateInfo(jd));</span>
+<span class="fc" id="L345">				ob.setMagnitude(getMagnitude(mag, error, fainterThan,</span>
 						isUncertain));
-<span class="fc" id="L346">				ob.setBand(band);</span>
-<span class="fc" id="L347">				ob.setObsCode(obscode);</span>
-<span class="fc" id="L348">				ob.setObsType(obsType);</span>
-<span class="fc" id="L349">				ob.setValidationType(valType);</span>
-<span class="fc" id="L350">				ob.setCompStar1(comp1);</span>
-<span class="fc" id="L351">				ob.setCompStar2(comp2);</span>
-<span class="fc" id="L352">				ob.setKMag(kMag);</span>
-<span class="fc" id="L353">				ob.setHJD(hJD);</span>
-<span class="fc" id="L354">				ob.setCharts(charts);</span>
-<span class="fc" id="L355">				ob.setCommentCode(commentCode);</span>
-<span class="fc" id="L356">				ob.setComments(comments);</span>
-<span class="fc" id="L357">				ob.setTransformed(transformed);</span>
-<span class="fc" id="L358">				ob.setAirmass(airmass);</span>
-<span class="fc" id="L359">				ob.setGroup(group);</span>
-<span class="fc" id="L360">				ob.setMType(mType);</span>
-<span class="fc" id="L361">				ob.setCredit(credit);</span>
-<span class="fc" id="L362">				ob.setADSRef(pubref);</span>
-<span class="fc" id="L363">				ob.setDigitizer(digitizer);</span>
-<span class="fc" id="L364">				ob.setName(name);</span>
+<span class="fc" id="L347">				ob.setBand(band);</span>
+<span class="fc" id="L348">				ob.setObsCode(obscode);</span>
+<span class="fc" id="L349">				ob.setObsType(obsType);</span>
+<span class="fc" id="L350">				ob.setValidationType(valType);</span>
+<span class="fc" id="L351">				ob.setCompStar1(comp1);</span>
+<span class="fc" id="L352">				ob.setCompStar2(comp2);</span>
+<span class="fc" id="L353">				ob.setKMag(kMag);</span>
+<span class="fc" id="L354">				ob.setHJD(hJD);</span>
+<span class="fc" id="L355">				ob.setCharts(charts);</span>
+<span class="fc" id="L356">				ob.setCommentCode(commentCode);</span>
+<span class="fc" id="L357">				ob.setComments(comments);</span>
+<span class="fc" id="L358">				ob.setTransformed(transformed);</span>
+<span class="fc" id="L359">				ob.setAirmass(airmass);</span>
+<span class="fc" id="L360">				ob.setGroup(group);</span>
+<span class="fc" id="L361">				ob.setMType(mType);</span>
+<span class="fc" id="L362">				ob.setCredit(credit);</span>
+<span class="fc" id="L363">				ob.setADSRef(pubref);</span>
+<span class="fc" id="L364">				ob.setDigitizer(digitizer);</span>
+<span class="fc" id="L365">				ob.setName(name);</span>
 			} else {
-<span class="nc" id="L366">				invalidObservations.add(new InvalidObservation(id + &quot;&quot;,</span>
+<span class="nc" id="L367">				invalidObservations.add(new InvalidObservation(id + &quot;&quot;,</span>
 						&quot;Invalid&quot;));
 			}
 
-<span class="fc" id="L370">			return ob;</span>
+<span class="fc" id="L371">			return ob;</span>
 		}
 	}
 }

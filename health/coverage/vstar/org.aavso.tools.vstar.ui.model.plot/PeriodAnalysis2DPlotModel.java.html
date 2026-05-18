@@ -28,7 +28,7 @@ import org.jfree.data.xy.AbstractXYDataset;
 /**
  * This class is the basis of all 2D period analysis plot models.
  */
-<span class="nc" id="L31">@SuppressWarnings(&quot;serial&quot;)</span>
+<span class="fc" id="L31">@SuppressWarnings(&quot;serial&quot;)</span>
 public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 
 	private Map&lt;PeriodAnalysisCoordinateType, List&lt;Double&gt;&gt; analysisValues;
@@ -56,17 +56,17 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 			Map&lt;PeriodAnalysisCoordinateType, List&lt;Double&gt;&gt; analysisValues,
 			PeriodAnalysisCoordinateType domainType,
 			PeriodAnalysisCoordinateType rangeType, boolean isLogarithmic) {
-<span class="nc" id="L59">		super();</span>
-<span class="nc" id="L60">		this.analysisValues = analysisValues;</span>
-<span class="nc" id="L61">		this.coordTypes = analysisValues.keySet().toArray(</span>
+<span class="fc" id="L59">		super();</span>
+<span class="fc" id="L60">		this.analysisValues = analysisValues;</span>
+<span class="fc" id="L61">		this.coordTypes = analysisValues.keySet().toArray(</span>
 				new PeriodAnalysisCoordinateType[0]);
-<span class="nc" id="L63">		this.domainValues = analysisValues.get(domainType);</span>
-<span class="nc" id="L64">		this.rangeValues = analysisValues.get(rangeType);</span>
-<span class="nc bnc" id="L65" title="All 2 branches missed.">		assert domainValues.size() == rangeValues.size();</span>
-<span class="nc" id="L66">		this.domainType = domainType;</span>
-<span class="nc" id="L67">		this.rangeType = rangeType;</span>
-<span class="nc" id="L68">		this.isLogarithmic = isLogarithmic;</span>
-<span class="nc" id="L69">	}</span>
+<span class="fc" id="L63">		this.domainValues = analysisValues.get(domainType);</span>
+<span class="fc" id="L64">		this.rangeValues = analysisValues.get(rangeType);</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">		assert domainValues.size() == rangeValues.size();</span>
+<span class="fc" id="L66">		this.domainType = domainType;</span>
+<span class="fc" id="L67">		this.rangeType = rangeType;</span>
+<span class="fc" id="L68">		this.isLogarithmic = isLogarithmic;</span>
+<span class="fc" id="L69">	}</span>
 
 	/**
 	 * @return the analysisValues
@@ -93,21 +93,21 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	 * @return the domainType
 	 */
 	public PeriodAnalysisCoordinateType getDomainType() {
-<span class="nc" id="L96">		return domainType;</span>
+<span class="fc" id="L96">		return domainType;</span>
 	}
 
 	/**
 	 * @return the rangeType
 	 */
 	public PeriodAnalysisCoordinateType getRangeType() {
-<span class="nc" id="L103">		return rangeType;</span>
+<span class="fc" id="L103">		return rangeType;</span>
 	}
 
 	/**
 	 * @return the isLogarithmic
 	 */
 	public boolean isLogarithmic() {
-<span class="nc" id="L110">		return isLogarithmic;</span>
+<span class="fc" id="L110">		return isLogarithmic;</span>
 	}
 
 	/**
@@ -115,47 +115,47 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	 *            the isLogarithmic to set
 	 */
 	public void setLogarithmic(boolean isLogarithmic) {
-<span class="nc" id="L118">		this.isLogarithmic = isLogarithmic;</span>
-<span class="nc" id="L119">	}</span>
+<span class="fc" id="L118">		this.isLogarithmic = isLogarithmic;</span>
+<span class="fc" id="L119">	}</span>
 
 	/**
 	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesCount()
 	 */
 	public int getSeriesCount() {
-<span class="nc" id="L125">		return 1;</span>
+<span class="fc" id="L125">		return 1;</span>
 	}
 
 	/**
 	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesKey(int)
 	 */
 	public Comparable&lt;String&gt; getSeriesKey(int series) {
-<span class="nc" id="L132">		return rangeType.getDescription() + &quot; &quot; + LocaleProps.get(&quot;VERSUS&quot;)</span>
-<span class="nc" id="L133">				+ &quot; &quot; + domainType.getDescription();</span>
+<span class="fc" id="L132">		return rangeType.getDescription() + &quot; &quot; + LocaleProps.get(&quot;VERSUS&quot;)</span>
+<span class="fc" id="L133">				+ &quot; &quot; + domainType.getDescription();</span>
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getItemCount(int)
 	 */
 	public int getItemCount(int series) {
-<span class="nc" id="L140">		return domainValues.size();</span>
+<span class="fc" id="L140">		return domainValues.size();</span>
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getX(int, int)
 	 */
 	public Number getX(int series, int item) {
-<span class="nc" id="L147">		return domainValues.get(item);</span>
+<span class="fc" id="L147">		return domainValues.get(item);</span>
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getY(int, int)
 	 */
 	public Number getY(int series, int item) {
-<span class="nc" id="L154">		double yValue = rangeValues.get(item);</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">		if (isLogarithmic) {</span>
+<span class="fc" id="L154">		double yValue = rangeValues.get(item);</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">		if (isLogarithmic) {</span>
 <span class="nc bnc" id="L156" title="All 2 branches missed.">			yValue = yValue == 0 ? 0 : Math.log10(yValue);</span>
 		}
-<span class="nc" id="L158">		return yValue;</span>
+<span class="fc" id="L158">		return yValue;</span>
 	}
 
 	/**

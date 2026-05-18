@@ -25,9 +25,9 @@ import org.aavso.tools.vstar.data.ValidObservation;
 /**
  * A Julian Day based coordinate source.
  */
-<span class="nc" id="L28">public class JDCoordSource implements ICoordSource {</span>
+<span class="fc" id="L28">public class JDCoordSource implements ICoordSource {</span>
 
-<span class="nc" id="L30">	public static JDCoordSource instance = new JDCoordSource();</span>
+<span class="fc" id="L30">	public static JDCoordSource instance = new JDCoordSource();</span>
 	
 	/**
 	 * The number of JD items is the size of the mapped series list.
@@ -39,7 +39,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 	public int getItemCount(int series,
 			Map&lt;Integer, List&lt;ValidObservation&gt;&gt; seriesNumToObSrcListMap) {
 		
-<span class="nc" id="L42">		return seriesNumToObSrcListMap.get(series).size();</span>
+<span class="fc" id="L42">		return seriesNumToObSrcListMap.get(series).size();</span>
 	}
 
 	/**
@@ -56,8 +56,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
 	public double getXCoord(int series, int item,
 			Map&lt;Integer, List&lt;ValidObservation&gt;&gt; seriesNumToObSrcListMap) {
 		
-<span class="nc" id="L59">		return seriesNumToObSrcListMap.get(series).get(item).getDateInfo()</span>
-<span class="nc" id="L60">				.getJulianDay();</span>
+<span class="fc" id="L59">		return seriesNumToObSrcListMap.get(series).get(item).getDateInfo()</span>
+<span class="fc" id="L60">				.getJulianDay();</span>
 	}
 
 	/**
@@ -88,7 +88,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 	 */
 	public int getActualYItemNum(int series, int item,
 			Map&lt;Integer, List&lt;ValidObservation&gt;&gt; seriesNumToObSrcListMap) {
-<span class="nc" id="L91">		return item;</span>
+<span class="fc" id="L91">		return item;</span>
 	}
 
 	/**
@@ -107,7 +107,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 	public ValidObservation getValidObservation(int series, int item,
 			Map&lt;Integer, List&lt;ValidObservation&gt;&gt; seriesNumToObSrcListMap) {
 		
-<span class="nc" id="L110">		return seriesNumToObSrcListMap.get(series).get(item);</span>
+<span class="fc" id="L110">		return seriesNumToObSrcListMap.get(series).get(item);</span>
 	}
 
 	@Override

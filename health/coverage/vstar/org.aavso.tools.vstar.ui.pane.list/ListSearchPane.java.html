@@ -57,31 +57,31 @@ public class ListSearchPane&lt;S extends TableModel&gt; extends JPanel {
 	private int searchColumnIndex;
 
 	public ListSearchPane(AbstractTableModel model, TableRowSorter&lt;S&gt; rowSorter) {
-<span class="nc" id="L60">		super();</span>
+<span class="fc" id="L60">		super();</span>
 
-<span class="nc" id="L62">		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));</span>
+<span class="fc" id="L62">		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));</span>
 
-<span class="nc" id="L64">		this.rowSorter = rowSorter;</span>
-<span class="nc" id="L65">		defaultRowFilter = rowSorter.getRowFilter();</span>
+<span class="fc" id="L64">		this.rowSorter = rowSorter;</span>
+<span class="fc" id="L65">		defaultRowFilter = rowSorter.getRowFilter();</span>
 
-<span class="nc" id="L67">		searchColumnIndex = ALL_COLUMNS;</span>
+<span class="fc" id="L67">		searchColumnIndex = ALL_COLUMNS;</span>
 
-<span class="nc" id="L69">		String[] columnNames = new String[model.getColumnCount()];</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">		for (int i = 0; i &lt; model.getColumnCount(); i++) {</span>
-<span class="nc" id="L71">			columnNames[i] = model.getColumnName(i);</span>
+<span class="fc" id="L69">		String[] columnNames = new String[model.getColumnCount()];</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">		for (int i = 0; i &lt; model.getColumnCount(); i++) {</span>
+<span class="fc" id="L71">			columnNames[i] = model.getColumnName(i);</span>
 		}
-<span class="nc" id="L73">		columnSelector = new JComboBox(columnNames);</span>
-<span class="nc" id="L74">		columnSelector.addActionListener(new ActionListener() {</span>
+<span class="fc" id="L73">		columnSelector = new JComboBox(columnNames);</span>
+<span class="fc" id="L74">		columnSelector.addActionListener(new ActionListener() {</span>
 			@Override
 			public void actionPerformed(ActionEvent e) {
 <span class="nc" id="L77">				searchColumnIndex = columnSelector.getSelectedIndex();</span>
 <span class="nc" id="L78">			}</span>
 		});
-<span class="nc" id="L80">		columnSelector.setEnabled(false);</span>
-<span class="nc" id="L81">		this.add(columnSelector);</span>
+<span class="fc" id="L80">		columnSelector.setEnabled(false);</span>
+<span class="fc" id="L81">		this.add(columnSelector);</span>
 
-<span class="nc" id="L83">		allColumnsCheckBox = new JCheckBox(&quot;All Columns?&quot;);</span>
-<span class="nc" id="L84">		allColumnsCheckBox.addActionListener(new ActionListener() {</span>
+<span class="fc" id="L83">		allColumnsCheckBox = new JCheckBox(&quot;All Columns?&quot;);</span>
+<span class="fc" id="L84">		allColumnsCheckBox.addActionListener(new ActionListener() {</span>
 			@Override
 			public void actionPerformed(ActionEvent e) {
 <span class="nc" id="L87">				JCheckBox checkBox = (JCheckBox) e.getSource();</span>
@@ -94,20 +94,20 @@ public class ListSearchPane&lt;S extends TableModel&gt; extends JPanel {
 				}
 <span class="nc" id="L95">			}</span>
 		});
-<span class="nc" id="L97">		allColumnsCheckBox.setSelected(true);</span>
-<span class="nc" id="L98">		this.add(allColumnsCheckBox);</span>
+<span class="fc" id="L97">		allColumnsCheckBox.setSelected(true);</span>
+<span class="fc" id="L98">		this.add(allColumnsCheckBox);</span>
 
-<span class="nc" id="L100">		searchField = new JTextField();</span>
-<span class="nc" id="L101">		searchField.setToolTipText(&quot;Enter a regular expression...&quot;);</span>
-<span class="nc" id="L102">		searchField.setBorder(BorderFactory.createEtchedBorder());</span>
-<span class="nc" id="L103">		this.add(searchField);</span>
+<span class="fc" id="L100">		searchField = new JTextField();</span>
+<span class="fc" id="L101">		searchField.setToolTipText(&quot;Enter a regular expression...&quot;);</span>
+<span class="fc" id="L102">		searchField.setBorder(BorderFactory.createEtchedBorder());</span>
+<span class="fc" id="L103">		this.add(searchField);</span>
 
-<span class="nc" id="L105">		JPanel applyResetPane = new JPanel();</span>
-<span class="nc" id="L106">		applyResetPane.setLayout(new BoxLayout(applyResetPane,</span>
+<span class="fc" id="L105">		JPanel applyResetPane = new JPanel();</span>
+<span class="fc" id="L106">		applyResetPane.setLayout(new BoxLayout(applyResetPane,</span>
 				BoxLayout.PAGE_AXIS));
 
-<span class="nc" id="L109">		searchButton = new JButton(&quot;Apply&quot;);</span>
-<span class="nc" id="L110">		searchButton.addActionListener(new ActionListener() {</span>
+<span class="fc" id="L109">		searchButton = new JButton(&quot;Apply&quot;);</span>
+<span class="fc" id="L110">		searchButton.addActionListener(new ActionListener() {</span>
 			@Override
 			public void actionPerformed(ActionEvent e) {
 <span class="nc" id="L113">				String text = searchField.getText();</span>
@@ -124,28 +124,28 @@ public class ListSearchPane&lt;S extends TableModel&gt; extends JPanel {
 <span class="nc" id="L124">				}</span>
 <span class="nc" id="L125">			}</span>
 		});
-<span class="nc" id="L127">		applyResetPane.add(searchButton);</span>
+<span class="fc" id="L127">		applyResetPane.add(searchButton);</span>
 
-<span class="nc" id="L129">		resetButton = new JButton(&quot;Reset&quot;);</span>
-<span class="nc" id="L130">		resetButton.addActionListener(new ActionListener() {</span>
+<span class="fc" id="L129">		resetButton = new JButton(&quot;Reset&quot;);</span>
+<span class="fc" id="L130">		resetButton.addActionListener(new ActionListener() {</span>
 			@Override
 			public void actionPerformed(ActionEvent e) {
 <span class="nc" id="L133">				searchField.setText(&quot;&quot;);</span>
 <span class="nc" id="L134">				restoreDefaultRowFilter();</span>
 <span class="nc" id="L135">			}</span>
 		});
-<span class="nc" id="L137">		applyResetPane.add(resetButton);</span>
+<span class="fc" id="L137">		applyResetPane.add(resetButton);</span>
 		
-<span class="nc" id="L139">		this.add(applyResetPane);</span>
-<span class="nc" id="L140">	}</span>
+<span class="fc" id="L139">		this.add(applyResetPane);</span>
+<span class="fc" id="L140">	}</span>
 
 	/**
 	 * @param defaultRowFilter
 	 *            the defaultRowFilter to set
 	 */
 	public void setDefaultRowFilter(RowFilter defaultRowFilter) {
-<span class="nc" id="L147">		this.defaultRowFilter = defaultRowFilter;</span>
-<span class="nc" id="L148">	}</span>
+<span class="fc" id="L147">		this.defaultRowFilter = defaultRowFilter;</span>
+<span class="fc" id="L148">	}</span>
 
 	private void restoreDefaultRowFilter() {
 <span class="nc" id="L151">		rowSorter.setRowFilter(defaultRowFilter);</span>
@@ -158,20 +158,20 @@ public class ListSearchPane&lt;S extends TableModel&gt; extends JPanel {
 	 *            the rowFilter to set
 	 */
 	public void setRowFilter(RowFilter rowFilter) {
-<span class="nc" id="L161">		rowSorter.setRowFilter(rowFilter);</span>
-<span class="nc" id="L162">	}</span>
+<span class="fc" id="L161">		rowSorter.setRowFilter(rowFilter);</span>
+<span class="fc" id="L162">	}</span>
 
 	public void disable() {
-<span class="nc" id="L165">		searchField.setText(&quot;&quot;);</span>
-<span class="nc" id="L166">		searchField.setEnabled(false);</span>
-<span class="nc" id="L167">		searchButton.setEnabled(false);</span>
-<span class="nc" id="L168">		resetButton.setEnabled(false);</span>
-<span class="nc" id="L169">	}</span>
+<span class="fc" id="L165">		searchField.setText(&quot;&quot;);</span>
+<span class="fc" id="L166">		searchField.setEnabled(false);</span>
+<span class="fc" id="L167">		searchButton.setEnabled(false);</span>
+<span class="fc" id="L168">		resetButton.setEnabled(false);</span>
+<span class="fc" id="L169">	}</span>
 
 	public void enable() {
-<span class="nc" id="L172">		searchField.setEnabled(true);</span>
-<span class="nc" id="L173">		searchButton.setEnabled(true);</span>
-<span class="nc" id="L174">		resetButton.setEnabled(true);</span>
-<span class="nc" id="L175">	}</span>
+<span class="fc" id="L172">		searchField.setEnabled(true);</span>
+<span class="fc" id="L173">		searchButton.setEnabled(true);</span>
+<span class="fc" id="L174">		resetButton.setEnabled(true);</span>
+<span class="fc" id="L175">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

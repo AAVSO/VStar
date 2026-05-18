@@ -42,7 +42,7 @@ import org.aavso.tools.vstar.util.stats.DescStats;
  * observations, e.g. for different bands (or from different sources) along with
  * a means series that can change over time.
  */
-<span class="nc" id="L45">@SuppressWarnings(&quot;serial&quot;)</span>
+<span class="fc" id="L45">@SuppressWarnings(&quot;serial&quot;)</span>
 public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 	public static final int NO_SERIES = -1;
@@ -98,44 +98,44 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			ITimeElementEntity timeElementEntity,
 			Map&lt;SeriesType, Boolean&gt; seriesVisibilityMap) {
 
-<span class="nc" id="L101">		super(obsSourceListMap, coordSrc, obComparator, seriesVisibilityMap);</span>
+<span class="fc" id="L101">		super(obsSourceListMap, coordSrc, obComparator, seriesVisibilityMap);</span>
 
-<span class="nc" id="L103">		this.meansSeriesNum = NO_SERIES;</span>
+<span class="fc" id="L103">		this.meansSeriesNum = NO_SERIES;</span>
 
-<span class="nc" id="L105">		this.timeElementEntity = timeElementEntity;</span>
+<span class="fc" id="L105">		this.timeElementEntity = timeElementEntity;</span>
 
-<span class="nc" id="L107">		this.timeElementsInBin = this.timeElementEntity</span>
-<span class="nc" id="L108">				.getDefaultTimeElementsInBin();</span>
+<span class="fc" id="L107">		this.timeElementsInBin = this.timeElementEntity</span>
+<span class="fc" id="L108">				.getDefaultTimeElementsInBin();</span>
 
-<span class="nc" id="L110">		this.meansChangeNotifier = new Notifier&lt;BinningResult&gt;();</span>
+<span class="fc" id="L110">		this.meansChangeNotifier = new Notifier&lt;BinningResult&gt;();</span>
 
-<span class="nc" id="L112">		this.meanSourceSeriesNum = determineMeanSeriesSource();</span>
+<span class="fc" id="L112">		this.meanSourceSeriesNum = determineMeanSeriesSource();</span>
 
-<span class="nc" id="L114">		this.modelFunctionSeriesNum = NO_SERIES;</span>
-<span class="nc" id="L115">		this.modelFunction = null;</span>
+<span class="fc" id="L114">		this.modelFunctionSeriesNum = NO_SERIES;</span>
+<span class="fc" id="L115">		this.modelFunction = null;</span>
 
 		// It doesn't actually matter whether we pass true or false here
 		// since the parameter won't apply to the first mean series created.
-<span class="nc" id="L119">		this.setMeanSeries(false);</span>
+<span class="fc" id="L119">		this.setMeanSeries(false);</span>
 
-<span class="nc" id="L121">		Mediator.getInstance().getDiscrepantObservationNotifier()</span>
-<span class="nc" id="L122">				.addListener(createDiscrepantChangeListener());</span>
+<span class="fc" id="L121">		Mediator.getInstance().getDiscrepantObservationNotifier()</span>
+<span class="fc" id="L122">				.addListener(createDiscrepantChangeListener());</span>
 
-<span class="nc" id="L124">		Mediator.getInstance().getExcludedObservationNotifier()</span>
-<span class="nc" id="L125">				.addListener(createExcludedChangeListener());</span>
+<span class="fc" id="L124">		Mediator.getInstance().getExcludedObservationNotifier()</span>
+<span class="fc" id="L125">				.addListener(createExcludedChangeListener());</span>
 
-<span class="nc" id="L127">		Mediator.getInstance().getModelSelectionNofitier()</span>
-<span class="nc" id="L128">				.addListener(createModelSelectionListener());</span>
+<span class="fc" id="L127">		Mediator.getInstance().getModelSelectionNofitier()</span>
+<span class="fc" id="L128">				.addListener(createModelSelectionListener());</span>
 
-<span class="nc" id="L130">		Mediator.getInstance().getFilteredObservationNotifier()</span>
-<span class="nc" id="L131">				.addListener(createFilteredObservationListener());</span>
-<span class="nc" id="L132">	}</span>
+<span class="fc" id="L130">		Mediator.getInstance().getFilteredObservationNotifier()</span>
+<span class="fc" id="L131">				.addListener(createFilteredObservationListener());</span>
+<span class="fc" id="L132">	}</span>
 
 	/**
 	 * @return the timeElementEntity
 	 */
 	public ITimeElementEntity getTimeElementEntity() {
-<span class="nc" id="L138">		return timeElementEntity;</span>
+<span class="fc" id="L138">		return timeElementEntity;</span>
 	}
 
 	/**
@@ -154,23 +154,23 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	public boolean setMeanSeries(boolean updateAfterInitial) {
 
-<span class="nc" id="L157">		boolean changed = true;</span>
+<span class="fc" id="L157">		boolean changed = true;</span>
 
 		// Does this rely upon mean source series being sorted to determine time
 		// range?
 		// Perhaps the difference between when mean is selected via plot control
 		// dialog vs model listener below?
 
-<span class="nc" id="L164">		binningResult = DescStats.createSymmetricBinnedObservations(</span>
-<span class="nc" id="L165">				seriesNumToObSrcListMap.get(meanSourceSeriesNum),</span>
+<span class="fc" id="L164">		binningResult = DescStats.createSymmetricBinnedObservations(</span>
+<span class="fc" id="L165">				seriesNumToObSrcListMap.get(meanSourceSeriesNum),</span>
 				timeElementEntity, timeElementsInBin);
 
-<span class="nc" id="L168">		meanObsList = binningResult.getMeanObservations();</span>
+<span class="fc" id="L168">		meanObsList = binningResult.getMeanObservations();</span>
 
-<span class="nc bnc" id="L170" title="All 2 branches missed.">		if (meanObsList != Collections.EMPTY_LIST) {</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">		if (meanObsList != Collections.EMPTY_LIST) {</span>
 			// As long as there were enough observations to create a means list
 			// to make a &quot;means&quot; series, we do so.
-<span class="nc" id="L173">			boolean found = false;</span>
+<span class="fc" id="L173">			boolean found = false;</span>
 
 			// TODO: do something like this instead of what follows below.
 			// Is this the first time the means series has been added?
@@ -195,24 +195,24 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			// getSeriesVisibilityMap().put(SeriesType.MEANS, false);
 			// }
 
-<span class="nc bnc" id="L198" title="All 2 branches missed.">			for (Map.Entry&lt;Integer, SeriesType&gt; entry : this.seriesNumToSrcTypeMap</span>
-<span class="nc" id="L199">					.entrySet()) {</span>
-<span class="nc bnc" id="L200" title="All 2 branches missed.">				if (SeriesType.MEANS.equals(entry.getValue())) {</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">			for (Map.Entry&lt;Integer, SeriesType&gt; entry : this.seriesNumToSrcTypeMap</span>
+<span class="fc" id="L199">					.entrySet()) {</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">				if (SeriesType.MEANS.equals(entry.getValue())) {</span>
 <span class="nc" id="L201">					int series = entry.getKey();</span>
 <span class="nc" id="L202">					this.seriesNumToObSrcListMap.put(series, meanObsList);</span>
 <span class="nc" id="L203">					this.fireDatasetChanged();</span>
 <span class="nc" id="L204">					found = true;</span>
 <span class="nc" id="L205">					break;</span>
 				}
-<span class="nc" id="L207">			}</span>
+<span class="fc" id="L207">			}</span>
 
 			// Is this the first time the means series has been added?
-<span class="nc bnc" id="L210" title="All 2 branches missed.">			if (!found) {</span>
-<span class="nc" id="L211">				this.meansSeriesNum = addObservationSeries(SeriesType.MEANS,</span>
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">			if (!found) {</span>
+<span class="fc" id="L211">				this.meansSeriesNum = addObservationSeries(SeriesType.MEANS,</span>
 						meanObsList);
 
 				// Mean series not rendered by default.
-<span class="nc" id="L215">				getSeriesVisibilityMap().put(SeriesType.MEANS, false);</span>
+<span class="fc" id="L215">				getSeriesVisibilityMap().put(SeriesType.MEANS, false);</span>
 			} else {
 				// The mean series has been changed after the initial one. If it
 				// is not visible, make it so since the user has updated it and
@@ -223,12 +223,12 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			}
 
 			// Notify listeners.
-<span class="nc" id="L226">			this.meansChangeNotifier.notifyListeners(binningResult);</span>
-<span class="nc" id="L227">		} else {</span>
+<span class="fc" id="L226">			this.meansChangeNotifier.notifyListeners(binningResult);</span>
+<span class="fc" id="L227">		} else {</span>
 <span class="nc" id="L228">			changed = false;</span>
 		}
 
-<span class="nc" id="L231">		return changed;</span>
+<span class="fc" id="L231">		return changed;</span>
 	}
 
 	/**
@@ -286,10 +286,10 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * @return The error value associated with the mean.
 	 */
 	public double getMagError(int series, int item) {
-<span class="nc bnc" id="L289" title="All 2 branches missed.">		if (series != this.meansSeriesNum) {</span>
+<span class="pc bpc" id="L289" title="1 of 2 branches missed.">		if (series != this.meansSeriesNum) {</span>
 			// The series is something other than the means series
 			// so just default to the superclass behaviour.
-<span class="nc" id="L292">			return super.getMagError(series, item);</span>
+<span class="fc" id="L292">			return super.getMagError(series, item);</span>
 		} else {
 			// For the means series, we store the mean magnitude error
 			// value as the magnitude's uncertainty, and we are only interested
@@ -325,7 +325,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * @return the means series number
 	 */
 	public int getMeansSeriesNum() {
-<span class="nc" id="L328">		return meansSeriesNum;</span>
+<span class="fc" id="L328">		return meansSeriesNum;</span>
 	}
 
 	/**
@@ -390,38 +390,38 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * @return The series number on which to base the mean series.
 	 */
 	public int determineMeanSeriesSource() {
-<span class="nc" id="L393">		int seriesNum = NO_SERIES;</span>
+<span class="fc" id="L393">		int seriesNum = NO_SERIES;</span>
 
 		// TODO:
 		// - use keySet().contains() below!
 		// - out of V and Visual, choose the series with the most observations
 
 		// Look for Visual, then V.
-<span class="nc bnc" id="L400" title="All 2 branches missed.">		for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {</span>
-<span class="nc bnc" id="L401" title="All 2 branches missed.">			if (series == SeriesType.Visual) {</span>
+<span class="fc bfc" id="L400" title="All 2 branches covered.">		for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {</span>
+<span class="pc bpc" id="L401" title="1 of 2 branches missed.">			if (series == SeriesType.Visual) {</span>
 				// Visual band
 <span class="nc" id="L403">				seriesNum = srcTypeToSeriesNumMap.get(series);</span>
 <span class="nc" id="L404">				break;</span>
 			}
-<span class="nc" id="L406">		}</span>
+<span class="fc" id="L406">		}</span>
 
-<span class="nc bnc" id="L408" title="All 2 branches missed.">		if (seriesNum == NO_SERIES) {</span>
-<span class="nc bnc" id="L409" title="All 2 branches missed.">			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {</span>
-<span class="nc bnc" id="L410" title="All 2 branches missed.">				if (series == SeriesType.Johnson_V) {</span>
+<span class="pc bpc" id="L408" title="1 of 2 branches missed.">		if (seriesNum == NO_SERIES) {</span>
+<span class="fc bfc" id="L409" title="All 2 branches covered.">			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {</span>
+<span class="pc bpc" id="L410" title="1 of 2 branches missed.">				if (series == SeriesType.Johnson_V) {</span>
 					// Johnson V band
 <span class="nc" id="L412">					seriesNum = srcTypeToSeriesNumMap.get(series);</span>
 <span class="nc" id="L413">					break;</span>
 				}
-<span class="nc" id="L415">			}</span>
+<span class="fc" id="L415">			}</span>
 		}
 
 		// No visual bands present. Try 'Unspecified'.
-<span class="nc bnc" id="L419" title="All 2 branches missed.">		if (seriesNum == NO_SERIES) {</span>
-<span class="nc bnc" id="L420" title="All 2 branches missed.">			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {</span>
-<span class="nc bnc" id="L421" title="All 2 branches missed.">				if (series == SeriesType.Unspecified) {</span>
+<span class="pc bpc" id="L419" title="1 of 2 branches missed.">		if (seriesNum == NO_SERIES) {</span>
+<span class="pc bpc" id="L420" title="1 of 2 branches missed.">			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {</span>
+<span class="pc bpc" id="L421" title="1 of 2 branches missed.">				if (series == SeriesType.Unspecified) {</span>
 					// Unspecified
-<span class="nc" id="L423">					seriesNum = srcTypeToSeriesNumMap.get(series);</span>
-<span class="nc" id="L424">					break;</span>
+<span class="fc" id="L423">					seriesNum = srcTypeToSeriesNumMap.get(series);</span>
+<span class="fc" id="L424">					break;</span>
 				}
 <span class="nc" id="L426">			}</span>
 		}
@@ -429,9 +429,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		// No match: choose a non-empty series other than fainter-than,
 		// discrepant, or excluded. More specifically, choose the series with
 		// the greatest number of observations.
-<span class="nc" id="L432">		int maxObsSeriesNum = NO_SERIES;</span>
-<span class="nc" id="L433">		int maxObs = Integer.MIN_VALUE;</span>
-<span class="nc bnc" id="L434" title="All 2 branches missed.">		if (seriesNum == NO_SERIES) {</span>
+<span class="fc" id="L432">		int maxObsSeriesNum = NO_SERIES;</span>
+<span class="fc" id="L433">		int maxObs = Integer.MIN_VALUE;</span>
+<span class="pc bpc" id="L434" title="1 of 2 branches missed.">		if (seriesNum == NO_SERIES) {</span>
 <span class="nc bnc" id="L435" title="All 2 branches missed.">			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {</span>
 <span class="nc bnc" id="L436" title="All 6 branches missed.">				if (series != SeriesType.FAINTER_THAN</span>
 						&amp;&amp; series != SeriesType.DISCREPANT
@@ -466,7 +466,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		// Note: This code is showing its age; &quot;very rare&quot; may have been true before
 		//       observation source plug-ins with non-standard filters. Also, there's
 		//       much cruft in general, e.g. see setMeanSeries() (dbenn)
-<span class="nc bnc" id="L469" title="All 2 branches missed.">		if (seriesNum == NO_SERIES) {</span>
+<span class="pc bpc" id="L469" title="1 of 2 branches missed.">		if (seriesNum == NO_SERIES) {</span>
 <span class="nc bnc" id="L470" title="All 2 branches missed.">			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {</span>
 <span class="nc" id="L471">				seriesNum = srcTypeToSeriesNumMap.get(series);</span>
 <span class="nc bnc" id="L472" title="All 2 branches missed.">				if (seriesNumToObSrcListMap.get(seriesNum).size() != 0) {</span>
@@ -475,9 +475,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 <span class="nc" id="L475">			}</span>
 		}
 
-<span class="nc bnc" id="L478" title="All 2 branches missed.">		assert seriesNum != -1;</span>
+<span class="pc bpc" id="L478" title="1 of 2 branches missed.">		assert seriesNum != -1;</span>
 
-<span class="nc" id="L480">		return seriesNum;</span>
+<span class="fc" id="L480">		return seriesNum;</span>
 	}
 
 	/**
@@ -496,9 +496,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	protected Listener&lt;DiscrepantObservationMessage&gt; createDiscrepantChangeListener() {
 
-<span class="nc" id="L499">		final ObservationAndMeanPlotModel model = this;</span>
+<span class="fc" id="L499">		final ObservationAndMeanPlotModel model = this;</span>
 
-<span class="nc" id="L501">		return new Listener&lt;DiscrepantObservationMessage&gt;() {</span>
+<span class="fc" id="L501">		return new Listener&lt;DiscrepantObservationMessage&gt;() {</span>
 			public void update(DiscrepantObservationMessage info) {
 <span class="nc" id="L503">				ValidObservation ob = info.getObservation();</span>
 
@@ -543,9 +543,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	protected Listener&lt;ExcludedObservationMessage&gt; createExcludedChangeListener() {
 
-<span class="nc" id="L546">		final ObservationAndMeanPlotModel model = this;</span>
+<span class="fc" id="L546">		final ObservationAndMeanPlotModel model = this;</span>
 
-<span class="nc" id="L548">		return new Listener&lt;ExcludedObservationMessage&gt;() {</span>
+<span class="fc" id="L548">		return new Listener&lt;ExcludedObservationMessage&gt;() {</span>
 
 			@Override
 			public void update(ExcludedObservationMessage info) {
@@ -665,9 +665,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	@Override
 	protected Listener&lt;ModelSelectionMessage&gt; createModelSelectionListener() {
 
-<span class="nc" id="L668">		final ObservationAndMeanPlotModel model = this;</span>
+<span class="fc" id="L668">		final ObservationAndMeanPlotModel model = this;</span>
 
-<span class="nc" id="L670">		return new Listener&lt;ModelSelectionMessage&gt;() {</span>
+<span class="fc" id="L670">		return new Listener&lt;ModelSelectionMessage&gt;() {</span>
 			@Override
 			public void update(ModelSelectionMessage info) {
 <span class="nc" id="L673">				updateModelSeries(info.getModel().getFit(), info.getModel()</span>
@@ -738,9 +738,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	@Override
 	protected Listener&lt;FilteredObservationMessage&gt; createFilteredObservationListener() {
 
-<span class="nc" id="L741">		final ObservationAndMeanPlotModel model = this;</span>
+<span class="fc" id="L741">		final ObservationAndMeanPlotModel model = this;</span>
 
-<span class="nc" id="L743">		return new Listener&lt;FilteredObservationMessage&gt;() {</span>
+<span class="fc" id="L743">		return new Listener&lt;FilteredObservationMessage&gt;() {</span>
 
 			@Override
 			public void update(FilteredObservationMessage info) {

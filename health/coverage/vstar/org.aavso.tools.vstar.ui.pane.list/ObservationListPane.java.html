@@ -91,7 +91,7 @@ public class ObservationListPane extends JPanel implements
 
 	private Set&lt;ValidObservation&gt; selectedObs;
 
-<span class="nc" id="L94">	private ValidObservation lastObSelected = null;</span>
+<span class="fc" id="L94">	private ValidObservation lastObSelected = null;</span>
 
 	/**
 	 * Constructor
@@ -116,92 +116,92 @@ public class ObservationListPane extends JPanel implements
 			boolean enableAutoResize, Set&lt;SeriesType&gt; initialVisibleSeries,
 			AnalysisType analysisType) {
 
-<span class="nc" id="L119">		super(new BorderLayout());</span>
+<span class="fc" id="L119">		super(new BorderLayout());</span>
 
-<span class="nc" id="L121">		selectedObs = new LinkedHashSet&lt;ValidObservation&gt;();</span>
+<span class="fc" id="L121">		selectedObs = new LinkedHashSet&lt;ValidObservation&gt;();</span>
 
-<span class="nc" id="L123">		JScrollPane validDataScrollPane = null;</span>
+<span class="fc" id="L123">		JScrollPane validDataScrollPane = null;</span>
 
-<span class="nc bnc" id="L125" title="All 2 branches missed.">		if (validDataModel != null) {</span>
-<span class="nc" id="L126">			this.validDataModel = validDataModel;</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">		if (validDataModel != null) {</span>
+<span class="fc" id="L126">			this.validDataModel = validDataModel;</span>
 
-<span class="nc" id="L128">			validDataTable = new JTable(validDataModel);</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">			if (!enableAutoResize) {</span>
+<span class="fc" id="L128">			validDataTable = new JTable(validDataModel);</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">			if (!enableAutoResize) {</span>
 				// Ensure we get a horizontal scrollbar if necessary rather than
 				// trying to cram all the columns into the visible pane.
-<span class="nc" id="L132">				validDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);</span>
+<span class="fc" id="L132">				validDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);</span>
 			}
 
 			// Set selection mode to be row-only.
 			// These appear to be the defaults anyway.
-<span class="nc" id="L137">			validDataTable.setColumnSelectionAllowed(false);</span>
-<span class="nc" id="L138">			validDataTable.setRowSelectionAllowed(true);</span>
+<span class="fc" id="L137">			validDataTable.setColumnSelectionAllowed(false);</span>
+<span class="fc" id="L138">			validDataTable.setRowSelectionAllowed(true);</span>
 
 			// Enable table sorting by clicking on a column.
 			// We need to treat JD, magnitude, and uncertainty as doubles.
-<span class="nc" id="L142">			rowSorter = new TableRowSorter&lt;ValidObservationTableModel&gt;(</span>
+<span class="fc" id="L142">			rowSorter = new TableRowSorter&lt;ValidObservationTableModel&gt;(</span>
 					validDataModel);
-<span class="nc" id="L144">			int jdColIndex = validDataModel.getColumnInfoSource()</span>
-<span class="nc" id="L145">					.getColumnIndexByName(LocaleProps.get(&quot;TIME&quot;));</span>
-<span class="nc" id="L146">			rowSorter.setComparator(jdColIndex, new DoubleAsStringComparator());</span>
-<span class="nc" id="L147">			int magColIndex = validDataModel.getColumnInfoSource()</span>
-<span class="nc" id="L148">					.getColumnIndexByName(&quot;Magnitude&quot;);</span>
-<span class="nc" id="L149">			rowSorter</span>
-<span class="nc" id="L150">					.setComparator(magColIndex, new DoubleAsStringComparator());</span>
-<span class="nc" id="L151">			int uncertaintyColIndex = validDataModel.getColumnInfoSource()</span>
-<span class="nc" id="L152">					.getColumnIndexByName(&quot;Uncertainty&quot;);</span>
-<span class="nc" id="L153">			rowSorter.setComparator(uncertaintyColIndex,</span>
+<span class="fc" id="L144">			int jdColIndex = validDataModel.getColumnInfoSource()</span>
+<span class="fc" id="L145">					.getColumnIndexByName(LocaleProps.get(&quot;TIME&quot;));</span>
+<span class="fc" id="L146">			rowSorter.setComparator(jdColIndex, new DoubleAsStringComparator());</span>
+<span class="fc" id="L147">			int magColIndex = validDataModel.getColumnInfoSource()</span>
+<span class="fc" id="L148">					.getColumnIndexByName(&quot;Magnitude&quot;);</span>
+<span class="fc" id="L149">			rowSorter</span>
+<span class="fc" id="L150">					.setComparator(magColIndex, new DoubleAsStringComparator());</span>
+<span class="fc" id="L151">			int uncertaintyColIndex = validDataModel.getColumnInfoSource()</span>
+<span class="fc" id="L152">					.getColumnIndexByName(&quot;Uncertainty&quot;);</span>
+<span class="fc" id="L153">			rowSorter.setComparator(uncertaintyColIndex,</span>
 					new DoubleAsStringComparator());
-<span class="nc" id="L155">			validDataTable.setRowSorter(rowSorter);</span>
+<span class="fc" id="L155">			validDataTable.setRowSorter(rowSorter);</span>
 
 			// Add a row filter that shows data from series that are visible in
 			// the main plot.
-<span class="nc" id="L159">			rowFilter = new VisibleSeriesRowFilter(validDataModel,</span>
+<span class="fc" id="L159">			rowFilter = new VisibleSeriesRowFilter(validDataModel,</span>
 					initialVisibleSeries, analysisType);
-<span class="nc" id="L161">			rowSorter.setRowFilter(rowFilter);</span>
+<span class="fc" id="L161">			rowSorter.setRowFilter(rowFilter);</span>
 
-<span class="nc" id="L163">			validDataScrollPane = new JScrollPane(validDataTable);</span>
+<span class="fc" id="L163">			validDataScrollPane = new JScrollPane(validDataTable);</span>
 		}
 
-<span class="nc" id="L166">		JScrollPane invalidDataScrollPane = null;</span>
+<span class="fc" id="L166">		JScrollPane invalidDataScrollPane = null;</span>
 
-<span class="nc bnc" id="L168" title="All 2 branches missed.">		if (invalidDataModel != null) {</span>
-<span class="nc" id="L169">			invalidDataTable = new JTable(invalidDataModel);</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">		if (invalidDataModel != null) {</span>
+<span class="fc" id="L169">			invalidDataTable = new JTable(invalidDataModel);</span>
 
 			// Ensure we get a horizontal scrollbar if necessary rather than
 			// trying to cram all the columns into the visible pane. This is
 			// particularly pertinent to the invalid data table since one of
 			// its columns contains the original line in the case of a file
 			// source.
-<span class="nc" id="L176">			invalidDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);</span>
+<span class="fc" id="L176">			invalidDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);</span>
 
 			// Set the columns containing the observation and error to be
 			// greater than the default width of the others.
-<span class="nc" id="L180">			TableColumnModel colModel = invalidDataTable.getColumnModel();</span>
-<span class="nc" id="L181">			int totalWidth = colModel.getTotalColumnWidth();</span>
-<span class="nc" id="L182">			colModel.getColumn(1).setPreferredWidth((int) (totalWidth * 2.5));</span>
-<span class="nc" id="L183">			colModel.getColumn(2).setPreferredWidth((int) (totalWidth * 2));</span>
+<span class="fc" id="L180">			TableColumnModel colModel = invalidDataTable.getColumnModel();</span>
+<span class="fc" id="L181">			int totalWidth = colModel.getTotalColumnWidth();</span>
+<span class="fc" id="L182">			colModel.getColumn(1).setPreferredWidth((int) (totalWidth * 2.5));</span>
+<span class="fc" id="L183">			colModel.getColumn(2).setPreferredWidth((int) (totalWidth * 2));</span>
 
 			// Enable table sorting by clicking on a column.
-<span class="nc" id="L186">			invalidDataTable.setAutoCreateRowSorter(true);</span>
+<span class="fc" id="L186">			invalidDataTable.setAutoCreateRowSorter(true);</span>
 
-<span class="nc" id="L188">			invalidDataScrollPane = new JScrollPane(invalidDataTable);</span>
+<span class="fc" id="L188">			invalidDataScrollPane = new JScrollPane(invalidDataTable);</span>
 		}
 
 		// In the presence of both valid and invalid data, we put
 		// them into a split pane.
-<span class="nc bnc" id="L193" title="All 4 branches missed.">		if (validDataScrollPane != null &amp;&amp; invalidDataScrollPane != null) {</span>
-<span class="nc" id="L194">			JSplitPane splitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);</span>
-<span class="nc" id="L195">			splitter.setToolTipText(&quot;Valid and invalid data&quot;);</span>
-<span class="nc" id="L196">			splitter.setTopComponent(validDataScrollPane);</span>
-<span class="nc" id="L197">			splitter.setBottomComponent(invalidDataScrollPane);</span>
-<span class="nc" id="L198">			splitter.setResizeWeight(0.5);</span>
+<span class="pc bpc" id="L193" title="1 of 4 branches missed.">		if (validDataScrollPane != null &amp;&amp; invalidDataScrollPane != null) {</span>
+<span class="fc" id="L194">			JSplitPane splitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);</span>
+<span class="fc" id="L195">			splitter.setToolTipText(&quot;Valid and invalid data&quot;);</span>
+<span class="fc" id="L196">			splitter.setTopComponent(validDataScrollPane);</span>
+<span class="fc" id="L197">			splitter.setBottomComponent(invalidDataScrollPane);</span>
+<span class="fc" id="L198">			splitter.setResizeWeight(0.5);</span>
 			// splitter.setBorder(BorderFactory.createTitledBorder(title));
-<span class="nc" id="L200">			this.add(splitter, BorderLayout.CENTER);</span>
-<span class="nc bnc" id="L201" title="All 2 branches missed.">		} else if (validDataScrollPane != null) {</span>
+<span class="fc" id="L200">			this.add(splitter, BorderLayout.CENTER);</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">		} else if (validDataScrollPane != null) {</span>
 			// Just valid data.
 			// validDataScrollPane.setBorder(BorderFactory.createTitledBorder(title));
-<span class="nc" id="L204">			this.add(validDataScrollPane, BorderLayout.CENTER);</span>
+<span class="fc" id="L204">			this.add(validDataScrollPane, BorderLayout.CENTER);</span>
 <span class="nc bnc" id="L205" title="All 2 branches missed.">		} else if (invalidDataScrollPane != null) {</span>
 			// Just invalid data.
 			// invalidDataScrollPane.setBorder(BorderFactory.createTitledBorder(title));
@@ -214,32 +214,32 @@ public class ObservationListPane extends JPanel implements
 <span class="nc" id="L214">			this.add(label, BorderLayout.CENTER);</span>
 		}
 
-<span class="nc" id="L217">		this.add(createControlPanel(), BorderLayout.NORTH);</span>
+<span class="fc" id="L217">		this.add(createControlPanel(), BorderLayout.NORTH);</span>
 
 		// Listen for observation selection events. Notice that this class
 		// also generates these, but ignores them if sent by itself.
-<span class="nc" id="L221">		Mediator.getInstance().getObservationSelectionNotifier()</span>
-<span class="nc" id="L222">				.addListener(createObservationSelectionListener());</span>
+<span class="fc" id="L221">		Mediator.getInstance().getObservationSelectionNotifier()</span>
+<span class="fc" id="L222">				.addListener(createObservationSelectionListener());</span>
 
 		// List row selection handling.
-<span class="nc" id="L225">		this.validDataTable.getSelectionModel().addListSelectionListener(this);</span>
-<span class="nc" id="L226">	}</span>
+<span class="fc" id="L225">		this.validDataTable.getSelectionModel().addListSelectionListener(this);</span>
+<span class="fc" id="L226">	}</span>
 
 	/**
 	 * Create a control panel for the table.
 	 */
 	private JPanel createControlPanel() {
-<span class="nc" id="L232">		JPanel panel = new JPanel();</span>
+<span class="fc" id="L232">		JPanel panel = new JPanel();</span>
 
-<span class="nc" id="L234">		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
-<span class="nc" id="L235">		panel.setBorder(BorderFactory.createEtchedBorder());</span>
+<span class="fc" id="L234">		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));</span>
+<span class="fc" id="L235">		panel.setBorder(BorderFactory.createEtchedBorder());</span>
 
-<span class="nc" id="L237">		JPanel controlPane = new JPanel();</span>
-<span class="nc" id="L238">		controlPane.setLayout(new BoxLayout(controlPane, BoxLayout.PAGE_AXIS));</span>
+<span class="fc" id="L237">		JPanel controlPane = new JPanel();</span>
+<span class="fc" id="L238">		controlPane.setLayout(new BoxLayout(controlPane, BoxLayout.PAGE_AXIS));</span>
 		
 		// A checkbox to determine whether to display all the data in the table.
-<span class="nc" id="L241">		JCheckBox allDataCheckBox = new JCheckBox(&quot;Show all data?&quot;);</span>
-<span class="nc" id="L242">		allDataCheckBox.addActionListener(new ActionListener() {</span>
+<span class="fc" id="L241">		JCheckBox allDataCheckBox = new JCheckBox(&quot;Show all data?&quot;);</span>
+<span class="fc" id="L242">		allDataCheckBox.addActionListener(new ActionListener() {</span>
 			@Override
 			public void actionPerformed(ActionEvent e) {
 <span class="nc" id="L245">				JCheckBox checkBox = (JCheckBox) e.getSource();</span>
@@ -257,67 +257,67 @@ public class ObservationListPane extends JPanel implements
 <span class="nc" id="L257">				rowSorter.setRowFilter(currFilter);</span>
 <span class="nc" id="L258">			}</span>
 		});
-<span class="nc" id="L260">		allDataCheckBox.setSelected(false);</span>
-<span class="nc" id="L261">		controlPane.add(allDataCheckBox);</span>
+<span class="fc" id="L260">		allDataCheckBox.setSelected(false);</span>
+<span class="fc" id="L261">		controlPane.add(allDataCheckBox);</span>
 
 		// Selectable search pane: pattern and VeLa search
-<span class="nc" id="L264">		JPanel selectableSearchPanes = new JPanel(new CardLayout());</span>
+<span class="fc" id="L264">		JPanel selectableSearchPanes = new JPanel(new CardLayout());</span>
 
-<span class="nc" id="L266">		searchPanel = new ListSearchPane&lt;ValidObservationTableModel&gt;(</span>
+<span class="fc" id="L266">		searchPanel = new ListSearchPane&lt;ValidObservationTableModel&gt;(</span>
 				validDataModel, rowSorter);
-<span class="nc" id="L268">		selectableSearchPanes.add(searchPanel, &quot;Regex&quot;);</span>
+<span class="fc" id="L268">		selectableSearchPanes.add(searchPanel, &quot;Regex&quot;);</span>
 
-<span class="nc" id="L270">		velaSearchPanel = new VeLaListSearchPane&lt;ValidObservationTableModel&gt;(</span>
+<span class="fc" id="L270">		velaSearchPanel = new VeLaListSearchPane&lt;ValidObservationTableModel&gt;(</span>
 				validDataModel, rowSorter);
-<span class="nc" id="L272">		selectableSearchPanes.add(velaSearchPanel, &quot;VeLa&quot;);</span>
+<span class="fc" id="L272">		selectableSearchPanes.add(velaSearchPanel, &quot;VeLa&quot;);</span>
 
-<span class="nc" id="L274">		JRadioButton patternSearchSelector = new JRadioButton(&quot;Regular Expression&quot;);</span>
-<span class="nc" id="L275">		patternSearchSelector.setSelected(true);</span>
-<span class="nc" id="L276">		patternSearchSelector.addActionListener(e -&gt; {</span>
+<span class="fc" id="L274">		JRadioButton patternSearchSelector = new JRadioButton(&quot;Regular Expression&quot;);</span>
+<span class="fc" id="L275">		patternSearchSelector.setSelected(true);</span>
+<span class="fc" id="L276">		patternSearchSelector.addActionListener(e -&gt; {</span>
 <span class="nc" id="L277">			CardLayout cl = (CardLayout) selectableSearchPanes.getLayout();</span>
 <span class="nc" id="L278">			cl.show(selectableSearchPanes, &quot;Regex&quot;);</span>
 <span class="nc" id="L279">		});</span>
 
-<span class="nc" id="L281">		JRadioButton velaSearchSelector = new JRadioButton(&quot;VeLa Expression&quot;);</span>
-<span class="nc" id="L282">		velaSearchSelector.addActionListener(e -&gt; {</span>
+<span class="fc" id="L281">		JRadioButton velaSearchSelector = new JRadioButton(&quot;VeLa Expression&quot;);</span>
+<span class="fc" id="L282">		velaSearchSelector.addActionListener(e -&gt; {</span>
 <span class="nc" id="L283">			CardLayout cl = (CardLayout) selectableSearchPanes.getLayout();</span>
 <span class="nc" id="L284">			cl.show(selectableSearchPanes, &quot;VeLa&quot;);</span>
 <span class="nc" id="L285">		});</span>
 
-<span class="nc" id="L287">		ButtonGroup searchSelectionRadioButtons = new ButtonGroup();</span>
-<span class="nc" id="L288">		searchSelectionRadioButtons.add(patternSearchSelector);</span>
-<span class="nc" id="L289">		searchSelectionRadioButtons.add(velaSearchSelector);</span>
+<span class="fc" id="L287">		ButtonGroup searchSelectionRadioButtons = new ButtonGroup();</span>
+<span class="fc" id="L288">		searchSelectionRadioButtons.add(patternSearchSelector);</span>
+<span class="fc" id="L289">		searchSelectionRadioButtons.add(velaSearchSelector);</span>
 
-<span class="nc" id="L291">		controlPane.add(patternSearchSelector);</span>
-<span class="nc" id="L292">		controlPane.add(velaSearchSelector);</span>
+<span class="fc" id="L291">		controlPane.add(patternSearchSelector);</span>
+<span class="fc" id="L292">		controlPane.add(velaSearchSelector);</span>
 
-<span class="nc" id="L294">		panel.add(controlPane);</span>
+<span class="fc" id="L294">		panel.add(controlPane);</span>
 		
-<span class="nc" id="L296">		JPanel searchPane = new JPanel();</span>
-<span class="nc" id="L297">		searchPane.setLayout(new BoxLayout(searchPane, BoxLayout.PAGE_AXIS));</span>
-<span class="nc" id="L298">		searchPane.setBorder(BorderFactory.createTitledBorder(&quot;Search&quot;));</span>
-<span class="nc" id="L299">		searchPane.add(selectableSearchPanes);</span>
+<span class="fc" id="L296">		JPanel searchPane = new JPanel();</span>
+<span class="fc" id="L297">		searchPane.setLayout(new BoxLayout(searchPane, BoxLayout.PAGE_AXIS));</span>
+<span class="fc" id="L298">		searchPane.setBorder(BorderFactory.createTitledBorder(&quot;Search&quot;));</span>
+<span class="fc" id="L299">		searchPane.add(selectableSearchPanes);</span>
 
-<span class="nc" id="L301">		panel.add(searchPane);</span>
+<span class="fc" id="L301">		panel.add(searchPane);</span>
 
-<span class="nc" id="L303">		final JPanel parent = this;</span>
+<span class="fc" id="L303">		final JPanel parent = this;</span>
 
-<span class="nc" id="L305">		JPanel selectPane = new JPanel();</span>
-<span class="nc" id="L306">		selectPane.setLayout(new BoxLayout(selectPane, BoxLayout.PAGE_AXIS));</span>
+<span class="fc" id="L305">		JPanel selectPane = new JPanel();</span>
+<span class="fc" id="L306">		selectPane.setLayout(new BoxLayout(selectPane, BoxLayout.PAGE_AXIS));</span>
 		
-<span class="nc" id="L308">		selectAllButton = new JButton(LocaleProps.get(&quot;SELECT_ALL&quot;));</span>
-<span class="nc" id="L309">		selectAllButton.addActionListener(new ActionListener() {</span>
+<span class="fc" id="L308">		selectAllButton = new JButton(LocaleProps.get(&quot;SELECT_ALL&quot;));</span>
+<span class="fc" id="L309">		selectAllButton.addActionListener(new ActionListener() {</span>
 			@Override
 			public void actionPerformed(ActionEvent e) {
 <span class="nc" id="L312">				selectAll();</span>
 <span class="nc" id="L313">			}</span>
 		});
-<span class="nc" id="L315">		selectPane.add(selectAllButton);</span>
+<span class="fc" id="L315">		selectPane.add(selectAllButton);</span>
 
-<span class="nc" id="L317">		createFilterButton = new JButton(</span>
-<span class="nc" id="L318">				LocaleProps.get(&quot;CREATE_SELECTION_FILTER&quot;));</span>
-<span class="nc" id="L319">		createFilterButton.setEnabled(false);</span>
-<span class="nc" id="L320">		createFilterButton.addActionListener(new ActionListener() {</span>
+<span class="fc" id="L317">		createFilterButton = new JButton(</span>
+<span class="fc" id="L318">				LocaleProps.get(&quot;CREATE_SELECTION_FILTER&quot;));</span>
+<span class="fc" id="L319">		createFilterButton.setEnabled(false);</span>
+<span class="fc" id="L320">		createFilterButton.addActionListener(new ActionListener() {</span>
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// Request a name for the filter.
@@ -369,11 +369,11 @@ public class ObservationListPane extends JPanel implements
 <span class="nc" id="L369">						.notifyListeners(message);</span>
 <span class="nc" id="L370">			}</span>
 		});
-<span class="nc" id="L372">		selectPane.add(createFilterButton);</span>
+<span class="fc" id="L372">		selectPane.add(createFilterButton);</span>
 
-<span class="nc" id="L374">		panel.add(selectPane);</span>
+<span class="fc" id="L374">		panel.add(selectPane);</span>
 		
-<span class="nc" id="L376">		return panel;</span>
+<span class="fc" id="L376">		return panel;</span>
 	}
 
 	/**
@@ -391,21 +391,21 @@ public class ObservationListPane extends JPanel implements
 	 * @return the validDataTable
 	 */
 	public JTable getValidDataTable() {
-<span class="nc" id="L394">		return validDataTable;</span>
+<span class="fc" id="L394">		return validDataTable;</span>
 	}
 
 	/**
 	 * @return the invalidDataTable
 	 */
 	public JTable getInvalidDataTable() {
-<span class="nc" id="L401">		return invalidDataTable;</span>
+<span class="fc" id="L401">		return invalidDataTable;</span>
 	}
 
 	/**
 	 * @return the lastObSelected
 	 */
 	public ValidObservation getLastObSelected() {
-<span class="nc" id="L408">		return lastObSelected;</span>
+<span class="fc" id="L408">		return lastObSelected;</span>
 	}
 
 	/**
@@ -430,8 +430,8 @@ public class ObservationListPane extends JPanel implements
 
 	// Returns an observation selection listener.
 	protected Listener&lt;ObservationSelectionMessage&gt; createObservationSelectionListener() {
-<span class="nc" id="L433">		final JPanel parent = this;</span>
-<span class="nc" id="L434">		return new Listener&lt;ObservationSelectionMessage&gt;() {</span>
+<span class="fc" id="L433">		final JPanel parent = this;</span>
+<span class="fc" id="L434">		return new Listener&lt;ObservationSelectionMessage&gt;() {</span>
 			public void update(ObservationSelectionMessage message) {
 <span class="nc bnc" id="L436" title="All 2 branches missed.">				if (message.getSource() != parent) {</span>
 <span class="nc" id="L437">					ValidObservation ob = message.getObservation();</span>

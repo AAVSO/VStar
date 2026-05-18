@@ -169,10 +169,10 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 	@Override
 	public int getColumnIndexByName(String name)
 			throws IllegalArgumentException {
-<span class="nc bnc" id="L172" title="All 4 branches missed.">		if (name == null || !COLUMN_NAMES.containsKey(name)) {</span>
+<span class="pc bpc" id="L172" title="2 of 4 branches missed.">		if (name == null || !COLUMN_NAMES.containsKey(name)) {</span>
 <span class="nc" id="L173">			throw new IllegalArgumentException(&quot;No column name: &quot; + name);</span>
 		} else {
-<span class="nc" id="L175">			return COLUMN_NAMES.get(name);</span>
+<span class="fc" id="L175">			return COLUMN_NAMES.get(name);</span>
 		}
 	}
 }

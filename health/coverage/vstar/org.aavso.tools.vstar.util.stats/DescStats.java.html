@@ -262,8 +262,8 @@ import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 		// If in any of the steps above we get NaN, we use 0
 		// (e.g. because there is only one sample), we set the
 		// Standard Error of the Average to 0.
-<span class="pc bpc" id="L265" title="1 of 2 branches missed.">		if (Double.isNaN(magStdErrOfMean)) {</span>
-<span class="nc" id="L266">			magStdErrOfMean = 0;</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">		if (Double.isNaN(magStdErrOfMean)) {</span>
+<span class="fc" id="L266">			magStdErrOfMean = 0;</span>
 		}
 
 		// Create the mean observation, using an arbitrary observation
@@ -280,9 +280,9 @@ import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 		// Question: even though the mean resulting from this will be just
 		// the value itself, will the greater sample size of this bin skew
 		// the ANOVA result in any way?
-<span class="pc bpc" id="L283" title="1 of 2 branches missed.">		if (binData.length == 1) {</span>
-<span class="nc" id="L284">			double datum = binData[0];</span>
-<span class="nc" id="L285">			binData = new double[] { datum, datum };</span>
+<span class="fc bfc" id="L283" title="All 2 branches covered.">		if (binData.length == 1) {</span>
+<span class="fc" id="L284">			double datum = binData[0];</span>
+<span class="fc" id="L285">			binData = new double[] { datum, datum };</span>
 		}
 
 <span class="fc" id="L288">		return new Bin(observation, binData);</span>

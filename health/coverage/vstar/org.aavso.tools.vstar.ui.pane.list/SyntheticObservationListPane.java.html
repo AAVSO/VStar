@@ -45,7 +45,7 @@ public class SyntheticObservationListPane&lt;T extends AbstractSyntheticObservat
 	private T obsTableModel;
 	private JTable obsTable;
 	private TableRowSorter&lt;T&gt; rowSorter;
-<span class="nc" id="L48">	private ValidObservation lastObSelected = null;</span>
+<span class="fc" id="L48">	private ValidObservation lastObSelected = null;</span>
 
 	/**
 	 * Constructor.
@@ -56,52 +56,52 @@ public class SyntheticObservationListPane&lt;T extends AbstractSyntheticObservat
 	 *            A summary of what the data represents (may be null).
 	 */
 	public SyntheticObservationListPane(T obsTableModel, String summary) {
-<span class="nc" id="L59">		super(new GridLayout(1, 1));</span>
+<span class="fc" id="L59">		super(new GridLayout(1, 1));</span>
 
-<span class="nc" id="L61">		this.obsTableModel = obsTableModel;</span>
-<span class="nc" id="L62">		this.obsTable = new JTable(obsTableModel);</span>
+<span class="fc" id="L61">		this.obsTableModel = obsTableModel;</span>
+<span class="fc" id="L62">		this.obsTable = new JTable(obsTableModel);</span>
 
 		// Enable table sorting by clicking on a column.
-<span class="nc" id="L65">		rowSorter = new TableRowSorter&lt;T&gt;(obsTableModel);</span>
-<span class="nc" id="L66">		obsTable.setRowSorter(rowSorter);</span>
+<span class="fc" id="L65">		rowSorter = new TableRowSorter&lt;T&gt;(obsTableModel);</span>
+<span class="fc" id="L66">		obsTable.setRowSorter(rowSorter);</span>
 
-<span class="nc" id="L68">		JScrollPane obsTableScrollPane = new JScrollPane(obsTable);</span>
-<span class="nc" id="L69">		this.add(obsTableScrollPane);</span>
+<span class="fc" id="L68">		JScrollPane obsTableScrollPane = new JScrollPane(obsTable);</span>
+<span class="fc" id="L69">		this.add(obsTableScrollPane);</span>
 
 		// Listen for observation selection events. Notice that this class
 		// also generates these, but ignores them if sent by itself.
-<span class="nc" id="L73">		Mediator.getInstance().getObservationSelectionNotifier().addListener(</span>
-<span class="nc" id="L74">				createObservationSelectionListener());</span>
+<span class="fc" id="L73">		Mediator.getInstance().getObservationSelectionNotifier().addListener(</span>
+<span class="fc" id="L74">				createObservationSelectionListener());</span>
 
 		// List row selection handling.
-<span class="nc" id="L77">		this.obsTable.getSelectionModel().addListSelectionListener(this);</span>
-<span class="nc" id="L78">	}</span>
+<span class="fc" id="L77">		this.obsTable.getSelectionModel().addListSelectionListener(this);</span>
+<span class="fc" id="L78">	}</span>
 
 	/**
 	 * @return the obsTableModel
 	 */
 	public T getObsTableModel() {
-<span class="nc" id="L84">		return obsTableModel;</span>
+<span class="fc" id="L84">		return obsTableModel;</span>
 	}
 
 	/**
 	 * @return the obsTable
 	 */
 	public JTable getObsTable() {
-<span class="nc" id="L91">		return obsTable;</span>
+<span class="fc" id="L91">		return obsTable;</span>
 	}
 
 	/**
 	 * @return the lastObSelected
 	 */
 	public ValidObservation getLastObSelected() {
-<span class="nc" id="L98">		return lastObSelected;</span>
+<span class="fc" id="L98">		return lastObSelected;</span>
 	}
 
 	// Returns an observation selection listener.
 	private Listener&lt;ObservationSelectionMessage&gt; createObservationSelectionListener() {
-<span class="nc" id="L103">		final JPanel parent = this;</span>
-<span class="nc" id="L104">		return new Listener&lt;ObservationSelectionMessage&gt;() {</span>
+<span class="fc" id="L103">		final JPanel parent = this;</span>
+<span class="fc" id="L104">		return new Listener&lt;ObservationSelectionMessage&gt;() {</span>
 			public void update(ObservationSelectionMessage message) {
 <span class="nc bnc" id="L106" title="All 2 branches missed.">				if (message.getSource() != parent) {</span>
 <span class="nc" id="L107">					ValidObservation ob = message.getObservation();</span>

@@ -48,15 +48,15 @@ public class FileExtensionFilter extends FileFilter {
 
 <span class="fc" id="L49">		String name = f.getName();</span>
 
-<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		if (f.isDirectory()) {</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">		if (f.isDirectory()) {</span>
 <span class="fc" id="L52">			acceptable = true;</span>
 		} else {
-<span class="nc bnc" id="L54" title="All 2 branches missed.">			for (String extension : extensions) {</span>
-<span class="nc bnc" id="L55" title="All 2 branches missed.">				if (name.toLowerCase().endsWith(extension)) {</span>
-<span class="nc" id="L56">					acceptable = true;</span>
-<span class="nc" id="L57">					break;</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">			for (String extension : extensions) {</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">				if (name.toLowerCase().endsWith(extension)) {</span>
+<span class="fc" id="L56">					acceptable = true;</span>
+<span class="fc" id="L57">					break;</span>
 				}
-<span class="nc" id="L59">			}</span>
+<span class="fc" id="L59">			}</span>
 		}
 
 <span class="fc" id="L62">		return acceptable;</span>

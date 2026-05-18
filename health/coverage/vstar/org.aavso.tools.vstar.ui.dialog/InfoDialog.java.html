@@ -55,74 +55,92 @@ public class InfoDialog extends JDialog implements ActionListener {
 	 *            The loaded star messages.
 	 */
 	public InfoDialog(List&lt;NewStarMessage&gt; newStarMessages) {
-<span class="nc" id="L58">		super(DocumentManager.findActiveWindow());</span>
-<span class="nc" id="L59">		this.setTitle(&quot;Information&quot;);</span>
+<span class="nc" id="L58">		this(newStarMessages, true);</span>
+<span class="nc" id="L59">	}</span>
 
-<span class="nc" id="L61">		JPanel topPane = new JPanel();</span>
-<span class="nc" id="L62">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
-<span class="nc" id="L63">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+	/**
+	 * Package-private constructor that allows tests to build the dialog without
+	 * displaying it. When {@code show} is {@code false} all Swing setup,
+	 * {@code setLocationRelativeTo}, and {@code setVisible(true)} are skipped so
+	 * that the dialog can be constructed without a live {@code Mediator} UI.
+	 *
+	 * @param newStarMessages
+	 *            The loaded star messages (ignored when show is false).
+	 * @param show
+	 *            {@code true} to build and display normally; {@code false} for
+	 *            tests.
+	 */
+	InfoDialog(List&lt;NewStarMessage&gt; newStarMessages, boolean show) {
+<span class="fc" id="L74">		super(DocumentManager.findActiveWindow());</span>
+<span class="fc" id="L75">		this.setTitle(&quot;Information&quot;);</span>
 
-<span class="nc" id="L65">		JScrollPane scrollPane = new JScrollPane(</span>
-<span class="nc" id="L66">				createInfoPanel(newStarMessages));</span>
-<span class="nc" id="L67">		topPane.add(scrollPane);</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">		if (show) {</span>
+<span class="nc" id="L78">			JPanel topPane = new JPanel();</span>
+<span class="nc" id="L79">			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L80">			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
 
-<span class="nc" id="L69">		topPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+<span class="nc" id="L82">			JScrollPane scrollPane = new JScrollPane(</span>
+<span class="nc" id="L83">					createInfoPanel(newStarMessages));</span>
+<span class="nc" id="L84">			topPane.add(scrollPane);</span>
 
-<span class="nc" id="L71">		JPanel buttonPane = new JPanel();</span>
-<span class="nc" id="L72">		JButton dismissButton = new JButton(&quot;Dismiss&quot;);</span>
-<span class="nc" id="L73">		dismissButton.addActionListener(this);</span>
-<span class="nc" id="L74">		buttonPane.add(dismissButton, BorderLayout.CENTER);</span>
-<span class="nc" id="L75">		topPane.add(buttonPane);</span>
+<span class="nc" id="L86">			topPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
 
-<span class="nc" id="L77">		this.getContentPane().add(topPane);</span>
+<span class="nc" id="L88">			JPanel buttonPane = new JPanel();</span>
+<span class="nc" id="L89">			JButton dismissButton = new JButton(&quot;Dismiss&quot;);</span>
+<span class="nc" id="L90">			dismissButton.addActionListener(this);</span>
+<span class="nc" id="L91">			buttonPane.add(dismissButton, BorderLayout.CENTER);</span>
+<span class="nc" id="L92">			topPane.add(buttonPane);</span>
 
-<span class="nc" id="L79">		this.getRootPane().setDefaultButton(dismissButton);</span>
+<span class="nc" id="L94">			this.getContentPane().add(topPane);</span>
 
-<span class="nc" id="L81">		this.pack();</span>
-<span class="nc" id="L82">		this.setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
-<span class="nc" id="L83">		this.setVisible(true);</span>
-<span class="nc" id="L84">	}</span>
+<span class="nc" id="L96">			this.getRootPane().setDefaultButton(dismissButton);</span>
+
+<span class="nc" id="L98">			this.pack();</span>
+<span class="nc" id="L99">			this.setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L100">			this.setVisible(true);</span>
+		}
+<span class="fc" id="L102">	}</span>
 
 	/**
 	 * Create the info pane given a new star message.
 	 */
 	private JPanel createInfoPanel(List&lt;NewStarMessage&gt; msgs) {
-<span class="nc" id="L90">		JPanel pane = new JPanel();</span>
-<span class="nc" id="L91">		pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L108">		JPanel pane = new JPanel();</span>
+<span class="nc" id="L109">		pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));</span>
 
 		// Series information.
-<span class="nc" id="L94">		JTextArea seriesTextArea = new JTextArea();</span>
-<span class="nc" id="L95">		seriesTextArea.setEditable(false);</span>
-<span class="nc" id="L96">		seriesTextArea.setBorder(BorderFactory.createTitledBorder(&quot;Series&quot;));</span>
+<span class="nc" id="L112">		JTextArea seriesTextArea = new JTextArea();</span>
+<span class="nc" id="L113">		seriesTextArea.setEditable(false);</span>
+<span class="nc" id="L114">		seriesTextArea.setBorder(BorderFactory.createTitledBorder(&quot;Series&quot;));</span>
 
-<span class="nc" id="L98">		StringBuffer seriesBuf = new StringBuffer();</span>
+<span class="nc" id="L116">		StringBuffer seriesBuf = new StringBuffer();</span>
 
 		// The most recent new star message will have all obs and series
 		// (whether a single or additive dataset).
-<span class="nc" id="L102">		NewStarMessage latestMsg = msgs.get(msgs.size() - 1);</span>
-<span class="nc" id="L103">		List&lt;ValidObservation&gt; obs = latestMsg.getObservations();</span>
+<span class="nc" id="L120">		NewStarMessage latestMsg = msgs.get(msgs.size() - 1);</span>
+<span class="nc" id="L121">		List&lt;ValidObservation&gt; obs = latestMsg.getObservations();</span>
 
-<span class="nc" id="L105">		seriesBuf.append(&quot;Loaded Observations: &quot;);</span>
-<span class="nc" id="L106">		seriesBuf.append(obs.size());</span>
-<span class="nc" id="L107">		seriesBuf.append(&quot;\n&quot;);</span>
+<span class="nc" id="L123">		seriesBuf.append(&quot;Loaded Observations: &quot;);</span>
+<span class="nc" id="L124">		seriesBuf.append(obs.size());</span>
+<span class="nc" id="L125">		seriesBuf.append(&quot;\n&quot;);</span>
 
-<span class="nc" id="L109">		Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; obsCategoryMap = latestMsg</span>
-<span class="nc" id="L110">				.getObsCategoryMap();</span>
+<span class="nc" id="L127">		Map&lt;SeriesType, List&lt;ValidObservation&gt;&gt; obsCategoryMap = latestMsg</span>
+<span class="nc" id="L128">				.getObsCategoryMap();</span>
 
-<span class="nc bnc" id="L112" title="All 2 branches missed.">		for (SeriesType type : obsCategoryMap.keySet()) {</span>
-<span class="nc" id="L113">			List&lt;ValidObservation&gt; obsOfType = obsCategoryMap.get(type);</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">			if (!obsOfType.isEmpty()) {</span>
-<span class="nc" id="L115">				seriesBuf.append(type.getDescription());</span>
-<span class="nc" id="L116">				seriesBuf.append(&quot;: &quot;);</span>
-<span class="nc" id="L117">				seriesBuf.append(obsOfType.size());</span>
-<span class="nc" id="L118">				seriesBuf.append(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">		for (SeriesType type : obsCategoryMap.keySet()) {</span>
+<span class="nc" id="L131">			List&lt;ValidObservation&gt; obsOfType = obsCategoryMap.get(type);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">			if (!obsOfType.isEmpty()) {</span>
+<span class="nc" id="L133">				seriesBuf.append(type.getDescription());</span>
+<span class="nc" id="L134">				seriesBuf.append(&quot;: &quot;);</span>
+<span class="nc" id="L135">				seriesBuf.append(obsOfType.size());</span>
+<span class="nc" id="L136">				seriesBuf.append(&quot;\n&quot;);</span>
 			}
-<span class="nc" id="L120">		}</span>
+<span class="nc" id="L138">		}</span>
 
-<span class="nc" id="L122">		seriesTextArea.setText(seriesBuf.toString());</span>
+<span class="nc" id="L140">		seriesTextArea.setText(seriesBuf.toString());</span>
 
 		// Statistics
-<span class="nc" id="L125">		JTextArea statsTextArea = new JTextArea();</span>
+<span class="nc" id="L143">		JTextArea statsTextArea = new JTextArea();</span>
 		// We don't include this now. See Current Mode ANOVA plugin.
 		if (false) {
 			statsTextArea.setEditable(false);
@@ -145,16 +163,16 @@ public class InfoDialog extends JDialog implements ActionListener {
 		}
 
 		// Add dataset summaries, series info, stats.
-<span class="nc bnc" id="L148" title="All 2 branches missed.">		for (NewStarMessage msg : msgs) {</span>
-<span class="nc" id="L149">			pane.add(createSummary(msg));</span>
-<span class="nc" id="L150">			pane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
-<span class="nc" id="L151">		}</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">		for (NewStarMessage msg : msgs) {</span>
+<span class="nc" id="L167">			pane.add(createSummary(msg));</span>
+<span class="nc" id="L168">			pane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+<span class="nc" id="L169">		}</span>
 
-<span class="nc" id="L153">		pane.add(seriesTextArea);</span>
+<span class="nc" id="L171">		pane.add(seriesTextArea);</span>
 		// pane.add(Box.createRigidArea(new Dimension(10, 10)));
 		// pane.add(statsTextArea);
 
-<span class="nc" id="L157">		return pane;</span>
+<span class="nc" id="L175">		return pane;</span>
 	}
 
 	/**
@@ -165,77 +183,77 @@ public class InfoDialog extends JDialog implements ActionListener {
 	 * @return The summary component for this star.
 	 */
 	private Component createSummary(NewStarMessage msg) {
-<span class="nc" id="L168">		StarInfo starInfo = msg.getStarInfo();</span>
+<span class="nc" id="L186">		StarInfo starInfo = msg.getStarInfo();</span>
 
-<span class="nc" id="L170">		JTextArea summaryTextArea = new JTextArea();</span>
-<span class="nc" id="L171">		summaryTextArea.setEditable(false);</span>
-<span class="nc" id="L172">		summaryTextArea</span>
-<span class="nc" id="L173">				.setBorder(BorderFactory.createTitledBorder(&quot;Summary for &quot;</span>
-<span class="nc" id="L174">						+ starInfo.getDesignation()));</span>
+<span class="nc" id="L188">		JTextArea summaryTextArea = new JTextArea();</span>
+<span class="nc" id="L189">		summaryTextArea.setEditable(false);</span>
+<span class="nc" id="L190">		summaryTextArea</span>
+<span class="nc" id="L191">				.setBorder(BorderFactory.createTitledBorder(&quot;Summary for &quot;</span>
+<span class="nc" id="L192">						+ starInfo.getDesignation()));</span>
 
-<span class="nc" id="L176">		StringBuffer summaryBuf = new StringBuffer();</span>
+<span class="nc" id="L194">		StringBuffer summaryBuf = new StringBuffer();</span>
 
-<span class="nc" id="L178">		summaryBuf.append(&quot;Source Type: &quot;);</span>
-<span class="nc" id="L179">		summaryBuf.append(msg.getStarInfo().getRetriever().getSourceType());</span>
-<span class="nc" id="L180">		summaryBuf.append(&quot;\n&quot;);</span>
+<span class="nc" id="L196">		summaryBuf.append(&quot;Source Type: &quot;);</span>
+<span class="nc" id="L197">		summaryBuf.append(msg.getStarInfo().getRetriever().getSourceType());</span>
+<span class="nc" id="L198">		summaryBuf.append(&quot;\n&quot;);</span>
 
-<span class="nc" id="L182">		summaryBuf.append(&quot;Source Name: &quot;);</span>
-<span class="nc" id="L183">		summaryBuf.append(msg.getStarInfo().getRetriever().getSourceName());</span>
-<span class="nc" id="L184">		summaryBuf.append(&quot;; loaded: &quot;);</span>
-<span class="nc" id="L185">		summaryBuf.append(msg.getLoadDate().toString());</span>
-<span class="nc" id="L186">		summaryBuf.append(&quot;\n&quot;);</span>
+<span class="nc" id="L200">		summaryBuf.append(&quot;Source Name: &quot;);</span>
+<span class="nc" id="L201">		summaryBuf.append(msg.getStarInfo().getRetriever().getSourceName());</span>
+<span class="nc" id="L202">		summaryBuf.append(&quot;; loaded: &quot;);</span>
+<span class="nc" id="L203">		summaryBuf.append(msg.getLoadDate().toString());</span>
+<span class="nc" id="L204">		summaryBuf.append(&quot;\n&quot;);</span>
 
-<span class="nc bnc" id="L188" title="All 2 branches missed.">		if (starInfo.getAuid() != null) {</span>
-<span class="nc" id="L189">			summaryBuf.append(&quot;AUID: &quot;);</span>
-<span class="nc" id="L190">			summaryBuf.append(starInfo.getAuid());</span>
-<span class="nc" id="L191">			summaryBuf.append(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">		if (starInfo.getAuid() != null) {</span>
+<span class="nc" id="L207">			summaryBuf.append(&quot;AUID: &quot;);</span>
+<span class="nc" id="L208">			summaryBuf.append(starInfo.getAuid());</span>
+<span class="nc" id="L209">			summaryBuf.append(&quot;\n&quot;);</span>
 		}
 
-<span class="nc bnc" id="L194" title="All 2 branches missed.">		if (starInfo.getPeriod() != null) {</span>
-<span class="nc" id="L195">			summaryBuf.append(&quot;Period: &quot;);</span>
-<span class="nc" id="L196">			summaryBuf.append(NumericPrecisionPrefs.formatOther(starInfo</span>
-<span class="nc" id="L197">					.getPeriod()));</span>
-<span class="nc" id="L198">			summaryBuf.append(&quot; days\n&quot;);</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">		if (starInfo.getPeriod() != null) {</span>
+<span class="nc" id="L213">			summaryBuf.append(&quot;Period: &quot;);</span>
+<span class="nc" id="L214">			summaryBuf.append(NumericPrecisionPrefs.formatOther(starInfo</span>
+<span class="nc" id="L215">					.getPeriod()));</span>
+<span class="nc" id="L216">			summaryBuf.append(&quot; days\n&quot;);</span>
 		}
 
-<span class="nc bnc" id="L201" title="All 2 branches missed.">		if (starInfo.getEpoch() != null) {</span>
-<span class="nc" id="L202">			summaryBuf.append(&quot;Epoch: &quot;);</span>
-<span class="nc" id="L203">			summaryBuf.append(NumericPrecisionPrefs.formatTime(starInfo</span>
-<span class="nc" id="L204">					.getEpoch()));</span>
-<span class="nc" id="L205">			summaryBuf.append(&quot;\n&quot;);</span>
-		}
-
-<span class="nc bnc" id="L208" title="All 2 branches missed.">		if (starInfo.getVarType() != null) {</span>
-<span class="nc" id="L209">			summaryBuf.append(&quot;Variable Type: &quot;);</span>
-<span class="nc" id="L210">			summaryBuf.append(starInfo.getVarType());</span>
-<span class="nc" id="L211">			summaryBuf.append(&quot;\n&quot;);</span>
-		}
-
-<span class="nc bnc" id="L214" title="All 2 branches missed.">		if (starInfo.getSpectralType() != null) {</span>
-<span class="nc" id="L215">			summaryBuf.append(&quot;Spectral Type: &quot;);</span>
-<span class="nc" id="L216">			summaryBuf.append(starInfo.getSpectralType());</span>
-<span class="nc" id="L217">			summaryBuf.append(&quot;\n&quot;);</span>
-		}
-
-<span class="nc bnc" id="L220" title="All 2 branches missed.">		if (starInfo.getDiscoverer() != null) {</span>
-<span class="nc" id="L221">			summaryBuf.append(&quot;Discoverer: &quot;);</span>
-<span class="nc" id="L222">			summaryBuf.append(starInfo.getDiscoverer());</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">		if (starInfo.getEpoch() != null) {</span>
+<span class="nc" id="L220">			summaryBuf.append(&quot;Epoch: &quot;);</span>
+<span class="nc" id="L221">			summaryBuf.append(NumericPrecisionPrefs.formatTime(starInfo</span>
+<span class="nc" id="L222">					.getEpoch()));</span>
 <span class="nc" id="L223">			summaryBuf.append(&quot;\n&quot;);</span>
 		}
 
-<span class="nc bnc" id="L226" title="All 2 branches missed.">		if (starInfo.getRA() != null) {</span>
-<span class="nc" id="L227">			summaryBuf.append(starInfo.getRA());</span>
-<span class="nc" id="L228">			summaryBuf.append(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">		if (starInfo.getVarType() != null) {</span>
+<span class="nc" id="L227">			summaryBuf.append(&quot;Variable Type: &quot;);</span>
+<span class="nc" id="L228">			summaryBuf.append(starInfo.getVarType());</span>
+<span class="nc" id="L229">			summaryBuf.append(&quot;\n&quot;);</span>
 		}
 
-<span class="nc bnc" id="L231" title="All 2 branches missed.">		if (starInfo.getDec() != null) {</span>
-<span class="nc" id="L232">			summaryBuf.append(starInfo.getDec());</span>
-<span class="nc" id="L233">			summaryBuf.append(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">		if (starInfo.getSpectralType() != null) {</span>
+<span class="nc" id="L233">			summaryBuf.append(&quot;Spectral Type: &quot;);</span>
+<span class="nc" id="L234">			summaryBuf.append(starInfo.getSpectralType());</span>
+<span class="nc" id="L235">			summaryBuf.append(&quot;\n&quot;);</span>
 		}
 
-<span class="nc" id="L236">		summaryTextArea.setText(summaryBuf.toString());</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">		if (starInfo.getDiscoverer() != null) {</span>
+<span class="nc" id="L239">			summaryBuf.append(&quot;Discoverer: &quot;);</span>
+<span class="nc" id="L240">			summaryBuf.append(starInfo.getDiscoverer());</span>
+<span class="nc" id="L241">			summaryBuf.append(&quot;\n&quot;);</span>
+		}
 
-<span class="nc" id="L238">		return summaryTextArea;</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">		if (starInfo.getRA() != null) {</span>
+<span class="nc" id="L245">			summaryBuf.append(starInfo.getRA());</span>
+<span class="nc" id="L246">			summaryBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc bnc" id="L249" title="All 2 branches missed.">		if (starInfo.getDec() != null) {</span>
+<span class="nc" id="L250">			summaryBuf.append(starInfo.getDec());</span>
+<span class="nc" id="L251">			summaryBuf.append(&quot;\n&quot;);</span>
+		}
+
+<span class="nc" id="L254">		summaryTextArea.setText(summaryBuf.toString());</span>
+
+<span class="nc" id="L256">		return summaryTextArea;</span>
 	}
 
 	/**
@@ -243,8 +261,8 @@ public class InfoDialog extends JDialog implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-<span class="nc" id="L246">		this.setVisible(false);</span>
-<span class="nc" id="L247">		dispose();</span>
-<span class="nc" id="L248">	}</span>
+<span class="nc" id="L264">		this.setVisible(false);</span>
+<span class="nc" id="L265">		dispose();</span>
+<span class="nc" id="L266">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
