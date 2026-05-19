@@ -884,4 +884,42 @@ public class FlexibleTextFileFormatObservationSource extends
 		}
 
 	}
+
+	@Override
+	public Boolean test() {
+		setTestMode(true);
+		String[] lines = {
+				"#FIELDS=time,mag,magerr\n",
+				"#DELIM=comma\n",
+				"#DATE=JD\n",
+				"2450000,5.0,0.01\n" };
+
+		boolean success = true;
+		try {
+			StringBuffer content = new StringBuffer();
+			for (String line : lines) {
+				content.append(line);
+			}
+			java.io.InputStream in = new java.io.ByteArrayInputStream(content.toString().getBytes());
+			java.util.List<java.io.InputStream> streams = new java.util.ArrayList<java.io.InputStream>();
+			streams.add(in);
+			setInputInfo(streams, "flex test");
+
+			AbstractObservationRetriever retriever = getObservationRetriever();
+			retriever.getNumberOfRecords();
+			retriever.retrieveObservations();
+
+			success &= 1 == retriever.getValidObservations().size();
+			ValidObservation ob = retriever.getValidObservations().get(0);
+			success &= 2450000 == ob.getJD();
+			success &= 5.0 == ob.getMag();
+			success &= 0.01 == ob.getMagnitude().getUncertainty();
+			success &= JDflavour.JD == ob.getJDflavour();
+		} catch (Exception e) {
+			success = false;
+		} finally {
+			setTestMode(false);
+		}
+		return success;
+	}
 }

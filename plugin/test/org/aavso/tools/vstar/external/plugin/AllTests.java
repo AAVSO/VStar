@@ -20,6 +20,8 @@ package org.aavso.tools.vstar.external.plugin;
 
 import java.util.Locale;
 
+import org.aavso.tools.vstar.external.lib.ConvertHelperTest;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -33,7 +35,9 @@ public class AllTests {
 
 		// $JUnit-BEGIN$
 		suite.addTestSuite(PluginTest.class);
-        suite.addTestSuite(PiecewiseLinearModelTest.class);
+		suite.addTestSuite(PiecewiseLinearModelTest.class);
+		suite.addTestSuite(ConvertHelperTest.class);
+		suite.addTestSuite(HipparcosLoadTest.class);
 		// $JUnit-END$
 		
 		return suite;

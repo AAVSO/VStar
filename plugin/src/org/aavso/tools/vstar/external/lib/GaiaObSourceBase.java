@@ -34,7 +34,9 @@ package org.aavso.tools.vstar.external.lib;
 
 import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,6 +58,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.util.Tolerance;
 
 public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 
@@ -780,6 +783,77 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 		public String getSourceType() {
 			return "Gaia DR2/DR3 Format";
 		}
+	}
+
+	@Override
+	public Boolean test() {
+		setTestMode(true);
+		paramIgnoreFlags = true;
+		paramGaiaRelease = GaiaRelease.DR2;
+
+		boolean success = true;
+		try {
+			success &= runGaiaFileTest(false);
+			success &= runGaiaFileTest(true);
+		} catch (Exception e) {
+			success = false;
+		} finally {
+			setTestMode(false);
+		}
+		return success;
+	}
+
+	private boolean runGaiaFileTest(boolean transform) throws Exception {
+		paramTransform = transform;
+
+		String header = "source_id,transit_id,band,time,mag,flux,flux_error,flux_over_error,rejected_by_photometry,rejected_by_variability,other_flags,solution_id\n";
+		String[] lines;
+		if (transform) {
+			lines = new String[] {
+					header,
+					"1951343009975999744,1,BP,1000.0,11.0,1000.0,10.0,,FALSE,FALSE,0,1\n",
+					"1951343009975999744,1,G,1000.0,10.0,1000.0,10.0,,FALSE,FALSE,0,1\n",
+					"1951343009975999744,1,RP,1000.0,12.0,1000.0,10.0,,FALSE,FALSE,0,1\n" };
+		} else {
+			lines = new String[] {
+					header,
+					"1951343009975999744,1,G,1000.0,10.0,1000.0,10.0,,FALSE,FALSE,0,1\n" };
+		}
+
+		StringBuffer content = new StringBuffer();
+		for (String line : lines) {
+			content.append(line);
+		}
+		InputStream in = new ByteArrayInputStream(content.toString().getBytes());
+		List<InputStream> streams = new ArrayList<InputStream>();
+		streams.add(in);
+		setInputInfo(streams, "Gaia test");
+
+		GAIADR2FormatRetriever retriever = new GAIADR2FormatRetriever(transform, true, GaiaRelease.DR2);
+		retriever.getNumberOfRecords();
+		retriever.retrieveObservations();
+
+		List<ValidObservation> gaiaObs = retriever.getValidObservations();
+		if (!transform) {
+			boolean success = 1 == gaiaObs.size();
+			ValidObservation ob = gaiaObs.get(0);
+			success &= gaiaGseries == ob.getBand();
+			success &= Tolerance.areClose(2456197.5, ob.getJD(), 1e-6, true);
+			success &= Tolerance.areClose(10.0, ob.getMag(), 1e-6, true);
+			success &= "GaiaDR2 1951343009975999744".equals(ob.getName());
+			success &= JDflavour.BJD == ob.getJDflavour();
+			return success;
+		}
+
+		boolean success = 3 == gaiaObs.size();
+		success &= SeriesType.Johnson_V == gaiaObs.get(0).getBand();
+		success &= SeriesType.Cousins_R == gaiaObs.get(1).getBand();
+		success &= SeriesType.Cousins_I == gaiaObs.get(2).getBand();
+		for (ValidObservation ob : gaiaObs) {
+			success &= ob.isTransformed();
+			success &= Tolerance.areClose(2456197.5, ob.getJD(), 1e-6, true);
+		}
+		return success;
 	}
 
 }
