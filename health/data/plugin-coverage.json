@@ -1,10 +1,10 @@
 {
-  "updated": "2026-05-18",
+  "updated": "2026-05-19",
   "java_version": "17",
-  "tests": 1,
-  "passed": 1,
+  "tests": 8,
+  "passed": 8,
   "failures": 0,
   "errors": 0,
-  "line_coverage": "19%",
-  "branch_coverage": "13%"
+  "line_coverage": "32%",
+  "branch_coverage": "26%"
 }
