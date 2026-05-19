@@ -168,4 +168,27 @@ public class NSVSObservationSource extends ObservationSourcePluginBase {
 			return str != null && "".equals(str.trim());
 		}
 	}
+
+	@Override
+	public Boolean test() {
+		setTestMode(true);
+		String[] lines = {
+				"MJD-50000\tmag\tmagerr\tflags\n",
+				"1000\t10.0\t0.01\t0\n" };
+
+		boolean success = true;
+		try {
+			AbstractObservationRetriever retriever = getTestRetriever(lines, "NSVS test");
+			success &= 1 == retriever.getValidObservations().size();
+			ValidObservation ob = retriever.getValidObservations().get(0);
+			success &= 2451000.5 == ob.getJD();
+			success &= 10.0 == ob.getMag();
+			success &= 0.01 == ob.getMagnitude().getUncertainty();
+		} catch (Exception e) {
+			success = false;
+		} finally {
+			setTestMode(false);
+		}
+		return success;
+	}
 }

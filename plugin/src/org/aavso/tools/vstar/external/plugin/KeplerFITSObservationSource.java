@@ -19,6 +19,8 @@ package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -30,7 +32,10 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.external.lib.FitsTestData;
 import org.aavso.tools.vstar.external.lib.TESSObservationRetrieverBase;
+import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
@@ -155,6 +160,10 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
+		if (inTestMode()) {
+			loadRawData = false;
+			return new KeplerFITSObservationRetriever(loadRawData);
+		}
 		// Dialog moved from retrieveObservations() where it invoked from non-UI thread
 		// to this more natural place.
 		// No annoying "No observations for the specified period" messages.
@@ -381,6 +390,35 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 				dispose();
 			}
 		}
+	}
+
+	@Override
+	public Boolean test() {
+		setTestMode(true);
+		boolean success = true;
+		try {
+			byte[] fitsBytes = FitsTestData.createKeplerArchiveFits();
+			InputStream in = new ByteArrayInputStream(fitsBytes);
+			List<InputStream> streams = new ArrayList<InputStream>();
+			streams.add(in);
+			setInputInfo(streams, "kepler test");
+
+			KeplerFITSObservationRetriever retriever = new KeplerFITSObservationRetriever(false);
+			retriever.getNumberOfRecords();
+			retriever.retrieveObservations();
+
+			List<ValidObservation> obs = retriever.getValidObservations();
+			success &= 1 == obs.size();
+			ValidObservation ob = obs.get(0);
+			success &= dataSeriesKepler == ob.getBand();
+			success &= Tolerance.areClose(2454833.5, ob.getJD(), 1e-4, true);
+			success &= "TEST".equals(ob.getName());
+		} catch (Exception e) {
+			success = false;
+		} finally {
+			setTestMode(false);
+		}
+		return success;
 	}
 	
 }

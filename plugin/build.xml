@@ -145,11 +145,7 @@
 
 			<test name="${testcase}" todir="${test_report}" if="testcase" />
 
-			<batchtest todir="${test_report}" unless="testcase">
-				<fileset dir="${test_build}">
-					<include name="**/PluginTest.class" />
-				</fileset>
-			</batchtest>
+			<test name="org.aavso.tools.vstar.external.plugin.AllTests" todir="${test_report}" unless="testcase" />
 
 			<classpath refid="test.classpath" />
 		</junit>
@@ -199,11 +195,7 @@
 
 				<jvmarg value="-ea" />
 
-				<batchtest todir="${test_report}" unless="testcase">
-					<fileset dir="${test_build}">
-						<include name="**/PluginTest.class" />
-					</fileset>
-				</batchtest>
+				<test name="org.aavso.tools.vstar.external.plugin.AllTests" todir="${test_report}" unless="testcase" />
 
 				<classpath refid="test.classpath" />
 			</junit>

@@ -19,8 +19,11 @@ package org.aavso.tools.vstar.external.lib;
 
 import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,6 +45,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.util.Tolerance;
 
 /**
  * 
@@ -319,6 +323,51 @@ public abstract class ZTFObSourceBase extends ObservationSourcePluginBase {
 		public String getSourceType() {
 			return "ZTF Format";
 		}
+	}
+
+	@Override
+	public Boolean test() {
+		setTestMode(true);
+
+		String[] lines = {
+				"oid\thjd\tmag\tmagerr\tcatflags\tfiltercode\texptime\tairmass\n",
+				"12345\t2458000.5\t12.5\t0.01\t0\tzg\t30\t1.2\n" };
+
+		boolean success = true;
+
+		try {
+			StringBuffer content = new StringBuffer();
+			for (String line : lines) {
+				content.append(line);
+			}
+			InputStream in = new ByteArrayInputStream(content.toString().getBytes());
+			List<InputStream> streams = new ArrayList<InputStream>();
+			streams.add(in);
+			setInputInfo(streams, "ZTF test");
+
+			ZTFFormatRetriever retriever = new ZTFFormatRetriever();
+			retriever.getNumberOfRecords();
+			retriever.retrieveObservations();
+
+			List<ValidObservation> ztfObs = retriever.getValidObservations();
+			success &= 1 == ztfObs.size();
+
+			ValidObservation ob = ztfObs.get(0);
+			success &= "12345".equals(ob.getName());
+			success &= Tolerance.areClose(2458000.5, ob.getJD(), 1e-6, true);
+			success &= Tolerance.areClose(12.5, ob.getMag(), 1e-6, true);
+			success &= Tolerance.areClose(0.01, ob.getMagnitude().getUncertainty(), 1e-6, true);
+			success &= ztfgSeries == ob.getBand();
+			success &= JDflavour.HJD == ob.getJDflavour();
+			success &= String.format(Locale.ENGLISH, "ZTF object %s", "12345")
+					.equals(retriever.getSourceName());
+		} catch (Exception e) {
+			success = false;
+		} finally {
+			setTestMode(false);
+		}
+
+		return success;
 	}
 
 }

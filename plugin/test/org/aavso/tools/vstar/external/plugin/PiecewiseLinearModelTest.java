@@ -23,6 +23,8 @@ import java.util.List;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.external.lib.PiecewiseLinearModel;
 import org.aavso.tools.vstar.external.lib.PiecewiseLinearModel.LinearFunction;
 import org.aavso.tools.vstar.external.lib.PiecewiseLinearModel.PiecewiseLinearFunction;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
@@ -48,6 +50,17 @@ public class PiecewiseLinearModelTest extends TestCase {
         assertTrue(Tolerance.areClose(m, function.slope(), DELTA, true));
         assertTrue(Tolerance.areClose(10 - (m * 2459645), function.yIntercept(), DELTA, true));
         assertTrue(Tolerance.areClose(m * 2459642 + function.yIntercept(), function.value(2459642), DELTA, true));
+    }
+
+    public void testPiecewiseLinearModelExecute() throws AlgorithmError {
+        List<ValidObservation> meanObs = getTestMeanObs();
+        List<ValidObservation> obs = getTestObs();
+
+        PiecewiseLinearModel model = new PiecewiseLinearModel(obs, meanObs);
+        model.execute();
+
+        assertEquals(obs.size(), model.getFit().size());
+        assertEquals(obs.size(), model.getResiduals().size());
     }
 
     public void testPiecewiseLinearFunction() {

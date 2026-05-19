@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.util.Tolerance;
 //12/02/2018 C. Kotnik added name to observations so they can be
 //saved and reloaded from a file.
 /**
@@ -207,6 +208,26 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 				addInvalidObservation(ob);
 			}
 			return line;
+		}
+	}
+
+	@Override
+	public Boolean test() {
+		setTestMode(true);
+		try {
+			String[] lines = { "JD\n", "10000|10.0|0|0\n" };
+			AbstractObservationRetriever retriever = getTestRetriever(lines, "HIP test");
+			if (retriever.getValidObservations().size() != 1) {
+				return false;
+			}
+			ValidObservation ob = retriever.getValidObservations().get(0);
+			// Epoch field is HT1-style offset: sample 10000 -> BJD 2450000 with this reader
+			return Tolerance.areClose(2450000.0, ob.getJD(), 1e-6, true)
+					&& Tolerance.areClose(10.0, ob.getMag(), 1e-6, true);
+		} catch (Exception e) {
+			return false;
+		} finally {
+			setTestMode(false);
 		}
 	}
 }

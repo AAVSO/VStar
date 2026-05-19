@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -205,11 +206,72 @@ public class VeLaObservationTransformer extends ObservationTransformerPluginBase
      *         button was clicked and the VeLa code string.
      */
     private Pair<Boolean, String> invokeDialog(VeLaInterpreter vela) {
+        if (inTestMode()) {
+            return new Pair<Boolean, String>(true, "do() : list { [magnitude + 1 uncertainty] }");
+        }
+
         VeLaDialog velaDialog = new VeLaDialog("Define VeLa function: do():list");
 
         boolean ok = !velaDialog.isCancelled();
         String code = velaDialog.getCode();
 
         return new Pair<Boolean, String>(ok, code);
+    }
+
+    @Override
+    public Boolean test() {
+        setTestMode(true);
+
+        ValidObservation ob = new ValidObservation();
+        ob.setDateInfo(new DateInfo(2450000));
+        ob.setMagnitude(new Magnitude(5.0, 0.01));
+        ob.setBand(SeriesType.Visual);
+
+        TestSeriesInfo provider = new TestSeriesInfo(ob);
+        IUndoableAction action = createAction(provider, provider.getVisibleSeries());
+
+        boolean success = action.execute(UndoableActionType.DO);
+        success &= 6.0 == ob.getMag();
+        success &= 0.01 == ob.getMagnitude().getUncertainty();
+
+        setTestMode(false);
+        return success;
+    }
+
+    private static class TestSeriesInfo implements ISeriesInfoProvider {
+        private final Set<SeriesType> series;
+        private final List<ValidObservation> obs;
+
+        TestSeriesInfo(ValidObservation ob) {
+            series = new java.util.HashSet<SeriesType>();
+            series.add(SeriesType.Visual);
+            obs = new ArrayList<ValidObservation>();
+            obs.add(ob);
+        }
+
+        @Override
+        public Set<SeriesType> getVisibleSeries() {
+            return series;
+        }
+
+        @Override
+        public int getSeriesCount() {
+            return series.size();
+        }
+
+        @Override
+        public Set<SeriesType> getSeriesKeys() {
+            return series;
+        }
+
+        @Override
+        public boolean seriesExists(SeriesType type) {
+            return series.contains(type);
+        }
+
+        @Override
+        public List<ValidObservation> getObservations(SeriesType type) {
+            return obs;
+        }
     }
 }
