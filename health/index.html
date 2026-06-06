@@ -242,6 +242,19 @@
 
   .sub-card-body { padding: 0 1.125rem 0.875rem; flex: 1; }
 
+  .sub-card-footer {
+    padding: 0.625rem 1.125rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+  }
+
+  .sub-card-footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .sub-card-footer a:hover { text-decoration: underline; }
+
   /* Switch to side-by-side when the parent card is wide enough to give
      each sub-card a comfortable column. Below 540 px parent width the
      sub-cards stack and the divider rotates from a left-border to a
@@ -408,6 +421,9 @@
               </tbody>
             </table>
           </div>
+          <div class="sub-card-footer">
+            <a href="spotbugs/">Browse full SpotBugs report</a>
+          </div>
         </div>
 
         <div class="sub-card" id="sub-checker">
@@ -422,6 +438,9 @@
                 <tr><td colspan="2" class="loading">Loading...</td></tr>
               </tbody>
             </table>
+          </div>
+          <div class="sub-card-footer">
+            <a href="checker/">Browse full Checker report</a>
           </div>
         </div>
 
