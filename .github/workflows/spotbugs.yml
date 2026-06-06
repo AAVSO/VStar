@@ -109,6 +109,17 @@ jobs:
         }
         DATAJSON
 
+        # Publish the full browsable SpotBugs report so the health dashboard
+        # can link to it (mirrors how coverage reports are published).
+        mkdir -p _site/health/spotbugs
+        rm -rf _site/health/spotbugs/*
+        if [ -f "test_report/spotbugs/spotbugs.html" ]; then
+          cp test_report/spotbugs/spotbugs.html _site/health/spotbugs/index.html
+        fi
+        if [ -f "test_report/spotbugs/spotbugsXml.xml" ]; then
+          cp test_report/spotbugs/spotbugsXml.xml _site/health/spotbugs/
+        fi
+
         cd _site
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git config user.name "github-actions[bot]"

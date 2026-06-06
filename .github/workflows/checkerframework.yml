@@ -99,6 +99,87 @@ jobs:
         }
         DATAJSON
 
+        # Publish the full Checker Framework report so the health dashboard
+        # can link to it. The Checker output is plain text, so keep the raw
+        # report for download and wrap it in a themed HTML page for browsing.
+        mkdir -p _site/health/checker
+        rm -rf _site/health/checker/*
+        if [ -f "test_report/checkerframework/checker-report.txt" ]; then
+          cp test_report/checkerframework/checker-report.txt \
+             _site/health/checker/checker-report.txt
+          python3 - "$DATE" \
+            "${{ steps.cf-warnings.outputs.total }}" \
+            "${{ steps.cf-warnings.outputs.nullness }}" \
+            "${{ steps.cf-warnings.outputs.init }}" \
+            "test_report/checkerframework/checker-report.txt" \
+            "_site/health/checker/index.html" <<'PY'
+        import html as he, sys
+        date, total, nullness, init, src, dst = sys.argv[1:]
+        with open(src, encoding="utf-8", errors="replace") as f:
+            report = f.read()
+        page = f"""<!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>VStar &mdash; Checker Framework Report</title>
+        <style>
+          :root {{ --bg:#0d1117; --surface:#161b22; --border:#30363d;
+                  --text:#e6edf3; --text-muted:#8b949e; --accent:#58a6ff;
+                  --yellow:#d29922; }}
+          * {{ margin:0; padding:0; box-sizing:border-box; }}
+          body {{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+                 background:var(--bg); color:var(--text); line-height:1.6; }}
+          header {{ background:linear-gradient(135deg,#0d1117 0%,#1a2332 50%,#0d1117 100%);
+                   border-bottom:1px solid var(--border); padding:2rem 1rem; text-align:center; }}
+          header h1 {{ font-size:1.5rem; font-weight:600; letter-spacing:-0.02em; }}
+          header p {{ color:var(--text-muted); font-size:0.9rem; margin-top:0.25rem; }}
+          header .home-link {{ display:inline-block; margin-top:0.75rem; font-size:0.85rem;
+                              color:var(--accent); text-decoration:none; }}
+          header .home-link:hover {{ text-decoration:underline; }}
+          main {{ max-width:1100px; margin:0 auto; padding:2rem 1rem; }}
+          .summary {{ display:flex; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; }}
+          .stat {{ background:var(--surface); border:1px solid var(--border);
+                  border-radius:8px; padding:0.75rem 1.25rem; }}
+          .stat .num {{ font-size:1.4rem; font-weight:600; font-variant-numeric:tabular-nums; }}
+          .stat .label {{ font-size:0.75rem; color:var(--text-muted);
+                         text-transform:uppercase; letter-spacing:0.04em; }}
+          .toolbar {{ margin-bottom:0.75rem; font-size:0.85rem; }}
+          .toolbar a {{ color:var(--accent); text-decoration:none; }}
+          .toolbar a:hover {{ text-decoration:underline; }}
+          pre {{ background:var(--surface); border:1px solid var(--border);
+                border-radius:8px; padding:1rem 1.25rem; overflow:auto;
+                font-size:0.82rem; line-height:1.5;
+                font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+                white-space:pre-wrap; word-break:break-word; }}
+          footer {{ text-align:center; padding:2rem 1rem; color:var(--text-muted);
+                   font-size:0.8rem; border-top:1px solid var(--border); margin-top:2rem; }}
+          footer a {{ color:var(--accent); text-decoration:none; }}
+        </style>
+        </head>
+        <body>
+        <header>
+          <h1>Checker Framework &mdash; Nullness Report</h1>
+          <p>Generated {he.escape(date)}</p>
+          <a class="home-link" href="../">&larr; Back to Project Health</a>
+        </header>
+        <main>
+          <div class="summary">
+            <div class="stat"><div class="num">{he.escape(total)}</div><div class="label">Total warnings</div></div>
+            <div class="stat"><div class="num">{he.escape(nullness)}</div><div class="label">Nullness</div></div>
+            <div class="stat"><div class="num">{he.escape(init)}</div><div class="label">Initialization</div></div>
+          </div>
+          <div class="toolbar"><a href="checker-report.txt">Download raw report (.txt)</a></div>
+          <pre>{he.escape(report)}</pre>
+        </main>
+        <footer><p><a href="https://github.com/AAVSO/VStar">AAVSO/VStar</a> &mdash;
+        Published by the <code>Checker Framework</code> workflow.</p></footer>
+        </body></html>"""
+        with open(dst, "w", encoding="utf-8") as f:
+            f.write(page)
+        PY
+        fi
+
         cd _site
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git config user.name "github-actions[bot]"
