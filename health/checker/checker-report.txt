@@ -7346,12 +7346,12 @@
     [javac] 			        ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Preferences
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/vela/ExpressionVisitor.java:250: warning: [argument] incompatible argument for parameter op of ExpressionVisitor.optimisedDyadicOpAST.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/vela/ExpressionVisitor.java:246: warning: [argument] incompatible argument for parameter op of ExpressionVisitor.optimisedDyadicOpAST.
     [javac]                     right = optimisedDyadicOpAST(op, left, right);
     [javac]                                                  ^
     [javac]   found   : @Initialized @Nullable String
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/vela/ExpressionVisitor.java:365: warning: [argument] incompatible argument for parameter op of ExpressionVisitor.optimisedDyadicOpAST.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/vela/ExpressionVisitor.java:361: warning: [argument] incompatible argument for parameter op of ExpressionVisitor.optimisedDyadicOpAST.
     [javac]                 left = optimisedDyadicOpAST(op, left, right);
     [javac]                                             ^
     [javac]   found   : @Initialized @Nullable String
