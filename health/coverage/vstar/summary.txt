@@ -13,7 +13,7 @@ Package                                             Lines  Line% Branch  Brch% M
 ...util.stats.epoch                                    25  88.0%     12  83.3%     11  72.7%
 ...data.validation                                    391  93.1%    108  72.2%     79  88.6%
 ...ui.undo                                             74   0.0%     24   0.0%     25   0.0%
-...vela                                              3441  68.6%   1336  60.1%    756  52.8%
+...vela                                              3427  68.5%   1330  60.1%    756  52.8%
 ...util.period                                         58  50.0%     28  17.9%     12  66.7%
 ...ui.dialog                                         2323  27.7%    588  17.5%    441  23.4%
 ...ui.mediator.message                                212  25.0%     16   0.0%     89  20.2%
@@ -21,7 +21,7 @@ Package                                             Lines  Line% Branch  Brch% M
 ...input.database                                     113  39.8%     26  23.1%     17  29.4%
 ...ui.dialog.period.wwz                               344   0.0%     60   0.0%     46   0.0%
 ...ui.dialog.period.refinement                         97   0.0%      8   0.0%     21   0.0%
-...util.period.wwz                                    478  81.6%    228  66.7%     56  66.1%
+...util.period.wwz                                    478  81.4%    228  66.2%     56  66.1%
 ...util.coords                                         36  83.3%    NaN    n/a     13  69.2%
 ...scripting                                          350   0.0%     97   0.0%     69   0.0%
 ...ui.pane.list                                       484  46.1%    104  20.2%     87  46.0%
@@ -60,5 +60,5 @@ Package                                             Lines  Line% Branch  Brch% M
 ...ui.model.list                                      705  50.2%    305  32.8%    141  67.4%
 ...ui.dialog.filter                                   350   0.0%     74   0.0%     62   0.0%
 -------------------------------------------------- ------ ------ ------ ------ ------ ------
-TOTAL                                               23638  35.1%   7373  32.7%   4624  31.6%
+TOTAL                                               23624  35.1%   7367  32.6%   4624  31.6%
 

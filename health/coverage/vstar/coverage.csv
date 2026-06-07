@@ -214,7 +214,7 @@ VStar,org.aavso.tools.vstar.vela,FunctionExecutor,109,218,27,19,28,50,18,18,4,9
 VStar,org.aavso.tools.vstar.vela,VeLaParser,491,2678,19,108,134,566,23,86,4,35
 VStar,org.aavso.tools.vstar.vela,Operand,295,887,56,114,80,189,56,82,9,29
 VStar,org.aavso.tools.vstar.vela,VeLaParser.BooleanExpressionContext,35,19,5,1,9,4,9,3,6,3
-VStar,org.aavso.tools.vstar.vela,ExpressionVisitor,27,834,6,56,5,154,6,61,0,36
+VStar,org.aavso.tools.vstar.vela,ExpressionVisitor,15,791,4,52,3,142,4,60,0,36
 VStar,org.aavso.tools.vstar.vela,VeLaValidObservationEnvironment,295,200,47,18,68,53,37,11,5,7
 VStar,org.aavso.tools.vstar.vela,VeLaErrorListener,0,13,0,0,0,5,0,5,0,5
 VStar,org.aavso.tools.vstar.vela,VeLaParseError,0,21,0,0,0,8,0,4,0,4
@@ -357,7 +357,7 @@ VStar,org.aavso.tools.vstar.ui.dialog.period.refinement,PeriodGatheringPane,176,
 VStar,org.aavso.tools.vstar.ui.dialog.period.refinement,RefinementParameterDialog,160,0,2,0,42,0,8,0,7,0
 VStar,org.aavso.tools.vstar.util.period.wwz,WWZCoordinateType,36,124,11,15,17,38,12,16,2,4
 VStar,org.aavso.tools.vstar.util.period.wwz,WeightedWaveletZTransform.new Callable() {...},0,31,0,0,0,3,0,2,0,2
-VStar,org.aavso.tools.vstar.util.period.wwz,WeightedWaveletZTransform,195,1786,40,132,48,322,45,75,12,22
+VStar,org.aavso.tools.vstar.util.period.wwz,WeightedWaveletZTransform,199,1782,41,131,49,321,46,74,12,22
 VStar,org.aavso.tools.vstar.util.period.wwz,WWZStatistic,173,73,25,5,23,28,19,13,5,9
 VStar,org.aavso.tools.vstar.util.coords,DecInfo,19,73,0,0,3,15,2,4,2,4
 VStar,org.aavso.tools.vstar.util.coords,EpochType,0,15,0,0,0,2,0,1,0,1

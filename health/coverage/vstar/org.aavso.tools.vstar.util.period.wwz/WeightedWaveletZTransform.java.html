@@ -749,8 +749,8 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 <span class="fc" id="L749">							dmat[n1][n2] = dmat[n1][n2] / dmat[0][0];</span>
 						}
 
-<span class="fc bfc" id="L752" title="All 2 branches covered.">						if (interrupted) {</span>
-<span class="fc" id="L753">							throw new InterruptedException();</span>
+<span class="pc bpc" id="L752" title="1 of 2 branches missed.">						if (interrupted) {</span>
+<span class="nc" id="L753">							throw new InterruptedException();</span>
 						}
 					}
 <span class="pc bpc" id="L756" title="1 of 2 branches missed.">					if (dmat[0][0] &gt; 0.0) {</span>

@@ -17,10 +17,6 @@
  */
 package org.aavso.tools.vstar.vela;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.ParsePosition;
-import java.util.Locale;
 import java.util.Optional;
 
 import org.aavso.tools.vstar.vela.VeLaParser.AdditiveExpressionContext;
@@ -65,282 +61,282 @@ public class ExpressionVisitor extends VeLaBaseVisitor&lt;AST&gt; {
 
     private VeLaInterpreter interpreter;
 
-<span class="fc" id="L68">    public ExpressionVisitor(VeLaInterpreter interpreter) {</span>
-<span class="fc" id="L69">        this.interpreter = interpreter;</span>
-<span class="fc" id="L70">    }</span>
+<span class="fc" id="L64">    public ExpressionVisitor(VeLaInterpreter interpreter) {</span>
+<span class="fc" id="L65">        this.interpreter = interpreter;</span>
+<span class="fc" id="L66">    }</span>
 
     @Override
     public AST visitSequence(SequenceContext ctx) {
-<span class="fc" id="L74">        AST ast = new AST(Operation.SEQUENCE);</span>
+<span class="fc" id="L70">        AST ast = new AST(Operation.SEQUENCE);</span>
 
-<span class="fc bfc" id="L76" title="All 2 branches covered.">        for (int i = 0; i &lt; ctx.getChildCount(); i++) {</span>
-<span class="fc" id="L77">            ParseTree tree = ctx.getChild(i);</span>
-<span class="fc" id="L78">            ast.addChild(tree.accept(this));</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        for (int i = 0; i &lt; ctx.getChildCount(); i++) {</span>
+<span class="fc" id="L73">            ParseTree tree = ctx.getChild(i);</span>
+<span class="fc" id="L74">            ast.addChild(tree.accept(this));</span>
         }
 
-<span class="fc" id="L81">        return ast;</span>
+<span class="fc" id="L77">        return ast;</span>
     }
 
     @Override
     public AST visitBinding(BindingContext ctx) {
-<span class="fc" id="L86">        AST symbol = ctx.symbol().accept(this);</span>
-<span class="fc" id="L87">        String binder = ctx.getChild(1).getText();</span>
-<span class="fc" id="L88">        AST value = ctx.expression().accept(this);</span>
-<span class="fc bfc" id="L89" title="All 2 branches covered.">        return new AST(&quot;&lt;-&quot;.equals(binder) ? Operation.BIND : Operation.IS, symbol, value);</span>
+<span class="fc" id="L82">        AST symbol = ctx.symbol().accept(this);</span>
+<span class="fc" id="L83">        String binder = ctx.getChild(1).getText();</span>
+<span class="fc" id="L84">        AST value = ctx.expression().accept(this);</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        return new AST(&quot;&lt;-&quot;.equals(binder) ? Operation.BIND : Operation.IS, symbol, value);</span>
     }
 
     @Override
     public AST visitWhileLoop(WhileLoopContext ctx) {
-<span class="fc" id="L94">        return new AST(Operation.WHILE, ctx.booleanExpression().accept(this), ctx.block().accept(this));</span>
+<span class="fc" id="L90">        return new AST(Operation.WHILE, ctx.booleanExpression().accept(this), ctx.block().accept(this));</span>
     }
 
     @Override
     public AST visitNamedFundef(NamedFundefContext ctx) {
-<span class="fc" id="L99">        AST ast = new AST(Operation.FUNDEF);</span>
-<span class="fc" id="L100">        ast.addChild(ctx.symbol().accept(this));</span>
-<span class="fc" id="L101">        String helpStr = null;</span>
-<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (ctx.HELP_COMMENT() != null) {</span>
+<span class="fc" id="L95">        AST ast = new AST(Operation.FUNDEF);</span>
+<span class="fc" id="L96">        ast.addChild(ctx.symbol().accept(this));</span>
+<span class="fc" id="L97">        String helpStr = null;</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        if (ctx.HELP_COMMENT() != null) {</span>
             // Optional help comment
-<span class="fc" id="L104">            helpStr = ctx.HELP_COMMENT().getText();</span>
-<span class="fc" id="L105">            ast.addChild(new AST(helpStr, Operation.HELP_COMMENT));</span>
+<span class="fc" id="L100">            helpStr = ctx.HELP_COMMENT().getText();</span>
+<span class="fc" id="L101">            ast.addChild(new AST(helpStr, Operation.HELP_COMMENT));</span>
         }
-<span class="fc" id="L107">        ctx.formalParameter().forEach(param -&gt; ast.addChild(param.accept(this)));</span>
-<span class="fc bfc" id="L108" title="All 2 branches covered.">        if (ctx.type() != null) {</span>
+<span class="fc" id="L103">        ctx.formalParameter().forEach(param -&gt; ast.addChild(param.accept(this)));</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (ctx.type() != null) {</span>
             // Optional return type
-<span class="fc" id="L110">            ast.addChild(ctx.type().accept(this));</span>
+<span class="fc" id="L106">            ast.addChild(ctx.type().accept(this));</span>
         }
-<span class="fc" id="L112">        ast.addChild(ctx.block().accept(this));</span>
-<span class="fc" id="L113">        return ast;</span>
+<span class="fc" id="L108">        ast.addChild(ctx.block().accept(this));</span>
+<span class="fc" id="L109">        return ast;</span>
     }
 
     @Override
     public AST visitAnonFundef(AnonFundefContext ctx) {
-<span class="fc" id="L118">        AST ast = new AST(Operation.FUNDEF);</span>
-<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (!ctx.formalParameter().isEmpty()) {</span>
-<span class="fc" id="L120">            ctx.formalParameter().forEach(param -&gt; ast.addChild(param.accept(this)));</span>
+<span class="fc" id="L114">        AST ast = new AST(Operation.FUNDEF);</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (!ctx.formalParameter().isEmpty()) {</span>
+<span class="fc" id="L116">            ctx.formalParameter().forEach(param -&gt; ast.addChild(param.accept(this)));</span>
         } else {
             // denotes a function with no parameters
-<span class="fc" id="L123">            ast.addChild(new AST(Operation.PAIR));</span>
+<span class="fc" id="L119">            ast.addChild(new AST(Operation.PAIR));</span>
         }
-<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        if (ctx.type() != null) {</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        if (ctx.type() != null) {</span>
             // Optional return type
-<span class="fc" id="L127">            ast.addChild(ctx.type().accept(this));</span>
+<span class="fc" id="L123">            ast.addChild(ctx.type().accept(this));</span>
         }
-<span class="fc" id="L129">        ast.addChild(ctx.block().accept(this));</span>
-<span class="fc" id="L130">        return ast;</span>
+<span class="fc" id="L125">        ast.addChild(ctx.block().accept(this));</span>
+<span class="fc" id="L126">        return ast;</span>
     }
 
     @Override
     public AST visitFormalParameter(FormalParameterContext ctx) {
-<span class="fc" id="L135">        AST pName = ctx.symbol().accept(this);</span>
-<span class="fc" id="L136">        AST pType = ctx.type().accept(this);</span>
-<span class="fc" id="L137">        return new AST(Operation.PAIR, pName, pType);</span>
+<span class="fc" id="L131">        AST pName = ctx.symbol().accept(this);</span>
+<span class="fc" id="L132">        AST pType = ctx.type().accept(this);</span>
+<span class="fc" id="L133">        return new AST(Operation.PAIR, pName, pType);</span>
     }
 
     @Override
     public AST visitType(TypeContext ctx) {
-<span class="fc" id="L142">        String symbol = ctx.getChild(0).getText().toUpperCase();</span>
-<span class="fc" id="L143">        return new AST(symbol, Operation.SYMBOL);</span>
+<span class="fc" id="L138">        String symbol = ctx.getChild(0).getText().toUpperCase();</span>
+<span class="fc" id="L139">        return new AST(symbol, Operation.SYMBOL);</span>
     }
 
     @Override
     public AST visitWhenExpression(WhenExpressionContext ctx) {
-<span class="fc" id="L148">        AST ast = new AST(Operation.WHEN);</span>
+<span class="fc" id="L144">        AST ast = new AST(Operation.WHEN);</span>
 
         // Iterate over the antecedent-consequent pairs.
-<span class="fc bfc" id="L151" title="All 2 branches covered.">        for (int i = 0; i &lt; ctx.booleanExpression().size(); i++) {</span>
-<span class="fc" id="L152">            AST antecedent = ctx.booleanExpression(i).accept(this);</span>
-<span class="fc" id="L153">            AST consequent = ctx.consequent(i).accept(this);</span>
-<span class="fc" id="L154">            ast.addChild(new AST(Operation.PAIR, antecedent, consequent));</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        for (int i = 0; i &lt; ctx.booleanExpression().size(); i++) {</span>
+<span class="fc" id="L148">            AST antecedent = ctx.booleanExpression(i).accept(this);</span>
+<span class="fc" id="L149">            AST consequent = ctx.consequent(i).accept(this);</span>
+<span class="fc" id="L150">            ast.addChild(new AST(Operation.PAIR, antecedent, consequent));</span>
         }
 
-<span class="fc" id="L157">        return ast;</span>
+<span class="fc" id="L153">        return ast;</span>
     }
 
     @Override
     public AST visitIfExpression(IfExpressionContext ctx) {
-<span class="fc" id="L162">        AST ast = new AST(Operation.IF);</span>
+<span class="fc" id="L158">        AST ast = new AST(Operation.IF);</span>
 
         // Add antecedent Boolean expression...
-<span class="fc" id="L165">        ast.addChild(ctx.booleanExpression().accept(this));</span>
+<span class="fc" id="L161">        ast.addChild(ctx.booleanExpression().accept(this));</span>
 
         // ...and the THEN and (optionally) ELSE consequent expressions.
-<span class="fc" id="L168">        ast.addChild(ctx.consequent(0).accept(this));</span>
-<span class="fc bfc" id="L169" title="All 2 branches covered.">        if (ctx.consequent().size() == 2) {</span>
-<span class="fc" id="L170">            ast.addChild(ctx.consequent(1).accept(this));</span>
+<span class="fc" id="L164">        ast.addChild(ctx.consequent(0).accept(this));</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        if (ctx.consequent().size() == 2) {</span>
+<span class="fc" id="L166">            ast.addChild(ctx.consequent(1).accept(this));</span>
         }
 
-<span class="fc" id="L173">        return ast;</span>
+<span class="fc" id="L169">        return ast;</span>
     }
 
     @Override
     public AST visitBooleanExpression(BooleanExpressionContext ctx) {
-<span class="fc" id="L178">        return dyadicRule(ctx, ctx.exclusiveOrExpression(0).accept(this));</span>
+<span class="fc" id="L174">        return dyadicRule(ctx, ctx.exclusiveOrExpression(0).accept(this));</span>
     }
 
     @Override
     public AST visitExclusiveOrExpression(ExclusiveOrExpressionContext ctx) {
-<span class="fc" id="L183">        return dyadicRule(ctx, ctx.conjunctiveExpression(0).accept(this));</span>
+<span class="fc" id="L179">        return dyadicRule(ctx, ctx.conjunctiveExpression(0).accept(this));</span>
     }
 
     @Override
     public AST visitConjunctiveExpression(ConjunctiveExpressionContext ctx) {
-<span class="fc" id="L188">        return dyadicRule(ctx, ctx.logicalNegationExpression(0).accept(this));</span>
+<span class="fc" id="L184">        return dyadicRule(ctx, ctx.logicalNegationExpression(0).accept(this));</span>
     }
 
     @Override
     public AST visitLogicalNegationExpression(LogicalNegationExpressionContext ctx) {
-<span class="fc" id="L193">        AST ast = ctx.relationalExpression().accept(this);</span>
+<span class="fc" id="L189">        AST ast = ctx.relationalExpression().accept(this);</span>
 
-<span class="fc bfc" id="L195" title="All 2 branches covered.">        if (&quot;not&quot;.equalsIgnoreCase(ctx.getChild(0).getText())) {</span>
-<span class="fc" id="L196">            ast = optimisedMonadicOpAST(Operation.NOT, ast);</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">        if (&quot;not&quot;.equalsIgnoreCase(ctx.getChild(0).getText())) {</span>
+<span class="fc" id="L192">            ast = optimisedMonadicOpAST(Operation.NOT, ast);</span>
         }
 
-<span class="fc" id="L199">        return ast;</span>
+<span class="fc" id="L195">        return ast;</span>
     }
 
     @Override
     public AST visitRelationalExpression(RelationalExpressionContext ctx) {
-<span class="fc" id="L204">        return dyadicRule(ctx, ctx.shiftExpression(0).accept(this));</span>
+<span class="fc" id="L200">        return dyadicRule(ctx, ctx.shiftExpression(0).accept(this));</span>
     }
 
     @Override
     public AST visitShiftExpression(ShiftExpressionContext ctx) {
-<span class="fc" id="L209">        return dyadicRule(ctx, ctx.additiveExpression(0).accept(this));</span>
+<span class="fc" id="L205">        return dyadicRule(ctx, ctx.additiveExpression(0).accept(this));</span>
     }
 
     @Override
     public AST visitAdditiveExpression(AdditiveExpressionContext ctx) {
-<span class="fc" id="L214">        return dyadicRule(ctx, ctx.multiplicativeExpression(0).accept(this));</span>
+<span class="fc" id="L210">        return dyadicRule(ctx, ctx.multiplicativeExpression(0).accept(this));</span>
     }
 
     @Override
     public AST visitMultiplicativeExpression(MultiplicativeExpressionContext ctx) {
-<span class="fc" id="L219">        return dyadicRule(ctx, ctx.unaryExpression(0).accept(this));</span>
+<span class="fc" id="L215">        return dyadicRule(ctx, ctx.unaryExpression(0).accept(this));</span>
     }
 
     @Override
     public AST visitUnaryExpression(UnaryExpressionContext ctx) {
-<span class="fc" id="L224">        AST ast = ctx.exponentiationExpression().accept(this);</span>
+<span class="fc" id="L220">        AST ast = ctx.exponentiationExpression().accept(this);</span>
 
-<span class="fc bfc" id="L226" title="All 2 branches covered.">        if (&quot;-&quot;.equals(ctx.getChild(0).getText())) {</span>
-<span class="fc" id="L227">            ast = optimisedMonadicOpAST(Operation.NEG, ast);</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">        if (&quot;-&quot;.equals(ctx.getChild(0).getText())) {</span>
+<span class="fc" id="L223">            ast = optimisedMonadicOpAST(Operation.NEG, ast);</span>
         }
 
-<span class="fc" id="L230">        return ast;</span>
+<span class="fc" id="L226">        return ast;</span>
     }
 
     @Override
     public AST visitExponentiationExpression(ExponentiationExpressionContext ctx) {
-<span class="fc" id="L235">        AST right = null;</span>
+<span class="fc" id="L231">        AST right = null;</span>
 
-<span class="fc bfc" id="L237" title="All 2 branches covered.">        if (ctx.getChildCount() == 1) {</span>
-<span class="fc" id="L238">            right = ctx.funcall(0).accept(this);</span>
+<span class="fc bfc" id="L233" title="All 2 branches covered.">        if (ctx.getChildCount() == 1) {</span>
+<span class="fc" id="L234">            right = ctx.funcall(0).accept(this);</span>
         } else {
-<span class="fc" id="L240">            String op = null;</span>
-<span class="fc" id="L241">            right = ctx.getChild(ctx.getChildCount() - 1).accept(this);</span>
+<span class="fc" id="L236">            String op = null;</span>
+<span class="fc" id="L237">            right = ctx.getChild(ctx.getChildCount() - 1).accept(this);</span>
 
-<span class="fc bfc" id="L243" title="All 2 branches covered.">            for (int i = ctx.getChildCount() - 2; i &gt;= 0; i--) {</span>
-<span class="fc" id="L244">                ParseTree child = ctx.getChild(i);</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">            for (int i = ctx.getChildCount() - 2; i &gt;= 0; i--) {</span>
+<span class="fc" id="L240">                ParseTree child = ctx.getChild(i);</span>
 
-<span class="fc bfc" id="L246" title="All 2 branches covered.">                if (child instanceof TerminalNode) {</span>
-<span class="fc" id="L247">                    op = child.getText();</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">                if (child instanceof TerminalNode) {</span>
+<span class="fc" id="L243">                    op = child.getText();</span>
                 } else {
-<span class="fc" id="L249">                    AST left = child.accept(this);</span>
-<span class="fc" id="L250">                    right = optimisedDyadicOpAST(op, left, right);</span>
+<span class="fc" id="L245">                    AST left = child.accept(this);</span>
+<span class="fc" id="L246">                    right = optimisedDyadicOpAST(op, left, right);</span>
                 }
             }
         }
 
-<span class="fc" id="L255">        return right;</span>
+<span class="fc" id="L251">        return right;</span>
     }
 
     @Override
     public AST visitFuncall(FuncallContext ctx) {
-<span class="fc" id="L260">        AST ast = ctx.factor().accept(this);</span>
+<span class="fc" id="L256">        AST ast = ctx.factor().accept(this);</span>
 
-<span class="fc bfc" id="L262" title="All 2 branches covered.">        if (ctx.getChildCount() &gt; 1) {</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">        if (ctx.getChildCount() &gt; 1) {</span>
             // Add presumed function object as first child of funcall AST
-<span class="fc" id="L264">            ast = new AST(Operation.FUNCALL, ast);</span>
+<span class="fc" id="L260">            ast = new AST(Operation.FUNCALL, ast);</span>
 
             // Add actual parameters to funcall AST
-<span class="fc bfc" id="L267" title="All 2 branches covered.">            for (ExpressionContext param : ctx.expression()) {</span>
-<span class="fc" id="L268">                ast.addChild(param.accept(this));</span>
-<span class="fc" id="L269">            }</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">            for (ExpressionContext param : ctx.expression()) {</span>
+<span class="fc" id="L264">                ast.addChild(param.accept(this));</span>
+<span class="fc" id="L265">            }</span>
         }
 
-<span class="fc" id="L272">        return ast;</span>
+<span class="fc" id="L268">        return ast;</span>
     }
 
     @Override
     public AST visitFactor(FactorContext ctx) {
-<span class="fc" id="L277">        AST ast = null;</span>
+<span class="fc" id="L273">        AST ast = null;</span>
 
-<span class="fc bfc" id="L279" title="All 2 branches covered.">        if (ctx.getChild(0).equals(ctx.LPAREN())) {</span>
-<span class="fc" id="L280">            ast = ctx.expression().accept(this);</span>
+<span class="fc bfc" id="L275" title="All 2 branches covered.">        if (ctx.getChild(0).equals(ctx.LPAREN())) {</span>
+<span class="fc" id="L276">            ast = ctx.expression().accept(this);</span>
         } else {
-<span class="fc" id="L282">            ast = ctx.getChild(0).accept(this);</span>
+<span class="fc" id="L278">            ast = ctx.getChild(0).accept(this);</span>
         }
 
-<span class="fc" id="L285">        return ast;</span>
+<span class="fc" id="L281">        return ast;</span>
     }
 
     @Override
     public AST visitBlock(BlockContext ctx) {
-<span class="fc" id="L290">        return ctx.sequence().accept(this);</span>
+<span class="fc" id="L286">        return ctx.sequence().accept(this);</span>
     }
 
     @Override
     public AST visitInteger(IntegerContext ctx) {
-<span class="fc" id="L295">        String token = ctx.INTEGER().getText();</span>
-<span class="fc" id="L296">        int radix = 10;</span>
-<span class="fc bfc" id="L297" title="All 2 branches covered.">        if (token.length() &gt; 2) {</span>
-<span class="fc" id="L298">            String prefix = token.substring(0, 2);</span>
-<span class="fc bfc" id="L299" title="All 2 branches covered.">            if (prefix.equalsIgnoreCase(&quot;0b&quot;)) {</span>
-<span class="fc" id="L300">                token = token.substring(2);</span>
-<span class="fc" id="L301">                radix = 2;</span>
+<span class="fc" id="L291">        String token = ctx.INTEGER().getText();</span>
+<span class="fc" id="L292">        int radix = 10;</span>
+<span class="fc bfc" id="L293" title="All 2 branches covered.">        if (token.length() &gt; 2) {</span>
+<span class="fc" id="L294">            String prefix = token.substring(0, 2);</span>
+<span class="fc bfc" id="L295" title="All 2 branches covered.">            if (prefix.equalsIgnoreCase(&quot;0b&quot;)) {</span>
+<span class="fc" id="L296">                token = token.substring(2);</span>
+<span class="fc" id="L297">                radix = 2;</span>
             }
-<span class="fc bfc" id="L303" title="All 2 branches covered.">            if (prefix.equalsIgnoreCase(&quot;0x&quot;)) {</span>
-<span class="fc" id="L304">                token = token.substring(2);</span>
-<span class="fc" id="L305">                radix = 16;</span>
+<span class="fc bfc" id="L299" title="All 2 branches covered.">            if (prefix.equalsIgnoreCase(&quot;0x&quot;)) {</span>
+<span class="fc" id="L300">                token = token.substring(2);</span>
+<span class="fc" id="L301">                radix = 16;</span>
             }
         }
-<span class="fc" id="L308">        Operand intLiteral = new Operand(Type.INTEGER, Long.parseLong(token, radix));</span>
-<span class="fc" id="L309">        return new AST(token, intLiteral);</span>
+<span class="fc" id="L304">        Operand intLiteral = new Operand(Type.INTEGER, Long.parseLong(token, radix));</span>
+<span class="fc" id="L305">        return new AST(token, intLiteral);</span>
     }
 
     @Override
     public AST visitReal(RealContext ctx) {
-<span class="fc" id="L314">        String token = ctx.REAL().getText();</span>
-<span class="fc" id="L315">        Operand realLiteral = new Operand(Type.REAL, parseDouble(token));</span>
-<span class="fc" id="L316">        return new AST(token, realLiteral);</span>
+<span class="fc" id="L310">        String token = ctx.REAL().getText();</span>
+<span class="fc" id="L311">        Operand realLiteral = new Operand(Type.REAL, parseDouble(token));</span>
+<span class="fc" id="L312">        return new AST(token, realLiteral);</span>
     }
 
     @Override
     public AST visitBool(BoolContext ctx) {
-<span class="fc" id="L321">        String token = ctx.BOOLEAN().getText().toUpperCase();</span>
-<span class="fc bfc" id="L322" title="All 2 branches covered.">        boolean value = &quot;TRUE&quot;.equalsIgnoreCase(token) ? true : false;</span>
-<span class="fc" id="L323">        Operand booleanLiteral = new Operand(Type.BOOLEAN, value);</span>
-<span class="fc" id="L324">        return new AST(token, booleanLiteral);</span>
+<span class="fc" id="L317">        String token = ctx.BOOLEAN().getText().toUpperCase();</span>
+<span class="fc bfc" id="L318" title="All 2 branches covered.">        boolean value = &quot;TRUE&quot;.equalsIgnoreCase(token) ? true : false;</span>
+<span class="fc" id="L319">        Operand booleanLiteral = new Operand(Type.BOOLEAN, value);</span>
+<span class="fc" id="L320">        return new AST(token, booleanLiteral);</span>
     }
 
     @Override
     public AST visitString(StringContext ctx) {
-<span class="fc" id="L329">        String token = ctx.STRING().getText().replace(&quot;\&quot;&quot;, &quot;&quot;);</span>
-<span class="fc" id="L330">        return new AST(token, new Operand(Type.STRING, token));</span>
+<span class="fc" id="L325">        String token = ctx.STRING().getText().replace(&quot;\&quot;&quot;, &quot;&quot;);</span>
+<span class="fc" id="L326">        return new AST(token, new Operand(Type.STRING, token));</span>
     }
 
     @Override
     public AST visitList(ListContext ctx) {
-<span class="fc" id="L335">        AST ast = new AST(Operation.LIST);</span>
-<span class="fc" id="L336">        ctx.expression().forEach(expr -&gt; ast.addChild(expr.accept(this)));</span>
-<span class="fc" id="L337">        return ast;</span>
+<span class="fc" id="L331">        AST ast = new AST(Operation.LIST);</span>
+<span class="fc" id="L332">        ctx.expression().forEach(expr -&gt; ast.addChild(expr.accept(this)));</span>
+<span class="fc" id="L333">        return ast;</span>
     }
 
     @Override
     public AST visitSymbol(SymbolContext ctx) {
-<span class="fc" id="L342">        String name = ctx.getText().toUpperCase();</span>
-<span class="fc" id="L343">        return new AST(name, Operation.SYMBOL);</span>
+<span class="fc" id="L338">        String name = ctx.getText().toUpperCase();</span>
+<span class="fc" id="L339">        return new AST(name, Operation.SYMBOL);</span>
     }
 
     // Helpers
@@ -353,20 +349,20 @@ public class ExpressionVisitor extends VeLaBaseVisitor&lt;AST&gt; {
      * @return The final AST.
      */
     private AST dyadicRule(RuleContext ctx, AST left) {
-<span class="fc" id="L356">        String op = null;</span>
+<span class="fc" id="L352">        String op = null;</span>
 
-<span class="fc bfc" id="L358" title="All 2 branches covered.">        for (int i = 1; i &lt; ctx.getChildCount(); i++) {</span>
-<span class="fc" id="L359">            ParseTree child = ctx.getChild(i);</span>
+<span class="fc bfc" id="L354" title="All 2 branches covered.">        for (int i = 1; i &lt; ctx.getChildCount(); i++) {</span>
+<span class="fc" id="L355">            ParseTree child = ctx.getChild(i);</span>
 
-<span class="fc bfc" id="L361" title="All 2 branches covered.">            if (child instanceof TerminalNode) {</span>
-<span class="fc" id="L362">                op = child.getText();</span>
+<span class="fc bfc" id="L357" title="All 2 branches covered.">            if (child instanceof TerminalNode) {</span>
+<span class="fc" id="L358">                op = child.getText();</span>
             } else {
-<span class="fc" id="L364">                AST right = child.accept(this);</span>
-<span class="fc" id="L365">                left = optimisedDyadicOpAST(op, left, right);</span>
+<span class="fc" id="L360">                AST right = child.accept(this);</span>
+<span class="fc" id="L361">                left = optimisedDyadicOpAST(op, left, right);</span>
             }
         }
 
-<span class="fc" id="L369">        return left;</span>
+<span class="fc" id="L365">        return left;</span>
     }
 
     /**
@@ -378,9 +374,9 @@ public class ExpressionVisitor extends VeLaBaseVisitor&lt;AST&gt; {
      * @return optionally optimised AST
      */
     private AST optimisedDyadicOpAST(String op, AST left, AST right) {
-<span class="fc" id="L381">        AST ast = null;</span>
+<span class="fc" id="L377">        AST ast = null;</span>
 
-<span class="fc bfc" id="L383" title="All 4 branches covered.">        if (left.isLiteral() &amp;&amp; right.isLiteral()) {</span>
+<span class="fc bfc" id="L379" title="All 4 branches covered.">        if (left.isLiteral() &amp;&amp; right.isLiteral()) {</span>
             // perform a constant folding optimisation for dyadic
             // expressions in the presence of literal children by
             // invoking the VeLa interpreter on the AST, e.g. (* 3 2)
@@ -388,18 +384,18 @@ public class ExpressionVisitor extends VeLaBaseVisitor&lt;AST&gt; {
             // syntax tree by invoking eval() in this way will reduce
             // run-time where the expression is used multiple times,
             // e.g. in a filter or a model function
-<span class="fc" id="L391">            interpreter.eval(new AST(Operation.getBinaryOp(op), left, right));</span>
-<span class="pc bpc" id="L392" title="1 of 2 branches missed.">            if (!interpreter.getStack().isEmpty()) {</span>
-<span class="fc" id="L393">                Operand operand = interpreter.getStack().pop();</span>
-<span class="fc" id="L394">                ast = new AST(operand.toString(), operand);</span>
-<span class="fc" id="L395">            } else {</span>
-<span class="nc" id="L396">                throw new VeLaEvalError(&quot;Dyadic operation optimisation error&quot;);</span>
+<span class="fc" id="L387">            interpreter.eval(new AST(Operation.getBinaryOp(op), left, right));</span>
+<span class="pc bpc" id="L388" title="1 of 2 branches missed.">            if (!interpreter.getStack().isEmpty()) {</span>
+<span class="fc" id="L389">                Operand operand = interpreter.getStack().pop();</span>
+<span class="fc" id="L390">                ast = new AST(operand.toString(), operand);</span>
+<span class="fc" id="L391">            } else {</span>
+<span class="nc" id="L392">                throw new VeLaEvalError(&quot;Dyadic operation optimisation error&quot;);</span>
             }
         } else {
-<span class="fc" id="L399">            ast = new AST(Operation.getBinaryOp(op), left, right);</span>
+<span class="fc" id="L395">            ast = new AST(Operation.getBinaryOp(op), left, right);</span>
         }
 
-<span class="fc" id="L402">        return ast;</span>
+<span class="fc" id="L398">        return ast;</span>
     }
 
     /**
@@ -410,7 +406,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor&lt;AST&gt; {
      * @return optionally optimised AST
      */
     private AST optimisedMonadicOpAST(Operation op, AST ast) {
-<span class="fc bfc" id="L413" title="All 2 branches covered.">        if (ast.isLiteral()) {</span>
+<span class="fc bfc" id="L409" title="All 2 branches covered.">        if (ast.isLiteral()) {</span>
             // perform a constant folding optimisation for monadic
             // expressions in the presence of a literal child by
             // invoking the VeLa interpreter on the AST, e.g. (- 3)
@@ -418,18 +414,18 @@ public class ExpressionVisitor extends VeLaBaseVisitor&lt;AST&gt; {
             // syntax tree by invoking eval() in this way will reduce
             // run-time where the expression is used multiple times,
             // e.g. in a filter or a model function
-<span class="fc" id="L421">            interpreter.eval(new AST(op, ast));</span>
-<span class="pc bpc" id="L422" title="1 of 2 branches missed.">            if (!interpreter.getStack().isEmpty()) {</span>
-<span class="fc" id="L423">                Operand operand = interpreter.getStack().pop();</span>
-<span class="fc" id="L424">                ast = new AST(operand.toString(), operand);</span>
-<span class="fc" id="L425">            } else {</span>
-<span class="nc" id="L426">                throw new VeLaEvalError(&quot;Monadic operation optimisation error&quot;);</span>
+<span class="fc" id="L417">            interpreter.eval(new AST(op, ast));</span>
+<span class="pc bpc" id="L418" title="1 of 2 branches missed.">            if (!interpreter.getStack().isEmpty()) {</span>
+<span class="fc" id="L419">                Operand operand = interpreter.getStack().pop();</span>
+<span class="fc" id="L420">                ast = new AST(operand.toString(), operand);</span>
+<span class="fc" id="L421">            } else {</span>
+<span class="nc" id="L422">                throw new VeLaEvalError(&quot;Monadic operation optimisation error&quot;);</span>
             }
         } else {
-<span class="fc" id="L429">            ast = new AST(op, ast);</span>
+<span class="fc" id="L425">            ast = new AST(op, ast);</span>
         }
 
-<span class="fc" id="L432">        return ast;</span>
+<span class="fc" id="L428">        return ast;</span>
     }
 
     // TODO: move into a numeric utils class with a static import
@@ -439,46 +435,23 @@ public class ExpressionVisitor extends VeLaBaseVisitor&lt;AST&gt; {
      * value is present, throw a NumberFormatException. The string is first trimmed
      * of leading and trailing whitespace.
      *
+     * VeLa accepts both '.' and ',' as the decimal point (see the POINT fragment in
+     * VeLa.g4). A comma can only ever appear inside a REAL token as the decimal
+     * point: lists and call arguments are whitespace-separated, comma's only
+     * grammatical role is the POINT fragment, and a REAL admits a single separator.
+     * We can therefore normalise ',' to '.' losslessly and parse in a
+     * locale-independent way, so that the same VeLa code behaves identically in
+     * every locale (issue #605).
+     *
      * @param str The string that (hopefully) contains a number.
-     * @return The double value corresponding to the initial parseable portion of
-     *         the string.
+     * @return The double value corresponding to the string.
      * @throws NumberFormatException If no valid double value is present.
      */
     private double parseDouble(String str) throws NumberFormatException {
-<span class="pc bpc" id="L448" title="1 of 2 branches missed.">        if (str == null) {</span>
-<span class="nc" id="L449">            throw new NumberFormatException(&quot;String was null&quot;);</span>
-        } else {
-<span class="fc" id="L451">            DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.getDefault());</span>
-<span class="fc" id="L452">            dfs.setExponentSeparator(&quot;E&quot;); // may differ for some locales</span>
-<span class="fc" id="L453">            dfs.setMinusSign('-'); // &quot;nn&quot; locale fails without this</span>
-<span class="fc" id="L454">            DecimalFormat FORMAT = new DecimalFormat(&quot;&quot;, dfs);</span>
-<span class="fc" id="L455">            FORMAT.setGroupingUsed(false); // Suppress grouping (to avoid grouping symbol ambiguity)</span>
-<span class="fc" id="L456">            ParsePosition parsePosition = new ParsePosition(0);</span>
-
-<span class="fc" id="L458">            str = str.trim();</span>
-
-<span class="fc bfc" id="L460" title="All 2 branches covered.">            if (str.contains(&quot;e&quot;)) {</span>
-                // Convert exponential indicator to parsable form
-<span class="fc" id="L462">                str = str.toUpperCase();</span>
-            }
-
-            // We use parsePosition to be sure that the input string is parsed to the end.
-            // Without parsePosition the parse() method may return a valid result for
-            // a part of the string (parsing is terminated at the first invalid symbol).
-            // For example, a string &quot;1.234&quot; parsed under uk_UA, fr_FR, or other European
-            // locales
-            // without parsePosition is converted to 1. If parsePosition is used, we can
-            // check
-            // if the string is parsed completely and throw an exception if not.
-<span class="fc" id="L473">            Number number = FORMAT.parse(str, parsePosition);</span>
-<span class="pc bpc" id="L474" title="1 of 2 branches missed.">            if (number == null) {</span>
-<span class="nc" id="L475">                throw new NumberFormatException(&quot;Failed to parse: &quot; + str);</span>
-            }
-<span class="pc bpc" id="L477" title="1 of 2 branches missed.">            if (parsePosition.getIndex() &lt; str.length()) {</span>
-<span class="nc" id="L478">                throw new NumberFormatException(&quot;Failed to parse the full string: &quot; + str);</span>
-            }
-<span class="fc" id="L480">            return number.doubleValue();</span>
+<span class="pc bpc" id="L451" title="1 of 2 branches missed.">        if (str == null) {</span>
+<span class="nc" id="L452">            throw new NumberFormatException(&quot;String was null&quot;);</span>
         }
+<span class="fc" id="L454">        return Double.parseDouble(str.trim().replace(',', '.'));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
