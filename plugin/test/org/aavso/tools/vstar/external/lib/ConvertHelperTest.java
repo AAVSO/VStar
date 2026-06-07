@@ -36,7 +36,7 @@ import junit.framework.TestCase;
  */
 public class ConvertHelperTest extends TestCase {
 
-	private String savedLocalServiceUrl;
+	private String savedTimeServiceUrl;
 
 	public ConvertHelperTest(String name) {
 		super(name);
@@ -44,12 +44,12 @@ public class ConvertHelperTest extends TestCase {
 
 	@Override
 	protected void setUp() {
-		savedLocalServiceUrl = ConvertHelper.localServiceURLstring;
+		savedTimeServiceUrl = ConvertHelper.getTimeServiceURLstring();
 	}
 
 	@Override
 	protected void tearDown() {
-		ConvertHelper.localServiceURLstring = savedLocalServiceUrl;
+		ConvertHelper.setTimeServiceURLstring(savedTimeServiceUrl);
 	}
 
 	public void testGetCoordinatesWhenPresent() {
@@ -64,11 +64,6 @@ public class ConvertHelperTest extends TestCase {
 		assertSame(dec, coords.second);
 	}
 
-	public void testAstroutilsUrlTemplate() {
-		assertTrue(ConvertHelper.URL_TEMPLATE.startsWith(ConvertHelper.ASTROUTILS_URL));
-		assertTrue(ConvertHelper.URL_TEMPLATE.contains("FUNCTION=%s"));
-	}
-
 	public void testGetConvertedListOfTimesLocalService() throws Exception {
 		HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
 		int port = server.getAddress().getPort();
@@ -81,7 +76,7 @@ public class ConvertHelperTest extends TestCase {
 		});
 		server.start();
 		try {
-			ConvertHelper.localServiceURLstring = "http://127.0.0.1:" + port + "/convert";
+			ConvertHelper.setTimeServiceURLstring("http://127.0.0.1:" + port + "/convert");
 			List<Double> times = Arrays.asList(2458000.0, 2458001.0);
 			List<Double> out = ConvertHelper.getConvertedListOfTimes(times, 45.0, 30.0, "utc2bjd");
 			assertEquals(2, out.size());

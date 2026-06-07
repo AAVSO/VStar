@@ -67,10 +67,9 @@ import org.json.JSONArray;
 
 public class ConvertHelper {
 
-	public static final String ASTROUTILS_URL = "https://astroutils.astronomy.osu.edu";
-	public static final String URL_TEMPLATE = ASTROUTILS_URL + "/time/convert.php?JDS=%s&RA=%s&DEC=%s&FUNCTION=%s";
+	private static final String DEFAULT_TIME_SERVICE_URL = "http://localhost:5000/convert";  
 	
-	public static String localServiceURLstring = getLocalConvertServiceURLstring(); 
+	private static String timeServiceURLstring = initTimeServiceURLstring(); 
 	
 	/**
 	 * A pane for entering RA/Dec with a button that gets coordinates from the VSX server by the VSX star name 
@@ -426,15 +425,10 @@ public class ConvertHelper {
 
 		public ConfirmDialogWithHelp(String title, String msg, String helpTopic) {
 			super(title);
-			initDialog(title, msg, helpTopic, false);
+			initDialog(title, msg, helpTopic);
 		}
 		
-		public ConfirmDialogWithHelp(String title, String msg, String helpTopic, boolean displayLocalServiceInfo) {
-			super(title);
-			initDialog(title, msg, helpTopic, displayLocalServiceInfo);
-		}
-
-		private void initDialog(String title, String msg, String helpTopic, boolean displayLocalServiceInfo) {	
+		private void initDialog(String title, String msg, String helpTopic) {	
 			this.helpTopic = helpTopic;
 			
 			Container contentPane = this.getContentPane();
@@ -450,8 +444,7 @@ public class ConvertHelper {
 			topPane.add(buttonPane);
 			this.helpTopic = helpTopic;
 
-			if (displayLocalServiceInfo && localServiceURLstring != null)
-				topPane.add(createInfoPane("Local service: " + localServiceURLstring));
+			topPane.add(createInfoPane("Time service: " + (timeServiceURLstring != null ? timeServiceURLstring : "not defined")));
 			
 			contentPane.add(topPane);
 			
@@ -503,8 +496,12 @@ public class ConvertHelper {
 		}
 	}
 	
-	public static String getLocalServiceURLstring() {
-		return localServiceURLstring;
+	public static String getTimeServiceURLstring() {
+		return timeServiceURLstring;
+	}
+
+	public static void setTimeServiceURLstring(String s) {
+		timeServiceURLstring = s;
 	}
 	
 	/**
@@ -526,38 +523,14 @@ public class ConvertHelper {
 	public static List<Double> getConvertedListOfTimes(List<Double> times, double ra, double dec, String func)
 			throws Exception {
 
-		if (localServiceURLstring != null) {
-			//System.out.println(localServiceURLstring);
-			List<Double>out_times = convertWithLocalService(localServiceURLstring, times, ra, dec, func);
+		if (timeServiceURLstring != null) {
+			List<Double>out_times = convertTime(timeServiceURLstring, times, ra, dec, func);
 			return out_times;
-		}
-		
-		Pair<String, String> result = getTextFromURLstring(getURLstring(times, ra, dec, func));
-		if (result.second != null) {
-			throw new Exception(result.second);
-		}
-		
-		List<String> tempList = new ArrayList<String>(Arrays.asList(result.first.split("\n")));
-
-		if (tempList.size() != times.size()) {
-			throw new Exception("The server returned an invalid output:\n" + result.first);
-		}
-		
-		List<Double>out_times = new ArrayList<Double>();
-		for (String s1 : tempList) {
-			double d;
-			try {
-				d = Double.parseDouble(s1);
-			} catch (NumberFormatException e) {
-				throw new Exception("The server returned an invalid output:\n" + result.first);
-			}
-			out_times.add(d);
-		}
-		
-		return out_times;
+		} else
+			throw new Exception("Time service URL is not defined");
 	}
 
-	private static List<Double> convertWithLocalService(String localServiceURLstring, List<Double> times, double ra, double dec, String func) 
+	private static List<Double> convertTime(String localServiceURLstring, List<Double> times, double ra, double dec, String func)
 			throws Exception {
 
         JSONObject json = new JSONObject();
@@ -607,68 +580,18 @@ public class ConvertHelper {
         }
     }
 	
-	private static String getLocalConvertServiceURLstring() {
-		//return "http://localhost:5000/convert";
+	private static String initTimeServiceURLstring() {
 		Properties props = new Properties();
 		try {
 			try (FileInputStream in = new FileInputStream(getCfgName())) {
 				props.load(in);
-				String a = props.getProperty("localJDconverter.active");
-				if (a != null) {
-					if ("Y".equals(a.trim().toUpperCase())) {
-						a = props.getProperty("localJDconverter.url");
-						if (a != null) {
-							a = a.trim();
-							if (!"".equals(a))
-								return a;
-						}
-					}
-				}
+				String a = props.getProperty("JDconverter.url");
+				if (a == null || "".equals(a.trim()))
+					return DEFAULT_TIME_SERVICE_URL;
+				return a.trim();
 			}
 		} catch (Exception e) {
-			return null;
+			return DEFAULT_TIME_SERVICE_URL;
 		}
-		return null;
-	}
-	
-	private static String getURLstring(List<Double> times, double ra, double dec, String func) {
-
-		String s = null;
-		
-		for (Double d : times) {
-			if (s != null) s += ","; else s = "";
-			s += String.valueOf(d);
-		}
-	
-		return String.format(URL_TEMPLATE, s, String.valueOf(ra), String.valueOf(dec), func);
-	}
-		
-	private static Pair<String, String> getTextFromURLstring(String urlString) 
-			throws IOException, MalformedURLException, UnsupportedEncodingException {
-		Pair<String, String> result = new Pair<String, String>(null, null); 
-		
-		URL url = new URL(urlString);
-		URLConnection connection = url.openConnection();
-		if (!(connection instanceof HttpURLConnection)) {
-			result.second = "Not an HttpURLConnection";
-			return result;
-		}
-		
-		if (((HttpURLConnection)connection).getResponseCode() != HttpURLConnection.HTTP_OK) {
-			result.second = ((HttpURLConnection)connection).getResponseMessage();
-			return result;
-		}
-		
-		InputStream stream = connection.getInputStream();
-		StringBuilder textBuilder = new StringBuilder();
-	    try (Reader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
-	        int c = 0;
-	        while ((c = reader.read()) != -1) {
-	            textBuilder.append((char) c);
-	        }
-	        result.first = textBuilder.toString();
-	        return result;
-	    }
-	
 	}
 }

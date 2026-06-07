@@ -125,7 +125,7 @@ public class BJDConverter extends ObservationToolPluginBase {
 	}
 
 	private boolean showConfirmDialog(String title, String msg, String helpTopic) {
-		ConvertHelper.ConfirmDialogWithHelp dlg = new ConvertHelper.ConfirmDialogWithHelp(title, msg, helpTopic, true);
+		ConvertHelper.ConfirmDialogWithHelp dlg = new ConvertHelper.ConfirmDialogWithHelp(title, msg, helpTopic);
 		return !dlg.isCancelled();
 	}
 	
