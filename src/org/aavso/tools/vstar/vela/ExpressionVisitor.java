@@ -17,10 +17,6 @@
  */
 package org.aavso.tools.vstar.vela;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.ParsePosition;
-import java.util.Locale;
 import java.util.Optional;
 
 import org.aavso.tools.vstar.vela.VeLaParser.AdditiveExpressionContext;
@@ -439,45 +435,22 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
      * value is present, throw a NumberFormatException. The string is first trimmed
      * of leading and trailing whitespace.
      *
+     * VeLa accepts both '.' and ',' as the decimal point (see the POINT fragment in
+     * VeLa.g4). A comma can only ever appear inside a REAL token as the decimal
+     * point: lists and call arguments are whitespace-separated, comma's only
+     * grammatical role is the POINT fragment, and a REAL admits a single separator.
+     * We can therefore normalise ',' to '.' losslessly and parse in a
+     * locale-independent way, so that the same VeLa code behaves identically in
+     * every locale (issue #605).
+     *
      * @param str The string that (hopefully) contains a number.
-     * @return The double value corresponding to the initial parseable portion of
-     *         the string.
+     * @return The double value corresponding to the string.
      * @throws NumberFormatException If no valid double value is present.
      */
     private double parseDouble(String str) throws NumberFormatException {
         if (str == null) {
             throw new NumberFormatException("String was null");
-        } else {
-            DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.getDefault());
-            dfs.setExponentSeparator("E"); // may differ for some locales
-            dfs.setMinusSign('-'); // "nn" locale fails without this
-            DecimalFormat FORMAT = new DecimalFormat("", dfs);
-            FORMAT.setGroupingUsed(false); // Suppress grouping (to avoid grouping symbol ambiguity)
-            ParsePosition parsePosition = new ParsePosition(0);
-
-            str = str.trim();
-
-            if (str.contains("e")) {
-                // Convert exponential indicator to parsable form
-                str = str.toUpperCase();
-            }
-
-            // We use parsePosition to be sure that the input string is parsed to the end.
-            // Without parsePosition the parse() method may return a valid result for
-            // a part of the string (parsing is terminated at the first invalid symbol).
-            // For example, a string "1.234" parsed under uk_UA, fr_FR, or other European
-            // locales
-            // without parsePosition is converted to 1. If parsePosition is used, we can
-            // check
-            // if the string is parsed completely and throw an exception if not.
-            Number number = FORMAT.parse(str, parsePosition);
-            if (number == null) {
-                throw new NumberFormatException("Failed to parse: " + str);
-            }
-            if (parsePosition.getIndex() < str.length()) {
-                throw new NumberFormatException("Failed to parse the full string: " + str);
-            }
-            return number.doubleValue();
         }
+        return Double.parseDouble(str.trim().replace(',', '.'));
     }
 }

@@ -125,6 +125,24 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         commonNumericLocaleTest("3.141592E-1", 0.314159, 1e-6);
     }
 
+    // issue #605: the same VeLa source must evaluate to the same value in every
+    // locale. Unlike commonNumericLocaleTest, the program text is NOT rewritten
+    // with the locale-specific separator: a '.' literal must work in a
+    // comma-decimal locale and a ',' literal must work in a dot-decimal locale.
+
+    public void testDecimalPointPortableAcrossLocales() {
+        commonNumericPortabilityTest("4.2", 4.2, 1e-9);
+    }
+
+    public void testDecimalCommaPortableAcrossLocales() {
+        commonNumericPortabilityTest("4,2", 4.2, 1e-9);
+    }
+
+    public void testExponentPortableAcrossLocales() {
+        commonNumericPortabilityTest("3.141592E5", 314159.2, 1e-6);
+        commonNumericPortabilityTest("3,141592E5", 314159.2, 1e-6);
+    }
+
     public void testAddition() {
         Operand result = vela.expressionToOperand("2457580.25+1004");
         assertTrue(Tolerance.areClose(2458584.25, result.doubleVal(), DELTA, true));
@@ -2191,26 +2209,73 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         Set<String> localesToIgnore = new HashSet<String>();
         localesToIgnore.add("ar-JO");
 
-        for (Locale locale : Locale.getAvailableLocales()) {
-            Locale.setDefault(locale);
-            if (localesToIgnore.contains(locale.toLanguageTag())) {
-                System.err.printf("** Ignoring locale: %s\n", locale.toLanguageTag());
-                continue;
+        Locale savedDefault = Locale.getDefault();
+        try {
+            for (Locale locale : Locale.getAvailableLocales()) {
+                Locale.setDefault(locale);
+                if (localesToIgnore.contains(locale.toLanguageTag())) {
+                    System.err.printf("** Ignoring locale: %s\n", locale.toLanguageTag());
+                    continue;
+                }
+                DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.getDefault());
+                char sep = symbols.getDecimalSeparator();
+                // VeLa only supports '.' and ',' as the decimal point (the POINT
+                // fragment in VeLa.g4). For locales whose decimal separator is some
+                // other character (e.g. the Arabic '\u066B'), keep '.' and just verify
+                // that a '.'-written program still parses under that default locale.
+                char velaSep = (sep == '.' || sep == ',') ? sep : '.';
+                // Use a fresh local per iteration: reassigning prog would strip all
+                // '.' after the first non-dot locale, so later locales would test an
+                // already-converted string.
+                String localisedProg = prog.replace('.', velaSep);
+                Optional<Operand> result = Optional.ofNullable(null);
+                try {
+                    result = vela.program(localisedProg);
+                    assertTrue(result.isPresent());
+                    assertTrue(Tolerance.areClose(expected, result.get().doubleVal(), tolerance, true));
+                } catch (NumberFormatException e) {
+                    // allows us to debug a failure more easily via breakpoints
+                    Operand val = result.get();
+                    fail(String.format("Number format exception thrown: locale=%s, result=%s", locale.toLanguageTag(),
+                            val.toHumanReadableString()));
+                }
             }
-            DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.getDefault());
-            char sep = symbols.getDecimalSeparator();
-            prog = prog.replace('.', sep);
-            Optional<Operand> result = Optional.ofNullable(null);
-            try {
-                result = vela.program(prog);
-                assertTrue(result.isPresent());
-                assertTrue(Tolerance.areClose(expected, result.get().doubleVal(), tolerance, true));
-            } catch (NumberFormatException e) {
-                // allows us to debug a failure more easily via breakpoints
-                Operand val = result.get();
-                fail(String.format("Number format exception thrown: locale=%s, result=%s", locale.toLanguageTag(),
-                        val.toHumanReadableString()));
+        } finally {
+            Locale.setDefault(savedDefault);
+        }
+    }
+
+    /**
+     * Given a VeLa program, test that it evaluates to the same value in every
+     * available locale, WITHOUT rewriting the decimal separator. This verifies the
+     * portability guarantee of issue #605: a literal written with '.' must work in
+     * a comma-decimal locale and a literal written with ',' must work in a
+     * dot-decimal locale.
+     *
+     * @param prog      A string containing arbitrary VeLa code.
+     * @param expected  The expected numeric result.
+     * @param tolerance The comparison tolerance.
+     */
+    private void commonNumericPortabilityTest(String prog, double expected, double tolerance) {
+        Locale savedDefault = Locale.getDefault();
+        try {
+            for (Locale locale : Locale.getAvailableLocales()) {
+                Locale.setDefault(locale);
+                Optional<Operand> result = Optional.ofNullable(null);
+                try {
+                    result = vela.program(prog);
+                    assertTrue(String.format("No result: locale=%s, prog=%s", locale.toLanguageTag(), prog),
+                            result.isPresent());
+                    assertTrue(String.format("Wrong value: locale=%s, prog=%s, result=%s", locale.toLanguageTag(), prog,
+                            result.get().toHumanReadableString()),
+                            Tolerance.areClose(expected, result.get().doubleVal(), tolerance, true));
+                } catch (NumberFormatException e) {
+                    fail(String.format("Number format exception thrown: locale=%s, prog=%s", locale.toLanguageTag(),
+                            prog));
+                }
             }
+        } finally {
+            Locale.setDefault(savedDefault);
         }
     }
 
