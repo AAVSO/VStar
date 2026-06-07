@@ -1,6 +1,6 @@
 [![VStar Unit Tests](https://github.com/AAVSO/VStar/actions/workflows/vstar-UT.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/vstar-UT.yml)
 [![Plug-in Unit Tests](https://github.com/AAVSO/VStar/actions/workflows/plugin-UT.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/plugin-UT.yml)
-[![Snapshot release](https://github.com/AAVSO/VStar/actions/workflows/daily-release.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/snapshot-release.yml)
+[![Snapshot release](https://github.com/AAVSO/VStar/actions/workflows/snapshot-release.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/snapshot-release.yml)
 [![CodeQL](https://github.com/AAVSO/VStar/actions/workflows/codeql.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/codeql.yml)
 [![SpotBugs](https://github.com/AAVSO/VStar/actions/workflows/spotbugs.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/spotbugs.yml)
 [![Checker Framework](https://github.com/AAVSO/VStar/actions/workflows/checkerframework.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/checkerframework.yml)
