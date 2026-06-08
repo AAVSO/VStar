@@ -120,10 +120,8 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 			topPane.add(coordPane);
 			topPane.add(createMainPane());
 			topPane.add(createButtonPane2(cancelListener));
-			if (ConvertHelper.getLocalServiceURLstring() != null) {
-				topPane.add(createInfoPane("Local service: " + ConvertHelper.getLocalServiceURLstring()));
-			}
-			
+			String temp_str = ConvertHelper.getTimeServiceURLstring();
+			topPane.add(createInfoPane("Time service: " + (temp_str != null ? temp_str : "not defined")));
 			
 			contentPane.add(topPane);
 			
@@ -157,12 +155,12 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 			JPanel panel = new JPanel();
 			
 			bUTCtoBJD = new JButton("UTC->BJD");
-			bUTCtoBJD.setToolTipText("Via " + ConvertHelper.ASTROUTILS_URL + " service");
+			bUTCtoBJD.setToolTipText("Via " + ConvertHelper.getTimeServiceURLstring() + " service");
 			bUTCtoBJD.addActionListener(createUTCtoBJDButtonListener());
 			panel.add(bUTCtoBJD, BorderLayout.NORTH);
 			
 			bHJDtoBJD = new JButton("HJD->BJD");
-			bHJDtoBJD.setToolTipText("Via " + ConvertHelper.ASTROUTILS_URL + " service");
+			bHJDtoBJD.setToolTipText("Via " + ConvertHelper.getTimeServiceURLstring() + " service");
 			bHJDtoBJD.addActionListener(createHJDtoBJDButtonListener());
 			panel.add(bHJDtoBJD, BorderLayout.CENTER);
 
