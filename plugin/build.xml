@@ -84,6 +84,9 @@
 		<jar jarfile="${dist}/${pkg}.JDtoBJDTool.jar" basedir="${build.classes}" includes="**/JDtoBJDTool**.class" />
 		<jar jarfile="${dist}/${pkg}.MagnitudeAndTimeShifter.jar" basedir="${build.classes}" includes="**/MagnitudeAndTimeShifter**.class" />
 		<jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class" />
+		<jar jarfile="${dist}/${pkg}.MMRDNovaDistanceCalculator.jar" basedir="${build.classes}" includes="**/MMRDNovaDistanceCalculator**.class" />
+		<jar jarfile="${dist}/${pkg}.NovaExponentialModelCreator.jar" basedir="${build.classes}" includes="**/NovaExponentialModelCreator**.class" />
+		<jar jarfile="${dist_lib}/${pkg_lib}.NovaExponentialModel.jar" basedir="${build.classes}" includes="**/NovaExponentialModel**.class" excludes="**/NovaExponentialModelCreator**.class" />
 		<jar jarfile="${dist}/${pkg}.NSVSObservationSource.jar" basedir="${build.classes}" includes="**/NSVSObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.ObserverListFilter.jar" basedir="${build.classes}" includes="**/ObserverListFilter**.class" />
 		<jar jarfile="${dist}/${pkg}.ObserversBySeries.jar" basedir="${build.classes}" includes="**/ObserversBySeries**.class" />
@@ -261,6 +264,7 @@
 		<copy todir="${user.home}/${plugin_lib_dir}" file="lib/json.jar" />
 		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.ConvertHelper.jar" />
 		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.GaiaObSourceBase.jar" />
+		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.NovaExponentialModel.jar" />
 		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.PiecewiseLinearModel.jar" />
 		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.TESSObservationRetrieverBase.jar" />
 		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.ZTFObSourceBase.jar" />
@@ -296,6 +300,9 @@
 		<copy file="${dist}/${pkg}.JDtoBJDTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.MagnitudeAndTimeShifter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.MMRDNovaDistanceCalculator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.NovaExponentialModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist_lib}/${pkg_lib}.NovaExponentialModel.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.NSVSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.ObserverListFilter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.ObserversBySeries.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -353,6 +360,8 @@
 		<echo file="${plugins_list_file}" message="${pkg}.JDtoBJDTool.jar => ${pkg_lib}.ConvertHelper.jar,json.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MagnitudeAndTimeShifter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MeanTimeBetweenSelectionTool.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.MMRDNovaDistanceCalculator.jar => ${pkg_lib}.NovaExponentialModel.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.NovaExponentialModelCreator.jar => ${pkg_lib}.NovaExponentialModel.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.NSVSObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ObserverListFilter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ObserversBySeries.jar${line.separator}" append="true" />

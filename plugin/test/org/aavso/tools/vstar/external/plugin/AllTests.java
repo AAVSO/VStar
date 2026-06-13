@@ -35,6 +35,7 @@ public class AllTests {
 
 		// $JUnit-BEGIN$
 		suite.addTestSuite(PluginTest.class);
+		suite.addTestSuite(MMRDNovaDistanceCalculatorTest.class);
 		suite.addTestSuite(PiecewiseLinearModelTest.class);
 		suite.addTestSuite(ConvertHelperTest.class);
 		suite.addTestSuite(HipparcosLoadTest.class);
