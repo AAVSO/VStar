@@ -28,6 +28,7 @@ import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.optimization.fitting.CurveFitter;
 import org.apache.commons.math.optimization.fitting.ParametricRealFunction;
+import org.apache.commons.math.optimization.OptimizationException;
 import org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer;
 
 /**
@@ -69,10 +70,14 @@ public class NovaExponentialModel extends AbstractModel {
     private double peakMag;
 
     private boolean fitted;
+    private double[][] parameterCovariances;
+    private double[] parameterErrors;
 
     public NovaExponentialModel(List<ValidObservation> obs) {
         super(obs);
         fitted = false;
+        parameterCovariances = null;
+        parameterErrors = null;
     }
 
     /**
@@ -161,6 +166,50 @@ public class NovaExponentialModel extends AbstractModel {
     }
 
     /**
+     * Return the 1-sigma error in the time in days, from the fit origin t0,
+     * at which the fitted curve crosses peakMag + deltaMag. The error is
+     * propagated from the non-linear fit parameter covariance matrix.
+     * 
+     * @param deltaMag The decline in magnitudes, e.g. 2 for t2, 3 for t3.
+     * @param peakMag  The maximum magnitude from which the decline is
+     *                 measured.
+     * @return The crossing time error in days, or null if no covariance
+     *         estimate is available or the crossing is unavailable.
+     */
+    public Double timeToDeclineError(double deltaMag, double peakMag) {
+        if (!fitted || parameterCovariances == null) {
+            return null;
+        }
+
+        Double declineTime = timeToDecline(deltaMag, peakMag);
+        if (declineTime == null) {
+            return null;
+        }
+
+        double depth = p1 - peakMag - deltaMag;
+        if (depth <= 0 || p2 <= 0 || p3 <= 0) {
+            return null;
+        }
+
+        // t = ln(P2 / (P1 - peakMag - deltaMag)) / P3.
+        // Propagate via grad(t)^T Cov(P) grad(t), treating peakMag as fixed.
+        double[] gradient = new double[] {
+                -1 / (p3 * depth),
+                1 / (p3 * p2),
+                -declineTime / p3
+        };
+
+        double variance = 0;
+        for (int i = 0; i < gradient.length; i++) {
+            for (int j = 0; j < gradient.length; j++) {
+                variance += gradient[i] * parameterCovariances[i][j] * gradient[j];
+            }
+        }
+
+        return variance >= 0 ? Math.sqrt(variance) : null;
+    }
+
+    /**
      * @return t2, the time in days for a decline of 2 magnitudes from the
      *         fitted peak, or null if not available
      */
@@ -169,11 +218,25 @@ public class NovaExponentialModel extends AbstractModel {
     }
 
     /**
+     * @return the error on t2 in days, or null if unavailable
+     */
+    public Double getT2Error() {
+        return timeToDeclineError(2, getFittedPeakMagnitude());
+    }
+
+    /**
      * @return t3, the time in days for a decline of 3 magnitudes from the
      *         fitted peak, or null if not available
      */
     public Double getT3() {
         return timeToDecline(3);
+    }
+
+    /**
+     * @return the error on t3 in days, or null if unavailable
+     */
+    public Double getT3Error() {
+        return timeToDeclineError(3, getFittedPeakMagnitude());
     }
 
     @Override
@@ -199,7 +262,8 @@ public class NovaExponentialModel extends AbstractModel {
         peakJD = decline.get(0).getJD();
         peakMag = decline.get(0).getMag();
 
-        CurveFitter fitter = new CurveFitter(new LevenbergMarquardtOptimizer());
+        LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
+        CurveFitter fitter = new CurveFitter(optimizer);
 
         double faintest = peakMag;
         for (ValidObservation ob : decline) {
@@ -234,6 +298,17 @@ public class NovaExponentialModel extends AbstractModel {
             p1 = params[0];
             p2 = params[1];
             p3 = params[2];
+
+            try {
+                parameterCovariances = optimizer.getCovariances();
+                parameterErrors = optimizer.guessParametersErrors();
+            } catch (FunctionEvaluationException e) {
+                parameterCovariances = null;
+                parameterErrors = null;
+            } catch (OptimizationException e) {
+                parameterCovariances = null;
+                parameterErrors = null;
+            }
 
             fitted = true;
 

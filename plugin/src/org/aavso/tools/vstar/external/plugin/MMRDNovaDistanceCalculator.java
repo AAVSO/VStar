@@ -92,6 +92,12 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
         KANTHARIA_2017("Kantharia 2017 (linear, t2)",
                 "Mv = 2.16 log10(t2) - 10.804"),
 
+        UNWEIGHTED_MEAN("Unweighted mean of historical relations (Kok 2010)",
+                "Mean of the historical MMRD relations; error is their inter-relation scatter"),
+
+        WEIGHTED_MEAN("Inverse-variance weighted mean of historical relations",
+                "Inverse-variance weighted mean; error is max(formal error, inter-relation scatter)"),
+
         COHEN_1985("Cohen 1985 (linear, t2)",
                 "Mv = 2.41 log10(t2) - 10.70"),
 
@@ -114,10 +120,7 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
                 "Mv = 2.54 log10(t3) - 11.79"),
 
         DOWNES_DUERBECK_2000_COND_T3("Downes & Duerbeck 2000 (conditional linear, t3)",
-                "Mv = 1.58 log10(t3) - 11.26 if log10(t3) < 1.5, else 0.56 log10(t3) - 8.13"),
-
-        WEIGHTED_MEAN("Error-weighted mean of all relations (Kok 2010)",
-                "Inverse-variance weighted mean of all of the above relations");
+                "Mv = 1.58 log10(t3) - 11.26 if log10(t3) < 1.5, else 0.56 log10(t3) - 8.13");
 
         private final String displayName;
         private final String equation;
@@ -191,6 +194,10 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
                 if (logT3 != null) {
                     mag = logT3 < 1.5 ? 1.58 * logT3 - 11.26 : 0.56 * logT3 - 8.13;
                 }
+                break;
+            case UNWEIGHTED_MEAN:
+                double[] unweightedMeanAndError = unweightedMeanAbsMag(t2, t3);
+                mag = unweightedMeanAndError != null ? unweightedMeanAndError[0] : null;
                 break;
             case WEIGHTED_MEAN:
                 double[] meanAndError = weightedMeanAbsMag(t2, t3, null, null);
@@ -276,6 +283,10 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
                             : quadSum(1.26, 0.68 * logT3, 0.56 * sigmaLogT3);
                 }
                 break;
+            case UNWEIGHTED_MEAN:
+                double[] unweightedMeanAndError = unweightedMeanAbsMag(t2, t3);
+                error = unweightedMeanAndError != null ? unweightedMeanAndError[1] : null;
+                break;
             case WEIGHTED_MEAN:
                 double[] meanAndError = weightedMeanAbsMag(t2, t3, sigmaT2, sigmaT3);
                 error = meanAndError != null ? meanAndError[1] : null;
@@ -283,6 +294,28 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
             }
 
             return error;
+        }
+
+        /**
+         * Return a short description of the source of the reported absolute
+         * magnitude error for this relation.
+         */
+        public String getErrorSource() {
+            String source;
+
+            switch (this) {
+            case UNWEIGHTED_MEAN:
+                source = "inter-relation scatter";
+                break;
+            case WEIGHTED_MEAN:
+                source = "max(formal inverse-variance error, inter-relation scatter)";
+                break;
+            default:
+                source = "published coefficient errors and optional t2/t3 errors";
+                break;
+            }
+
+            return source;
         }
 
         // The magnitude of d(Mv)/d(log10(t2)) for the arctan relations.
@@ -300,9 +333,45 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
         }
 
         /**
+         * Return the unweighted mean peak absolute magnitude over all
+         * historical relations for which the required decline time is
+         * available. The returned error is the population standard deviation
+         * of those relation values.
+         * 
+         * @param t2 The time in days for a 2 magnitude decline; may be null.
+         * @param t3 The time in days for a 3 magnitude decline; may be null.
+         * @return A two element array containing the unweighted mean absolute
+         *         magnitude and inter-relation scatter, or null if neither
+         *         decline time is available.
+         */
+        public static double[] unweightedMeanAbsMag(Double t2, Double t3) {
+            List<Double> mags = absMagsForIndividualRelations(t2, t3);
+
+            if (mags.isEmpty()) {
+                return null;
+            }
+
+            double mean = 0;
+            for (Double mag : mags) {
+                mean += mag;
+            }
+            mean /= mags.size();
+
+            double variance = 0;
+            for (Double mag : mags) {
+                double diff = mag - mean;
+                variance += diff * diff;
+            }
+            variance /= mags.size();
+
+            return new double[] { mean, Math.sqrt(variance) };
+        }
+
+        /**
          * Return the inverse-variance weighted mean peak absolute magnitude
-         * over all relations for which the required decline time is
-         * available, after the approach of Kok (2010).
+         * over all historical relations for which the required decline time is
+         * available. The returned error is the larger of the formal
+         * inverse-variance error and the inter-relation scatter.
          * 
          * @param t2      The time in days for a 2 magnitude decline; may be null.
          * @param t3      The time in days for a 3 magnitude decline; may be null.
@@ -317,9 +386,7 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
             double numerator = 0;
             double sumOfWeights = 0;
 
-            for (MMRDRelation relation : values()) {
-                if (relation == WEIGHTED_MEAN) continue;
-
+            for (MMRDRelation relation : individualRelations()) {
                 Double mag = relation.absMag(t2, t3);
                 if (mag == null) continue;
 
@@ -333,9 +400,53 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
                 sumOfWeights += weight;
             }
 
-            return sumOfWeights > 0
-                    ? new double[] { numerator / sumOfWeights, Math.sqrt(1 / sumOfWeights) }
-                    : null;
+            if (sumOfWeights == 0) {
+                return null;
+            }
+
+            double formalError = Math.sqrt(1 / sumOfWeights);
+            double[] unweightedMeanAndScatter = unweightedMeanAbsMag(t2, t3);
+            double scatter = unweightedMeanAndScatter != null
+                    ? unweightedMeanAndScatter[1] : formalError;
+
+            return new double[] { numerator / sumOfWeights,
+                    Math.max(formalError, scatter) };
+        }
+
+        /**
+         * Return all non-aggregate historical MMRD relations used by Kok
+         * (2010). Kantharia (2017) is a later calibration and remains a
+         * separate default choice, not part of the Kok aggregate options.
+         */
+        private static List<MMRDRelation> individualRelations() {
+            List<MMRDRelation> relations = new ArrayList<MMRDRelation>();
+
+            for (MMRDRelation relation : values()) {
+                if (relation != KANTHARIA_2017
+                        && relation != UNWEIGHTED_MEAN
+                        && relation != WEIGHTED_MEAN) {
+                    relations.add(relation);
+                }
+            }
+
+            return relations;
+        }
+
+        /**
+         * Return absolute magnitude values for all individual relations whose
+         * required decline time is available.
+         */
+        private static List<Double> absMagsForIndividualRelations(Double t2, Double t3) {
+            List<Double> mags = new ArrayList<Double>();
+
+            for (MMRDRelation relation : individualRelations()) {
+                Double mag = relation.absMag(t2, t3);
+                if (mag != null) {
+                    mags.add(mag);
+                }
+            }
+
+            return mags;
         }
     }
 
@@ -347,6 +458,8 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
         public Double peakJD;
         public Double t2;
         public Double t3;
+        public Double sigmaT2;
+        public Double sigmaT3;
     }
 
     /**
@@ -379,6 +492,8 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
 
         params.t2 = firstCrossingTime(obs, brightestIndex, params.peakMag + 2);
         params.t3 = firstCrossingTime(obs, brightestIndex, params.peakMag + 3);
+        params.sigmaT2 = null;
+        params.sigmaT3 = null;
 
         return params;
     }
@@ -422,6 +537,29 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
     public static double calcDistance(double apparentMag, double absoluteMag,
             double extinction) {
         return Math.pow(10, 0.2 * (apparentMag - extinction - absoluteMag + 5));
+    }
+
+    /**
+     * Calculate a distance and lower/upper bounds by propagating a symmetric
+     * peak absolute magnitude error through the distance modulus.
+     * 
+     * @param apparentMag The peak apparent magnitude, mv.
+     * @param absoluteMag The peak absolute magnitude, Mv.
+     * @param extinction  The visual extinction, Av.
+     * @param absMagError The 1-sigma error in peak absolute magnitude.
+     * @return A five element array: lower distance, nominal distance, upper
+     *         distance, lower error, upper error, all in parsecs.
+     */
+    public static double[] calcDistanceBounds(double apparentMag,
+            double absoluteMag, double extinction, double absMagError) {
+        double distance = calcDistance(apparentMag, absoluteMag, extinction);
+        double lowerDistance = calcDistance(apparentMag, absoluteMag + absMagError,
+                extinction);
+        double upperDistance = calcDistance(apparentMag, absoluteMag - absMagError,
+                extinction);
+
+        return new double[] { lowerDistance, distance, upperDistance,
+                distance - lowerDistance, upperDistance - distance };
     }
 
     @Override
@@ -485,6 +623,10 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
                 null, null, params.peakMag);
         DoubleField t2Field = new DoubleField("t2 (days)", 0.0, null, params.t2);
         DoubleField t3Field = new DoubleField("t3 (days)", 0.0, null, params.t3);
+        DoubleField sigmaT2Field = new DoubleField("sigma t2 (days)",
+                0.0, null, params.sigmaT2);
+        DoubleField sigmaT3Field = new DoubleField("sigma t3 (days)",
+                0.0, null, params.sigmaT3);
         DoubleField extinctionField = new DoubleField("Extinction (Av)",
                 null, null, 0.0);
         DoubleField reddeningField = new DoubleField(
@@ -496,6 +638,8 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
         fields.add(peakMagField);
         fields.add(t2Field);
         fields.add(t3Field);
+        fields.add(sigmaT2Field);
+        fields.add(sigmaT3Field);
         fields.add(extinctionField);
         fields.add(reddeningField);
 
@@ -509,6 +653,8 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
         Double peakMag = peakMagField.getValue();
         Double t2 = t2Field.getValue();
         Double t3 = t3Field.getValue();
+        Double sigmaT2 = sigmaT2Field.getValue();
+        Double sigmaT3 = sigmaT3Field.getValue();
         Double extinction = extinctionField.getValue();
         Double reddening = reddeningField.getValue();
 
@@ -533,7 +679,7 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
             return;
         }
 
-        Double absMagError = relation.absMagError(t2, t3, null, null);
+        Double absMagError = relation.absMagError(t2, t3, sigmaT2, sigmaT3);
         double distance = calcDistance(peakMag, absMag, effectiveExtinction);
 
         showResults(relation, absMag, absMagError, peakMag, effectiveExtinction,
@@ -562,6 +708,8 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
             params.peakJD = expModel.getPeakJD();
             params.t2 = expModel.timeToDecline(2, params.peakMag);
             params.t3 = expModel.timeToDecline(3, params.peakMag);
+            params.sigmaT2 = expModel.timeToDeclineError(2, params.peakMag);
+            params.sigmaT3 = expModel.timeToDeclineError(3, params.peakMag);
 
             return params;
         } catch (AlgorithmError e) {
@@ -588,6 +736,10 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
         }
         resultFields.add(new TextField("Peak Absolute Magnitude (Mv)",
                 absMagStr, true, false));
+        if (absMagError != null) {
+            resultFields.add(new TextField("Mv Error Source",
+                    relation.getErrorSource(), true, false));
+        }
 
         double distanceModulus = peakMag - extinction - absMag;
         resultFields.add(new TextField("Distance Modulus (mv - Av - Mv)",
@@ -601,13 +753,28 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
                 NumericPrecisionPrefs.formatOther(distance * 3.26), true, false));
 
         if (absMagError != null) {
-            double minDistance = calcDistance(peakMag, absMag - absMagError,
-                    extinction);
-            double maxDistance = calcDistance(peakMag, absMag + absMagError,
-                    extinction);
-            resultFields.add(new TextField("Distance Range (parsecs)",
-                    NumericPrecisionPrefs.formatOther(maxDistance) + " to "
-                            + NumericPrecisionPrefs.formatOther(minDistance),
+            double[] bounds = calcDistanceBounds(peakMag, absMag, extinction,
+                    absMagError);
+            double lowerDistance = bounds[0];
+            double upperDistance = bounds[2];
+            double lowerError = bounds[3];
+            double upperError = bounds[4];
+
+            resultFields.add(new TextField("Distance Lower Bound (parsecs)",
+                    NumericPrecisionPrefs.formatOther(lowerDistance), true, false));
+            resultFields.add(new TextField("Distance Upper Bound (parsecs)",
+                    NumericPrecisionPrefs.formatOther(upperDistance), true, false));
+            resultFields.add(new TextField("Distance Error (parsecs)",
+                    "-" + NumericPrecisionPrefs.formatOther(lowerError) + " / +"
+                            + NumericPrecisionPrefs.formatOther(upperError),
+                    true, false));
+            resultFields.add(new TextField("Distance Lower Bound (kpc)",
+                    NumericPrecisionPrefs.formatOther(lowerDistance / 1000), true, false));
+            resultFields.add(new TextField("Distance Upper Bound (kpc)",
+                    NumericPrecisionPrefs.formatOther(upperDistance / 1000), true, false));
+            resultFields.add(new TextField("Distance Error (kpc)",
+                    "-" + NumericPrecisionPrefs.formatOther(lowerError / 1000) + " / +"
+                            + NumericPrecisionPrefs.formatOther(upperError / 1000),
                     true, false));
         }
 

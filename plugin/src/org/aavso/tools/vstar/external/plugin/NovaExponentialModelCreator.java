@@ -66,6 +66,11 @@ public class NovaExponentialModelCreator extends ModelCreatorPluginBase {
     }
 
     @Override
+    public String getDocName() {
+        return "NovaExponentialDeclineModel.pdf";
+    }
+
+    @Override
     public AbstractModel getModel(List<ValidObservation> obs) {
         return new NovaExponentialModel(obs);
     }
