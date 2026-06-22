@@ -24,6 +24,8 @@ org.aavso.tools.vstar.external.plugin.JDToDateTool.jar
 org.aavso.tools.vstar.external.plugin.JDtoBJDTool.jar => org.aavso.tools.vstar.external.lib.ConvertHelper.jar,json.jar
 org.aavso.tools.vstar.external.plugin.MagnitudeAndTimeShifter.jar
 org.aavso.tools.vstar.external.plugin.MeanTimeBetweenSelectionTool.jar
+org.aavso.tools.vstar.external.plugin.MMRDNovaDistanceCalculator.jar => org.aavso.tools.vstar.external.lib.NovaExponentialModel.jar
+org.aavso.tools.vstar.external.plugin.NovaExponentialModelCreator.jar => org.aavso.tools.vstar.external.lib.NovaExponentialModel.jar
 org.aavso.tools.vstar.external.plugin.NSVSObservationSource.jar
 org.aavso.tools.vstar.external.plugin.ObserverListFilter.jar
 org.aavso.tools.vstar.external.plugin.ObserversBySeries.jar
