@@ -21,6 +21,7 @@ package org.aavso.tools.vstar.external.plugin;
 import java.util.Locale;
 
 import org.aavso.tools.vstar.external.lib.ConvertHelperTest;
+import org.aavso.tools.vstar.external.lib.OCAnalysisLibTest;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -38,6 +39,7 @@ public class AllTests {
 		suite.addTestSuite(MMRDNovaDistanceCalculatorTest.class);
 		suite.addTestSuite(PiecewiseLinearModelTest.class);
 		suite.addTestSuite(ConvertHelperTest.class);
+		suite.addTestSuite(OCAnalysisLibTest.class);
 		suite.addTestSuite(HipparcosLoadTest.class);
 		// $JUnit-END$
 		
