@@ -57,4 +57,26 @@ Following Foster (chapter 13):
 
 ## Version history
 
+- 1.1 — Phase 2: model-based timing, linear/two-segment fits, O-C error bars,
+  Foster-style fit interpretation.
 - 1.0 — Initial release (Phase 1): observation-based timing, O-C plot and table.
+
+## Phase 2 features
+
+### Model timing
+
+If a function-based model with JD coordinates is selected in VStar (e.g. a
+Fourier or polynomial fit), choose **From current model function** as the
+timing method. The plug-in finds analytic extrema per cycle using VStar's
+Brent optimiser.
+
+### Linear and two-segment fits
+
+After computing O-C points, a linear fit of O-C versus cycle number is shown on
+the **Fit summary** tab and overlaid on the chart. Optionally enter a **break
+cycle** for a two-segment fit to investigate period changes (Foster, ch. 13).
+
+### Error bars
+
+When magnitude uncertainties are present, approximate O-C error bars are shown
+on the chart and listed in the data table.

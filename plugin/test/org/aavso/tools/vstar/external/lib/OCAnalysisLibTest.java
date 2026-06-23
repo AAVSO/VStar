@@ -139,9 +139,45 @@ public class OCAnalysisLibTest extends TestCase {
         }
     }
 
+    public void testLinearFitSlope() {
+        List<OCAnalysisLib.Point> points = new ArrayList<OCAnalysisLib.Point>();
+        for (int n = 0; n < 10; n++) {
+            double oc = 0.0021 * n;
+            points.add(new OCAnalysisLib.Point(n, n + oc, n, Double.NaN, 5));
+        }
+        OCAnalysisLib.LinearFit fit = OCAnalysisLib.fitLinear(points);
+        assertNotNull(fit);
+        assertEquals(0.0021, fit.slope, 1e-6);
+        assertEquals(0.0, fit.intercept, 1e-6);
+    }
+
+    public void testTwoSegmentFit() {
+        List<OCAnalysisLib.Point> points = new ArrayList<OCAnalysisLib.Point>();
+        for (int n = 0; n < 5; n++) {
+            points.add(new OCAnalysisLib.Point(n, n, n, Double.NaN, 5));
+        }
+        for (int n = 5; n < 10; n++) {
+            double oc = 0.01;
+            points.add(new OCAnalysisLib.Point(n, n + oc, n, Double.NaN, 5));
+        }
+        OCAnalysisLib.TwoSegmentFit fit = OCAnalysisLib.fitTwoSegment(points, 4);
+        assertNotNull(fit);
+        assertEquals(0.0, fit.firstSegment.slope, 1e-6);
+        assertEquals(0.0, fit.secondSegment.slope, 1e-6);
+        assertEquals(0.01, fit.secondSegment.intercept, 1e-6);
+    }
+
+    public void testInterpretLinearFitContainsCorrections() {
+        OCAnalysisLib.LinearFit fit = new OCAnalysisLib.LinearFit(0.0035, 0.0021,
+                0.0001, 10);
+        String text = OCAnalysisLib.interpretLinearFit(fit, 1.0);
+        assertTrue(text.contains("ΔP"));
+        assertTrue(text.contains("epoch correction"));
+    }
+
     public void testParabolicExtremumAtCentre() {
         double t = OCAnalysisLib.parabolicExtremumTime(0.0, 2.0, 1.0, 0.0, 2.0,
-                2.0, EventType.MAXIMUM);
+                2.0, OCAnalysisLib.EventType.MAXIMUM);
         assertEquals(1.0, t, 1e-6);
     }
 

@@ -25,6 +25,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
+import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
+import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
+import org.aavso.tools.vstar.util.ApacheCommonsBrentOptimiserExtremaFinder;
+import org.aavso.tools.vstar.util.model.IModel;
+import org.apache.commons.math.analysis.UnivariateRealFunction;
+import org.apache.commons.math.optimization.GoalType;
 
 /**
  * O-C (observed minus computed) analysis for times of light-curve extrema.
@@ -60,7 +68,8 @@ public class OCAnalysisLib {
      */
     public enum TimingMethod {
         PARABOLIC("Parabolic interpolation"),
-        MEAN_OF_EXTREME("Mean JD of extreme N% of observations per cycle");
+        MEAN_OF_EXTREME("Mean JD of extreme N% of observations per cycle"),
+        FROM_MODEL("From current model function");
 
         private final String label;
 
@@ -85,10 +94,19 @@ public class OCAnalysisLib {
         public final int meanExtremePercent;
         /** Cycles with fewer observations are skipped. */
         public final int minObsPerCycle;
+        /** Required when {@link TimingMethod#FROM_MODEL} is selected. */
+        public final IModel model;
 
         public Parameters(double period, double epoch, EventType eventType,
                 TimingMethod timingMethod, int meanExtremePercent,
                 int minObsPerCycle) {
+            this(period, epoch, eventType, timingMethod, meanExtremePercent,
+                    minObsPerCycle, null);
+        }
+
+        public Parameters(double period, double epoch, EventType eventType,
+                TimingMethod timingMethod, int meanExtremePercent,
+                int minObsPerCycle, IModel model) {
             if (period <= 0) {
                 throw new IllegalArgumentException("Period must be positive");
             }
@@ -100,12 +118,19 @@ public class OCAnalysisLib {
                 throw new IllegalArgumentException(
                         "Minimum observations per cycle must be at least 1");
             }
+            if (timingMethod == TimingMethod.FROM_MODEL
+                    && (model == null || !model.hasFuncDesc()
+                            || model.getModelFunction() == null)) {
+                throw new IllegalArgumentException(
+                        "A function-based model is required for model timing");
+            }
             this.period = period;
             this.epoch = epoch;
             this.eventType = eventType;
             this.timingMethod = timingMethod;
             this.meanExtremePercent = meanExtremePercent;
             this.minObsPerCycle = minObsPerCycle;
+            this.model = model;
         }
 
         public double computedTime(int cycle) {
@@ -121,14 +146,55 @@ public class OCAnalysisLib {
         public final double observedTime;
         public final double computedTime;
         public final double oc;
+        /** O-C uncertainty in days, or {@link Double#NaN} if unknown. */
+        public final double ocUncertainty;
         public final int obsInCycle;
 
-        Point(int cycle, double observedTime, double computedTime, int obsInCycle) {
+        Point(int cycle, double observedTime, double computedTime,
+                double ocUncertainty, int obsInCycle) {
             this.cycle = cycle;
             this.observedTime = observedTime;
             this.computedTime = computedTime;
             this.oc = observedTime - computedTime;
+            this.ocUncertainty = ocUncertainty;
             this.obsInCycle = obsInCycle;
+        }
+    }
+
+    /**
+     * Least-squares linear fit y = intercept + slope * x.
+     */
+    public static class LinearFit {
+        public final double intercept;
+        public final double slope;
+        public final double rms;
+        public final int pointCount;
+
+        LinearFit(double intercept, double slope, double rms, int pointCount) {
+            this.intercept = intercept;
+            this.slope = slope;
+            this.rms = rms;
+            this.pointCount = pointCount;
+        }
+
+        public double evaluate(double x) {
+            return intercept + slope * x;
+        }
+    }
+
+    /**
+     * Two-segment linear O-C fit split at a cycle boundary.
+     */
+    public static class TwoSegmentFit {
+        public final int breakCycle;
+        public final LinearFit firstSegment;
+        public final LinearFit secondSegment;
+
+        TwoSegmentFit(int breakCycle, LinearFit firstSegment,
+                LinearFit secondSegment) {
+            this.breakCycle = breakCycle;
+            this.firstSegment = firstSegment;
+            this.secondSegment = secondSegment;
         }
     }
 
@@ -201,17 +267,175 @@ public class OCAnalysisLib {
                 }
             });
 
-            Double observed = estimateObservedTime(cycleObs, params);
-            if (observed == null || Double.isNaN(observed)
-                    || Double.isInfinite(observed)) {
+            TimingEstimate estimate = estimateObservedTime(cycleObs, params);
+            if (estimate == null || estimate.time == null
+                    || Double.isNaN(estimate.time)
+                    || Double.isInfinite(estimate.time)) {
                 continue;
             }
 
             double computed = params.computedTime(cycle);
-            points.add(new Point(cycle, observed, computed, cycleObs.size()));
+            points.add(new Point(cycle, estimate.time, computed,
+                    estimate.uncertaintyDays, cycleObs.size()));
         }
 
         return new Result(params, points);
+    }
+
+    /**
+     * Linear least-squares fit of O-C versus cycle number.
+     */
+    public static LinearFit fitLinear(List<Point> points) {
+        if (points == null || points.size() < 2) {
+            return null;
+        }
+        return fitLinearOnArrays(toCycleArray(points), toOcArray(points));
+    }
+
+    /**
+     * Two-segment linear fit split at {@code breakCycle}; points with cycle
+     * {@code <= breakCycle} form the first segment, the remainder the second.
+     */
+    public static TwoSegmentFit fitTwoSegment(List<Point> points,
+            int breakCycle) {
+        if (points == null || points.size() < 4) {
+            return null;
+        }
+        List<Point> first = new ArrayList<Point>();
+        List<Point> second = new ArrayList<Point>();
+        for (Point p : points) {
+            if (p.cycle <= breakCycle) {
+                first.add(p);
+            } else {
+                second.add(p);
+            }
+        }
+        if (first.size() < 2 || second.size() < 2) {
+            return null;
+        }
+        LinearFit fit1 = fitLinear(first);
+        LinearFit fit2 = fitLinear(second);
+        if (fit1 == null || fit2 == null) {
+            return null;
+        }
+        return new TwoSegmentFit(breakCycle, fit1, fit2);
+    }
+
+    /**
+     * Foster ch. 13 interpretation for a linear O-C trend versus cycle number.
+     */
+    public static String interpretLinearFit(LinearFit fit, double modelPeriod) {
+        if (fit == null) {
+            return "";
+        }
+        StringBuilder buf = new StringBuilder();
+        buf.append("Linear fit (O-C vs cycle): slope = ");
+        buf.append(formatSmallDays(fit.slope));
+        buf.append(" d/cycle");
+        if (Math.abs(fit.slope) > 0) {
+            buf.append(" → corrected period ≈ ");
+            buf.append(formatSmallDays(modelPeriod + fit.slope));
+            buf.append(" d (ΔP ≈ ");
+            buf.append(formatSmallDays(fit.slope));
+            buf.append(" d)");
+        } else {
+            buf.append(" → period matches the ephemeris");
+        }
+        buf.append("; intercept = ");
+        buf.append(formatSmallDays(fit.intercept));
+        buf.append(" d → epoch correction ≈ ");
+        buf.append(formatSmallDays(fit.intercept));
+        buf.append(" d; RMS = ");
+        buf.append(formatSmallDays(fit.rms));
+        buf.append(" d.");
+        return buf.toString();
+    }
+
+    /**
+     * Interpretation for a two-segment fit (period change at the break).
+     */
+    public static String interpretTwoSegmentFit(TwoSegmentFit fit,
+            double modelPeriod) {
+        if (fit == null) {
+            return "";
+        }
+        StringBuilder buf = new StringBuilder();
+        buf.append("Two-segment fit with break at cycle ");
+        buf.append(fit.breakCycle);
+        buf.append(". First segment: ");
+        buf.append(interpretLinearFit(fit.firstSegment, modelPeriod));
+        buf.append(" Second segment: ");
+        buf.append(interpretLinearFit(fit.secondSegment, modelPeriod));
+        if (Math.abs(fit.firstSegment.slope - fit.secondSegment.slope) > 0) {
+            buf.append(" Different slopes suggest a period change near cycle ");
+            buf.append(fit.breakCycle);
+            buf.append(" (Foster, ch. 13).");
+        } else {
+            buf.append(" Parallel segments suggest an epoch jump with unchanged "
+                    + "period (Foster, ch. 13).");
+        }
+        return buf.toString();
+    }
+
+    private static String formatSmallDays(double days) {
+        if (Math.abs(days) >= 0.0001) {
+            return String.format("%.7f", days);
+        }
+        return String.format("%.3e", days);
+    }
+
+    private static double[] toCycleArray(List<Point> points) {
+        double[] x = new double[points.size()];
+        for (int i = 0; i < points.size(); i++) {
+            x[i] = points.get(i).cycle;
+        }
+        return x;
+    }
+
+    private static double[] toOcArray(List<Point> points) {
+        double[] y = new double[points.size()];
+        for (int i = 0; i < points.size(); i++) {
+            y[i] = points.get(i).oc;
+        }
+        return y;
+    }
+
+    private static LinearFit fitLinearOnArrays(double[] x, double[] y) {
+        int n = x.length;
+        double sumX = 0;
+        double sumY = 0;
+        double sumXY = 0;
+        double sumXX = 0;
+        for (int i = 0; i < n; i++) {
+            sumX += x[i];
+            sumY += y[i];
+            sumXY += x[i] * y[i];
+            sumXX += x[i] * x[i];
+        }
+        double denom = n * sumXX - sumX * sumX;
+        if (Math.abs(denom) < 1e-18) {
+            return null;
+        }
+        double slope = (n * sumXY - sumX * sumY) / denom;
+        double intercept = (sumY - slope * sumX) / n;
+
+        double sumSq = 0;
+        for (int i = 0; i < n; i++) {
+            double residual = y[i] - (intercept + slope * x[i]);
+            sumSq += residual * residual;
+        }
+        double rms = Math.sqrt(sumSq / n);
+        return new LinearFit(intercept, slope, rms, n);
+    }
+
+    private static class TimingEstimate {
+        final Double time;
+        final double uncertaintyDays;
+
+        TimingEstimate(Double time, double uncertaintyDays) {
+            this.time = time;
+            this.uncertaintyDays = uncertaintyDays;
+        }
     }
 
     /**
@@ -221,16 +445,178 @@ public class OCAnalysisLib {
         return (int) Math.round((jd - epoch) / period);
     }
 
-    private static Double estimateObservedTime(List<ValidObservation> cycleObs,
-            Parameters params) {
+    private static TimingEstimate estimateObservedTime(
+            List<ValidObservation> cycleObs, Parameters params) {
         switch (params.timingMethod) {
         case PARABOLIC:
-            return parabolicTime(cycleObs, params.eventType);
+            Double parabolic = parabolicTime(cycleObs, params.eventType);
+            return new TimingEstimate(parabolic,
+                    estimateParabolicUncertainty(cycleObs, params.eventType,
+                            parabolic));
         case MEAN_OF_EXTREME:
-            return meanExtremeTime(cycleObs, params.eventType,
+            Double meanTime = meanExtremeTime(cycleObs, params.eventType,
                     params.meanExtremePercent);
+            return new TimingEstimate(meanTime,
+                    estimateMeanExtremeUncertainty(cycleObs, params.eventType,
+                            params.meanExtremePercent));
+        case FROM_MODEL:
+            Double modelTime = modelExtremumTime(cycleObs, params.model,
+                    params.eventType);
+            return new TimingEstimate(modelTime, Double.NaN);
         default:
             return null;
+        }
+    }
+
+    private static Double modelExtremumTime(List<ValidObservation> cycleObs,
+            IModel model, EventType eventType) {
+        ContinuousModelFunction cmf = model.getModelFunction();
+        if (cmf == null) {
+            return null;
+        }
+        ICoordSource coordSrc = cmf.getCoordSrc();
+        if (coordSrc != JDCoordSource.instance) {
+            return null;
+        }
+        try {
+            OCExtremaFinder finder = new OCExtremaFinder(cycleObs,
+                    cmf.getFunction(), coordSrc, cmf.getZeroPoint());
+            return finder.findEventTime(eventType);
+        } catch (AlgorithmError e) {
+            return null;
+        }
+    }
+
+    private static double estimateParabolicUncertainty(
+            List<ValidObservation> cycleObs, EventType eventType,
+            Double time) {
+        if (time == null || cycleObs.isEmpty()) {
+            return Double.NaN;
+        }
+        int idx = extremumIndex(cycleObs, eventType);
+        int lo = Math.max(0, idx - 1);
+        int hi = Math.min(cycleObs.size() - 1, idx + 1);
+        double t0 = cycleObs.get(lo).getJD();
+        double t2 = cycleObs.get(hi).getJD();
+        double m0 = mag(cycleObs.get(lo));
+        double m2 = mag(cycleObs.get(hi));
+        double dm = Math.abs(m2 - m0);
+        if (dm < 1e-9 || Math.abs(t2 - t0) < 1e-9) {
+            return meanUncertaintyDays(cycleObs);
+        }
+        double meanSigmaMag = meanMagUncertainty(cycleObs, lo, hi);
+        if (Double.isNaN(meanSigmaMag)) {
+            return Double.NaN;
+        }
+        return meanSigmaMag * Math.abs(t2 - t0) / dm;
+    }
+
+    private static double estimateMeanExtremeUncertainty(
+            List<ValidObservation> cycleObs, EventType eventType,
+            int meanExtremePercent) {
+        List<ValidObservation> sorted = new ArrayList<ValidObservation>(
+                cycleObs);
+        Collections.sort(sorted, new Comparator<ValidObservation>() {
+            @Override
+            public int compare(ValidObservation a, ValidObservation b) {
+                if (eventType == EventType.MAXIMUM) {
+                    return Double.compare(mag(a), mag(b));
+                }
+                return Double.compare(mag(b), mag(a));
+            }
+        });
+        int count = Math.max(1,
+                (int) Math.ceil(sorted.size() * meanExtremePercent / 100.0));
+        double sumVar = 0;
+        int n = 0;
+        for (int i = 0; i < count; i++) {
+            double sigma = magUncertainty(sorted.get(i));
+            if (!Double.isNaN(sigma) && sigma > 0) {
+                sumVar += sigma * sigma;
+                n++;
+            }
+        }
+        if (n == 0) {
+            return Double.NaN;
+        }
+        return Math.sqrt(sumVar) / n;
+    }
+
+    private static double meanUncertaintyDays(List<ValidObservation> cycleObs) {
+        double sumVar = 0;
+        int n = 0;
+        for (ValidObservation ob : cycleObs) {
+            double sigma = magUncertainty(ob);
+            if (!Double.isNaN(sigma) && sigma > 0) {
+                sumVar += sigma * sigma;
+                n++;
+            }
+        }
+        if (n == 0) {
+            return Double.NaN;
+        }
+        return Math.sqrt(sumVar) / n;
+    }
+
+    private static double meanMagUncertainty(List<ValidObservation> cycleObs,
+            int lo, int hi) {
+        double sum = 0;
+        int n = 0;
+        for (int i = lo; i <= hi; i++) {
+            double sigma = magUncertainty(cycleObs.get(i));
+            if (!Double.isNaN(sigma) && sigma > 0) {
+                sum += sigma;
+                n++;
+            }
+        }
+        if (n == 0) {
+            return Double.NaN;
+        }
+        return sum / n;
+    }
+
+    private static double magUncertainty(ValidObservation ob) {
+        if (ob.getMagnitude() == null) {
+            return Double.NaN;
+        }
+        double sigma = ob.getMagnitude().getUncertainty();
+        return sigma > 0 ? sigma : Double.NaN;
+    }
+
+    /**
+     * Finds an extremum time on a model function bracketed by cycle
+     * observations.
+     */
+    static class OCExtremaFinder extends ApacheCommonsBrentOptimiserExtremaFinder {
+
+        OCExtremaFinder(List<ValidObservation> obs,
+                UnivariateRealFunction function, ICoordSource timeCoordSource,
+                double zeroPoint) {
+            super(obs, function, timeCoordSource, zeroPoint);
+        }
+
+        Double findEventTime(EventType eventType) throws AlgorithmError {
+            GoalType goal = eventType == EventType.MAXIMUM ? GoalType.MINIMIZE
+                    : GoalType.MAXIMIZE;
+            int idx = extremumIndex(obs, eventType);
+            int lo = Math.max(0, idx - 1);
+            int hi = Math.min(obs.size() - 1, idx + 1);
+            find(goal, new int[] { lo, hi });
+            return getExtremeTime();
+        }
+
+        private static int extremumIndex(List<ValidObservation> cycleObs,
+                EventType eventType) {
+            int best = 0;
+            double bestMag = cycleObs.get(0).getMag();
+            for (int i = 1; i < cycleObs.size(); i++) {
+                double m = cycleObs.get(i).getMag();
+                if (eventType == EventType.MAXIMUM ? m < bestMag : m > bestMag) {
+                    bestMag = m;
+                    best = i;
+                }
+            }
+            return best;
         }
     }
 

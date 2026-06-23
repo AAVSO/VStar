@@ -52,6 +52,8 @@ import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Parameters;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Point;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Result;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.TimingMethod;
+import org.aavso.tools.vstar.external.lib.OCAnalysisLib.LinearFit;
+import org.aavso.tools.vstar.external.lib.OCAnalysisLib.TwoSegmentFit;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
@@ -64,16 +66,25 @@ import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
+import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.DefaultXYDataset;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.YIntervalRenderer;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.xy.YIntervalSeries;
+import org.jfree.data.xy.YIntervalSeriesCollection;
 
 /**
  * O-C (observed minus computed) analysis tool for times of light-curve extrema.
@@ -86,7 +97,7 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
 
     private static final String DOC_NAME = "OCAnalysis.md";
 
-    private static final String EPHEMERIS_PHASE = "Phase plot parameters";
+    private static final String EPHEMERIS_PHASE = "Document period (phase plot / PA)";
     private static final String EPHEMERIS_STAR = "Star metadata";
     private static final String EPHEMERIS_MANUAL = "Manual entry";
 
@@ -110,6 +121,7 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         }
 
         EphemerisDefaults defaults = resolveEphemerisDefaults();
+        IModel selectedModel = currentModel();
 
         List<String> ephemerisSources = Arrays.asList(EPHEMERIS_PHASE,
                 EPHEMERIS_STAR, EPHEMERIS_MANUAL);
@@ -139,6 +151,9 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
 
         List<String> timingLabels = new ArrayList<String>();
         for (TimingMethod method : TimingMethod.values()) {
+            if (method == TimingMethod.FROM_MODEL && !isModelTimingAvailable(selectedModel)) {
+                continue;
+            }
             timingLabels.add(method.getLabel());
         }
         SelectableTextField timingField = new SelectableTextField(
@@ -149,6 +164,8 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
                 "Extreme N% (mean timing method)", 1, 100, 10);
         IntegerField minObsField = new IntegerField(
                 "Minimum observations per cycle", 1, null, 3);
+        IntegerField breakCycleField = new IntegerField(
+                "Two-segment break cycle (optional)", null, null, null);
 
         List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
         fields.add(ephemerisSourceField);
@@ -158,6 +175,7 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         fields.add(timingField);
         fields.add(meanPercentField);
         fields.add(minObsField);
+        fields.add(breakCycleField);
 
         MultiEntryComponentDialog paramDlg = new MultiEntryComponentDialog(
                 getDisplayName(), DOC_NAME, fields, Optional.empty());
@@ -187,8 +205,10 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
 
         Parameters params;
         try {
+            IModel model = timingMethod == TimingMethod.FROM_MODEL
+                    ? selectedModel : null;
             params = new Parameters(period, epoch, eventType, timingMethod,
-                    meanPercent, minObs);
+                    meanPercent, minObs, model);
         } catch (IllegalArgumentException ex) {
             MessageBox.showErrorDialog(getDisplayName(), ex.getMessage());
             return;
@@ -198,11 +218,34 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         if (result.points.isEmpty()) {
             MessageBox.showErrorDialog(getDisplayName(),
                     "No O-C points could be computed. Try lowering the minimum "
-                            + "observations per cycle or check the ephemeris.");
+                            + "observations per cycle, then check the ephemeris.");
             return;
         }
 
-        new OCAnalysisResultDialog(series.getDescription(), result);
+        LinearFit linearFit = OCAnalysisLib.fitLinear(result.points);
+        TwoSegmentFit twoSegmentFit = null;
+        Integer breakCycle = breakCycleField.getValue();
+        if (breakCycle != null) {
+            twoSegmentFit = OCAnalysisLib.fitTwoSegment(result.points,
+                    breakCycle);
+        }
+
+        new OCAnalysisResultDialog(series.getDescription(), result, linearFit,
+                twoSegmentFit);
+    }
+
+    private static boolean isModelTimingAvailable(IModel model) {
+        if (model == null || !model.hasFuncDesc()) {
+            return false;
+        }
+        return model.getModelFunction() != null
+                && model.getModelFunction().getCoordSrc() == JDCoordSource.instance;
+    }
+
+    private static IModel currentModel() {
+        ModelSelectionMessage msg = Mediator.getInstance()
+                .getModelSelectionMessage();
+        return msg != null ? msg.getModel() : null;
     }
 
     private static void applyEphemerisSource(String source,
@@ -325,16 +368,21 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         }
 
         private final Result result;
-        private final DefaultXYDataset chartDataset = new DefaultXYDataset();
+        private final LinearFit linearFit;
+        private final TwoSegmentFit twoSegmentFit;
+        private final YIntervalSeries ocSeries = new YIntervalSeries("O-C");
         private final ChartPanel chartPanel;
         private final JRadioButton cycleAxisButton;
         private final JRadioButton timeAxisButton;
 
-        OCAnalysisResultDialog(String seriesName, Result result) {
+        OCAnalysisResultDialog(String seriesName, Result result,
+                LinearFit linearFit, TwoSegmentFit twoSegmentFit) {
             super(org.aavso.tools.vstar.ui.mediator.DocumentManager
                     .findActiveWindow(), "O-C Analysis: " + seriesName,
                     ModalityType.MODELESS);
             this.result = result;
+            this.linearFit = linearFit;
+            this.twoSegmentFit = twoSegmentFit;
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
             ActionListener dismissListener = new ActionListener() {
@@ -367,7 +415,8 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
 
             JFreeChart chart = ChartFactory.createScatterPlot(
                     "O-C diagram", XAxisMode.CYCLE.label, "O-C (days)",
-                    chartDataset, PlotOrientation.VERTICAL, false, true, false);
+                    new YIntervalSeriesCollection(), PlotOrientation.VERTICAL,
+                    false, true, false);
             chartPanel = new ChartPanel(chart);
             chartPanel.setPreferredSize(new Dimension(640, 360));
 
@@ -376,6 +425,7 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
             JTabbedPane tabs = new JTabbedPane();
             tabs.addTab("O-C diagram", createChartPane());
             tabs.addTab("Data table", createTablePane());
+            tabs.addTab("Fit summary", createFitPane());
 
             Container contentPane = getContentPane();
             JPanel topPane = new JPanel();
@@ -415,6 +465,31 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
             return pane;
         }
 
+        private JScrollPane createFitPane() {
+            StringBuilder buf = new StringBuilder("<html>");
+            if (linearFit != null) {
+                buf.append("<p>");
+                buf.append(OCAnalysisLib.interpretLinearFit(linearFit,
+                        result.parameters.period));
+                buf.append("</p>");
+            } else {
+                buf.append("<p>Not enough points for a linear fit.</p>");
+            }
+            if (twoSegmentFit != null) {
+                buf.append("<p>");
+                buf.append(OCAnalysisLib.interpretTwoSegmentFit(twoSegmentFit,
+                        result.parameters.period));
+                buf.append("</p>");
+            }
+            buf.append("<p>A horizontal O-C trend suggests an epoch offset; a "
+                    + "linear slope suggests a period correction (Foster, ch. 13).</p>");
+            buf.append("</html>");
+            javax.swing.JLabel label = new javax.swing.JLabel(buf.toString());
+            JScrollPane pane = new JScrollPane(label);
+            pane.setPreferredSize(new Dimension(640, 240));
+            return pane;
+        }
+
         private JPanel createSummaryPane() {
             JPanel panel = new JPanel();
             panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
@@ -427,9 +502,14 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
             buf.append(NumericPrecisionPrefs.formatOther(result.parameters.period));
             buf.append(" d; epoch = ");
             buf.append(NumericPrecisionPrefs.formatTime(result.parameters.epoch));
-            buf.append(" HJD. ");
-            buf.append("A horizontal O-C trend suggests an epoch offset; a linear "
-                    + "slope suggests a period correction (Foster, ch. 13).");
+            buf.append(" HJD.");
+            if (linearFit != null) {
+                buf.append(" Slope = ");
+                buf.append(NumericPrecisionPrefs.formatOther(linearFit.slope));
+                buf.append(" d/cycle; intercept = ");
+                buf.append(NumericPrecisionPrefs.formatOther(linearFit.intercept));
+                buf.append(" d.");
+            }
 
             panel.add(new javax.swing.JLabel(buf.toString()));
             return panel;
@@ -449,26 +529,106 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         private void refreshChart() {
             XAxisMode mode = cycleAxisButton.isSelected() ? XAxisMode.CYCLE
                     : XAxisMode.TIME;
-            double[][] data = new double[2][result.points.size()];
-            int i = 0;
+            ocSeries.clear();
             for (Point p : result.points) {
-                data[0][i] = mode == XAxisMode.CYCLE ? p.cycle : p.observedTime;
-                data[1][i] = p.oc;
-                i++;
+                double x = mode == XAxisMode.CYCLE ? p.cycle : p.observedTime;
+                double yLow = p.oc;
+                double yHigh = p.oc;
+                if (!Double.isNaN(p.ocUncertainty) && p.ocUncertainty > 0) {
+                    yLow = p.oc - p.ocUncertainty;
+                    yHigh = p.oc + p.ocUncertainty;
+                }
+                ocSeries.add(x, p.oc, yLow, yHigh);
             }
-            if (chartDataset.getSeriesCount() > 0) {
-                chartDataset.removeSeries(0);
-            }
-            chartDataset.addSeries("O-C", data);
+
+            YIntervalSeriesCollection dataCollection = new YIntervalSeriesCollection();
+            dataCollection.addSeries(ocSeries);
+
             JFreeChart chart = chartPanel.getChart();
-            chart.getXYPlot().getDomainAxis().setLabel(mode.label);
+            XYPlot plot = chart.getXYPlot();
+            plot.setDataset(0, dataCollection);
+            plot.setRenderer(0, new YIntervalRenderer());
+            plot.getDomainAxis().setLabel(mode.label);
+
+            if (linearFit != null || twoSegmentFit != null) {
+                XYSeriesCollection fitCollection = buildFitSeries(mode, linearFit,
+                        twoSegmentFit);
+                plot.setDataset(1, fitCollection);
+                XYLineAndShapeRenderer fitRenderer = new XYLineAndShapeRenderer(
+                        true, false);
+                plot.setRenderer(1, fitRenderer);
+            } else if (plot.getDatasetCount() > 1) {
+                plot.setDataset(1, null);
+            }
+        }
+
+        private XYSeriesCollection buildFitSeries(XAxisMode mode,
+                LinearFit singleFit, TwoSegmentFit segmentFit) {
+            XYSeriesCollection collection = new XYSeriesCollection();
+            if (segmentFit != null) {
+                collection.addSeries(buildSegmentSeries("First segment",
+                        segmentFit.firstSegment, result.points, mode, true,
+                        segmentFit.breakCycle));
+                collection.addSeries(buildSegmentSeries("Second segment",
+                        segmentFit.secondSegment, result.points, mode, false,
+                        segmentFit.breakCycle));
+            } else if (singleFit != null) {
+                collection.addSeries(buildFullSeries("Linear fit", singleFit,
+                        result.points, mode));
+            }
+            return collection;
+        }
+
+        private XYSeries buildFullSeries(String name, LinearFit fit,
+                List<Point> points, XAxisMode mode) {
+            XYSeries series = new XYSeries(name);
+            if (points.isEmpty()) {
+                return series;
+            }
+            int minCycle = points.get(0).cycle;
+            int maxCycle = points.get(points.size() - 1).cycle;
+            addFitPoint(series, fit, minCycle, points.get(0), mode);
+            addFitPoint(series, fit, maxCycle, points.get(points.size() - 1),
+                    mode);
+            return series;
+        }
+
+        private XYSeries buildSegmentSeries(String name, LinearFit fit,
+                List<Point> points, XAxisMode mode, boolean firstSegment,
+                int breakCycle) {
+            XYSeries series = new XYSeries(name);
+            Point start = null;
+            Point end = null;
+            for (Point p : points) {
+                boolean inSegment = firstSegment ? p.cycle <= breakCycle
+                        : p.cycle > breakCycle;
+                if (!inSegment) {
+                    continue;
+                }
+                if (start == null) {
+                    start = p;
+                }
+                end = p;
+            }
+            if (start != null && end != null) {
+                addFitPoint(series, fit, start.cycle, start, mode);
+                addFitPoint(series, fit, end.cycle, end, mode);
+            }
+            return series;
+        }
+
+        private void addFitPoint(XYSeries series, LinearFit fit, int cycle,
+                Point anchor, XAxisMode mode) {
+            double x = mode == XAxisMode.CYCLE ? cycle : anchor.observedTime;
+            double y = fit.evaluate(cycle);
+            series.add(x, y);
         }
     }
 
     private static class OCTableModel extends AbstractTableModel {
 
         private static final String[] COLUMNS = { "Cycle", "O (HJD)",
-                "C (HJD)", "O-C (days)", "Obs in cycle" };
+                "C (HJD)", "O-C (days)", "σ(O-C)", "Obs in cycle" };
 
         private final List<Point> points;
 
@@ -504,6 +664,10 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
             case 3:
                 return NumericPrecisionPrefs.formatOther(p.oc);
             case 4:
+                return Double.isNaN(p.ocUncertainty) || p.ocUncertainty <= 0
+                        ? ""
+                        : NumericPrecisionPrefs.formatOther(p.ocUncertainty);
+            case 5:
                 return p.obsInCycle;
             default:
                 return null;
