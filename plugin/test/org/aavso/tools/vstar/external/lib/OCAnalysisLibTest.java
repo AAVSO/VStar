@@ -17,14 +17,20 @@
  */
 package org.aavso.tools.vstar.external.lib;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.EventType;
+import org.aavso.tools.vstar.external.lib.OCAnalysisLib.ImportedTiming;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Parameters;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Point;
+import org.aavso.tools.vstar.external.lib.OCAnalysisLib.QuadraticFit;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Result;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.TimingMethod;
 
@@ -143,7 +149,8 @@ public class OCAnalysisLibTest extends TestCase {
         List<OCAnalysisLib.Point> points = new ArrayList<OCAnalysisLib.Point>();
         for (int n = 0; n < 10; n++) {
             double oc = 0.0021 * n;
-            points.add(new OCAnalysisLib.Point(n, n + oc, n, Double.NaN, 5));
+            points.add(new OCAnalysisLib.Point(n, n + oc, n, Double.NaN, 5,
+                    EventType.MAXIMUM));
         }
         OCAnalysisLib.LinearFit fit = OCAnalysisLib.fitLinear(points);
         assertNotNull(fit);
@@ -154,11 +161,13 @@ public class OCAnalysisLibTest extends TestCase {
     public void testTwoSegmentFit() {
         List<OCAnalysisLib.Point> points = new ArrayList<OCAnalysisLib.Point>();
         for (int n = 0; n < 5; n++) {
-            points.add(new OCAnalysisLib.Point(n, n, n, Double.NaN, 5));
+            points.add(new OCAnalysisLib.Point(n, n, n, Double.NaN, 5,
+                    EventType.MAXIMUM));
         }
         for (int n = 5; n < 10; n++) {
             double oc = 0.01;
-            points.add(new OCAnalysisLib.Point(n, n + oc, n, Double.NaN, 5));
+            points.add(new OCAnalysisLib.Point(n, n + oc, n, Double.NaN, 5,
+                    EventType.MAXIMUM));
         }
         OCAnalysisLib.TwoSegmentFit fit = OCAnalysisLib.fitTwoSegment(points, 4);
         assertNotNull(fit);
@@ -181,6 +190,151 @@ public class OCAnalysisLibTest extends TestCase {
         assertEquals(1.0, t, 1e-6);
     }
 
+    public void testParseImportedTimingsWithExplicitCycle() throws IOException {
+        List<String> lines = Arrays.asList("# header", "0 2450000.0 0.001",
+                "2 2450002.5");
+        List<ImportedTiming> timings = OCAnalysisLib.parseImportedTimings(lines,
+                2450000.0, 1.0);
+        assertEquals(2, timings.size());
+        assertEquals(Integer.valueOf(0), timings.get(0).cycle);
+        assertEquals(2450000.0, timings.get(0).observedTime, TOL);
+        assertEquals(0.001, timings.get(0).uncertaintyDays, TOL);
+        assertEquals(Integer.valueOf(2), timings.get(1).cycle);
+        assertEquals(2450002.5, timings.get(1).observedTime, TOL);
+        assertTrue(Double.isNaN(timings.get(1).uncertaintyDays));
+    }
+
+    public void testParseImportedTimingsInfersCycle() throws IOException {
+        List<String> lines = Arrays.asList("2450001.0 0.002", "2450003.0");
+        List<ImportedTiming> timings = OCAnalysisLib.parseImportedTimings(lines,
+                2450000.0, 1.0);
+        assertEquals(2, timings.size());
+        assertEquals(Integer.valueOf(1), timings.get(0).cycle);
+        assertEquals(0.002, timings.get(0).uncertaintyDays, TOL);
+        assertEquals(Integer.valueOf(3), timings.get(1).cycle);
+    }
+
+    public void testParseImportedTimingsCommaSemicolonSeparators()
+            throws IOException {
+        List<String> lines = Arrays.asList("0,2450000.0,0.001",
+                "1;2450001.0;0.002", "2450002.0,0.003");
+        List<ImportedTiming> timings = OCAnalysisLib.parseImportedTimings(lines,
+                2450000.0, 1.0);
+        assertEquals(3, timings.size());
+        assertEquals(Integer.valueOf(0), timings.get(0).cycle);
+        assertEquals(2450000.0, timings.get(0).observedTime, TOL);
+        assertEquals(0.001, timings.get(0).uncertaintyDays, TOL);
+        assertEquals(Integer.valueOf(1), timings.get(1).cycle);
+        assertEquals(0.002, timings.get(1).uncertaintyDays, TOL);
+        assertEquals(Integer.valueOf(2), timings.get(2).cycle);
+        assertEquals(0.003, timings.get(2).uncertaintyDays, TOL);
+    }
+
+    public void testParseImportedTimingsInvalidLineThrows() {
+        List<String> lines = Arrays.asList("not-a-number");
+        try {
+            OCAnalysisLib.parseImportedTimings(lines, 2450000.0, 1.0);
+            fail("Expected IOException");
+        } catch (IOException ex) {
+            assertTrue(ex.getMessage().contains("line 1"));
+        }
+    }
+
+    public void testAnalyzeImportedComputesOC() {
+        double epoch = 2450000.0;
+        double period = 1.0;
+        List<ImportedTiming> timings = Arrays.asList(
+                new ImportedTiming(0, epoch, Double.NaN),
+                new ImportedTiming(1, epoch + period + 0.0035, Double.NaN));
+        Parameters params = new Parameters(period, epoch, EventType.MAXIMUM,
+                TimingMethod.PARABOLIC, 10, 1);
+        Result result = OCAnalysisLib.analyzeImported(timings, params);
+        assertEquals(2, result.points.size());
+        assertEquals(0.0, result.points.get(0).oc, TOL);
+        assertEquals(0.0035, result.points.get(1).oc, TOL);
+        assertEquals(EventType.MAXIMUM, result.points.get(0).extremumType);
+    }
+
+    public void testAnalyzeImportedEmptyList() {
+        Parameters params = new Parameters(1.0, 2450000.0, EventType.MAXIMUM,
+                TimingMethod.PARABOLIC, 10, 1);
+        Result result = OCAnalysisLib.analyzeImported(
+                new ArrayList<ImportedTiming>(), params);
+        assertTrue(result.points.isEmpty());
+        Result nullResult = OCAnalysisLib.analyzeImported(null, params);
+        assertTrue(nullResult.points.isEmpty());
+    }
+
+    public void testQuadraticFitOnEvolvingPeriodOC() {
+        List<Point> points = new ArrayList<Point>();
+        for (int n = 0; n < 10; n++) {
+            double oc = 0.0001 * n * n;
+            points.add(new Point(n, n + oc, n, Double.NaN, 5,
+                    EventType.MAXIMUM));
+        }
+        QuadraticFit fit = OCAnalysisLib.fitQuadratic(points);
+        assertNotNull(fit);
+        assertEquals(0.0, fit.constant, 1e-6);
+        assertEquals(0.0, fit.linear, 1e-6);
+        assertEquals(0.0001, fit.quadratic, 1e-6);
+    }
+
+    public void testQuadraticFitReturnsNullForTwoPoints() {
+        List<Point> points = Arrays.asList(
+                new Point(0, 0.0, 0.0, Double.NaN, 5, EventType.MAXIMUM),
+                new Point(1, 0.0021, 1.0, Double.NaN, 5, EventType.MAXIMUM));
+        assertNull(OCAnalysisLib.fitQuadratic(points));
+    }
+
+    public void testInterpretQuadraticFitMentionsEvolvingPeriod() {
+        QuadraticFit fit = new QuadraticFit(0.0, 0.0021, 0.0001, 0.0005, 10);
+        String text = OCAnalysisLib.interpretQuadraticFit(fit, 1.0);
+        assertTrue(text.contains("evolving period"));
+        assertTrue(text.contains("ΔP/cycle"));
+    }
+
+    public void testAnalyzeBothEventTypeReturnsMaxAndMin() {
+        double epoch = 2450000.0;
+        double period = 1.0;
+        List<ValidObservation> obs = syntheticEclipsingBinary(epoch, period, 6);
+        Parameters params = new Parameters(period, epoch, EventType.BOTH,
+                TimingMethod.PARABOLIC, 10, 3);
+        Result result = OCAnalysisLib.analyze(obs, params);
+        assertTrue(result.points.size() >= 6);
+        boolean hasMax = false;
+        boolean hasMin = false;
+        for (Point p : result.points) {
+            if (p.extremumType == EventType.MAXIMUM) {
+                hasMax = true;
+            } else if (p.extremumType == EventType.MINIMUM) {
+                hasMin = true;
+            }
+        }
+        assertTrue(hasMax);
+        assertTrue(hasMin);
+    }
+
+    public void testGetPeriodScatterWarningNotEmpty() {
+        String warning = OCAnalysisLib.getPeriodScatterWarning();
+        assertNotNull(warning);
+        assertTrue(warning.contains("Foster"));
+        assertTrue(warning.contains("period scatter"));
+    }
+
+    public void testWriteCsvContainsHeaderAndData() {
+        double epoch = 2450000.0;
+        List<Point> points = Arrays.asList(new Point(0, epoch, epoch, 0.001, 5,
+                EventType.MAXIMUM));
+        Parameters params = new Parameters(1.0, epoch, EventType.MAXIMUM,
+                TimingMethod.PARABOLIC, 10, 3);
+        Result result = new Result(params, points);
+        StringWriter sw = new StringWriter();
+        OCAnalysisLib.writeCsv(result, new PrintWriter(sw), null, null, null);
+        String csv = sw.toString();
+        assertTrue(csv.contains("Event,Cycle,O_HJD,C_HJD,OC_days"));
+        assertTrue(csv.contains("MAXIMUM,0,"));
+    }
+
     /**
      * Build a synthetic light curve with maxima at epoch + n*period + offset.
      * Each cycle has observations spanning +/- 0.2 days around the maximum.
@@ -193,6 +347,30 @@ public class OCAnalysisLibTest extends TestCase {
             for (double dt = -0.2; dt <= 0.2; dt += 0.05) {
                 double jd = tMax + dt;
                 double mag = 10.0 + 20.0 * dt * dt;
+                obs.add(ob(jd, mag));
+            }
+        }
+        return obs;
+    }
+
+    /**
+     * Eclipsing-binary analogue: bright maxima at epoch + n*P and eclipse minima
+     * at epoch + n*P + P/2.
+     */
+    private static List<ValidObservation> syntheticEclipsingBinary(double epoch,
+            double period, int numCycles) {
+        List<ValidObservation> obs = new ArrayList<ValidObservation>();
+        for (int n = 0; n < numCycles; n++) {
+            double tMax = epoch + n * period;
+            for (double dt = -0.2; dt <= 0.2; dt += 0.05) {
+                double jd = tMax + dt;
+                double mag = 10.0 + 20.0 * dt * dt;
+                obs.add(ob(jd, mag));
+            }
+            double tMin = epoch + n * period + period / 2.0;
+            for (double dt = -0.2; dt <= 0.2; dt += 0.05) {
+                double jd = tMin + dt;
+                double mag = 12.0 - 20.0 * dt * dt;
                 obs.add(ob(jd, mag));
             }
         }

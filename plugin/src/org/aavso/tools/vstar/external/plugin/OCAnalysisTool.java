@@ -24,6 +24,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,20 +41,25 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.external.lib.OCAnalysisExportHolder;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.EventType;
+import org.aavso.tools.vstar.external.lib.OCAnalysisLib.ImportedTiming;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Parameters;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Point;
+import org.aavso.tools.vstar.external.lib.OCAnalysisLib.QuadraticFit;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Result;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.TimingMethod;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.LinearFit;
@@ -101,27 +111,20 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
     private static final String EPHEMERIS_STAR = "Star metadata";
     private static final String EPHEMERIS_MANUAL = "Manual entry";
 
+    private static final String DATA_OBSERVATIONS = "From observations";
+    private static final String DATA_IMPORTED = "Imported timings file";
+
+    private File lastImportFile;
+
     @Override
     public void invoke(ISeriesInfoProvider seriesInfo) {
-        ObservationAndMeanPlotModel plotModel = Mediator.getInstance()
-                .getObservationPlotModel(AnalysisType.RAW_DATA);
-
-        SingleSeriesSelectionDialog seriesDlg = new SingleSeriesSelectionDialog(
-                plotModel);
-        if (seriesDlg.isCancelled()) {
-            return;
-        }
-
-        SeriesType series = seriesDlg.getSeries();
-        List<ValidObservation> obs = seriesInfo.getObservations(series);
-        if (obs == null || obs.isEmpty()) {
-            MessageBox.showErrorDialog(getDisplayName(),
-                    "The selected series has no observations.");
-            return;
-        }
-
         EphemerisDefaults defaults = resolveEphemerisDefaults();
         IModel selectedModel = currentModel();
+
+        List<String> dataSources = Arrays.asList(DATA_OBSERVATIONS,
+                DATA_IMPORTED);
+        SelectableTextField dataSourceField = new SelectableTextField(
+                "Data source", dataSources, DATA_OBSERVATIONS);
 
         List<String> ephemerisSources = Arrays.asList(EPHEMERIS_PHASE,
                 EPHEMERIS_STAR, EPHEMERIS_MANUAL);
@@ -167,7 +170,18 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         IntegerField breakCycleField = new IntegerField(
                 "Two-segment break cycle (optional)", null, null, null);
 
+        dataSourceField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                applyDataSourceFields(dataSourceField.getValue(), timingField,
+                        meanPercentField, minObsField);
+            }
+        });
+        applyDataSourceFields(dataSourceField.getValue(), timingField,
+                meanPercentField, minObsField);
+
         List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
+        fields.add(dataSourceField);
         fields.add(ephemerisSourceField);
         fields.add(periodField);
         fields.add(epochField);
@@ -183,6 +197,9 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
             return;
         }
 
+        boolean fromImportedTimings = DATA_IMPORTED
+                .equals(dataSourceField.getValue());
+
         Double period = periodField.getValue();
         Double epoch = epochField.getValue();
         if (period == null || period <= 0 || epoch == null) {
@@ -196,33 +213,81 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         Integer meanPercent = meanPercentField.getValue();
         Integer minObs = minObsField.getValue();
 
-        if (eventType == null || timingMethod == null || meanPercent == null
-                || minObs == null) {
+        if (eventType == null || meanPercent == null
+                || (!fromImportedTimings && (timingMethod == null
+                        || minObs == null))) {
             MessageBox.showErrorDialog(getDisplayName(),
                     "One or more parameters are invalid.");
             return;
         }
 
+        String resultLabel;
+        List<ValidObservation> obs = null;
+        if (fromImportedTimings) {
+            resultLabel = resolveStarLabel();
+        } else {
+            ObservationAndMeanPlotModel plotModel = Mediator.getInstance()
+                    .getObservationPlotModel(AnalysisType.RAW_DATA);
+            SingleSeriesSelectionDialog seriesDlg = new SingleSeriesSelectionDialog(
+                    plotModel);
+            if (seriesDlg.isCancelled()) {
+                return;
+            }
+            SeriesType series = seriesDlg.getSeries();
+            obs = seriesInfo.getObservations(series);
+            if (obs == null || obs.isEmpty()) {
+                MessageBox.showErrorDialog(getDisplayName(),
+                        "The selected series has no observations.");
+                return;
+            }
+            resultLabel = series.getDescription();
+        }
+
+        Result result;
         Parameters params;
         try {
-            IModel model = timingMethod == TimingMethod.FROM_MODEL
-                    ? selectedModel : null;
-            params = new Parameters(period, epoch, eventType, timingMethod,
-                    meanPercent, minObs, model);
+            if (fromImportedTimings) {
+                List<String> lines = readImportFileLines();
+                if (lines == null) {
+                    return;
+                }
+                List<ImportedTiming> timings = OCAnalysisLib
+                        .parseImportedTimings(lines, epoch, period);
+                IModel model = null;
+                params = new Parameters(period, epoch, eventType,
+                        TimingMethod.PARABOLIC, meanPercent, 1, model);
+                result = OCAnalysisLib.analyzeImported(timings, params);
+                if (lastImportFile != null) {
+                    resultLabel = resultLabel + " (" + lastImportFile.getName()
+                            + ")";
+                }
+            } else {
+                IModel model = timingMethod == TimingMethod.FROM_MODEL
+                        ? selectedModel : null;
+                params = new Parameters(period, epoch, eventType, timingMethod,
+                        meanPercent, minObs, model);
+                result = OCAnalysisLib.analyze(obs, params);
+            }
         } catch (IllegalArgumentException ex) {
+            MessageBox.showErrorDialog(getDisplayName(), ex.getMessage());
+            return;
+        } catch (IOException ex) {
             MessageBox.showErrorDialog(getDisplayName(), ex.getMessage());
             return;
         }
 
-        Result result = OCAnalysisLib.analyze(obs, params);
         if (result.points.isEmpty()) {
-            MessageBox.showErrorDialog(getDisplayName(),
-                    "No O-C points could be computed. Try lowering the minimum "
-                            + "observations per cycle, then check the ephemeris.");
+            String message = fromImportedTimings
+                    ? "No O-C points could be computed from the imported "
+                            + "timings file. Check the file format and ephemeris."
+                    : "No O-C points could be computed. Try lowering the minimum "
+                            + "observations per cycle, then check the ephemeris.";
+            MessageBox.showErrorDialog(getDisplayName(), message);
             return;
         }
 
         LinearFit linearFit = OCAnalysisLib.fitLinear(result.points);
+        QuadraticFit quadraticFit = OCAnalysisLib.fitQuadratic(result.points);
         TwoSegmentFit twoSegmentFit = null;
         Integer breakCycle = breakCycleField.getValue();
         if (breakCycle != null) {
@@ -230,8 +295,56 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
                     breakCycle);
         }
 
-        new OCAnalysisResultDialog(series.getDescription(), result, linearFit,
-                twoSegmentFit);
+        OCAnalysisExportHolder.setLatest(new OCAnalysisExportHolder.Bundle(
+                result, linearFit, twoSegmentFit, quadraticFit));
+
+        new OCAnalysisResultDialog(resultLabel, result, linearFit,
+                twoSegmentFit, quadraticFit);
+    }
+
+    private static void applyDataSourceFields(String dataSource,
+            SelectableTextField timingField, IntegerField meanPercentField,
+            IntegerField minObsField) {
+        boolean fromObs = DATA_OBSERVATIONS.equals(dataSource);
+        timingField.setEditable(fromObs);
+        meanPercentField.setEditable(fromObs);
+        minObsField.setEditable(fromObs);
+    }
+
+    private static String resolveStarLabel() {
+        StarInfo info = latestStarInfo();
+        if (info != null && info.getDesignation() != null
+                && !info.getDesignation().trim().isEmpty()) {
+            return info.getDesignation();
+        }
+        return "Imported timings";
+    }
+
+    private List<String> readImportFileLines() throws IOException {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Select imported timings file");
+        chooser.setFileFilter(new FileNameExtensionFilter(
+                "Text files", "txt", "csv", "dat"));
+        if (lastImportFile != null) {
+            chooser.setSelectedFile(lastImportFile);
+        }
+        if (chooser.showOpenDialog(Mediator.getUI().getContentPane())
+                != JFileChooser.APPROVE_OPTION) {
+            return null;
+        }
+        lastImportFile = chooser.getSelectedFile();
+        List<String> lines = new ArrayList<String>();
+        BufferedReader reader = new BufferedReader(
+                new FileReader(lastImportFile));
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+        } finally {
+            reader.close();
+        }
+        return lines;
     }
 
     private static boolean isModelTimingAvailable(IModel model) {
@@ -370,19 +483,22 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         private final Result result;
         private final LinearFit linearFit;
         private final TwoSegmentFit twoSegmentFit;
+        private final QuadraticFit quadraticFit;
         private final YIntervalSeries ocSeries = new YIntervalSeries("O-C");
         private final ChartPanel chartPanel;
         private final JRadioButton cycleAxisButton;
         private final JRadioButton timeAxisButton;
 
         OCAnalysisResultDialog(String seriesName, Result result,
-                LinearFit linearFit, TwoSegmentFit twoSegmentFit) {
+                LinearFit linearFit, TwoSegmentFit twoSegmentFit,
+                QuadraticFit quadraticFit) {
             super(org.aavso.tools.vstar.ui.mediator.DocumentManager
                     .findActiveWindow(), "O-C Analysis: " + seriesName,
                     ModalityType.MODELESS);
             this.result = result;
             this.linearFit = linearFit;
             this.twoSegmentFit = twoSegmentFit;
+            this.quadraticFit = quadraticFit;
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
             ActionListener dismissListener = new ActionListener() {
@@ -481,6 +597,15 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
                         result.parameters.period));
                 buf.append("</p>");
             }
+            if (quadraticFit != null) {
+                buf.append("<p>");
+                buf.append(OCAnalysisLib.interpretQuadraticFit(quadraticFit,
+                        result.parameters.period));
+                buf.append("</p>");
+            }
+            buf.append("<p>");
+            buf.append(OCAnalysisLib.getPeriodScatterWarning());
+            buf.append("</p>");
             buf.append("<p>A horizontal O-C trend suggests an epoch offset; a "
                     + "linear slope suggests a period correction (Foster, ch. 13).</p>");
             buf.append("</html>");
@@ -519,11 +644,42 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
             JPanel panel = new JPanel();
             panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
             panel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+            JButton exportButton = new JButton("Export CSV...");
+            exportButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    exportCsv();
+                }
+            });
+            panel.add(exportButton);
+            panel.add(Box.createHorizontalStrut(10));
             JButton dismissButton = new JButton(
                     LocaleProps.get("DISMISS_BUTTON"));
             dismissButton.addActionListener(dismissListener);
             panel.add(dismissButton);
             return panel;
+        }
+
+        private void exportCsv() {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Export O-C results");
+            chooser.setSelectedFile(new File("oc_analysis.csv"));
+            if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+                return;
+            }
+            File file = chooser.getSelectedFile();
+            PrintWriter writer = null;
+            try {
+                writer = new PrintWriter(file);
+                OCAnalysisLib.writeCsv(result, writer, linearFit, twoSegmentFit,
+                        quadraticFit);
+            } catch (IOException ex) {
+                MessageBox.showErrorDialog("O-C Analysis", ex.getMessage());
+            } finally {
+                if (writer != null) {
+                    writer.close();
+                }
+            }
         }
 
         private void refreshChart() {

@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.external.lib;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -50,7 +52,8 @@ public class OCAnalysisLib {
      */
     public enum EventType {
         MAXIMUM("Maximum light (minimum magnitude)"),
-        MINIMUM("Minimum light (maximum magnitude)");
+        MINIMUM("Minimum light (maximum magnitude)"),
+        BOTH("Both maxima and minima (eclipsing binaries)");
 
         private final String label;
 
@@ -60,6 +63,10 @@ public class OCAnalysisLib {
 
         public String getLabel() {
             return label;
+        }
+
+        public boolean isBoth() {
+            return this == BOTH;
         }
     }
 
@@ -149,15 +156,34 @@ public class OCAnalysisLib {
         /** O-C uncertainty in days, or {@link Double#NaN} if unknown. */
         public final double ocUncertainty;
         public final int obsInCycle;
+        /** Extremum timed for this point (max, min, or inferred for imports). */
+        public final EventType extremumType;
 
         Point(int cycle, double observedTime, double computedTime,
-                double ocUncertainty, int obsInCycle) {
+                double ocUncertainty, int obsInCycle, EventType extremumType) {
             this.cycle = cycle;
             this.observedTime = observedTime;
             this.computedTime = computedTime;
             this.oc = observedTime - computedTime;
             this.ocUncertainty = ocUncertainty;
             this.obsInCycle = obsInCycle;
+            this.extremumType = extremumType;
+        }
+    }
+
+    /**
+     * An imported observed time of extremum (from file).
+     */
+    public static class ImportedTiming {
+        public final Integer cycle;
+        public final double observedTime;
+        public final double uncertaintyDays;
+
+        public ImportedTiming(Integer cycle, double observedTime,
+                double uncertaintyDays) {
+            this.cycle = cycle;
+            this.observedTime = observedTime;
+            this.uncertaintyDays = uncertaintyDays;
         }
     }
 
@@ -222,6 +248,205 @@ public class OCAnalysisLib {
      */
     public static Result analyze(List<ValidObservation> observations,
             Parameters params) {
+        if (params.eventType.isBoth()) {
+            List<Point> combined = new ArrayList<Point>();
+            combined.addAll(analyzeObservations(observations,
+                    withEventType(params, EventType.MAXIMUM)).points);
+            combined.addAll(analyzeObservations(observations,
+                    withEventType(params, EventType.MINIMUM)).points);
+            Collections.sort(combined, new Comparator<Point>() {
+                @Override
+                public int compare(Point a, Point b) {
+                    int c = Integer.compare(a.cycle, b.cycle);
+                    if (c != 0) {
+                        return c;
+                    }
+                    return a.extremumType.compareTo(b.extremumType);
+                }
+            });
+            return new Result(params, combined);
+        }
+        return analyzeObservations(observations, params);
+    }
+
+    /**
+     * Build O-C points from imported observed extremum times.
+     */
+    public static Result analyzeImported(List<ImportedTiming> timings,
+            Parameters params) {
+        if (timings == null || timings.isEmpty()) {
+            return new Result(params, Collections.<Point>emptyList());
+        }
+        EventType pointType = params.eventType.isBoth() ? EventType.MAXIMUM
+                : params.eventType;
+        List<Point> points = new ArrayList<Point>();
+        for (ImportedTiming timing : timings) {
+            int cycle = timing.cycle != null ? timing.cycle : cycleNumber(
+                    timing.observedTime, params.epoch, params.period);
+            double computed = params.computedTime(cycle);
+            points.add(new Point(cycle, timing.observedTime, computed,
+                    timing.uncertaintyDays, 0, pointType));
+        }
+        Collections.sort(points, new Comparator<Point>() {
+            @Override
+            public int compare(Point a, Point b) {
+                return Integer.compare(a.cycle, b.cycle);
+            }
+        });
+        return new Result(params, points);
+    }
+
+    /**
+     * Parse imported timing lines. Each non-comment line is {@code cycle HJD
+     * [sigma]} or {@code HJD [sigma]} (cycle inferred from ephemeris).
+     */
+    public static List<ImportedTiming> parseImportedTimings(List<String> lines,
+            double epoch, double period) throws IOException {
+        List<ImportedTiming> timings = new ArrayList<ImportedTiming>();
+        int lineNum = 0;
+        for (String raw : lines) {
+            lineNum++;
+            String line = raw.trim();
+            if (line.isEmpty() || line.startsWith("#")) {
+                continue;
+            }
+            String[] parts = line.split("[\\s,;]+");
+            if (parts.length < 1) {
+                continue;
+            }
+            try {
+                if (parts.length >= 2 && looksLikeInteger(parts[0])) {
+                    int cycle = Integer.parseInt(parts[0]);
+                    double hjd = Double.parseDouble(parts[1]);
+                    double sigma = parts.length >= 3
+                            ? Double.parseDouble(parts[2]) : Double.NaN;
+                    timings.add(new ImportedTiming(cycle, hjd, sigma));
+                } else {
+                    double hjd = Double.parseDouble(parts[0]);
+                    double sigma = parts.length >= 2
+                            ? Double.parseDouble(parts[1]) : Double.NaN;
+                    int cycle = cycleNumber(hjd, epoch, period);
+                    timings.add(new ImportedTiming(cycle, hjd, sigma));
+                }
+            } catch (NumberFormatException e) {
+                throw new IOException("Invalid imported timing at line "
+                        + lineNum + ": " + raw);
+            }
+        }
+        return timings;
+    }
+
+    /**
+     * Quadratic least-squares fit of O-C versus cycle number.
+     */
+    public static QuadraticFit fitQuadratic(List<Point> points) {
+        if (points == null || points.size() < 3) {
+            return null;
+        }
+        int n = points.size();
+        double s0 = n;
+        double s1 = 0;
+        double s2 = 0;
+        double s3 = 0;
+        double s4 = 0;
+        double t0 = 0;
+        double t1 = 0;
+        double t2 = 0;
+        for (Point p : points) {
+            double x = p.cycle;
+            double y = p.oc;
+            double x2 = x * x;
+            s1 += x;
+            s2 += x2;
+            s3 += x2 * x;
+            s4 += x2 * x2;
+            t0 += y;
+            t1 += x * y;
+            t2 += x2 * y;
+        }
+        double[][] m = { { s0, s1, s2 }, { s1, s2, s3 }, { s2, s3, s4 } };
+        double[] v = { t0, t1, t2 };
+        double[] coeff = solve3x3(m, v);
+        if (coeff == null) {
+            return null;
+        }
+        double sumSq = 0;
+        for (Point p : points) {
+            double residual = p.oc - (coeff[0] + coeff[1] * p.cycle + coeff[2]
+                    * p.cycle * p.cycle);
+            sumSq += residual * residual;
+        }
+        double rms = Math.sqrt(sumSq / n);
+        return new QuadraticFit(coeff[0], coeff[1], coeff[2], rms, n);
+    }
+
+    /**
+     * Foster ch. 13 interpretation for a quadratic O-C trend (evolving period).
+     */
+    public static String interpretQuadraticFit(QuadraticFit fit,
+            double modelPeriod) {
+        if (fit == null) {
+            return "";
+        }
+        double deltaPPerCycle = 2.0 * fit.quadratic;
+        StringBuilder buf = new StringBuilder();
+        buf.append("Quadratic fit (O-C vs cycle): epoch correction ≈ ");
+        buf.append(formatSmallDays(fit.constant));
+        buf.append(" d; linear coeff = ");
+        buf.append(formatSmallDays(fit.linear));
+        buf.append(" d/cycle → starting period correction ≈ ");
+        buf.append(formatSmallDays(fit.linear - fit.quadratic));
+        buf.append(" d; quadratic coeff = ");
+        buf.append(formatSmallDays(fit.quadratic));
+        buf.append(" d/cycle² → ΔP/cycle ≈ ");
+        buf.append(formatSmallDays(deltaPPerCycle));
+        buf.append(" d (evolving period, Foster §13.4); RMS = ");
+        buf.append(formatSmallDays(fit.rms));
+        buf.append(" d.");
+        return buf.toString();
+    }
+
+    /**
+     * Write O-C results as comma-separated text.
+     */
+    public static void writeCsv(Result result, PrintWriter writer,
+            LinearFit linearFit, TwoSegmentFit twoSegmentFit,
+            QuadraticFit quadraticFit) {
+        writer.println("# O-C Analysis export");
+        writer.println("# period=" + result.parameters.period + ", epoch="
+                + result.parameters.epoch);
+        if (linearFit != null) {
+            writer.println("# linear_slope=" + linearFit.slope
+                    + ", linear_intercept=" + linearFit.intercept);
+        }
+        if (quadraticFit != null) {
+            writer.println("# quadratic_constant=" + quadraticFit.constant
+                    + ", quadratic_linear=" + quadraticFit.linear
+                    + ", quadratic_quadratic=" + quadraticFit.quadratic);
+        }
+        writer.println(
+                "Event,Cycle,O_HJD,C_HJD,OC_days,OC_sigma,ObsInCycle");
+        for (Point p : result.points) {
+            writer.print(p.extremumType.name());
+            writer.print(',');
+            writer.print(p.cycle);
+            writer.print(',');
+            writer.print(p.observedTime);
+            writer.print(',');
+            writer.print(p.computedTime);
+            writer.print(',');
+            writer.print(p.oc);
+            writer.print(',');
+            if (!Double.isNaN(p.ocUncertainty) && p.ocUncertainty > 0) {
+                writer.print(p.ocUncertainty);
+            }
+            writer.print(',');
+            writer.println(p.obsInCycle);
+        }
+    }
+
+    private static Result analyzeObservations(List<ValidObservation> observations,
+            Parameters params) {
         List<ValidObservation> usable = new ArrayList<ValidObservation>();
         for (ValidObservation ob : observations) {
             if (!ob.isDiscrepant()) {
@@ -276,10 +501,72 @@ public class OCAnalysisLib {
 
             double computed = params.computedTime(cycle);
             points.add(new Point(cycle, estimate.time, computed,
-                    estimate.uncertaintyDays, cycleObs.size()));
+                    estimate.uncertaintyDays, cycleObs.size(),
+                    params.eventType));
         }
 
         return new Result(params, points);
+    }
+
+    private static Parameters withEventType(Parameters params,
+            EventType eventType) {
+        return new Parameters(params.period, params.epoch, eventType,
+                params.timingMethod, params.meanExtremePercent,
+                params.minObsPerCycle, params.model);
+    }
+
+    private static boolean looksLikeInteger(String token) {
+        for (int i = 0; i < token.length(); i++) {
+            char ch = token.charAt(i);
+            if (i == 0 && ch == '-') {
+                continue;
+            }
+            if (!Character.isDigit(ch)) {
+                return false;
+            }
+        }
+        return token.length() > 0;
+    }
+
+    private static double[] solve3x3(double[][] m, double[] v) {
+        double[][] a = new double[3][4];
+        for (int i = 0; i < 3; i++) {
+            a[i][0] = m[i][0];
+            a[i][1] = m[i][1];
+            a[i][2] = m[i][2];
+            a[i][3] = v[i];
+        }
+        for (int col = 0; col < 3; col++) {
+            int pivot = col;
+            for (int row = col + 1; row < 3; row++) {
+                if (Math.abs(a[row][col]) > Math.abs(a[pivot][col])) {
+                    pivot = row;
+                }
+            }
+            if (Math.abs(a[pivot][col]) < 1e-18) {
+                return null;
+            }
+            if (pivot != col) {
+                double[] tmp = a[col];
+                a[col] = a[pivot];
+                a[pivot] = tmp;
+            }
+            for (int row = col + 1; row < 3; row++) {
+                double factor = a[row][col] / a[col][col];
+                for (int j = col; j < 4; j++) {
+                    a[row][j] -= factor * a[col][j];
+                }
+            }
+        }
+        double[] x = new double[3];
+        for (int row = 2; row >= 0; row--) {
+            double sum = a[row][3];
+            for (int j = row + 1; j < 3; j++) {
+                sum -= a[row][j] * x[j];
+            }
+            x[row] = sum / a[row][row];
+        }
+        return x;
     }
 
     /**
@@ -319,6 +606,42 @@ public class OCAnalysisLib {
             return null;
         }
         return new TwoSegmentFit(breakCycle, fit1, fit2);
+    }
+
+    /**
+     * Quadratic least-squares fit O-C = constant + linear*n + quadratic*n².
+     */
+    public static class QuadraticFit {
+        public final double constant;
+        public final double linear;
+        public final double quadratic;
+        public final double rms;
+        public final int pointCount;
+
+        QuadraticFit(double constant, double linear, double quadratic,
+                double rms, int pointCount) {
+            this.constant = constant;
+            this.linear = linear;
+            this.quadratic = quadratic;
+            this.rms = rms;
+            this.pointCount = pointCount;
+        }
+
+        public double evaluate(int cycle) {
+            double n = cycle;
+            return constant + linear * n + quadratic * n * n;
+        }
+    }
+
+    /**
+     * Foster ch. 13 warning about period scatter in LPVs (non-white O-C noise).
+     */
+    public static String getPeriodScatterWarning() {
+        return "Caution (Foster §13.5): for long-period variables and other stars "
+                + "with cycle-to-cycle period scatter, O-C residuals are not white "
+                + "noise — apparent trends may reflect intrinsic period jitter "
+                + "rather than a true ephemeris change. See Foster (1993, JAAVSO 22, "
+                + "145) on O-C autocorrelation.";
     }
 
     /**
