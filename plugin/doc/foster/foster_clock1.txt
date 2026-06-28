@@ -1,0 +1,13 @@
+# Foster ch. 13, Table 13.1 — Clock 1 (correct ephemeris)
+# O-C tool: Imported timings; P = 1.0 d; epoch = 2450000.0
+# Expected O-C: 0 for all cycles (Table 13.2)
+0 2450000.0000
+1 2450001.0000
+2 2450002.0000
+3 2450003.0000
+4 2450004.0000
+5 2450005.0000
+6 2450006.0000
+7 2450007.0000
+8 2450008.0000
+9 2450009.0000

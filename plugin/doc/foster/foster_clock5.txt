@@ -1,0 +1,13 @@
+# Foster ch. 13, Table 13.1 — Clock 5 (period change)
+# O-C tool: Imported timings; P = 1.0 d; epoch = 2450000.0
+# Expected O-C: slope change near cycle 6 (Table 13.2); try break cycle 6
+0 2450000.0000
+1 2450000.9986
+2 2450001.9972
+3 2450002.9958
+4 2450003.9944
+5 2450004.9931
+6 2450005.9938
+7 2450006.9944
+8 2450007.9951
+9 2450008.9958

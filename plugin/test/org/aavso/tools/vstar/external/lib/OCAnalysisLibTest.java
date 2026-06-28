@@ -26,6 +26,9 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData;
+import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData.DemoDataset;
+import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData.DemoScenario;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.EventType;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.ImportedTiming;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Parameters;
@@ -57,13 +60,12 @@ public class OCAnalysisLibTest extends TestCase {
      * Correct ephemeris: O-C should be near zero (Foster clock #1 analogue).
      */
     public void testCorrectEphemerisNearZeroOC() {
-        double epoch = 2450000.0;
-        double period = 1.0;
-        List<ValidObservation> obs = syntheticMaxima(epoch, period, 0.0, 8);
-
-        Parameters params = new Parameters(period, epoch, EventType.MAXIMUM,
-                TimingMethod.PARABOLIC, 10, 3);
-        Result result = OCAnalysisLib.analyze(obs, params);
+        DemoDataset dataset = OCAnalysisDemoData
+                .generate(DemoScenario.CORRECT_EPHEMERIS);
+        Parameters params = new Parameters(dataset.modelPeriod,
+                dataset.modelEpoch, EventType.MAXIMUM, TimingMethod.PARABOLIC,
+                10, 3);
+        Result result = OCAnalysisLib.analyze(dataset.observations, params);
 
         assertTrue(result.points.size() >= 5);
         for (Point p : result.points) {
@@ -75,14 +77,12 @@ public class OCAnalysisLibTest extends TestCase {
      * Wrong epoch, correct period: constant O-C offset (Foster clock #2).
      */
     public void testEpochOffsetGivesConstantOC() {
-        double trueEpoch = 2450000.0035;
-        double modelEpoch = 2450000.0;
-        double period = 1.0;
-        List<ValidObservation> obs = syntheticMaxima(trueEpoch, period, 0.0, 8);
-
-        Parameters params = new Parameters(period, modelEpoch, EventType.MAXIMUM,
-                TimingMethod.PARABOLIC, 10, 3);
-        Result result = OCAnalysisLib.analyze(obs, params);
+        DemoDataset dataset = OCAnalysisDemoData
+                .generate(DemoScenario.EPOCH_OFFSET);
+        Parameters params = new Parameters(dataset.modelPeriod,
+                dataset.modelEpoch, EventType.MAXIMUM, TimingMethod.PARABOLIC,
+                10, 3);
+        Result result = OCAnalysisLib.analyze(dataset.observations, params);
 
         assertTrue(result.points.size() >= 5);
         for (Point p : result.points) {
@@ -94,14 +94,12 @@ public class OCAnalysisLibTest extends TestCase {
      * Wrong period: O-C slope approximates delta-P (Foster clock #3).
      */
     public void testPeriodErrorGivesLinearOC() {
-        double epoch = 2450000.0;
-        double truePeriod = 1.0021;
-        double modelPeriod = 1.0;
-        List<ValidObservation> obs = syntheticMaxima(epoch, truePeriod, 0.0, 10);
-
-        Parameters params = new Parameters(modelPeriod, epoch, EventType.MAXIMUM,
-                TimingMethod.PARABOLIC, 10, 3);
-        Result result = OCAnalysisLib.analyze(obs, params);
+        DemoDataset dataset = OCAnalysisDemoData
+                .generate(DemoScenario.PERIOD_ERROR);
+        Parameters params = new Parameters(dataset.modelPeriod,
+                dataset.modelEpoch, EventType.MAXIMUM, TimingMethod.PARABOLIC,
+                10, 3);
+        Result result = OCAnalysisLib.analyze(dataset.observations, params);
 
         assertTrue(result.points.size() >= 5);
         double slope = estimateSlope(result.points);
@@ -109,13 +107,12 @@ public class OCAnalysisLibTest extends TestCase {
     }
 
     public void testMeanExtremeTimingMethod() {
-        double epoch = 2450000.0;
-        double period = 1.0;
-        List<ValidObservation> obs = syntheticMaxima(epoch, period, 0.0, 6);
-
-        Parameters params = new Parameters(period, epoch, EventType.MAXIMUM,
+        DemoDataset dataset = OCAnalysisDemoData
+                .generate(DemoScenario.CORRECT_EPHEMERIS);
+        Parameters params = new Parameters(dataset.modelPeriod,
+                dataset.modelEpoch, EventType.MAXIMUM,
                 TimingMethod.MEAN_OF_EXTREME, 20, 3);
-        Result result = OCAnalysisLib.analyze(obs, params);
+        Result result = OCAnalysisLib.analyze(dataset.observations, params);
 
         assertTrue(result.points.size() >= 3);
         for (Point p : result.points) {
@@ -124,9 +121,11 @@ public class OCAnalysisLibTest extends TestCase {
     }
 
     public void testSkipsSparseCycles() {
-        double epoch = 2450000.0;
-        double period = 1.0;
-        List<ValidObservation> obs = syntheticMaxima(epoch, period, 0.0, 3);
+        DemoDataset dataset = OCAnalysisDemoData
+                .generate(DemoScenario.CORRECT_EPHEMERIS, 2450000.0, 1.0, 3);
+        double epoch = dataset.modelEpoch;
+        double period = dataset.modelPeriod;
+        List<ValidObservation> obs = dataset.observations;
         // Remove observations from cycle 1 so it has fewer than minObsPerCycle.
         List<ValidObservation> trimmed = new ArrayList<ValidObservation>();
         for (ValidObservation ob : obs) {
@@ -296,7 +295,11 @@ public class OCAnalysisLibTest extends TestCase {
     public void testAnalyzeBothEventTypeReturnsMaxAndMin() {
         double epoch = 2450000.0;
         double period = 1.0;
-        List<ValidObservation> obs = syntheticEclipsingBinary(epoch, period, 6);
+        List<ValidObservation> obs = new ArrayList<ValidObservation>();
+        for (int n = 0; n < 5; n++) {
+            addSyntheticMaximum(obs, epoch + n * period);
+            addSyntheticMinimum(obs, epoch + n * period + period / 2.0);
+        }
         Parameters params = new Parameters(period, epoch, EventType.BOTH,
                 TimingMethod.PARABOLIC, 10, 3);
         Result result = OCAnalysisLib.analyze(obs, params);
@@ -312,6 +315,26 @@ public class OCAnalysisLibTest extends TestCase {
         }
         assertTrue(hasMax);
         assertTrue(hasMin);
+    }
+
+    private static void addSyntheticMaximum(List<ValidObservation> obs,
+            double tMax) {
+        for (double dt = -0.2; dt <= 0.2; dt += 0.05) {
+            ValidObservation ob = new ValidObservation();
+            ob.setJD(tMax + dt);
+            ob.setMagnitude(new Magnitude(10.0 + 20.0 * dt * dt, 0.01));
+            obs.add(ob);
+        }
+    }
+
+    private static void addSyntheticMinimum(List<ValidObservation> obs,
+            double tMin) {
+        for (double dt = -0.2; dt <= 0.2; dt += 0.05) {
+            ValidObservation ob = new ValidObservation();
+            ob.setJD(tMin + dt);
+            ob.setMagnitude(new Magnitude(12.0 - 20.0 * dt * dt, 0.01));
+            obs.add(ob);
+        }
     }
 
     public void testGetPeriodScatterWarningNotEmpty() {
@@ -333,55 +356,6 @@ public class OCAnalysisLibTest extends TestCase {
         String csv = sw.toString();
         assertTrue(csv.contains("Event,Cycle,O_HJD,C_HJD,OC_days"));
         assertTrue(csv.contains("MAXIMUM,0,"));
-    }
-
-    /**
-     * Build a synthetic light curve with maxima at epoch + n*period + offset.
-     * Each cycle has observations spanning +/- 0.2 days around the maximum.
-     */
-    private static List<ValidObservation> syntheticMaxima(double epoch,
-            double period, double timeOffset, int numCycles) {
-        List<ValidObservation> obs = new ArrayList<ValidObservation>();
-        for (int n = 0; n < numCycles; n++) {
-            double tMax = epoch + n * period + timeOffset;
-            for (double dt = -0.2; dt <= 0.2; dt += 0.05) {
-                double jd = tMax + dt;
-                double mag = 10.0 + 20.0 * dt * dt;
-                obs.add(ob(jd, mag));
-            }
-        }
-        return obs;
-    }
-
-    /**
-     * Eclipsing-binary analogue: bright maxima at epoch + n*P and eclipse minima
-     * at epoch + n*P + P/2.
-     */
-    private static List<ValidObservation> syntheticEclipsingBinary(double epoch,
-            double period, int numCycles) {
-        List<ValidObservation> obs = new ArrayList<ValidObservation>();
-        for (int n = 0; n < numCycles; n++) {
-            double tMax = epoch + n * period;
-            for (double dt = -0.2; dt <= 0.2; dt += 0.05) {
-                double jd = tMax + dt;
-                double mag = 10.0 + 20.0 * dt * dt;
-                obs.add(ob(jd, mag));
-            }
-            double tMin = epoch + n * period + period / 2.0;
-            for (double dt = -0.2; dt <= 0.2; dt += 0.05) {
-                double jd = tMin + dt;
-                double mag = 12.0 - 20.0 * dt * dt;
-                obs.add(ob(jd, mag));
-            }
-        }
-        return obs;
-    }
-
-    private static ValidObservation ob(double jd, double mag) {
-        ValidObservation ob = new ValidObservation();
-        ob.setJD(jd);
-        ob.setMagnitude(new Magnitude(mag, 0.01));
-        return ob;
     }
 
     private static double estimateSlope(List<Point> points) {

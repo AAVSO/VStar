@@ -85,7 +85,9 @@
 		<jar jarfile="${dist}/${pkg}.MagnitudeAndTimeShifter.jar" basedir="${build.classes}" includes="**/MagnitudeAndTimeShifter**.class" />
 		<jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class" />
 		<jar jarfile="${dist}/${pkg}.MMRDNovaDistanceCalculator.jar" basedir="${build.classes}" includes="**/MMRDNovaDistanceCalculator**.class" />
-		<jar jarfile="${dist}/${pkg}.OCAnalysisTool.jar" basedir="${build.classes}" includes="**/OCAnalysis**.class" />
+		<jar jarfile="${dist}/${pkg}.OCAnalysisTool.jar" basedir="${build.classes}" includes="**/OCAnalysisTool**.class **/OCAnalysisLib**.class **/OCAnalysisExportHolder**.class" />
+		<jar jarfile="${dist}/${pkg}.OCAnalysisDemoObservationSource.jar" basedir="${build.classes}" includes="**/OCAnalysisDemoObservationSource**.class **/OCAnalysisDemoData**.class **/OCAnalysisLib$EventType.class" />
+		<jar jarfile="${dist}/${pkg}.OCAnalysisExportSink.jar" basedir="${build.classes}" includes="**/OCAnalysisExportSink.class **/OCAnalysisExportHolder**.class **/OCAnalysisLib**.class" />
 		<jar jarfile="${dist}/${pkg}.NovaExponentialModelCreator.jar" basedir="${build.classes}" includes="**/NovaExponentialModelCreator**.class" />
 		<jar jarfile="${dist_lib}/${pkg_lib}.NovaExponentialModel.jar" basedir="${build.classes}" includes="**/NovaExponentialModel**.class" excludes="**/NovaExponentialModelCreator**.class" />
 		<jar jarfile="${dist}/${pkg}.NSVSObservationSource.jar" basedir="${build.classes}" includes="**/NSVSObservationSource**.class" />
@@ -303,6 +305,8 @@
 		<copy file="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.MMRDNovaDistanceCalculator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.OCAnalysisTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.OCAnalysisDemoObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.OCAnalysisExportSink.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.NovaExponentialModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist_lib}/${pkg_lib}.NovaExponentialModel.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.NSVSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -364,6 +368,8 @@
 		<echo file="${plugins_list_file}" message="${pkg}.MeanTimeBetweenSelectionTool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MMRDNovaDistanceCalculator.jar => ${pkg_lib}.NovaExponentialModel.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.OCAnalysisTool.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.OCAnalysisDemoObservationSource.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.OCAnalysisExportSink.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.NovaExponentialModelCreator.jar => ${pkg_lib}.NovaExponentialModel.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.NSVSObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ObserverListFilter.jar${line.separator}" append="true" />

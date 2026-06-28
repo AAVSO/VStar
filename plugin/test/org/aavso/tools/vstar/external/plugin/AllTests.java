@@ -21,6 +21,7 @@ package org.aavso.tools.vstar.external.plugin;
 import java.util.Locale;
 
 import org.aavso.tools.vstar.external.lib.ConvertHelperTest;
+import org.aavso.tools.vstar.external.lib.OCAnalysisDemoDataTest;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLibTest;
 
 import junit.framework.Test;

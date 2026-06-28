@@ -1,0 +1,13 @@
+# Foster ch. 13, Table 13.1 — Clock 4 (epoch jump)
+# O-C tool: Imported timings; P = 1.0 d; epoch = 2450000.0
+# Expected O-C: step at cycle 4 (Table 13.2); try two-segment break cycle 4
+0 2449999.9986
+1 2450000.9986
+2 2450001.9986
+3 2450002.9986
+4 2450004.0257
+5 2450005.0257
+6 2450006.0257
+7 2450007.0257
+8 2450008.0257
+9 2450009.0257

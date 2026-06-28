@@ -17,6 +17,11 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.geom.Ellipse2D;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -32,7 +37,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -42,11 +46,13 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
@@ -64,12 +70,13 @@ import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Result;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.TimingMethod;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.LinearFit;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.TwoSegmentFit;
-import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
+import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
+import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.IntegerField;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
+import org.aavso.tools.vstar.ui.dialog.NumberFieldBase;
 import org.aavso.tools.vstar.ui.dialog.SelectableTextField;
 import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
@@ -83,6 +90,7 @@ import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -103,7 +111,7 @@ import org.jfree.data.xy.YIntervalSeriesCollection;
  * See Grant Foster, "Analyzing Light Curves", chapter 13.
  * </p>
  */
-public class OCAnalysisTool extends ObservationToolPluginBase {
+public class OCAnalysisTool extends GeneralToolPluginBase {
 
     private static final String DOC_NAME = "OCAnalysis.md";
 
@@ -117,7 +125,7 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
     private File lastImportFile;
 
     @Override
-    public void invoke(ISeriesInfoProvider seriesInfo) {
+    public void invoke() {
         EphemerisDefaults defaults = resolveEphemerisDefaults();
         IModel selectedModel = currentModel();
 
@@ -129,8 +137,7 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         List<String> ephemerisSources = Arrays.asList(EPHEMERIS_PHASE,
                 EPHEMERIS_STAR, EPHEMERIS_MANUAL);
         SelectableTextField ephemerisSourceField = new SelectableTextField(
-                "Ephemeris source", ephemerisSources,
-                defaults.sourceLabel, false, false);
+                "Ephemeris source", ephemerisSources, defaults.sourceLabel);
 
         DoubleField periodField = new DoubleField("Period (days)", 0.0, null,
                 defaults.period > 0 ? defaults.period : null);
@@ -167,18 +174,18 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
                 "Extreme N% (mean timing method)", 1, 100, 10);
         IntegerField minObsField = new IntegerField(
                 "Minimum observations per cycle", 1, null, 3);
-        IntegerField breakCycleField = new IntegerField(
-                "Two-segment break cycle (optional)", null, null, null);
 
         dataSourceField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                applyDataSourceFields(dataSourceField.getValue(), timingField,
-                        meanPercentField, minObsField);
+                applyDataSourceFields(dataSourceField.getValue(),
+                        ephemerisSourceField, timingField, meanPercentField,
+                        minObsField, periodField, epochField, eventField);
             }
         });
-        applyDataSourceFields(dataSourceField.getValue(), timingField,
-                meanPercentField, minObsField);
+        applyDataSourceFields(dataSourceField.getValue(), ephemerisSourceField,
+                timingField, meanPercentField, minObsField, periodField,
+                epochField, eventField);
 
         List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
         fields.add(dataSourceField);
@@ -189,10 +196,8 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         fields.add(timingField);
         fields.add(meanPercentField);
         fields.add(minObsField);
-        fields.add(breakCycleField);
 
-        MultiEntryComponentDialog paramDlg = new MultiEntryComponentDialog(
-                getDisplayName(), DOC_NAME, fields, Optional.empty());
+        ParameterDialog paramDlg = new ParameterDialog(getDisplayName(), fields);
         if (paramDlg.isCancelled()) {
             return;
         }
@@ -200,18 +205,47 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         boolean fromImportedTimings = DATA_IMPORTED
                 .equals(dataSourceField.getValue());
 
-        Double period = periodField.getValue();
-        Double epoch = epochField.getValue();
+        List<String> importLines = null;
+        if (fromImportedTimings) {
+            try {
+                importLines = readImportFileLines();
+            } catch (IOException ex) {
+                MessageBox.showErrorDialog(getDisplayName(), ex.getMessage());
+                return;
+            }
+            if (importLines == null) {
+                return;
+            }
+        }
+
+        Double period;
+        Double epoch;
+        EventType eventType;
+        TimingMethod timingMethod;
+        Integer meanPercent;
+        Integer minObs;
+
+        if (fromImportedTimings) {
+            period = periodField.getValue();
+            epoch = epochField.getValue();
+            eventType = eventTypeFromLabel(eventField.getValue());
+            timingMethod = TimingMethod.PARABOLIC;
+            meanPercent = 10;
+            minObs = 1;
+        } else {
+            period = periodField.getValue();
+            epoch = epochField.getValue();
+            eventType = eventTypeFromLabel(eventField.getValue());
+            timingMethod = timingMethodFromLabel(timingField.getValue());
+            meanPercent = meanPercentField.getValue();
+            minObs = minObsField.getValue();
+        }
+
         if (period == null || period <= 0 || epoch == null) {
             MessageBox.showErrorDialog(getDisplayName(),
                     "A positive period and an epoch (HJD) are required.");
             return;
         }
-
-        EventType eventType = eventTypeFromLabel(eventField.getValue());
-        TimingMethod timingMethod = timingMethodFromLabel(timingField.getValue());
-        Integer meanPercent = meanPercentField.getValue();
-        Integer minObs = minObsField.getValue();
 
         if (eventType == null || meanPercent == null
                 || (!fromImportedTimings && (timingMethod == null
@@ -226,6 +260,13 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         if (fromImportedTimings) {
             resultLabel = resolveStarLabel();
         } else {
+            ISeriesInfoProvider seriesInfo = currentSeriesInfo();
+            if (seriesInfo == null) {
+                MessageBox.showErrorDialog(getDisplayName(),
+                        "No observations are loaded. Choose imported timings "
+                                + "or load a light curve first.");
+                return;
+            }
             ObservationAndMeanPlotModel plotModel = Mediator.getInstance()
                     .getObservationPlotModel(AnalysisType.RAW_DATA);
             SingleSeriesSelectionDialog seriesDlg = new SingleSeriesSelectionDialog(
@@ -247,12 +288,8 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         Parameters params;
         try {
             if (fromImportedTimings) {
-                List<String> lines = readImportFileLines();
-                if (lines == null) {
-                    return;
-                }
                 List<ImportedTiming> timings = OCAnalysisLib
-                        .parseImportedTimings(lines, epoch, period);
+                        .parseImportedTimings(importLines, epoch, period);
                 IModel model = null;
                 params = new Parameters(period, epoch, eventType,
                         TimingMethod.PARABOLIC, meanPercent, 1, model);
@@ -277,38 +314,154 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         }
 
         if (result.points.isEmpty()) {
-            String message = fromImportedTimings
-                    ? "No O-C points could be computed from the imported "
-                            + "timings file. Check the file format and ephemeris."
-                    : "No O-C points could be computed. Try lowering the minimum "
-                            + "observations per cycle, then check the ephemeris.";
+            String message;
+            if (fromImportedTimings) {
+                message = "No O-C points could be computed from the imported "
+                        + "timings file. Check the file format and ephemeris.";
+            } else {
+                message = "No O-C points could be computed. Try lowering the minimum "
+                        + "observations per cycle, then check the ephemeris.";
+            }
             MessageBox.showErrorDialog(getDisplayName(), message);
             return;
         }
 
         LinearFit linearFit = OCAnalysisLib.fitLinear(result.points);
         QuadraticFit quadraticFit = OCAnalysisLib.fitQuadratic(result.points);
-        TwoSegmentFit twoSegmentFit = null;
-        Integer breakCycle = breakCycleField.getValue();
-        if (breakCycle != null) {
-            twoSegmentFit = OCAnalysisLib.fitTwoSegment(result.points,
-                    breakCycle);
-        }
 
         OCAnalysisExportHolder.setLatest(new OCAnalysisExportHolder.Bundle(
-                result, linearFit, twoSegmentFit, quadraticFit));
+                result, linearFit, null, quadraticFit));
 
         new OCAnalysisResultDialog(resultLabel, result, linearFit,
-                twoSegmentFit, quadraticFit);
+                quadraticFit);
     }
 
     private static void applyDataSourceFields(String dataSource,
+            SelectableTextField ephemerisSourceField,
             SelectableTextField timingField, IntegerField meanPercentField,
-            IntegerField minObsField) {
+            IntegerField minObsField, DoubleField periodField,
+            DoubleField epochField, SelectableTextField eventField) {
         boolean fromObs = DATA_OBSERVATIONS.equals(dataSource);
-        timingField.setEditable(fromObs);
-        meanPercentField.setEditable(fromObs);
-        minObsField.setEditable(fromObs);
+        boolean fromImport = DATA_IMPORTED.equals(dataSource);
+
+        setFieldEnabled(ephemerisSourceField, fromObs);
+        setFieldEnabled(timingField, fromObs);
+        setFieldEnabled(meanPercentField, fromObs);
+        setFieldEnabled(minObsField, fromObs);
+        setFieldEnabled(eventField, fromObs || fromImport);
+        setFieldEnabled(periodField, fromObs || fromImport);
+        setFieldEnabled(epochField, fromObs || fromImport);
+    }
+
+    private static void setFieldEnabled(ITextComponent<?> field,
+            boolean enabled) {
+        field.getUIComponent().setEnabled(enabled);
+    }
+
+    /**
+     * Compact parameter dialog: labels in a left column, controls on the right
+     * (avoids the extra vertical space of per-field titled borders).
+     */
+    @SuppressWarnings("serial")
+    private static class ParameterDialog extends AbstractOkCancelDialog {
+
+        private final List<ITextComponent<?>> fields;
+
+        ParameterDialog(String title, List<ITextComponent<?>> fields) {
+            super(title);
+            this.fields = fields;
+
+            Container contentPane = getContentPane();
+            JPanel topPane = new JPanel();
+            topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+            topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            topPane.add(createParameterPane());
+            topPane.add(createButtonPane2());
+            contentPane.add(topPane);
+
+            pack();
+            setLocationRelativeTo(Mediator.getUI().getContentPane());
+            setVisible(true);
+        }
+
+        private JPanel createParameterPane() {
+            JPanel panel = new JPanel(new GridBagLayout());
+            GridBagConstraints labelConstraints = new GridBagConstraints();
+            labelConstraints.gridx = 0;
+            labelConstraints.anchor = GridBagConstraints.EAST;
+            labelConstraints.insets = new Insets(2, 0, 2, 6);
+
+            GridBagConstraints fieldConstraints = new GridBagConstraints();
+            fieldConstraints.gridx = 1;
+            fieldConstraints.weightx = 1.0;
+            fieldConstraints.fill = GridBagConstraints.HORIZONTAL;
+            fieldConstraints.insets = new Insets(2, 0, 2, 0);
+
+            int row = 0;
+            for (ITextComponent<?> field : fields) {
+                labelConstraints.gridy = row;
+                fieldConstraints.gridy = row;
+
+                panel.add(new JLabel(field.getName() + ":"), labelConstraints);
+
+                JComponent comp = field.getUIComponent();
+                comp.setBorder(BorderFactory.createEmptyBorder());
+                if (field.isReadOnly()) {
+                    field.setEditable(false);
+                }
+                tightenFieldHeight(comp);
+                panel.add(comp, fieldConstraints);
+                row++;
+            }
+            return panel;
+        }
+
+        private static void tightenFieldHeight(JComponent comp) {
+            Dimension pref = comp.getPreferredSize();
+            int height = Math.min(pref.height, 24);
+            comp.setPreferredSize(new Dimension(pref.width, height));
+            comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+        }
+
+        @Override
+        protected void helpAction() {
+            Help.openPluginHelp(DOC_NAME);
+        }
+
+        @Override
+        protected void cancelAction() {
+            // Default cancelled remains true.
+        }
+
+        @Override
+        protected void okAction() {
+            for (ITextComponent<?> field : fields) {
+                if (field.getValue() == null || !field.canBeEmpty()
+                        && field.getStringValue().trim().length() == 0) {
+                    String errorMessage = "Invalid value entered in "
+                            + field.getName() + ".";
+                    if (field instanceof NumberFieldBase<?>) {
+                        NumberFieldBase<?> nf = (NumberFieldBase<?>) field;
+                        if (nf.getMin() == null && nf.getMax() != null) {
+                            errorMessage += "\nOnly values <= " + nf.getMax()
+                                    + " allowed.";
+                        } else if (nf.getMin() != null && nf.getMax() == null) {
+                            errorMessage += "\nOnly values >= " + nf.getMin()
+                                    + " allowed.";
+                        } else if (nf.getMin() != null && nf.getMax() != null) {
+                            errorMessage += "\nOnly values between "
+                                    + nf.getMin() + " and " + nf.getMax()
+                                    + " allowed.";
+                        }
+                    }
+                    MessageBox.showErrorDialog(this, getTitle(), errorMessage);
+                    return;
+                }
+            }
+            cancelled = false;
+            setVisible(false);
+            dispose();
+        }
     }
 
     private static String resolveStarLabel() {
@@ -328,7 +481,7 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         if (lastImportFile != null) {
             chooser.setSelectedFile(lastImportFile);
         }
-        if (chooser.showOpenDialog(Mediator.getUI().getContentPane())
+        if (chooser.showOpenDialog(DocumentManager.findActiveWindow())
                 != JFileChooser.APPROVE_OPTION) {
             return null;
         }
@@ -407,6 +560,14 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
         return new EphemerisDefaults(EPHEMERIS_MANUAL, 0, 0);
     }
 
+    private static ISeriesInfoProvider currentSeriesInfo() {
+        Mediator mediator = Mediator.getInstance();
+        if (mediator.getValidObservationCategoryMap() == null) {
+            return null;
+        }
+        return mediator.getObservationPlotModel(mediator.getAnalysisType());
+    }
+
     private static StarInfo latestStarInfo() {
         List<NewStarMessage> msgs = Mediator.getInstance()
                 .getNewStarMessageList();
@@ -482,23 +643,35 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
 
         private final Result result;
         private final LinearFit linearFit;
-        private final TwoSegmentFit twoSegmentFit;
+        private TwoSegmentFit twoSegmentFit;
         private final QuadraticFit quadraticFit;
         private final YIntervalSeries ocSeries = new YIntervalSeries("O-C");
+        private final YIntervalRenderer ocRenderer = createOcRenderer();
+        private final XYLineAndShapeRenderer fitRenderer = createFitRenderer();
         private final ChartPanel chartPanel;
         private final JRadioButton cycleAxisButton;
         private final JRadioButton timeAxisButton;
+        private final JLabel fitSummaryLabel;
+        private final JTextField breakCycleField;
 
         OCAnalysisResultDialog(String seriesName, Result result,
-                LinearFit linearFit, TwoSegmentFit twoSegmentFit,
-                QuadraticFit quadraticFit) {
+                LinearFit linearFit, QuadraticFit quadraticFit) {
             super(org.aavso.tools.vstar.ui.mediator.DocumentManager
                     .findActiveWindow(), "O-C Analysis: " + seriesName,
                     ModalityType.MODELESS);
             this.result = result;
             this.linearFit = linearFit;
-            this.twoSegmentFit = twoSegmentFit;
+            this.twoSegmentFit = null;
             this.quadraticFit = quadraticFit;
+            fitSummaryLabel = new JLabel(buildFitSummaryHtml());
+            breakCycleField = new JTextField(6);
+            breakCycleField.setBorder(BorderFactory.createTitledBorder(
+                    "Break cycle (optional)"));
+            breakCycleField.setToolTipText(
+                    "Cycle number where the O-C trend appears to change "
+                            + "(Foster ch. 13). Leave blank for a single "
+                            + "linear fit only.");
+
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
             ActionListener dismissListener = new ActionListener() {
@@ -533,6 +706,9 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
                     "O-C diagram", XAxisMode.CYCLE.label, "O-C (days)",
                     new YIntervalSeriesCollection(), PlotOrientation.VERTICAL,
                     false, true, false);
+            XYPlot plot = chart.getXYPlot();
+            plot.setRenderer(0, ocRenderer);
+            plot.setRenderer(1, fitRenderer);
             chartPanel = new ChartPanel(chart);
             chartPanel.setPreferredSize(new Dimension(640, 360));
 
@@ -581,7 +757,102 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
             return pane;
         }
 
-        private JScrollPane createFitPane() {
+        private JPanel createFitPane() {
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+            panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+            JPanel twoSegmentPane = new JPanel();
+            twoSegmentPane.setLayout(new BoxLayout(twoSegmentPane,
+                    BoxLayout.LINE_AXIS));
+            twoSegmentPane.setBorder(BorderFactory.createTitledBorder(
+                    "Two-segment fit (optional)"));
+            twoSegmentPane.add(breakCycleField);
+            twoSegmentPane.add(Box.createHorizontalStrut(8));
+            JButton applyTwoSegmentButton = new JButton("Apply");
+            applyTwoSegmentButton.setToolTipText(
+                    "Fit separate lines before and after the break cycle");
+            applyTwoSegmentButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    applyTwoSegmentFit();
+                }
+            });
+            twoSegmentPane.add(applyTwoSegmentButton);
+            twoSegmentPane.add(Box.createHorizontalStrut(8));
+            int minCycle = minCycle(result.points);
+            int maxCycle = maxCycle(result.points);
+            JLabel hintLabel = new JLabel(String.format(
+                    "Cycles %d–%d; need ≥2 points each side of break",
+                    minCycle, maxCycle));
+            twoSegmentPane.add(hintLabel);
+            panel.add(twoSegmentPane);
+
+            JScrollPane pane = new JScrollPane(fitSummaryLabel);
+            pane.setPreferredSize(new Dimension(640, 200));
+            panel.add(pane);
+            return panel;
+        }
+
+        private void applyTwoSegmentFit() {
+            String text = breakCycleField.getText().trim();
+            if (text.isEmpty()) {
+                twoSegmentFit = null;
+                fitSummaryLabel.setText(buildFitSummaryHtml());
+                refreshChart();
+                updateExportHolder();
+                return;
+            }
+            int breakCycle;
+            try {
+                breakCycle = Integer.parseInt(text);
+            } catch (NumberFormatException ex) {
+                MessageBox.showErrorDialog("O-C Analysis",
+                        "Enter a whole-number cycle for the break, or leave "
+                                + "the field blank.");
+                return;
+            }
+            TwoSegmentFit fit = OCAnalysisLib.fitTwoSegment(result.points,
+                    breakCycle);
+            if (fit == null) {
+                MessageBox.showErrorDialog("O-C Analysis",
+                        "Could not fit two segments at cycle " + breakCycle
+                                + ". Need at least four O-C points total and "
+                                + "at least two on each side of the break.");
+                return;
+            }
+            twoSegmentFit = fit;
+            fitSummaryLabel.setText(buildFitSummaryHtml());
+            refreshChart();
+            updateExportHolder();
+        }
+
+        private void updateExportHolder() {
+            OCAnalysisExportHolder.setLatest(new OCAnalysisExportHolder.Bundle(
+                    result, linearFit, twoSegmentFit, quadraticFit));
+        }
+
+        private static int minCycle(List<Point> points) {
+            int min = Integer.MAX_VALUE;
+            for (Point p : points) {
+                if (p.cycle < min) {
+                    min = p.cycle;
+                }
+            }
+            return min;
+        }
+
+        private static int maxCycle(List<Point> points) {
+            int max = Integer.MIN_VALUE;
+            for (Point p : points) {
+                if (p.cycle > max) {
+                    max = p.cycle;
+                }
+            }
+            return max;
+        }
+
+        private String buildFitSummaryHtml() {
             StringBuilder buf = new StringBuilder("<html>");
             if (linearFit != null) {
                 buf.append("<p>");
@@ -609,10 +880,7 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
             buf.append("<p>A horizontal O-C trend suggests an epoch offset; a "
                     + "linear slope suggests a period correction (Foster, ch. 13).</p>");
             buf.append("</html>");
-            javax.swing.JLabel label = new javax.swing.JLabel(buf.toString());
-            JScrollPane pane = new JScrollPane(label);
-            pane.setPreferredSize(new Dimension(640, 240));
-            return pane;
+            return buf.toString();
         }
 
         private JPanel createSummaryPane() {
@@ -703,19 +971,30 @@ public class OCAnalysisTool extends ObservationToolPluginBase {
             JFreeChart chart = chartPanel.getChart();
             XYPlot plot = chart.getXYPlot();
             plot.setDataset(0, dataCollection);
-            plot.setRenderer(0, new YIntervalRenderer());
             plot.getDomainAxis().setLabel(mode.label);
 
             if (linearFit != null || twoSegmentFit != null) {
-                XYSeriesCollection fitCollection = buildFitSeries(mode, linearFit,
-                        twoSegmentFit);
-                plot.setDataset(1, fitCollection);
-                XYLineAndShapeRenderer fitRenderer = new XYLineAndShapeRenderer(
-                        true, false);
-                plot.setRenderer(1, fitRenderer);
+                plot.setDataset(1, buildFitSeries(mode, linearFit,
+                        twoSegmentFit));
             } else if (plot.getDatasetCount() > 1) {
                 plot.setDataset(1, null);
             }
+        }
+
+        private static YIntervalRenderer createOcRenderer() {
+            YIntervalRenderer renderer = new YIntervalRenderer();
+            renderer.setSeriesPaint(0, Color.BLUE);
+            renderer.setSeriesShape(0, new Ellipse2D.Double(-3.0, -3.0, 6.0, 6.0));
+            return renderer;
+        }
+
+        private static XYLineAndShapeRenderer createFitRenderer() {
+            XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(
+                    true, false);
+            renderer.setSeriesPaint(0, Color.RED);
+            renderer.setSeriesPaint(1, new Color(255, 128, 0));
+            renderer.setDefaultShapesVisible(false);
+            return renderer;
         }
 
         private XYSeriesCollection buildFitSeries(XAxisMode mode,
