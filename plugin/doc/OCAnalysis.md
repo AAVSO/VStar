@@ -57,20 +57,17 @@ Use this when you have a light curve in VStar and want times of eclipse minima
 (or maxima) measured from the data.
 
 **Suggested target:** **RZ Cas** (AUID `000-BBF-490`), a bright Algol-type
-eclipsing binary (EA). Period ≈ **1.20 d** (VSX), with a recent epoch, good
-AAVSO coverage, and a deep primary minimum suited to parabolic timing. With a
-current VSX ephemeris you should see **O-C near zero** (Foster’s “correct
-clock”); scatter reflects observation and timing noise, not Blazhko-style
-modulation.
+eclipsing binary (EA). Period ≈ **1.20 d** (VSX), good AAVSO **V** coverage,
+and a deep primary minimum suited to parabolic timing.
 
-**Suggested JD range:** **2460635 – 2460655** HJD (about 20 days, roughly
-17 eclipses). In the AID load dialog, enter those values as minimum and maximum
-JD, or the equivalent calendar dates (**2024-11-20** through **2024-12-10**).
-Select the **V** series (or **Visual** if you prefer).
+**Suggested JD range:** **2452700 – 2461000** HJD (about 22 years; calendar
+**2003-03-01** through **2025-11-20**). The AID holds **9000+ V** observations
+in this span. In the load dialog, enter those minimum and maximum JD values and
+select **V** only (clear other series checkboxes).
 
 1. Load the star from the AAVSO International Database (**File → New Star from
-   AAVSO Database…**): star name **RZ Cas**, JD range as above.
-2. Optional: refine period and epoch with **Period Analysis** or a **phase
+   AAVSO Database…**): star name **RZ Cas**, JD range and **V** series as above.
+2. Optional: refine period and epoch with **period analysis** or a **phase
    plot** if you plan to use **Phase plot** as the ephemeris source (see
    **Appendix B**). For this example, **Star metadata** (VSX period and epoch)
    is enough to start.
@@ -80,10 +77,10 @@ Select the **V** series (or **Visual** if you prefer).
 6. **Event:** Minimum (primary eclipse). **Timing method:** Parabolic
    interpolation. **Minimum observations per cycle:** 3 (defaults are fine if
    already set).
-7. Click **OK**, select the **V** (or Visual) series if prompted.
+7. Click **OK**, select the **V** series if prompted.
 8. On the **O-C diagram**, check the trend. Open **Fit summary** for linear
-   (and, if applicable, quadratic) interpretation text. Long-baseline EB O-C
-   work (apsidal motion, mass transfer) needs years of eclipse timings; see
+   (and, if applicable, quadratic) interpretation text. Over many years, EB O-C
+   can show real long-term effects (apsidal motion, mass transfer); see
    **Further reading** below.
 
 ![O-C Analysis parameter dialog](images/oc_parameter_dialog.png)
@@ -275,8 +272,7 @@ or semicolon separators. `#` comments allowed.
 
 ### Two-segment fit
 
-On **Fit summary** after results: enter **break cycle**, click **Apply**. Not
-in the initial parameter dialog. Needs ≥4 O-C points and ≥2 per segment.
+On **Fit summary** after results: enter **break cycle**, click **Apply**. Needs ≥4 O-C points and ≥2 per segment.
 
 ![Two-segment fit on O-C diagram](images/oc_two_segment.png)
 
