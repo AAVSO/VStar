@@ -52,6 +52,15 @@ imported timings for all six clocks).
 
 ## Examples
 
+These walkthroughs build on each other:
+
+| Example | Purpose |
+|---------|---------|
+| **1** | Real AID light curve → measure timings → export CSV → re-import timings (typical workflow on your own data) |
+| **2** | Bundled Foster clock 2 demo → validate the tool against a known O-C offset (no download or real star required) |
+
+Use **Appendix A** to validate the other Foster clocks or to import pre-computed timing files.
+
 ### Example 1 — O-C from loaded observations (AID data)
 
 Use this when you have a light curve in VStar and want times of eclipse minima
