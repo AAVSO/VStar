@@ -46,8 +46,9 @@ download URL matches your VStar version (see the
 4. Review the results dialog: **O-C diagram**, **Data table**, and **Fit
    summary**.
 
-See **Examples** for walkthroughs. Foster clock tutorials are in
-**Appendix A**.
+See **Examples** for walkthroughs. **Example 2** uses the optional demo
+observation source; **Appendix A** covers Foster validation (including
+imported timings for all six clocks).
 
 ## Examples
 
@@ -96,22 +97,32 @@ select **V** only (clear other series checkboxes).
 
 ![O-C results diagram](images/oc_results_diagram.png)
 
-### Example 2 — O-C from imported timings (Foster clock 2)
+### Example 2 — O-C from demo light curve (Foster clock 2)
 
-Use this when you already have times of maxima (no light curve required). This
-example reproduces Foster Table 13.1 clock 2 (constant O-C offset +0.0035 d).
+Use this to walk through Foster's clock analogy with bundled synthetic data —
+no real star or downloaded timing file required. This example loads Foster
+clock 2 light curves whose maxima match Table 13.1 and should yield a flat O-C
+offset of **+0.0035 d** (Table 13.2).
 
-1. Download [foster_clock2.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/foster_clock2.txt)
-   (save to disk; links in the published PDF use the same URL).
-2. **Tools → O-C Analysis…**
-3. **Data source:** Imported timings file → **OK** → select the file.
-4. **Period:** 1.0 d, **Epoch:** 2450000.0 HJD, **Event:** Maximum.
-5. Review results: O-C should be flat near **+0.0035 d** on every cycle (Foster
-   Table 13.2, clock 2).
+1. Install the optional **O-C Analysis demo data** plug-in if needed (see
+   **Installation**), then restart VStar.
+2. **File → O-C Analysis demo data…**
+3. **Demo scenario:** **Foster clock 2 — epoch offset** → **OK**.
+4. Read the load message. Note the **suggested ephemeris** for Foster test
+   theory: **P = 1.0 d**, **epoch = 2450000.0 HJD**, and the expected flat O-C
+   ≈ **+0.0035 d**.
+5. **Tools → O-C Analysis…**
+6. **Data source:** From observations.
+7. **Ephemeris source:** **Star metadata** (pre-fills the suggested period and
+   epoch from step 4). **Event:** Maximum. **Timing method:** Parabolic
+   interpolation (defaults are fine).
+8. Click **OK**, select the **V** series if prompted.
+9. Review results: O-C should be flat near **+0.0035 d** on every cycle (Foster
+   Table 13.2, clock 2). Open **Fit summary** for the linear-fit interpretation.
 
-The same timing files are in the VStar source tree at `plugin/doc/foster/` for
-local development. After the next docs publication they are also served from
-[aavso.github.io](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/).
+To validate the other Foster clocks from light curves, repeat steps 2–9 with a
+different **Demo scenario** (see **Appendix A**, demo scenario mapping). To
+validate from pre-computed times instead, use **Appendix A**, Method A.
 
 ![O-C Fit summary tab](images/oc_fit_summary.png)
 
@@ -120,7 +131,8 @@ local development. After the next docs publication they are also served from
 Foster discusses real variables (e.g. X Tri, SU Vir, Z Aur) with O-C diagrams
 built from published **times of maxima** over many cycles. Those examples need
 literature ephemerides and timing tables; they are not bundled with this
-plug-in. Use **Appendix A** for Foster’s six-clock validation set. For real
+plug-in. **Example 2** walks through Foster clock 2 via the demo source; use
+**Appendix A** for all six clocks (demo light curves or imported timings). For real
 stars, obtain timings from the literature or measure extrema from your own
 observations, then run O-C with **From observations** or **Imported timings**.
 
@@ -216,9 +228,14 @@ For each clock, download the timing file (links below), then:
 
 ### Method B — demo observation source
 
-1. **File → O-C Analysis demo data…** → pick a Foster clock.
-2. **Tools → O-C Analysis…** → **From observations**, suggested ephemeris.
-3. Compare to Table 13.2.
+See **Example 2** for Foster clock 2. For any clock:
+
+1. **File → O-C Analysis demo data…** → pick a Foster clock (labels match the
+   demo scenario mapping table above).
+2. **Tools → O-C Analysis…** → **From observations**; use the suggested
+   ephemeris from the load message (**Star metadata** pre-fills period and
+   epoch).
+3. Compare O-C and **Fit summary** to Table 13.2.
 
 ### Foster timing files (Table 13.1 → HJD)
 
@@ -319,6 +336,8 @@ On **Fit summary** after results: enter **break cycle**, click **Apply**. Needs 
 
 ## Version history
 
+- **1.5** — Example 2 uses O-C Analysis demo data (Foster clock 2); Foster
+  `.txt` downloads remain in Appendix A Method A only.
 - **1.4** — User-facing doc restructure: Plug-in Manager install, examples,
   appendices, Foster timings on aavso.github.io (absolute URLs), screenshot
   placeholders.
