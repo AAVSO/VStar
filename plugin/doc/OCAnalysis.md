@@ -89,9 +89,10 @@ select **V** only (clear other series checkboxes).
    comment lines.
 10. **Tools → O-C Analysis…** again (no star loaded is fine).
 11. **Data source:** Imported timings file → **OK** → select the CSV from step 9.
-12. Enter the same **Period** and **Epoch** as in step 5–6, **Event:** Minimum.
-    The O-C diagram should match step 8 — you have re-used the exported timings
-    without re-processing the AID light curve.
+12. Leave **Period**, **Epoch**, and **Event** at their defaults — an O-C export
+    CSV supplies these from its `# period=…, epoch=…` comment and `Event` column.
+    Click **OK** again. The O-C diagram should match step 8 without re-processing
+    the AID light curve.
 
 ![O-C Analysis parameter dialog](images/oc_parameter_dialog.png)
 
@@ -266,16 +267,18 @@ When **From observations** is selected:
 | **Star metadata** | Period and epoch from the **loaded star record** (often from an AID download or other source that supplies catalogue fields) |
 | **Manual entry** | Type period and epoch yourself |
 
-Disabled for **Imported timings** — enter period and epoch directly.
+Disabled for **Imported timings** — enter period and epoch directly, unless
+the file is an O-C export CSV (metadata is read from the file).
 
 ### Imported timings file format
 
 One timing per line: `cycle HJD [sigma]` or `HJD [sigma]`. Whitespace, comma,
 or semicolon separators. `#` comments allowed.
 
-You can also re-open a file saved with **Export CSV…** from a previous O-C run
-(the plug-in reads the `Cycle`, `O_HJD`, and `OC_sigma` columns and skips the
-header and comment lines).
+You can also re-open a file saved with **Export CSV…** from a previous O-C run.
+The tool reads timings from the data rows and, for export files, fills in
+**Period**, **Epoch**, and **Event** from the `# period=…, epoch=…` comment and
+the `Event` column (leave those fields blank in the parameter dialog).
 
 ### Timing methods (From observations)
 

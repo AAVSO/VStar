@@ -64,6 +64,7 @@ import org.aavso.tools.vstar.external.lib.OCAnalysisExportHolder;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.EventType;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.ImportedTiming;
+import org.aavso.tools.vstar.external.lib.OCAnalysisLib.ImportFileMetadata;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Parameters;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Point;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.QuadraticFit;
@@ -203,7 +204,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         fields.add(meanPercentField);
         fields.add(minObsField);
 
-        ParameterDialog paramDlg = new ParameterDialog(getDisplayName(), fields);
+        ParameterDialog paramDlg = new ParameterDialog(getDisplayName(), fields,
+                dataSourceField);
         if (paramDlg.isCancelled()) {
             return;
         }
@@ -238,6 +240,19 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             timingMethod = TimingMethod.PARABOLIC;
             meanPercent = 10;
             minObs = 1;
+            if (importLines != null) {
+                ImportFileMetadata meta = OCAnalysisLib
+                        .parseImportFileMetadata(importLines);
+                if (meta.period != null && meta.period > 0) {
+                    period = meta.period;
+                }
+                if (meta.epoch != null) {
+                    epoch = meta.epoch;
+                }
+                if (meta.eventType != null) {
+                    eventType = meta.eventType;
+                }
+            }
         } else {
             period = periodField.getValue();
             epoch = epochField.getValue();
@@ -249,7 +264,11 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         if (period == null || period <= 0 || epoch == null) {
             MessageBox.showErrorDialog(getDisplayName(),
-                    "A positive period and an epoch (HJD) are required.");
+                    fromImportedTimings
+                            ? "A positive period and an epoch (HJD) are required "
+                                    + "(enter in the dialog or use an O-C export CSV "
+                                    + "with # period= and epoch= comments)."
+                            : "A positive period and an epoch (HJD) are required.");
             return;
         }
 
@@ -372,10 +391,13 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
     private static class ParameterDialog extends AbstractOkCancelDialog {
 
         private final List<ITextComponent<?>> fields;
+        private final SelectableTextField dataSourceField;
 
-        ParameterDialog(String title, List<ITextComponent<?>> fields) {
+        ParameterDialog(String title, List<ITextComponent<?>> fields,
+                SelectableTextField dataSourceField) {
             super(title);
             this.fields = fields;
+            this.dataSourceField = dataSourceField;
 
             Container contentPane = getContentPane();
             JPanel topPane = new JPanel();
@@ -441,7 +463,11 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         @Override
         protected void okAction() {
+            boolean imported = DATA_IMPORTED.equals(dataSourceField.getValue());
             for (ITextComponent<?> field : fields) {
+                if (imported && isOptionalForImportFile(field.getName())) {
+                    continue;
+                }
                 if (field.getValue() == null || !field.canBeEmpty()
                         && field.getStringValue().trim().length() == 0) {
                     String errorMessage = "Invalid value entered in "
@@ -467,6 +493,12 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             cancelled = false;
             setVisible(false);
             dispose();
+        }
+
+        private static boolean isOptionalForImportFile(String fieldName) {
+            return "Period (days)".equals(fieldName)
+                    || "Epoch (HJD)".equals(fieldName)
+                    || "Event".equals(fieldName);
         }
     }
 

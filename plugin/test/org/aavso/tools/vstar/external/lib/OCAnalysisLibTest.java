@@ -376,6 +376,28 @@ public class OCAnalysisLibTest extends TestCase {
         assertTrue(Double.isNaN(timings.get(1).uncertaintyDays));
     }
 
+    public void testParseImportFileMetadataFromExportCsv() {
+        List<String> lines = Arrays.asList(
+                "# O-C Analysis export",
+                "# period=1.19525556, epoch=2460646.2029",
+                "Event,Cycle,O_HJD,C_HJD,OC_days,OC_sigma,ObsInCycle",
+                "MINIMUM,100,2460746.5,2460746.48,0.02,0.001,5");
+        OCAnalysisLib.ImportFileMetadata meta = OCAnalysisLib
+                .parseImportFileMetadata(lines);
+        assertEquals(1.19525556, meta.period, TOL);
+        assertEquals(2460646.2029, meta.epoch, TOL);
+        assertEquals(EventType.MINIMUM, meta.eventType);
+    }
+
+    public void testParseImportFileMetadataPlainTimingsEmpty() {
+        List<String> lines = Arrays.asList("0 2450000.0", "1 2450001.0");
+        OCAnalysisLib.ImportFileMetadata meta = OCAnalysisLib
+                .parseImportFileMetadata(lines);
+        assertNull(meta.period);
+        assertNull(meta.epoch);
+        assertNull(meta.eventType);
+    }
+
     private static double estimateSlope(List<Point> points) {
         if (points.size() < 2) {
             return Double.NaN;

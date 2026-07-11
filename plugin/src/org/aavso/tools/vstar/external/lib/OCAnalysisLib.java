@@ -297,6 +297,78 @@ public class OCAnalysisLib {
     }
 
     /**
+     * Optional ephemeris and event metadata from an O-C Analysis export CSV
+     * ({@code # period=…, epoch=…} comments and {@code Event} column).
+     */
+    public static final class ImportFileMetadata {
+        public final Double period;
+        public final Double epoch;
+        public final EventType eventType;
+
+        public ImportFileMetadata(Double period, Double epoch,
+                EventType eventType) {
+            this.period = period;
+            this.epoch = epoch;
+            this.eventType = eventType;
+        }
+    }
+
+    /**
+     * Read period, epoch, and event from O-C export comment/header lines, if
+     * present. Plain timing files return null fields.
+     */
+    public static ImportFileMetadata parseImportFileMetadata(
+            List<String> lines) {
+        Double period = null;
+        Double epoch = null;
+        EventType eventType = null;
+        if (lines == null) {
+            return new ImportFileMetadata(null, null, null);
+        }
+        for (String raw : lines) {
+            String line = raw.trim();
+            if (line.isEmpty()) {
+                continue;
+            }
+            if (line.startsWith("#")) {
+                int periodIdx = line.toLowerCase().indexOf("period=");
+                int epochIdx = line.toLowerCase().indexOf("epoch=");
+                if (periodIdx >= 0 && epochIdx > periodIdx) {
+                    try {
+                        String periodStr = line.substring(periodIdx + 7,
+                                line.indexOf(',', periodIdx)).trim();
+                        String epochStr = line.substring(epochIdx + 6).trim();
+                        period = Double.parseDouble(periodStr);
+                        epoch = Double.parseDouble(epochStr);
+                    } catch (NumberFormatException | IndexOutOfBoundsException ex) {
+                        // ignore malformed export comment
+                    }
+                }
+                continue;
+            }
+            String[] parts = line.split("[\\s,;]+");
+            if (parts.length < 1 || parts[0].equalsIgnoreCase("Event")) {
+                continue;
+            }
+            if (eventType == null) {
+                eventType = eventTypeFromExportName(parts[0]);
+            }
+        }
+        return new ImportFileMetadata(period, epoch, eventType);
+    }
+
+    private static EventType eventTypeFromExportName(String name) {
+        if (name == null || name.isEmpty()) {
+            return null;
+        }
+        try {
+            return EventType.valueOf(name.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+    }
+
+    /**
      * Parse imported timing lines. Each non-comment line is {@code cycle HJD
      * [sigma]} or {@code HJD [sigma]} (cycle inferred from ephemeris).
      */
