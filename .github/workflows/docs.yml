@@ -5,6 +5,7 @@
 # Publishes:
 #   docs/vstar/{snapshot,release}/user_manual/VStarUserManual.pdf
 #   docs/vstar/{snapshot,release}/plugin/*.pdf  (plugin docs + plugin dev guide)
+#   docs/vstar/{snapshot,release}/plugin/foster/*.txt  (O-C Foster sample timings)
 #
 # Triggers:
 #   - Any GitHub release publish (snapshot release or stable X.Y.Z release)
@@ -149,6 +150,11 @@ jobs:
             cp src_snapshot/plugin/doc/*.pdf \
                _site/docs/vstar/snapshot/plugin/
           fi
+          if [ -d src_snapshot/plugin/doc/foster ]; then
+            mkdir -p _site/docs/vstar/snapshot/plugin/foster
+            cp src_snapshot/plugin/doc/foster/*.txt \
+               _site/docs/vstar/snapshot/plugin/foster/
+          fi
         fi
 
         if [ "${{ steps.targets.outputs.build_release }}" = "true" ] && \
@@ -163,6 +169,11 @@ jobs:
           if ls src_release/plugin/doc/*.pdf 1>/dev/null 2>&1; then
             cp src_release/plugin/doc/*.pdf \
                _site/docs/vstar/release/plugin/
+          fi
+          if [ -d src_release/plugin/doc/foster ]; then
+            mkdir -p _site/docs/vstar/release/plugin/foster
+            cp src_release/plugin/doc/foster/*.txt \
+               _site/docs/vstar/release/plugin/foster/
           fi
         fi
 

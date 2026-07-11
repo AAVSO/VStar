@@ -54,6 +54,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 
@@ -664,6 +665,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             this.twoSegmentFit = null;
             this.quadraticFit = quadraticFit;
             fitSummaryLabel = new JLabel(buildFitSummaryHtml());
+            fitSummaryLabel.setVerticalAlignment(SwingConstants.TOP);
             breakCycleField = new JTextField(6);
             breakCycleField.setBorder(BorderFactory.createTitledBorder(
                     "Break cycle (optional)"));
@@ -789,7 +791,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             panel.add(twoSegmentPane);
 
             JScrollPane pane = new JScrollPane(fitSummaryLabel);
-            pane.setPreferredSize(new Dimension(640, 200));
+            pane.setPreferredSize(new Dimension(640, 220));
+            pane.getVerticalScrollBar().setUnitIncrement(16);
             panel.add(pane);
             return panel;
         }
@@ -853,34 +856,161 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         }
 
         private String buildFitSummaryHtml() {
-            StringBuilder buf = new StringBuilder("<html>");
+            StringBuilder buf = new StringBuilder();
+            appendHtmlBodyStart(buf);
             if (linearFit != null) {
-                buf.append("<p>");
-                buf.append(OCAnalysisLib.interpretLinearFit(linearFit,
-                        result.parameters.period));
-                buf.append("</p>");
+                appendHtmlSection(buf, "Linear fit (O-C vs cycle)");
+                appendLinearFitDetails(buf, linearFit, result.parameters.period);
             } else {
-                buf.append("<p>Not enough points for a linear fit.</p>");
+                appendHtmlParagraph(buf, "Not enough points for a linear fit.");
             }
             if (twoSegmentFit != null) {
-                buf.append("<p>");
-                buf.append(OCAnalysisLib.interpretTwoSegmentFit(twoSegmentFit,
-                        result.parameters.period));
-                buf.append("</p>");
+                appendHtmlSection(buf, "Two-segment fit (break at cycle "
+                        + twoSegmentFit.breakCycle + ")");
+                appendHtmlSubsection(buf, "First segment");
+                appendLinearFitDetails(buf, twoSegmentFit.firstSegment,
+                        result.parameters.period);
+                appendHtmlSubsection(buf, "Second segment");
+                appendLinearFitDetails(buf, twoSegmentFit.secondSegment,
+                        result.parameters.period);
+                if (Math.abs(twoSegmentFit.firstSegment.slope
+                        - twoSegmentFit.secondSegment.slope) > 0) {
+                    appendHtmlParagraph(buf,
+                            "Different slopes suggest a period change near "
+                                    + "cycle " + twoSegmentFit.breakCycle
+                                    + " (Foster, ch. 13).");
+                } else {
+                    appendHtmlParagraph(buf,
+                            "Parallel segments suggest an epoch jump with "
+                                    + "unchanged period (Foster, ch. 13).");
+                }
             }
             if (quadraticFit != null) {
-                buf.append("<p>");
-                buf.append(OCAnalysisLib.interpretQuadraticFit(quadraticFit,
-                        result.parameters.period));
-                buf.append("</p>");
+                appendHtmlSection(buf, "Quadratic fit (O-C vs cycle)");
+                appendQuadraticFitDetails(buf, quadraticFit);
             }
-            buf.append("<p>");
-            buf.append(OCAnalysisLib.getPeriodScatterWarning());
-            buf.append("</p>");
-            buf.append("<p>A horizontal O-C trend suggests an epoch offset; a "
-                    + "linear slope suggests a period correction (Foster, ch. 13).</p>");
-            buf.append("</html>");
+            appendHtmlSection(buf, "Notes");
+            appendHtmlParagraph(buf, OCAnalysisLib.getPeriodScatterWarning());
+            appendHtmlParagraph(buf,
+                    "A horizontal O-C trend suggests an epoch offset; a "
+                            + "linear slope suggests a period correction "
+                            + "(Foster, ch. 13).");
+            appendHtmlBodyEnd(buf);
             return buf.toString();
+        }
+
+        private static void appendHtmlBodyStart(StringBuilder buf) {
+            buf.append("<html><body style='width:620px;font-family:sans-serif;"
+                    + "font-size:small'>");
+        }
+
+        private static void appendHtmlBodyEnd(StringBuilder buf) {
+            buf.append("</body></html>");
+        }
+
+        private static void appendHtmlSection(StringBuilder buf, String title) {
+            buf.append("<p style='margin-top:10px;margin-bottom:2px'><b>")
+                    .append(escapeHtml(title)).append("</b></p>");
+        }
+
+        private static void appendHtmlSubsection(StringBuilder buf,
+                String title) {
+            buf.append("<p style='margin-top:4px;margin-bottom:2px;"
+                    + "margin-left:12px;font-style:italic'>")
+                    .append(escapeHtml(title)).append("</p>");
+        }
+
+        private static void appendHtmlParagraph(StringBuilder buf, String text) {
+            buf.append("<p style='margin-top:2px;margin-bottom:2px;"
+                    + "margin-left:12px'>").append(escapeHtml(text))
+                    .append("</p>");
+        }
+
+        private static void appendHtmlDetail(StringBuilder buf, String label,
+                String value) {
+            buf.append("<p style='margin-top:1px;margin-bottom:1px;"
+                    + "margin-left:24px'>")
+                    .append("<b>").append(escapeHtml(label)).append(":</b> ")
+                    .append(escapeHtml(value)).append("</p>");
+        }
+
+        private static void appendLinearFitDetails(StringBuilder buf,
+                LinearFit fit, double modelPeriod) {
+            String slope = formatDays(fit.slope);
+            if (Math.abs(fit.slope) > 0) {
+                appendHtmlDetail(buf, "Slope", slope + " d/cycle");
+                appendHtmlDetail(buf, "Corrected period",
+                        formatDays(modelPeriod + fit.slope) + " d (ΔP ≈ "
+                                + slope + " d)");
+            } else {
+                appendHtmlDetail(buf, "Slope",
+                        slope + " d/cycle (period matches the ephemeris)");
+            }
+            appendHtmlDetail(buf, "Intercept / epoch correction",
+                    formatDays(fit.intercept) + " d");
+            appendHtmlDetail(buf, "RMS", formatDays(fit.rms) + " d");
+        }
+
+        private static void appendQuadraticFitDetails(StringBuilder buf,
+                QuadraticFit fit) {
+            double deltaPPerCycle = 2.0 * fit.quadratic;
+            appendHtmlDetail(buf, "Epoch correction",
+                    formatDays(fit.constant) + " d");
+            appendHtmlDetail(buf, "Linear coefficient",
+                    formatDays(fit.linear) + " d/cycle");
+            appendHtmlDetail(buf, "Starting period correction",
+                    formatDays(fit.linear - fit.quadratic) + " d");
+            appendHtmlDetail(buf, "Quadratic coefficient",
+                    formatDays(fit.quadratic) + " d/cycle²");
+            appendHtmlDetail(buf, "ΔP per cycle",
+                    formatDays(deltaPPerCycle)
+                            + " d (evolving period, Foster §13.4)");
+            appendHtmlDetail(buf, "RMS", formatDays(fit.rms) + " d");
+        }
+
+        private static String formatDays(double days) {
+            return NumericPrecisionPrefs.formatOther(days);
+        }
+
+        private static String escapeHtml(String text) {
+            if (text == null) {
+                return "";
+            }
+            return text.replace("&", "&amp;").replace("<", "&lt;")
+                    .replace(">", "&gt;");
+        }
+
+        private String buildSummaryHtml() {
+            StringBuilder buf = new StringBuilder();
+            appendHtmlBodyStart(buf);
+            buf.append("<table cellpadding='2' cellspacing='0' "
+                    + "style='margin-left:4px'>");
+            appendSummaryRow(buf, "Ephemeris",
+                    "period = " + formatDays(result.parameters.period)
+                            + " d, epoch = "
+                            + NumericPrecisionPrefs.formatTime(
+                                    result.parameters.epoch)
+                            + " HJD");
+            appendSummaryRow(buf, "Data",
+                    result.points.size() + " O-C points");
+            if (linearFit != null) {
+                appendSummaryRow(buf, "Linear fit",
+                        "slope = " + formatDays(linearFit.slope)
+                                + " d/cycle, intercept = "
+                                + formatDays(linearFit.intercept) + " d, RMS = "
+                                + formatDays(linearFit.rms) + " d");
+            }
+            buf.append("</table>");
+            appendHtmlBodyEnd(buf);
+            return buf.toString();
+        }
+
+        private static void appendSummaryRow(StringBuilder buf, String label,
+                String value) {
+            buf.append("<tr><td valign='top' style='padding-right:12px'>")
+                    .append("<b>").append(escapeHtml(label)).append("</b>")
+                    .append("</td><td valign='top'>")
+                    .append(escapeHtml(value)).append("</td></tr>");
         }
 
         private JPanel createSummaryPane() {
@@ -888,23 +1018,9 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
             panel.setBorder(BorderFactory.createTitledBorder("Summary"));
 
-            StringBuilder buf = new StringBuilder();
-            buf.append("Points: ");
-            buf.append(result.points.size());
-            buf.append("; period = ");
-            buf.append(NumericPrecisionPrefs.formatOther(result.parameters.period));
-            buf.append(" d; epoch = ");
-            buf.append(NumericPrecisionPrefs.formatTime(result.parameters.epoch));
-            buf.append(" HJD.");
-            if (linearFit != null) {
-                buf.append(" Slope = ");
-                buf.append(NumericPrecisionPrefs.formatOther(linearFit.slope));
-                buf.append(" d/cycle; intercept = ");
-                buf.append(NumericPrecisionPrefs.formatOther(linearFit.intercept));
-                buf.append(" d.");
-            }
-
-            panel.add(new javax.swing.JLabel(buf.toString()));
+            JLabel summaryLabel = new JLabel(buildSummaryHtml());
+            summaryLabel.setVerticalAlignment(SwingConstants.TOP);
+            panel.add(summaryLabel);
             return panel;
         }
 
