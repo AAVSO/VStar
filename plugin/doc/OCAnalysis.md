@@ -53,26 +53,38 @@ See **Examples** for walkthroughs. Foster clock tutorials are in
 
 ### Example 1 — O-C from loaded observations (AID data)
 
-Use this when you have a light curve in VStar and want times of maxima (or
-minima) measured from the data.
+Use this when you have a light curve in VStar and want times of eclipse minima
+(or maxima) measured from the data.
 
-1. Load a star from the AAVSO International Database (**File → New Star from
-   AAVSO Database…**) or from an AAVSO-format file. Choose a short-period
-   variable with many cycles of V (or other) data.
+**Suggested target:** **RZ Cas** (AUID `000-BBF-490`), a bright Algol-type
+eclipsing binary (EA). Period ≈ **1.20 d** (VSX), with a recent epoch, good
+AAVSO coverage, and a deep primary minimum suited to parabolic timing. With a
+current VSX ephemeris you should see **O-C near zero** (Foster’s “correct
+clock”); scatter reflects observation and timing noise, not Blazhko-style
+modulation.
+
+**Suggested JD range:** **2460635 – 2460655** HJD (about 20 days, roughly
+17 eclipses). In the AID load dialog, enter those values as minimum and maximum
+JD, or the equivalent calendar dates (**2024-11-20** through **2024-12-10**).
+Select the **V** series (or **Visual** if you prefer).
+
+1. Load the star from the AAVSO International Database (**File → New Star from
+   AAVSO Database…**): star name **RZ Cas**, JD range as above.
 2. Optional: refine period and epoch with **Period Analysis** or a **phase
-   plot** if you plan to use **Document period** as the ephemeris source (see
-   **Appendix B**).
+   plot** if you plan to use **Phase plot** as the ephemeris source (see
+   **Appendix B**). For this example, **Star metadata** (VSX period and epoch)
+   is enough to start.
 3. **Tools → O-C Analysis…**
 4. **Data source:** From observations.
-5. **Ephemeris source:** usually **Star metadata** if period and epoch came with
-   the download; use **Document period (phase plot / Period Analysis)** if you
-   set period and epoch from the phase plot or period analysis; otherwise
-   **Manual entry**.
-6. Set **Event**, **Timing method**, and **Minimum observations per cycle**
-   (parabolic interpolation and 3 minima per cycle are reasonable defaults).
-7. Click **OK**, select the observation series if prompted.
+5. **Ephemeris source:** **Star metadata** (VSX values loaded with the star).
+6. **Event:** Minimum (primary eclipse). **Timing method:** Parabolic
+   interpolation. **Minimum observations per cycle:** 3 (defaults are fine if
+   already set).
+7. Click **OK**, select the **V** (or Visual) series if prompted.
 8. On the **O-C diagram**, check the trend. Open **Fit summary** for linear
-   (and, if applicable, quadratic) interpretation text.
+   (and, if applicable, quadratic) interpretation text. Long-baseline EB O-C
+   work (apsidal motion, mass transfer) needs years of eclipse timings; see
+   **Further reading** below.
 
 ![O-C Analysis parameter dialog](images/oc_parameter_dialog.png)
 
@@ -97,14 +109,19 @@ local development. After the next docs publication they are also served from
 
 ![O-C Fit summary tab](images/oc_fit_summary.png)
 
-### Further reading — X Tri and other real stars
+### Further reading — X Tri, eclipsing binaries, and other real stars
 
 Foster discusses real variables (e.g. X Tri, SU Vir, Z Aur) with O-C diagrams
 built from published **times of maxima** over many cycles. Those examples need
 literature ephemerides and timing tables; they are not bundled with this
 plug-in. Use **Appendix A** for Foster’s six-clock validation set. For real
-stars, obtain timings from the literature or measure maxima from your own
+stars, obtain timings from the literature or measure extrema from your own
 observations, then run O-C with **From observations** or **Imported timings**.
+
+For **eclipsing binaries**, decades of **eclipse timings** can reveal
+**apsidal motion** (sinusoidal O-C from general relativity and tidal distortion)
+or **period change** from mass transfer; those effects need much longer baselines
+than Example 1.
 
 ## Results dialog
 
@@ -222,7 +239,7 @@ When **From observations** is selected:
 
 | UI label | Meaning |
 |----------|---------|
-| **Document period (phase plot / PA)** | Period and epoch stored in the current VStar **document** from the **phase plot** or **Period Analysis** (PA), not from VSX by itself |
+| **Phase plot** | Period and epoch from the **active phase plot** (View → Phase Plot, or Period Analysis → New Phase Plot) |
 | **Star metadata** | Period and epoch from the **loaded star record** (often from an AID download or other source that supplies catalogue fields) |
 | **Manual entry** | Type period and epoch yourself |
 

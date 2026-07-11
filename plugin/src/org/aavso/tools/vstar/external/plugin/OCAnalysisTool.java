@@ -116,7 +116,10 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
     private static final String DOC_NAME = "OCAnalysis.md";
 
-    private static final String EPHEMERIS_PHASE = "Document period (phase plot / PA)";
+    private static final String EPHEMERIS_PHASE = "Phase plot";
+    private static final String EPHEMERIS_PHASE_TOOLTIP =
+            "Period and epoch from the active phase plot. Set via Phase Plot or "
+                    + "Period Analysis → New Phase Plot.";
     private static final String EPHEMERIS_STAR = "Star metadata";
     private static final String EPHEMERIS_MANUAL = "Manual entry";
 
@@ -139,6 +142,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 EPHEMERIS_STAR, EPHEMERIS_MANUAL);
         SelectableTextField ephemerisSourceField = new SelectableTextField(
                 "Ephemeris source", ephemerisSources, defaults.sourceLabel);
+        ephemerisSourceField.getUIComponent().setToolTipText(
+                EPHEMERIS_PHASE_TOOLTIP);
 
         DoubleField periodField = new DoubleField("Period (days)", 0.0, null,
                 defaults.period > 0 ? defaults.period : null);
