@@ -314,8 +314,20 @@ public class OCAnalysisLib {
             if (parts.length < 1) {
                 continue;
             }
+            if (parts[0].equalsIgnoreCase("Event")) {
+                continue;
+            }
             try {
-                if (parts.length >= 2 && looksLikeInteger(parts[0])) {
+                if (parts.length >= 3 && looksLikeInteger(parts[1])
+                        && !looksLikeInteger(parts[0])) {
+                    int cycle = Integer.parseInt(parts[1]);
+                    double hjd = Double.parseDouble(parts[2]);
+                    double sigma = Double.NaN;
+                    if (parts.length > 6 && !parts[5].isEmpty()) {
+                        sigma = Double.parseDouble(parts[5]);
+                    }
+                    timings.add(new ImportedTiming(cycle, hjd, sigma));
+                } else if (parts.length >= 2 && looksLikeInteger(parts[0])) {
                     int cycle = Integer.parseInt(parts[0]);
                     double hjd = Double.parseDouble(parts[1]);
                     double sigma = parts.length >= 3

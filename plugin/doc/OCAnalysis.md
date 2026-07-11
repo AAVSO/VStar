@@ -82,6 +82,15 @@ select **V** only (clear other series checkboxes).
    (and, if applicable, quadratic) interpretation text. Over many years, EB O-C
    can show real long-term effects (apsidal motion, mass transfer); see
    **Further reading** below.
+9. Click **Export CSV…** in the results dialog and save the file (e.g.
+   `rz_cas_timings.csv`). The export lists each timed eclipse (`Cycle`,
+   `O_HJD`, optional `OC_sigma`) plus O-C columns and fit metadata in `#`
+   comment lines.
+10. **Tools → O-C Analysis…** again (no star loaded is fine).
+11. **Data source:** Imported timings file → **OK** → select the CSV from step 9.
+12. Enter the same **Period** and **Epoch** as in step 5–6, **Event:** Minimum.
+    The O-C diagram should match step 8 — you have re-used the exported timings
+    without re-processing the AID light curve.
 
 ![O-C Analysis parameter dialog](images/oc_parameter_dialog.png)
 
@@ -246,6 +255,10 @@ Disabled for **Imported timings** — enter period and epoch directly.
 
 One timing per line: `cycle HJD [sigma]` or `HJD [sigma]`. Whitespace, comma,
 or semicolon separators. `#` comments allowed.
+
+You can also re-open a file saved with **Export CSV…** from a previous O-C run
+(the plug-in reads the `Cycle`, `O_HJD`, and `OC_sigma` columns and skips the
+header and comment lines).
 
 ### Timing methods (From observations)
 

@@ -358,6 +358,24 @@ public class OCAnalysisLibTest extends TestCase {
         assertTrue(csv.contains("MAXIMUM,0,"));
     }
 
+    public void testParseImportedTimingsFromExportCsv() throws IOException {
+        double epoch = 2450000.0;
+        List<String> lines = Arrays.asList(
+                "# O-C Analysis export",
+                "# period=1.19525556, epoch=2460646.2029",
+                "Event,Cycle,O_HJD,C_HJD,OC_days,OC_sigma,ObsInCycle",
+                "MINIMUM,100,2460746.5,2460746.48,0.02,0.001,5",
+                "MINIMUM,101,2460747.7,2460747.68,0.02,,3");
+        List<ImportedTiming> timings = OCAnalysisLib.parseImportedTimings(lines,
+                epoch, 1.19525556);
+        assertEquals(2, timings.size());
+        assertEquals(Integer.valueOf(100), timings.get(0).cycle);
+        assertEquals(2460746.5, timings.get(0).observedTime, TOL);
+        assertEquals(0.001, timings.get(0).uncertaintyDays, TOL);
+        assertEquals(Integer.valueOf(101), timings.get(1).cycle);
+        assertTrue(Double.isNaN(timings.get(1).uncertaintyDays));
+    }
+
     private static double estimateSlope(List<Point> points) {
         if (points.size() < 2) {
             return Double.NaN;
