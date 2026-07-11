@@ -361,7 +361,7 @@ public class OCAnalysisLibTest extends TestCase {
     public void testParseImportedTimingsFromExportCsv() throws IOException {
         double epoch = 2450000.0;
         List<String> lines = Arrays.asList(
-                "# O-C Analysis export",
+                "# O-C diagram export",
                 "# period=1.19525556, epoch=2460646.2029",
                 "Event,Cycle,O_HJD,C_HJD,OC_days,OC_sigma,ObsInCycle",
                 "MINIMUM,100,2460746.5,2460746.48,0.02,0.001,5",
@@ -378,7 +378,7 @@ public class OCAnalysisLibTest extends TestCase {
 
     public void testParseImportFileMetadataFromExportCsv() {
         List<String> lines = Arrays.asList(
-                "# O-C Analysis export",
+                "# O-C diagram export",
                 "# period=1.19525556, epoch=2460646.2029",
                 "Event,Cycle,O_HJD,C_HJD,OC_days,OC_sigma,ObsInCycle",
                 "MINIMUM,100,2460746.5,2460746.48,0.02,0.001,5");
@@ -396,6 +396,19 @@ public class OCAnalysisLibTest extends TestCase {
         assertNull(meta.period);
         assertNull(meta.epoch);
         assertNull(meta.eventType);
+    }
+
+    public void testParseImportFileMetadataLegacyExportHeader() {
+        List<String> lines = Arrays.asList(
+                "# O-C Analysis export",
+                "# period=1.0, epoch=2450000.0",
+                "Event,Cycle,O_HJD,C_HJD,OC_days",
+                "MAXIMUM,0,2450000.0,2450000.0,0.0");
+        OCAnalysisLib.ImportFileMetadata meta = OCAnalysisLib
+                .parseImportFileMetadata(lines);
+        assertEquals(1.0, meta.period, TOL);
+        assertEquals(2450000.0, meta.epoch, TOL);
+        assertEquals(EventType.MAXIMUM, meta.eventType);
     }
 
     private static double estimateSlope(List<Point> points) {

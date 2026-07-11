@@ -1,11 +1,11 @@
-# O-C Analysis Plug-in
+# O-C diagram plug-in
 
 ## Overview
 
 This plug-in computes **O-C** (observed minus computed) values for times of
-light-curve extrema and displays an O-C diagram. O-C analysis tests a fixed
-ephemeris (period and epoch) against observed times of maximum (or minimum)
-light.
+light-curve extrema and displays an O-C diagram. A fixed test ephemeris (period
+and epoch) is compared against observed times of maximum (or minimum) light to
+reveal timing errors.
 
 Primary reference: Grant Foster, *Analyzing Light Curves*, chapter 13 (AAVSO
 Variable Star Analytics; clock analogy in Tables 13.1–13.2).
@@ -14,20 +14,20 @@ Two plug-ins are provided.
 
 | Plug-in | Menu | Role |
 |---------|------|------|
-| O-C Analysis | **Tools → O-C Analysis…** | Main analysis tool (includes **Export CSV…** in results) |
-| O-C Analysis demo data | **File → O-C Analysis demo data…** | Optional Foster clock light curves |
+| O-C diagram | **Tools → O-C diagram…** | Main O-C diagram tool (includes **Export CSV…** in results) |
+| O-C demo data | **File → O-C demo data…** | Optional Foster clock light curves |
 
-O-C Analysis can be opened from the **Tools** menu even when
+The O-C diagram tool can be opened from the **Tools** menu even when
 no observations have been loaded, since apart from a **From
 observations** option, an **Imported timings file** option allows a timings file to be opened instead.
 
-Published help (PDF): [O-C Analysis on aavso.github.io](https://aavso.github.io/VStar/docs/vstar/release/plugin/OCAnalysis.pdf).
+Published help (PDF): [O-C diagram on aavso.github.io](https://aavso.github.io/VStar/docs/vstar/release/plugin/OCAnalysis.pdf).
 
 ## Installation
 
 1. In VStar, choose **Tools → Plug-in Manager…**
-2. Select and install **O-C Analysis** (required). Optionally install **O-C
-   Analysis demo data** for Foster tutorial light curves.
+2. Select and install **O-C diagram** (required). Optionally install **O-C
+   demo data** for Foster tutorial light curves.
 3. **Close and restart VStar** so new menu items appear.
 
 See also
@@ -39,7 +39,7 @@ download URL matches your VStar version (see the
 
 ## Quick start
 
-1. **Tools → O-C Analysis…**
+1. **Tools → O-C diagram…**
 2. Set **data source**, ephemeris (period and epoch), and other options in the
    parameter dialog.
 3. Click **OK** (a file chooser opens if you chose **Imported timings file**).
@@ -81,7 +81,7 @@ select **V** only (clear other series checkboxes).
    plot** if you plan to use **Phase plot** as the ephemeris source (see
    **Appendix B**). For this example, **Star metadata** (VSX period and epoch)
    is enough to start.
-3. **Tools → O-C Analysis…**
+3. **Tools → O-C diagram…**
 4. **Data source:** From observations.
 5. **Ephemeris source:** **Star metadata** (VSX values loaded with the star).
 6. **Event:** Minimum (primary eclipse). **Timing method:** Parabolic
@@ -96,14 +96,14 @@ select **V** only (clear other series checkboxes).
    `rz_cas_timings.csv`). The export lists each timed eclipse (`Cycle`,
    `O_HJD`, optional `OC_sigma`) plus O-C columns and fit metadata in `#`
    comment lines.
-10. **Tools → O-C Analysis…** again (no star loaded is fine).
+10. **Tools → O-C diagram…** again (no star loaded is fine).
 11. **Data source:** Imported timings file → **OK** → select the CSV from step 9.
 12. Leave **Period**, **Epoch**, and **Event** at their defaults — an O-C export
     CSV supplies these from its `# period=…, epoch=…` comment and `Event` column.
     Click **OK** again. The O-C diagram should match step 8 without re-processing
     the AID light curve.
 
-![O-C Analysis parameter dialog](images/oc_parameter_dialog.png)
+![O-C diagram parameter dialog](images/oc_parameter_dialog.png)
 
 ![O-C results diagram](images/oc_results_diagram.png)
 
@@ -114,14 +114,14 @@ no real star or downloaded timing file required. This example loads Foster
 clock 2 light curves whose maxima match Table 13.1 and should yield a flat O-C
 offset of **+0.0035 d** (Table 13.2).
 
-1. Install the optional **O-C Analysis demo data** plug-in if needed (see
+1. Install the optional **O-C demo data** plug-in if needed (see
    **Installation**), then restart VStar.
-2. **File → O-C Analysis demo data…**
+2. **File → O-C demo data…**
 3. **Demo scenario:** **Foster clock 2 — epoch offset** → **OK**.
 4. Read the load message. Note the **suggested ephemeris** for Foster test
    theory: **P = 1.0 d**, **epoch = 2450000.0 HJD**, and the expected flat O-C
    ≈ **+0.0035 d**.
-5. **Tools → O-C Analysis…**
+5. **Tools → O-C diagram…**
 6. **Data source:** From observations.
 7. **Ephemeris source:** **Star metadata** (pre-fills the suggested period and
    epoch from step 4). **Event:** Maximum. **Timing method:** Parabolic
@@ -153,7 +153,7 @@ than Example 1.
 
 ## Results dialog
 
-After analysis completes, a modeless results window opens with three tabs:
+After the O-C diagram is computed, a modeless results window opens with three tabs:
 
 | Tab | Contents |
 |-----|------------|
@@ -179,7 +179,7 @@ file.
 
 ## Components (summary)
 
-### O-C Analysis tool
+### O-C diagram tool
 
 Parameter dialog uses a compact two-column layout. **Ephemeris source** is a
 drop-down only (not typable); edit **Period** and **Epoch** in their fields.
@@ -188,11 +188,11 @@ After **OK**, choose an observation series or a timings file depending on
 **Data source**; the results dialog opens next. Use **Export CSV…** there to
 save results.
 
-### O-C Analysis demo data (observation source)
+### O-C demo data (observation source)
 
 Optional. Loads synthetic light curves whose **maximum timings** match Foster
 Table 13.1 (clocks 1–6). Bump shape is identical for every clock; only timing
-differs. Then run **Tools → O-C Analysis…** with **From observations** and the
+differs. Then run **Tools → O-C diagram…** with **From observations** and the
 suggested ephemeris from the load message (P = 1 d).
 
 ---
@@ -232,7 +232,7 @@ time C_n = n. O-C = O_n − C_n (Table 13.2).
 
 For each clock, download the timing file (links below), then:
 
-1. **Tools → O-C Analysis…** → **Imported timings file**.
+1. **Tools → O-C diagram…** → **Imported timings file**.
 2. **Period:** 1.0 d, **Epoch:** 2450000.0 HJD.
 3. Compare O-C and **Fit summary** to Table 13.2.
 
@@ -240,9 +240,9 @@ For each clock, download the timing file (links below), then:
 
 See **Example 2** for Foster clock 2. For any clock:
 
-1. **File → O-C Analysis demo data…** → pick a Foster clock (labels match the
+1. **File → O-C demo data…** → pick a Foster clock (labels match the
    demo scenario mapping table above).
-2. **Tools → O-C Analysis…** → **From observations**; use the suggested
+2. **Tools → O-C diagram…** → **From observations**; use the suggested
    ephemeris from the load message (**Star metadata** pre-fills period and
    epoch).
 3. Compare O-C and **Fit summary** to Table 13.2.
@@ -348,7 +348,9 @@ On **Fit summary** after results: enter **break cycle**, click **Apply**. Needs 
 
 ## Version history
 
-- **1.5** — Example 2 uses O-C Analysis demo data (Foster clock 2); Foster
+- **1.6** — User-facing rename: **O-C diagram** (Tools menu) and **O-C demo
+  data** (File menu); plug-in group **Timing**.
+- **1.5** — Example 2 uses O-C demo data (Foster clock 2); Foster
   `.txt` downloads remain in Appendix A Method A only.
 - **1.4** — User-facing doc restructure: Plug-in Manager install, examples,
   appendices, Foster timings on aavso.github.io (absolute URLs), screenshot

@@ -30,10 +30,10 @@ import org.aavso.tools.vstar.external.lib.OCAnalysisLib;
 import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
 
 /**
- * Observation sink that exports the most recent O-C analysis results as CSV.
+ * Observation sink that exports the most recent O-C diagram results as CSV.
  *
  * <p>
- * Run the O-C Analysis tool first so results are available for export.
+ * Run the O-C diagram tool first so results are available for export.
  * </p>
  */
 public class OCAnalysisExportSink extends ObservationSinkPluginBase {
@@ -44,7 +44,7 @@ public class OCAnalysisExportSink extends ObservationSinkPluginBase {
         Bundle bundle = OCAnalysisExportHolder.getLatest();
         if (bundle == null || bundle.result == null) {
             throw new IOException(
-                    "No O-C results are available. Run O-C Analysis first.");
+                    "No O-C results are available. Run O-C diagram first.");
         }
         OCAnalysisLib.writeCsv(bundle.result, writer, bundle.linearFit,
                 bundle.twoSegmentFit, bundle.quadraticFit);
@@ -66,12 +66,12 @@ public class OCAnalysisExportSink extends ObservationSinkPluginBase {
 
     @Override
     public String getDescription() {
-        return "Export the most recent O-C analysis results as CSV";
+        return "Export the most recent O-C diagram results as CSV";
     }
 
     @Override
     public String getDisplayName() {
-        return "O-C Analysis CSV Export";
+        return "O-C diagram CSV export";
     }
 
     @Override
@@ -81,6 +81,6 @@ public class OCAnalysisExportSink extends ObservationSinkPluginBase {
 
     @Override
     public String getGroup() {
-        return "Timing Analysis";
+        return "Timing";
     }
 }

@@ -635,12 +635,12 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
     @Override
     public String getDescription() {
-        return "O-C (observed minus computed) analysis for times of extrema";
+        return "O-C (observed minus computed) diagram for times of extrema";
     }
 
     @Override
     public String getDisplayName() {
-        return "O-C Analysis";
+        return "O-C diagram";
     }
 
     @Override
@@ -650,7 +650,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
     @Override
     public String getGroup() {
-        return "Timing Analysis";
+        return "Timing";
     }
 
     private static final class EphemerisDefaults {
@@ -695,7 +695,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         OCAnalysisResultDialog(String seriesName, Result result,
                 LinearFit linearFit, QuadraticFit quadraticFit) {
             super(org.aavso.tools.vstar.ui.mediator.DocumentManager
-                    .findActiveWindow(), "O-C Analysis: " + seriesName,
+                    .findActiveWindow(), "O-C diagram: " + seriesName,
                     ModalityType.MODELESS);
             this.result = result;
             this.linearFit = linearFit;
@@ -847,7 +847,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             try {
                 breakCycle = Integer.parseInt(text);
             } catch (NumberFormatException ex) {
-                MessageBox.showErrorDialog("O-C Analysis",
+                MessageBox.showErrorDialog("O-C diagram",
                         "Enter a whole-number cycle for the break, or leave "
                                 + "the field blank.");
                 return;
@@ -855,7 +855,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             TwoSegmentFit fit = OCAnalysisLib.fitTwoSegment(result.points,
                     breakCycle);
             if (fit == null) {
-                MessageBox.showErrorDialog("O-C Analysis",
+                MessageBox.showErrorDialog("O-C diagram",
                         "Could not fit two segments at cycle " + breakCycle
                                 + ". Need at least four O-C points total and "
                                 + "at least two on each side of the break.");
@@ -1095,7 +1095,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 OCAnalysisLib.writeCsv(result, writer, linearFit, twoSegmentFit,
                         quadraticFit);
             } catch (IOException ex) {
-                MessageBox.showErrorDialog("O-C Analysis", ex.getMessage());
+                MessageBox.showErrorDialog("O-C diagram", ex.getMessage());
             } finally {
                 if (writer != null) {
                     writer.close();
