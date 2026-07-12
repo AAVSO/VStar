@@ -46,10 +46,48 @@ about T₀ and overplot the forward and reversed segments.
 | Parameter | Meaning |
 |-----------|---------|
 | Number of folds | 3, 5 (default), or 7 reflections about the initial mid-time |
-| Initial time estimate | Midpoint of the segment, or the extreme magnitude |
+| Initial time estimate | **Extreme magnitude (recommended)** or midpoint of the segment — see below |
 | Event type | Minimum (eclipse/transit) or maximum |
-| Photometric noise μ | Preferred: off-eclipse rms in the **same units** as the plotted values. Empty ⇒ estimate from min S |
+| Photometric noise μ | See [Photometric noise](#photometric-noise) below |
 | Resample if not equidistant | Linear interpolation onto median Δt when spacing varies |
+
+### Photometric noise
+
+Deeg’s timing error needs a photometric noise μ in the **same units** as the
+analysed values (magnitudes or flux).
+
+| Source | When |
+|--------|------|
+| **Preferred** | Off-eclipse rms measured outside the eclipse |
+| **Dialog pre-fill** | If observations carry magnitude uncertainties, the field is initialised to their **mean uncertainty**. That is *not* the Deeg fold-based estimate—it is only a convenient starting value from the data. |
+| **Empty field** | Clear the field to estimate μ from the best fold: μ = √(min(S) / (2(Z−1))), assuming min S is dominated by measurement noise (Deeg). The value actually used is reported as “μ used” in the result dialog. |
+
+You may also type any positive μ explicitly (e.g. **0.00138** for the CM Dra
+flux-domain demos).
+
+### Initial time estimate (T1)
+
+The folds are built around a provisional mid-time T₁. If T₁ is far from the
+true mid-eclipse, S(T) may not show a usable parabolic minimum and the run can
+fail with errors such as:
+
+- *Not enough S(T) folds remain after symmetrisation.*
+- *Parabola fit to S(T) did not yield a usable minimum (a ≤ 0).*
+
+| Choice | When to use |
+|--------|-------------|
+| **Extreme magnitude** (default) | Usual choice for VStar: incomplete eclipses, off-centre trims, or a clear single extreme. Matches the worked examples. Prefer this when Midpoint fails with the errors above. |
+| **Midpoint of light curve** | Better when the segment is **well centred** on the eclipse (similar ingress and egress coverage) but the extreme point is noisy or poorly defined (Deeg’s preference for noisy, shape-asymmetric eclipses). |
+
+Also check the data trim: KvW expects an **eclipse-only** segment. Extra
+out-of-eclipse points or a window that mostly covers only ingress or only egress
+push Midpoint away from mid-eclipse and make failures more likely. Re-filter so
+the eclipse is roughly centred, or switch to Extreme magnitude.
+
+If Extreme magnitude still fails, try fewer folds (3), ensure equidistant
+sampling (or leave resample on), and confirm Event type matches the data
+(Minimum for normal magnitudes; Maximum when the magnitude column is really
+normalised flux that dips at mid-eclipse, as in the appendices).
 
 ## Worked example 1: complete eclipse (CM Dra epoch 7024)
 
@@ -68,7 +106,7 @@ converted CSV in [Appendix A](#appendix-a-cm-dra-epoch-7024-converted-to-csv) in
 4. **Tools → Kwee-van Woerden**, select the loaded series.
 5. Parameters:
    - Folds: **5 (recommended)**
-   - Initial time estimate: **Extreme magnitude**
+   - Initial time estimate: **Extreme magnitude (recommended)**
    - Event type: **Maximum** — Appendix A places **normalised flux** in the
      magnitude column (lower at mid-eclipse). Choosing Maximum makes the
      algorithm treat that dip correctly when the column is read as a VStar
@@ -93,16 +131,59 @@ to illustrate unbalanced coverage and S(T) branch cropping. Paste the CSV from
 1. Load Appendix B the same way as Appendix A
    (**File → New Star from File… → Download or Simple → Request Observation Text**).
 2. **Tools → Kwee-van Woerden** with the same parameter choices as example 1
-   (5 folds, Extreme magnitude, **Maximum**, μ = **0.00138**).
+   (5 folds, Extreme magnitude (recommended), **Maximum**, μ = **0.00138**).
+   Midpoint of light curve often fails on this incomplete segment—the geometric
+   mid-time of the data is not near mid-eclipse.
 3. Click **OK**.
 4. Confirm T₀ ≈ **58738.6607358**, σ (Deeg) ≈ **0.0000191** d. For this
    light curve the classic KvW σ is defined and should appear as approximately
    **0.0000662** d.
 
-## AAVSO data example
+## Worked example 3: AAVSO AID photometry (MR Aps)
 
-*(Placeholder.)* A walkthrough on real AAVSO AID photometry for a suggested
-eclipsing binary will be added when a target is chosen.
+This walkthrough uses real AAVSO International Database (AID) observations of
+the southern eclipsing binary **MR Aps** (VSX type EB, period ≈ 0.528 d).
+
+### Load the data
+
+1. Choose **File → New Star from AAVSO Database…** (or the equivalent
+   AID menu item in your VStar build).
+2. Star name: **MR Aps**
+3. Julian Date range: **2460796** to **2460798**
+4. Load the observations (leave only Johnson V selected).
+
+This JD window contains a **single eclipse**.
+
+### Prepare the series
+
+1. Stay in the **Raw Data** (JD) view.
+2. Select the Johnson V series.
+
+### Run Kwee–van Woerden
+
+1. **Tools → Kwee-van Woerden**, select the series.
+2. Suggested parameters for AID magnitudes:
+   - Folds: **5 (recommended)**
+   - Initial time estimate: **Extreme magnitude (recommended)**
+   - Event type: **Minimum (eclipse / transit)** — AID magnitudes are fainter
+     (larger) at mid-eclipse
+   - Photometric noise μ: leave empty to estimate from min S, keep the mean
+     magnitude-uncertainty pre-fill if present, or enter a typical uncertainty
+     for the series if known
+   - Resample: on if the cadence is uneven
+
+<img src="images/kvw_parameter_dialog.png" alt="Kwee–van Woerden parameter dialog" width="350">
+
+3. Click **OK**.
+4. Confirm results near:
+
+| Quantity | Value |
+|----------|--------|
+| T₀ | 2460797.04792 |
+| σ (Deeg 2020) | 6.529224×10⁻⁵ d |
+| σ (classic KvW) | 0.0001829257 d |
+
+<img src="images/kvw_result_dialog.png" alt="Kwee–van Woerden result dialog" width="400">
 
 ## Limitations
 
@@ -110,6 +191,8 @@ eclipsing binary will be added when a target is chosen.
 - Strongly **asymmetric** eclipses violate the symmetry assumption.
 - Large gaps or highly uneven sampling need resampling or pre-interpolation.
 - μ must be in the **same units** as the values analysed.
+- A poorly centred or one-sided segment combined with **Midpoint** T₁ often
+  produces S(T) fit failures; see [Initial time estimate (T1)](#initial-time-estimate-t1).
 
 ## Attribution
 

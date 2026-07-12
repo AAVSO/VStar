@@ -57,7 +57,7 @@ public class KweeVanWoerdenTool extends GeneralToolPluginBase {
 	private static final String FOLDS_7 = "7";
 
 	private static final String T1_MIDPOINT = "Midpoint of light curve";
-	private static final String T1_EXTREMUM = "Extreme magnitude";
+	private static final String T1_EXTREMUM = "Extreme magnitude (recommended)";
 
 	private static final String EVENT_MIN = "Minimum (eclipse / transit)";
 	private static final String EVENT_MAX = "Maximum";
@@ -183,14 +183,15 @@ public class KweeVanWoerdenTool extends GeneralToolPluginBase {
 				Arrays.asList(FOLDS_5, FOLDS_3, FOLDS_7), FOLDS_5);
 
 		SelectableTextField t1Field = new SelectableTextField("Initial time estimate",
-				Arrays.asList(T1_MIDPOINT, T1_EXTREMUM), T1_MIDPOINT);
+				Arrays.asList(T1_EXTREMUM, T1_MIDPOINT), T1_EXTREMUM);
 
 		SelectableTextField eventField = new SelectableTextField("Event type", Arrays.asList(EVENT_MIN, EVENT_MAX),
 				EVENT_MIN);
 
 		Double meanUnc = meanUncertainty(obs);
 		String muInitial = meanUnc != null ? NumericPrecisionPrefs.formatOther(meanUnc) : "";
-		TextField muField = new TextField("Photometric noise μ (empty = estimate)", muInitial, false, true);
+		TextField muField = new TextField(
+				"Photometric noise μ (pre-fill = mean mag unc.; empty = estimate from min S)", muInitial, false, true);
 
 		Checkbox resampleBox = new Checkbox("Resample if not equidistant", true);
 
