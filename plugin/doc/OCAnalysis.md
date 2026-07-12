@@ -17,9 +17,9 @@ Two plug-ins are provided.
 | O-C | **Tools → O-C…** | Main O-C tool (includes **Export CSV…** in results) |
 | O-C demo data | **File → O-C demo data…** | Optional Foster clock light curves |
 
-The O-C tool can be opened from the **Tools** menu even when
-no observations have been loaded, since apart from a **From
-observations** option, an **Imported timings file** option allows a timings file to be opened instead.
+The O-C tool can be opened from the **Tools** menu, even when
+no observations have been loaded, since other than a **From
+observations** option, an **Imported timings file** option allows a previously exported/created timings file to be opened instead.
 
 Published help (PDF): [O-C on aavso.github.io](https://aavso.github.io/VStar/docs/vstar/release/plugin/OCAnalysis.pdf).
 
@@ -348,6 +348,8 @@ On **Fit summary** after results: enter **break cycle**, click **Apply**. Needs 
 
 ## Version history
 
+- **1.7** — Added screenshots for parameter dialog, results diagram, Fit
+  summary, and two-segment fit.
 - **1.6** — User-facing rename: **O-C** (Tools menu) and **O-C demo
   data** (File menu); plug-in group **Timing**.
 - **1.5** — Example 2 uses O-C demo data (Foster clock 2); Foster
