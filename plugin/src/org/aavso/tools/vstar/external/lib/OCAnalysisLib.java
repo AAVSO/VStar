@@ -297,7 +297,7 @@ public class OCAnalysisLib {
     }
 
     /**
-     * Optional ephemeris and event metadata from an O-C diagram export CSV
+     * Optional ephemeris and event metadata from an O-C export CSV
      * ({@code # period=…, epoch=…} comments and {@code Event} column).
      */
     public static final class ImportFileMetadata {
@@ -496,7 +496,7 @@ public class OCAnalysisLib {
     public static void writeCsv(Result result, PrintWriter writer,
             LinearFit linearFit, TwoSegmentFit twoSegmentFit,
             QuadraticFit quadraticFit) {
-        writer.println("# O-C diagram export");
+        writer.println("# O-C export");
         writer.println("# period=" + result.parameters.period + ", epoch="
                 + result.parameters.epoch);
         if (linearFit != null) {

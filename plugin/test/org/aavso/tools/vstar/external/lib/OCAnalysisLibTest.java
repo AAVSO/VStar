@@ -361,7 +361,7 @@ public class OCAnalysisLibTest extends TestCase {
     public void testParseImportedTimingsFromExportCsv() throws IOException {
         double epoch = 2450000.0;
         List<String> lines = Arrays.asList(
-                "# O-C diagram export",
+                "# O-C export",
                 "# period=1.19525556, epoch=2460646.2029",
                 "Event,Cycle,O_HJD,C_HJD,OC_days,OC_sigma,ObsInCycle",
                 "MINIMUM,100,2460746.5,2460746.48,0.02,0.001,5",
@@ -378,7 +378,7 @@ public class OCAnalysisLibTest extends TestCase {
 
     public void testParseImportFileMetadataFromExportCsv() {
         List<String> lines = Arrays.asList(
-                "# O-C diagram export",
+                "# O-C export",
                 "# period=1.19525556, epoch=2460646.2029",
                 "Event,Cycle,O_HJD,C_HJD,OC_days,OC_sigma,ObsInCycle",
                 "MINIMUM,100,2460746.5,2460746.48,0.02,0.001,5");

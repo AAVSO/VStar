@@ -51,7 +51,7 @@ public class OCAnalysisDemoObservationSource extends ObservationSourcePluginBase
 
     @Override
     public String getDescription() {
-        return "Synthetic light curves for O-C diagram tutorials (Foster ch. 13)";
+        return "Synthetic light curves for O-C tutorials (Foster ch. 13)";
     }
 
     @Override
@@ -99,7 +99,7 @@ public class OCAnalysisDemoObservationSource extends ObservationSourcePluginBase
         dataset = OCAnalysisDemoData.generate(scenario);
         StringBuilder msg = new StringBuilder();
         msg.append(dataset.description);
-        msg.append("\n\nSuggested ephemeris for O-C diagram (Foster test ");
+        msg.append("\n\nSuggested ephemeris for O-C (Foster test ");
         msg.append("theory): P = ");
         msg.append(dataset.modelPeriod);
         msg.append(" d, epoch = ");
