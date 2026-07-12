@@ -60,7 +60,6 @@ import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.external.lib.OCAnalysisExportHolder;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.EventType;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.ImportedTiming;
@@ -148,7 +147,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         DoubleField periodField = new DoubleField("Period (days)", 0.0, null,
                 defaults.period > 0 ? defaults.period : null);
-        DoubleField epochField = new DoubleField("Epoch (HJD)", null, null,
+        DoubleField epochField = new DoubleField("Epoch", null, null,
                 defaults.epoch != 0 ? defaults.epoch : null);
 
         ephemerisSourceField.addActionListener(new ActionListener() {
@@ -265,10 +264,10 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         if (period == null || period <= 0 || epoch == null) {
             MessageBox.showErrorDialog(getDisplayName(),
                     fromImportedTimings
-                            ? "A positive period and an epoch (HJD) are required "
+                            ? "A positive period and an epoch are required "
                                     + "(enter in the dialog or use an O-C export CSV "
                                     + "with # period= and epoch= comments)."
-                            : "A positive period and an epoch (HJD) are required.");
+                            : "A positive period and an epoch are required.");
             return;
         }
 
@@ -353,9 +352,6 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         LinearFit linearFit = OCAnalysisLib.fitLinear(result.points);
         QuadraticFit quadraticFit = OCAnalysisLib.fitQuadratic(result.points);
-
-        OCAnalysisExportHolder.setLatest(new OCAnalysisExportHolder.Bundle(
-                result, linearFit, null, quadraticFit));
 
         new OCAnalysisResultDialog(resultLabel, result, linearFit,
                 quadraticFit);
@@ -497,7 +493,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         private static boolean isOptionalForImportFile(String fieldName) {
             return "Period (days)".equals(fieldName)
-                    || "Epoch (HJD)".equals(fieldName)
+                    || "Epoch".equals(fieldName)
                     || "Event".equals(fieldName);
         }
     }
@@ -670,7 +666,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         private enum XAxisMode {
             CYCLE("Cycle number"),
-            TIME("Observed time (HJD)");
+            TIME("Observed time");
 
             private final String label;
 
@@ -840,7 +836,6 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 twoSegmentFit = null;
                 fitSummaryLabel.setText(buildFitSummaryHtml());
                 refreshChart();
-                updateExportHolder();
                 return;
             }
             int breakCycle;
@@ -864,12 +859,6 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             twoSegmentFit = fit;
             fitSummaryLabel.setText(buildFitSummaryHtml());
             refreshChart();
-            updateExportHolder();
-        }
-
-        private void updateExportHolder() {
-            OCAnalysisExportHolder.setLatest(new OCAnalysisExportHolder.Bundle(
-                    result, linearFit, twoSegmentFit, quadraticFit));
         }
 
         private static int minCycle(List<Point> points) {
@@ -1026,8 +1015,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                     "period = " + formatDays(result.parameters.period)
                             + " d, epoch = "
                             + NumericPrecisionPrefs.formatTime(
-                                    result.parameters.epoch)
-                            + " HJD");
+                                    result.parameters.epoch));
             appendSummaryRow(buf, "Data",
                     result.points.size() + " O-C points");
             if (linearFit != null) {
@@ -1215,8 +1203,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
     private static class OCTableModel extends AbstractTableModel {
 
-        private static final String[] COLUMNS = { "Cycle", "O (HJD)",
-                "C (HJD)", "O-C (days)", "σ(O-C)", "Obs in cycle" };
+        private static final String[] COLUMNS = { "Cycle", "O (time)",
+                "C (time)", "O-C (days)", "σ(O-C)", "Obs in cycle" };
 
         private final List<Point> points;
 

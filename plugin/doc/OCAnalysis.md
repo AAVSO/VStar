@@ -70,7 +70,7 @@ Use this when you have a light curve in VStar and want times of eclipse minima
 eclipsing binary (EA). Period ≈ **1.20 d** (VSX), good AAVSO **V** coverage,
 and a deep primary minimum suited to parabolic timing.
 
-**Suggested JD range:** **2452700 – 2461000** HJD (about 22 years; calendar
+**Suggested JD range:** **2452700 – 2461000** (about 22 years; calendar
 **2003-03-01** through **2025-11-20**). The AID holds **9000+ V** observations
 in this span. In the load dialog, enter those minimum and maximum JD values and
 select **V** only (clear other series checkboxes).
@@ -94,7 +94,7 @@ select **V** only (clear other series checkboxes).
    **Further reading** below.
 9. Click **Export CSV…** in the results dialog and save the file (e.g.
    `rz_cas_timings.csv`). The export lists each timed eclipse (`Cycle`,
-   `O_HJD`, optional `OC_sigma`) plus O-C columns and fit metadata in `#`
+   `O_time`, optional `OC_sigma`) plus O-C columns and fit metadata in `#`
    comment lines.
 10. **Tools → O-C…** again (no star loaded is fine).
 11. **Data source:** Imported timings file → **OK** → select the CSV from step 9.
@@ -119,7 +119,7 @@ offset of **+0.0035 d** (Table 13.2).
 2. **File → O-C demo data…**
 3. **Demo scenario:** **Foster clock 2 — epoch offset** → **OK**.
 4. Read the load message. Note the **suggested ephemeris** for Foster test
-   theory: **P = 1.0 d**, **epoch = 2450000.0 HJD**, and the expected flat O-C
+   theory: **P = 1.0 d**, **epoch = 2450000.0**, and the expected flat O-C
    ≈ **+0.0035 d**.
 5. **Tools → O-C…**
 6. **Data source:** From observations.
@@ -157,7 +157,7 @@ After O-C is computed, a modeless results window opens with three tabs:
 
 | Tab | Contents |
 |-----|------------|
-| **O-C diagram** | O-C points (optional error bars); toggle **Cycle number** or **Observed time (HJD)** on the x-axis |
+| **O-C diagram** | O-C points (optional error bars); toggle **Cycle number** or **Observed time** on the x-axis |
 | **Data table** | Cycle, observed time, computed time, O-C, uncertainty |
 | **Fit summary** | Interpretation text for fits (see below) |
 
@@ -233,7 +233,7 @@ time C_n = n. O-C = O_n − C_n (Table 13.2).
 For each clock, download the timing file (links below), then:
 
 1. **Tools → O-C…** → **Imported timings file**.
-2. **Period:** 1.0 d, **Epoch:** 2450000.0 HJD.
+2. **Period:** 1.0 d, **Epoch:** 2450000.0.
 3. Compare O-C and **Fit summary** to Table 13.2.
 
 ### Method B — demo observation source
@@ -247,9 +247,9 @@ See **Example 2** for Foster clock 2. For any clock:
    epoch).
 3. Compare O-C and **Fit summary** to Table 13.2.
 
-### Foster timing files (Table 13.1 → HJD)
+### Foster timing files (Table 13.1 → times)
 
-Epoch **2450000.0** HJD, period **1.0** d for O-C tool entry. Download from
+Epoch **2450000.0**, period **1.0** d for O-C tool entry. Download from
 [aavso.github.io](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/)
 (published with plug-in docs; same files in `plugin/doc/foster/` in the repo).
 
@@ -281,13 +281,19 @@ the file is an O-C export CSV (metadata is read from the file).
 
 ### Imported timings file format
 
-One timing per line: `cycle HJD [sigma]` or `HJD [sigma]`. Whitespace, comma,
+One timing per line: `cycle time [sigma]` or `time [sigma]`. Whitespace, comma,
 or semicolon separators. `#` comments allowed.
+
+Use **one consistent time system** for observations, epoch, and imported
+timings (JD, HJD, BJD_TDB, etc.). The plug-in does not convert between systems;
+mix them and O-C will be wrong. Homogenise with VStar’s HJD/BJD tools first if
+needed.
 
 You can also re-open a file saved with **Export CSV…** from a previous O-C run.
 The tool reads timings from the data rows and, for export files, fills in
 **Period**, **Epoch**, and **Event** from the `# period=…, epoch=…` comment and
-the `Event` column (leave those fields blank in the parameter dialog).
+the `Event` column (leave those fields blank in the parameter dialog). Export
+columns are `O_time` and `C_time` (not a specific JD flavour).
 
 ### Timing methods (From observations)
 
@@ -324,7 +330,7 @@ On **Fit summary** after results: enter **break cycle**, click **Apply**. Needs 
 |-----------|-------------|
 | Data source | Observations or imported timings |
 | Ephemeris source | Pre-fill (observations only) |
-| Period, epoch | Test ephemeris (required) |
+| Period, epoch | Test ephemeris (required; same time system as the data) |
 | Event | Maximum, minimum, or both |
 | Timing method, extreme N%, min obs | Observations only |
 
@@ -348,6 +354,9 @@ On **Fit summary** after results: enter **break cycle**, click **Apply**. Needs 
 
 ## Version history
 
+- **1.8** — Neutral time labels (`O_time` / `C_time`, Epoch, Observed time);
+  docs stress a consistent time system (JD/HJD/BJD/…) rather than assuming HJD.
+  Removed unused O-C CSV observation-sink plug-in (export is results-dialog only).
 - **1.7** — Added screenshots for parameter dialog, results diagram, Fit
   summary, and two-segment fit.
 - **1.6** — User-facing rename: **O-C** (Tools menu) and **O-C demo

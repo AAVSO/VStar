@@ -354,7 +354,7 @@ public class OCAnalysisLibTest extends TestCase {
         StringWriter sw = new StringWriter();
         OCAnalysisLib.writeCsv(result, new PrintWriter(sw), null, null, null);
         String csv = sw.toString();
-        assertTrue(csv.contains("Event,Cycle,O_HJD,C_HJD,OC_days"));
+        assertTrue(csv.contains("Event,Cycle,O_time,C_time,OC_days"));
         assertTrue(csv.contains("MAXIMUM,0,"));
     }
 
@@ -363,7 +363,7 @@ public class OCAnalysisLibTest extends TestCase {
         List<String> lines = Arrays.asList(
                 "# O-C export",
                 "# period=1.19525556, epoch=2460646.2029",
-                "Event,Cycle,O_HJD,C_HJD,OC_days,OC_sigma,ObsInCycle",
+                "Event,Cycle,O_time,C_time,OC_days,OC_sigma,ObsInCycle",
                 "MINIMUM,100,2460746.5,2460746.48,0.02,0.001,5",
                 "MINIMUM,101,2460747.7,2460747.68,0.02,,3");
         List<ImportedTiming> timings = OCAnalysisLib.parseImportedTimings(lines,
@@ -380,7 +380,7 @@ public class OCAnalysisLibTest extends TestCase {
         List<String> lines = Arrays.asList(
                 "# O-C export",
                 "# period=1.19525556, epoch=2460646.2029",
-                "Event,Cycle,O_HJD,C_HJD,OC_days,OC_sigma,ObsInCycle",
+                "Event,Cycle,O_time,C_time,OC_days,OC_sigma,ObsInCycle",
                 "MINIMUM,100,2460746.5,2460746.48,0.02,0.001,5");
         OCAnalysisLib.ImportFileMetadata meta = OCAnalysisLib
                 .parseImportFileMetadata(lines);
@@ -396,19 +396,6 @@ public class OCAnalysisLibTest extends TestCase {
         assertNull(meta.period);
         assertNull(meta.epoch);
         assertNull(meta.eventType);
-    }
-
-    public void testParseImportFileMetadataLegacyExportHeader() {
-        List<String> lines = Arrays.asList(
-                "# O-C Analysis export",
-                "# period=1.0, epoch=2450000.0",
-                "Event,Cycle,O_HJD,C_HJD,OC_days",
-                "MAXIMUM,0,2450000.0,2450000.0,0.0");
-        OCAnalysisLib.ImportFileMetadata meta = OCAnalysisLib
-                .parseImportFileMetadata(lines);
-        assertEquals(1.0, meta.period, TOL);
-        assertEquals(2450000.0, meta.epoch, TOL);
-        assertEquals(EventType.MAXIMUM, meta.eventType);
     }
 
     private static double estimateSlope(List<Point> points) {

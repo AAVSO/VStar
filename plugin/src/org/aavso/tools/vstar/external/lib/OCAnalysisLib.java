@@ -369,8 +369,9 @@ public class OCAnalysisLib {
     }
 
     /**
-     * Parse imported timing lines. Each non-comment line is {@code cycle HJD
-     * [sigma]} or {@code HJD [sigma]} (cycle inferred from ephemeris).
+     * Parse imported timing lines. Each non-comment line is {@code cycle time
+     * [sigma]} or {@code time [sigma]} (cycle inferred from ephemeris). Times
+     * must use the same system as the ephemeris epoch (JD, HJD, BJD, etc.).
      */
     public static List<ImportedTiming> parseImportedTimings(List<String> lines,
             double epoch, double period) throws IOException {
@@ -393,24 +394,24 @@ public class OCAnalysisLib {
                 if (parts.length >= 3 && looksLikeInteger(parts[1])
                         && !looksLikeInteger(parts[0])) {
                     int cycle = Integer.parseInt(parts[1]);
-                    double hjd = Double.parseDouble(parts[2]);
+                    double time = Double.parseDouble(parts[2]);
                     double sigma = Double.NaN;
                     if (parts.length > 6 && !parts[5].isEmpty()) {
                         sigma = Double.parseDouble(parts[5]);
                     }
-                    timings.add(new ImportedTiming(cycle, hjd, sigma));
+                    timings.add(new ImportedTiming(cycle, time, sigma));
                 } else if (parts.length >= 2 && looksLikeInteger(parts[0])) {
                     int cycle = Integer.parseInt(parts[0]);
-                    double hjd = Double.parseDouble(parts[1]);
+                    double time = Double.parseDouble(parts[1]);
                     double sigma = parts.length >= 3
                             ? Double.parseDouble(parts[2]) : Double.NaN;
-                    timings.add(new ImportedTiming(cycle, hjd, sigma));
+                    timings.add(new ImportedTiming(cycle, time, sigma));
                 } else {
-                    double hjd = Double.parseDouble(parts[0]);
+                    double time = Double.parseDouble(parts[0]);
                     double sigma = parts.length >= 2
                             ? Double.parseDouble(parts[1]) : Double.NaN;
-                    int cycle = cycleNumber(hjd, epoch, period);
-                    timings.add(new ImportedTiming(cycle, hjd, sigma));
+                    int cycle = cycleNumber(time, epoch, period);
+                    timings.add(new ImportedTiming(cycle, time, sigma));
                 }
             } catch (NumberFormatException e) {
                 throw new IOException("Invalid imported timing at line "
@@ -509,7 +510,7 @@ public class OCAnalysisLib {
                     + ", quadratic_quadratic=" + quadraticFit.quadratic);
         }
         writer.println(
-                "Event,Cycle,O_HJD,C_HJD,OC_days,OC_sigma,ObsInCycle");
+                "Event,Cycle,O_time,C_time,OC_days,OC_sigma,ObsInCycle");
         for (Point p : result.points) {
             writer.print(p.extremumType.name());
             writer.print(',');

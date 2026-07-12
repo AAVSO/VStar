@@ -104,7 +104,7 @@ public class OCAnalysisDemoObservationSource extends ObservationSourcePluginBase
         msg.append(dataset.modelPeriod);
         msg.append(" d, epoch = ");
         msg.append(dataset.modelEpoch);
-        msg.append(" HJD.");
+        msg.append(".");
         if (dataset.suggestedBreakCycle != null) {
             msg.append("\nSuggested two-segment break cycle: ");
             msg.append(dataset.suggestedBreakCycle);
