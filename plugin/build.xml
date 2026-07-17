@@ -85,7 +85,7 @@
 		<jar jarfile="${dist}/${pkg}.MagnitudeAndTimeShifter.jar" basedir="${build.classes}" includes="**/MagnitudeAndTimeShifter**.class" />
 		<jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class" />
 		<jar jarfile="${dist}/${pkg}.MMRDNovaDistanceCalculator.jar" basedir="${build.classes}" includes="**/MMRDNovaDistanceCalculator**.class" />
-		<jar jarfile="${dist}/${pkg}.OCAnalysisTool.jar" basedir="${build.classes}" includes="**/OCAnalysisTool**.class **/OCAnalysisLib**.class" />
+		<jar jarfile="${dist}/${pkg}.OCAnalysisTool.jar" basedir="${build.classes}" includes="**/OCAnalysisTool**.class **/OCAnalysisLib**.class **/OCAnalysisDemoData**.class" />
 		<jar jarfile="${dist}/${pkg}.OCAnalysisDemoObservationSource.jar" basedir="${build.classes}" includes="**/OCAnalysisDemoObservationSource**.class **/OCAnalysisDemoData**.class **/OCAnalysisLib$EventType.class" />
 		<jar jarfile="${dist}/${pkg}.NovaExponentialModelCreator.jar" basedir="${build.classes}" includes="**/NovaExponentialModelCreator**.class" />
 		<jar jarfile="${dist_lib}/${pkg_lib}.NovaExponentialModel.jar" basedir="${build.classes}" includes="**/NovaExponentialModel**.class" excludes="**/NovaExponentialModelCreator**.class" />

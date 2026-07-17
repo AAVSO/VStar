@@ -60,6 +60,9 @@ import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData;
+import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData.DemoDataset;
+import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData.DemoScenario;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.EventType;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.ImportedTiming;
@@ -647,6 +650,40 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
     @Override
     public String getGroup() {
         return "Timing";
+    }
+
+    /**
+     * Smoke test: generate Foster clock 2 demo light curves, measure O-C, and
+     * confirm a flat offset near +0.0035 d with near-zero slope (epoch wrong,
+     * period OK). Avoids UI dialogs; detailed cases live in unit tests.
+     */
+    @Override
+    public Boolean test() {
+        boolean ok = true;
+        setTestMode(true);
+        try {
+            DemoDataset data = OCAnalysisDemoData
+                    .generate(DemoScenario.EPOCH_OFFSET);
+            Parameters params = new Parameters(data.modelPeriod,
+                    data.modelEpoch, EventType.MAXIMUM, TimingMethod.PARABOLIC,
+                    10, 3);
+            Result result = OCAnalysisLib.analyze(data.observations, params);
+            ok &= result.points.size() >= 5;
+            // Foster Table 13.2 clock 2: constant O-C ≈ +0.0035 d (epoch
+            // offset, period OK). Tolerance 0.05 matches OCAnalysisLibTest —
+            // parabolic timing on synthetic bumps is not exact table times.
+            for (Point p : result.points) {
+                ok &= Math.abs(p.oc - 0.0035) < 0.05;
+            }
+            // Flat trend: slope must be ≈ 0 (not clock 3's ~0.0021 d/cycle).
+            LinearFit fit = OCAnalysisLib.fitLinear(result.points);
+            ok &= fit != null && Math.abs(fit.slope) < 1e-3;
+        } catch (Throwable t) {
+            ok = false;
+        } finally {
+            setTestMode(false);
+        }
+        return ok;
     }
 
     private static final class EphemerisDefaults {

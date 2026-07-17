@@ -41,6 +41,7 @@ public class AllTests {
 		suite.addTestSuite(PiecewiseLinearModelTest.class);
 		suite.addTestSuite(ConvertHelperTest.class);
 		suite.addTestSuite(OCAnalysisLibTest.class);
+		suite.addTestSuite(OCAnalysisToolTest.class);
 		suite.addTestSuite(HipparcosLoadTest.class);
 		// $JUnit-END$
 		

@@ -354,6 +354,8 @@ On **Fit summary** after results: enter **break cycle**, click **Apply**. Needs 
 
 ## Version history
 
+- **1.9** — `OCAnalysisTool.test()` smoke check (Foster clock 2) for plug-in
+  harness coverage.
 - **1.8** — Neutral time labels (`O_time` / `C_time`, Epoch, Observed time);
   docs stress a consistent time system (JD/HJD/BJD/…) rather than assuming HJD.
   Removed unused O-C CSV observation-sink plug-in (export is results-dialog only).
