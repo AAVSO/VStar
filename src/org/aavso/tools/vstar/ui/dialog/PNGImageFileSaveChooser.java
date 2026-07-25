@@ -24,6 +24,8 @@ import java.util.List;
 
 import javax.swing.JFileChooser;
 
+import org.aavso.tools.vstar.util.prefs.FilePathPrefs;
+
 /**
  * This class implements a PNG image save JFileChooser.
  */
@@ -49,6 +51,7 @@ public class PNGImageFileSaveChooser {
 	 * @return Whether the dialog was "approved".
 	 */
 	public boolean showDialog(Component parent) {
+		FilePathPrefs.applyDirectory(fileChooser, FilePathPrefs.getObsSinkDir());
 		return fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION;
 	}
 
