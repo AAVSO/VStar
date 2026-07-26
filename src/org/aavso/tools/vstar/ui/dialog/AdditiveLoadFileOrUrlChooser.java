@@ -52,6 +52,7 @@ import org.aavso.tools.vstar.util.prefs.FilePathPrefs;
 public class AdditiveLoadFileOrUrlChooser {
 
     private JFileChooser fileChooser;
+    private boolean defaultDirectoryApplied;
     private JCheckBox additiveLoadCheckbox;
     private boolean urlProvided;
     private boolean obsTextProvided;
@@ -73,6 +74,7 @@ public class AdditiveLoadFileOrUrlChooser {
      */
     public AdditiveLoadFileOrUrlChooser(boolean allowURL, boolean allowText) {
         fileChooser = new JFileChooser();
+        defaultDirectoryApplied = false;
 
         fileChooser.setMultiSelectionEnabled(true);
 
@@ -261,7 +263,10 @@ public class AdditiveLoadFileOrUrlChooser {
             updateFileAndUrlWidgetsForPlugin();
         }
 
-        FilePathPrefs.applyDirectory(fileChooser, FilePathPrefs.getObsSourceDir());
+        if (!defaultDirectoryApplied) {
+            FilePathPrefs.applyDirectory(fileChooser, FilePathPrefs.getObsSourceDir());
+            defaultDirectoryApplied = true;
+        }
 
         int result = fileChooser.showOpenDialog(parent);
         return result == JFileChooser.APPROVE_OPTION;

@@ -46,6 +46,7 @@ import org.aavso.tools.vstar.util.prefs.FilePathPrefs;
 public class DelimitedFieldFileSaveChooser {
 
 	private JFileChooser fileChooser;
+	private boolean defaultDirectoryApplied;
 
 	private DefaultComboBoxModel<String> delimitersModel;
 	private JComboBox<String> delimiterChooser;
@@ -60,6 +61,7 @@ public class DelimitedFieldFileSaveChooser {
 	 */
 	public DelimitedFieldFileSaveChooser() {
 		fileChooser = new JFileChooser();
+		defaultDirectoryApplied = false;
 
 		delimiter = null;
 		delimiterChooser = new JComboBox<String>();
@@ -123,7 +125,10 @@ public class DelimitedFieldFileSaveChooser {
 	 * @return Whether the dialog was "approved".
 	 */
 	public boolean showDialog(Component parent) {
-		FilePathPrefs.applyDirectory(fileChooser, FilePathPrefs.getObsSinkDir());
+		if (!defaultDirectoryApplied) {
+			FilePathPrefs.applyDirectory(fileChooser, FilePathPrefs.getObsSinkDir());
+			defaultDirectoryApplied = true;
+		}
 		return fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION;
 	}
 

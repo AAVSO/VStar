@@ -32,9 +32,11 @@ import org.aavso.tools.vstar.util.prefs.FilePathPrefs;
 public class PNGImageFileSaveChooser {
 
 	private JFileChooser fileChooser;
+	private boolean defaultDirectoryApplied;
 
 	public PNGImageFileSaveChooser() {
 		fileChooser = new JFileChooser();
+		defaultDirectoryApplied = false;
 		
 		List<String> extensions = new ArrayList<String>();
 		extensions.add("png");
@@ -51,7 +53,10 @@ public class PNGImageFileSaveChooser {
 	 * @return Whether the dialog was "approved".
 	 */
 	public boolean showDialog(Component parent) {
-		FilePathPrefs.applyDirectory(fileChooser, FilePathPrefs.getObsSinkDir());
+		if (!defaultDirectoryApplied) {
+			FilePathPrefs.applyDirectory(fileChooser, FilePathPrefs.getObsSinkDir());
+			defaultDirectoryApplied = true;
+		}
 		return fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION;
 	}
 
