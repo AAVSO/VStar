@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -42,11 +43,14 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -55,7 +59,11 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.ToolTipManager;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.basic.ComboPopup;
 import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.data.SeriesType;
@@ -124,7 +132,12 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             "Period and epoch from the active phase plot. Set via Phase Plot or "
                     + "Period Analysis → New Phase Plot.";
     private static final String EPHEMERIS_STAR = "Star metadata";
+    private static final String EPHEMERIS_STAR_TOOLTIP =
+            "Period and epoch from the loaded star record (e.g. VSX / AID "
+                    + "catalogue fields).";
     private static final String EPHEMERIS_MANUAL = "Manual entry";
+    private static final String EPHEMERIS_MANUAL_TOOLTIP =
+            "Type period and epoch yourself.";
 
     private static final String DATA_OBSERVATIONS = "From observations";
     private static final String DATA_IMPORTED = "Imported timings file";
@@ -145,8 +158,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 EPHEMERIS_STAR, EPHEMERIS_MANUAL);
         SelectableTextField ephemerisSourceField = new SelectableTextField(
                 "Ephemeris source", ephemerisSources, defaults.sourceLabel);
-        ephemerisSourceField.getUIComponent().setToolTipText(
-                EPHEMERIS_PHASE_TOOLTIP);
+        installEphemerisSourceTooltips(ephemerisSourceField);
 
         DoubleField periodField = new DoubleField("Period (days)", 0.0, null,
                 defaults.period > 0 ? defaults.period : null);
@@ -158,6 +170,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             public void actionPerformed(ActionEvent e) {
                 applyEphemerisSource(ephemerisSourceField.getValue(),
                         periodField, epochField);
+                updateEphemerisSourceFieldTooltip(ephemerisSourceField);
             }
         });
 
@@ -578,6 +591,64 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 epochField.setValue(d.epoch);
             }
         }
+    }
+
+    private static String ephemerisSourceTooltip(String source) {
+        if (EPHEMERIS_PHASE.equals(source)) {
+            return EPHEMERIS_PHASE_TOOLTIP;
+        }
+        if (EPHEMERIS_STAR.equals(source)) {
+            return EPHEMERIS_STAR_TOOLTIP;
+        }
+        if (EPHEMERIS_MANUAL.equals(source)) {
+            return EPHEMERIS_MANUAL_TOOLTIP;
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void installEphemerisSourceTooltips(
+            SelectableTextField field) {
+        JComboBox<String> combo = (JComboBox<String>) field.getUIComponent();
+        combo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list,
+                    Object value, int index, boolean isSelected,
+                    boolean cellHasFocus) {
+                Component c = super.getListCellRendererComponent(list, value,
+                        index, isSelected, cellHasFocus);
+                if (value instanceof String) {
+                    setToolTipText(ephemerisSourceTooltip((String) value));
+                }
+                return c;
+            }
+        });
+        // Popup list is not always tip-enabled (notably Aqua); register it.
+        combo.addPopupMenuListener(new PopupMenuListener() {
+            @Override
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                Object popup = combo.getUI().getAccessibleChild(combo, 0);
+                if (popup instanceof ComboPopup) {
+                    ToolTipManager.sharedInstance().registerComponent(
+                            ((ComboPopup) popup).getList());
+                }
+            }
+
+            @Override
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+            }
+
+            @Override
+            public void popupMenuCanceled(PopupMenuEvent e) {
+            }
+        });
+        updateEphemerisSourceFieldTooltip(field);
+    }
+
+    private static void updateEphemerisSourceFieldTooltip(
+            SelectableTextField field) {
+        field.getUIComponent().setToolTipText(
+                ephemerisSourceTooltip(field.getValue()));
     }
 
     private static EphemerisDefaults resolveEphemerisDefaults() {
