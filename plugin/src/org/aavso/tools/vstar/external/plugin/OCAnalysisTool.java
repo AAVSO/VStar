@@ -137,7 +137,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                     + "catalogue fields).";
     private static final String EPHEMERIS_MANUAL = "Manual entry";
     private static final String EPHEMERIS_MANUAL_TOOLTIP =
-            "Type period and epoch yourself.";
+            "Enter period and epoch yourself.";
 
     private static final String DATA_OBSERVATIONS = "From observations";
     private static final String DATA_IMPORTED = "Imported timings file";
