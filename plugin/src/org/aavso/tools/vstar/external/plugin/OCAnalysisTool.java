@@ -205,6 +205,13 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                         minObsField, periodField, epochField, eventField);
             }
         });
+        timingField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                applyMeanPercentFieldEnabled(dataSourceField.getValue(),
+                        timingField, meanPercentField);
+            }
+        });
         applyDataSourceFields(dataSourceField.getValue(), ephemerisSourceField,
                 timingField, meanPercentField, minObsField, periodField,
                 epochField, eventField);
@@ -383,11 +390,19 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         setFieldEnabled(ephemerisSourceField, fromObs);
         setFieldEnabled(timingField, fromObs);
-        setFieldEnabled(meanPercentField, fromObs);
+        applyMeanPercentFieldEnabled(dataSource, timingField, meanPercentField);
         setFieldEnabled(minObsField, fromObs);
         setFieldEnabled(eventField, fromObs || fromImport);
         setFieldEnabled(periodField, fromObs || fromImport);
         setFieldEnabled(epochField, fromObs || fromImport);
+    }
+
+    private static void applyMeanPercentFieldEnabled(String dataSource,
+            SelectableTextField timingField, IntegerField meanPercentField) {
+        boolean fromObs = DATA_OBSERVATIONS.equals(dataSource);
+        boolean meanExtreme = TimingMethod.MEAN_OF_EXTREME.getLabel()
+                .equals(timingField.getValue());
+        setFieldEnabled(meanPercentField, fromObs && meanExtreme);
     }
 
     private static void setFieldEnabled(ITextComponent<?> field,
