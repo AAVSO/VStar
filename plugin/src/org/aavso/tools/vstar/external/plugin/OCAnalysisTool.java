@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -25,6 +26,7 @@ import java.awt.Insets;
 import java.awt.geom.Ellipse2D;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -410,6 +412,13 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         field.getUIComponent().setEnabled(enabled);
     }
 
+    private static void tightenFieldHeight(JComponent comp) {
+        Dimension pref = comp.getPreferredSize();
+        int height = Math.min(pref.height, 24);
+        comp.setPreferredSize(new Dimension(pref.width, height));
+        comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+    }
+
     /**
      * Compact parameter dialog: labels in a left column, controls on the right
      * (avoids the extra vertical space of per-field titled borders).
@@ -469,13 +478,6 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 row++;
             }
             return panel;
-        }
-
-        private static void tightenFieldHeight(JComponent comp) {
-            Dimension pref = comp.getPreferredSize();
-            int height = Math.min(pref.height, 24);
-            comp.setPreferredSize(new Dimension(pref.width, height));
-            comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
         }
 
         @Override
@@ -822,9 +824,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             this.quadraticFit = quadraticFit;
             fitSummaryLabel = new JLabel(buildFitSummaryHtml());
             fitSummaryLabel.setVerticalAlignment(SwingConstants.TOP);
-            breakCycleField = new JTextField(6);
-            breakCycleField.setBorder(BorderFactory.createTitledBorder(
-                    "Break cycle (optional)"));
+            breakCycleField = new JTextField(4);
+            tightenFieldHeight(breakCycleField);
             breakCycleField.setToolTipText(
                     "Cycle number where the O-C trend appears to change "
                             + "(Foster ch. 13). Leave blank for a single "
@@ -917,20 +918,20 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         }
 
         private JPanel createFitPane() {
-            JPanel panel = new JPanel();
-            panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+            JPanel panel = new JPanel(new BorderLayout(0, 4));
             panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-            JPanel twoSegmentPane = new JPanel();
-            twoSegmentPane.setLayout(new BoxLayout(twoSegmentPane,
-                    BoxLayout.LINE_AXIS));
-            twoSegmentPane.setBorder(BorderFactory.createTitledBorder(
-                    "Two-segment fit (optional)"));
+            JPanel twoSegmentPane = new JPanel(new FlowLayout(
+                    FlowLayout.LEFT, 6, 0));
+            twoSegmentPane.add(new JLabel("Break cycle:"));
             twoSegmentPane.add(breakCycleField);
-            twoSegmentPane.add(Box.createHorizontalStrut(8));
             JButton applyTwoSegmentButton = new JButton("Apply");
-            applyTwoSegmentButton.setToolTipText(
-                    "Fit separate lines before and after the break cycle");
+            int minCycle = minCycle(result.points);
+            int maxCycle = maxCycle(result.points);
+            applyTwoSegmentButton.setToolTipText(String.format(
+                    "Fit separate lines before and after the break cycle. "
+                            + "Cycles %d–%d; need ≥2 points each side of break.",
+                    minCycle, maxCycle));
             applyTwoSegmentButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -938,19 +939,12 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 }
             });
             twoSegmentPane.add(applyTwoSegmentButton);
-            twoSegmentPane.add(Box.createHorizontalStrut(8));
-            int minCycle = minCycle(result.points);
-            int maxCycle = maxCycle(result.points);
-            JLabel hintLabel = new JLabel(String.format(
-                    "Cycles %d–%d; need ≥2 points each side of break",
-                    minCycle, maxCycle));
-            twoSegmentPane.add(hintLabel);
-            panel.add(twoSegmentPane);
+            panel.add(twoSegmentPane, BorderLayout.NORTH);
 
             JScrollPane pane = new JScrollPane(fitSummaryLabel);
             pane.setPreferredSize(new Dimension(640, 220));
             pane.getVerticalScrollBar().setUnitIncrement(16);
-            panel.add(pane);
+            panel.add(pane, BorderLayout.CENTER);
             return panel;
         }
 
