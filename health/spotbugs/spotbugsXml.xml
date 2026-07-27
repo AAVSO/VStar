@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<BugCollection version="4.9.3" sequence="0" timestamp="1782141264069" analysisTimestamp="1782141264107" release="">
+<BugCollection version="4.9.3" sequence="0" timestamp="1785155168202" analysisTimestamp="1785155168249" release="">
   <Project projectName="">
     <Jar>/home/runner/work/VStar/VStar/dist/vstar.jar</Jar>
     <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/XMLLib.jar</AuxClasspathEntry>
@@ -2515,13 +2515,13 @@
     <ShortMessage>This write of this shared primitive variable may not be visible to other threads</ShortMessage>
     <LongMessage>Shared primitive variable &quot;obsTextProvided&quot; in one thread may not yield the value of the most recent write from another thread</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" start="62" end="380" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java">
-        <Message>At AdditiveLoadFileOrUrlChooser.java:[lines 62-380]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" start="64" end="388" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java">
+        <Message>At AdditiveLoadFileOrUrlChooser.java:[lines 64-388]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" name="setObsTextProvided" signature="(Z)V" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" start="319" end="320" startBytecode="0" endBytecode="61" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" start="327" end="328" startBytecode="0" endBytecode="61" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java"/>
       <Message>In method org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser.setObsTextProvided(boolean)</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" name="obsTextProvided" signature="Z" isStatic="false" primary="true">
@@ -2530,21 +2530,21 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser.obsTextProvided</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" primary="true" start="319" end="319" startBytecode="2" endBytecode="2" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java">
-      <Message>At AdditiveLoadFileOrUrlChooser.java:[line 319]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" primary="true" start="327" end="327" startBytecode="2" endBytecode="2" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java">
+      <Message>At AdditiveLoadFileOrUrlChooser.java:[line 327]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP" priority="2" rank="18" abbrev="EI" category="MALICIOUS_CODE" instanceHash="8ed60a256c51ab3a17f78b86a27e1adb" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
     <ShortMessage>May expose internal representation by returning reference to mutable object</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser.getDefaultFileExtensions() may expose internal representation by returning AdditiveLoadFileOrUrlChooser.extensions</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" start="62" end="380" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java">
-        <Message>At AdditiveLoadFileOrUrlChooser.java:[lines 62-380]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" start="64" end="388" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java">
+        <Message>At AdditiveLoadFileOrUrlChooser.java:[lines 64-388]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" name="getDefaultFileExtensions" signature="()Ljava/util/List;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" start="111" end="111" startBytecode="0" endBytecode="46" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" start="114" end="114" startBytecode="0" endBytecode="46" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java"/>
       <Message>In method org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser.getDefaultFileExtensions()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" name="extensions" signature="Ljava/util/List;" isStatic="false" primary="true">
@@ -2553,25 +2553,25 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser.extensions</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" primary="true" start="111" end="111" startBytecode="4" endBytecode="4" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java">
-      <Message>At AdditiveLoadFileOrUrlChooser.java:[line 111]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" primary="true" start="114" end="114" startBytecode="4" endBytecode="4" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java">
+      <Message>At AdditiveLoadFileOrUrlChooser.java:[line 114]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="SF_SWITCH_NO_DEFAULT" priority="2" rank="19" abbrev="SF" category="STYLE" instanceHash="204f263d73cc951ad4b1dc7033c39668" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
     <ShortMessage>Switch statement found where default case is missing</ShortMessage>
     <LongMessage>Switch statement found in org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser.createPluginsList() where default case is missing</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" start="62" end="380" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java">
-        <Message>At AdditiveLoadFileOrUrlChooser.java:[lines 62-380]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" start="64" end="388" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java">
+        <Message>At AdditiveLoadFileOrUrlChooser.java:[lines 64-388]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" name="createPluginsList" signature="()Ljavax/swing/JPanel;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" start="202" end="248" startBytecode="0" endBytecode="454" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" start="205" end="251" startBytecode="0" endBytecode="454" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java"/>
       <Message>In method org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser.createPluginsList()</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" primary="true" start="208" end="221" startBytecode="56" endBytecode="160" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java">
-      <Message>At AdditiveLoadFileOrUrlChooser.java:[lines 208-221]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" primary="true" start="211" end="224" startBytecode="56" endBytecode="160" sourcefile="AdditiveLoadFileOrUrlChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java">
+      <Message>At AdditiveLoadFileOrUrlChooser.java:[lines 211-224]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP" priority="2" rank="18" abbrev="EI" category="MALICIOUS_CODE" instanceHash="f926cbe8eeacdcc14648a6dd07a4cbb" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
@@ -2632,15 +2632,15 @@
   </BugInstance>
   <BugInstance type="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" priority="2" rank="11" abbrev="RCN" category="CORRECTNESS" instanceHash="27eab80cc3fe44bdfefd8217d90fd71" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="476">
     <ShortMessage>Nullcheck of value previously dereferenced</ShortMessage>
-    <LongMessage>Nullcheck of delimiter2suffixes at line 100 of value previously dereferenced in org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser.getSelectedFile()</LongMessage>
+    <LongMessage>Nullcheck of delimiter2suffixes at line 103 of value previously dereferenced in org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser.getSelectedFile()</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser" start="60" end="229" sourcefile="DelimitedFieldFileSaveChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java">
-        <Message>At DelimitedFieldFileSaveChooser.java:[lines 60-229]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser" start="62" end="236" sourcefile="DelimitedFieldFileSaveChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java">
+        <Message>At DelimitedFieldFileSaveChooser.java:[lines 62-236]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser" name="getSelectedFile" signature="()Ljava/io/File;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser" start="92" end="106" startBytecode="0" endBytecode="258" sourcefile="DelimitedFieldFileSaveChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser" start="95" end="109" startBytecode="0" endBytecode="258" sourcefile="DelimitedFieldFileSaveChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java"/>
       <Message>In method org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser.getSelectedFile()</Message>
     </Method>
     <LocalVariable name="delimiter2suffixes" register="3" pc="55" role="LOCAL_VARIABLE_VALUE_OF">
@@ -2650,11 +2650,11 @@
       <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSinkPluginBase" start="71" end="71" startBytecode="0" endBytecode="43" sourcefile="ObservationSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSinkPluginBase.java"/>
       <Message>Return value of org.aavso.tools.vstar.plugin.ObservationSinkPluginBase.getDelimiterSuffixValuePairs() of type java.util.Map</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser" primary="true" start="100" end="100" startBytecode="33" endBytecode="33" sourcefile="DelimitedFieldFileSaveChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java">
-      <Message>At DelimitedFieldFileSaveChooser.java:[line 100]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser" primary="true" start="103" end="103" startBytecode="33" endBytecode="33" sourcefile="DelimitedFieldFileSaveChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java">
+      <Message>At DelimitedFieldFileSaveChooser.java:[line 103]</Message>
     </SourceLine>
-    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser" start="102" end="102" startBytecode="56" endBytecode="56" sourcefile="DelimitedFieldFileSaveChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java" role="SOURCE_REDUNDANT_NULL_CHECK">
-      <Message>Redundant null check at DelimitedFieldFileSaveChooser.java:[line 102]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser" start="105" end="105" startBytecode="56" endBytecode="56" sourcefile="DelimitedFieldFileSaveChooser.java" sourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java" role="SOURCE_REDUNDANT_NULL_CHECK">
+      <Message>Redundant null check at DelimitedFieldFileSaveChooser.java:[line 105]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP2" priority="2" rank="18" abbrev="EI2" category="MALICIOUS_CODE" instanceHash="83e1cd8cb5ada710db22c26f50b6ba82" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
@@ -4138,13 +4138,13 @@
     <ShortMessage>Public static method may expose internal representation by returning a mutable object or array</ShortMessage>
     <LongMessage>Public static org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog.getInstance() may expose internal representation by returning PreferencesDialog.instance</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="49" end="139" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java">
-        <Message>At PreferencesDialog.java:[lines 49-139]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="50" end="145" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java">
+        <Message>At PreferencesDialog.java:[lines 50-145]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" name="getInstance" signature="()Lorg/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog;" isStatic="true" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="139" end="139" startBytecode="0" endBytecode="27" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="145" end="145" startBytecode="0" endBytecode="27" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java"/>
       <Message>In method org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog.getInstance()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" name="instance" signature="Lorg/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog;" isStatic="true" primary="true">
@@ -4153,21 +4153,21 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog.instance</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" primary="true" start="139" end="139" startBytecode="3" endBytecode="3" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java">
-      <Message>At PreferencesDialog.java:[line 139]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" primary="true" start="145" end="145" startBytecode="3" endBytecode="3" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java">
+      <Message>At PreferencesDialog.java:[line 145]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="SING_SINGLETON_IMPLEMENTS_SERIALIZABLE" priority="2" rank="7" abbrev="SING" category="CORRECTNESS" instanceHash="5a76751309184ecb81da88840f5757b4" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
     <ShortMessage>Class using singleton design pattern directly or indirectly implements Serializable interface.</ShortMessage>
     <LongMessage>Class (org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog) using singleton design pattern directly or indirectly implements Serializable interface.</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="49" end="139" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java">
-        <Message>At PreferencesDialog.java:[lines 49-139]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="50" end="145" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java">
+        <Message>At PreferencesDialog.java:[lines 50-145]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog</Message>
     </Class>
-    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="49" end="139" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" synthetic="true">
-      <Message>At PreferencesDialog.java:[lines 49-139]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="50" end="145" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" synthetic="true">
+      <Message>At PreferencesDialog.java:[lines 50-145]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP" priority="2" rank="18" abbrev="EI" category="MALICIOUS_CODE" instanceHash="cb286133b0dcd75cb31af5fa109208e3" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
@@ -15097,7 +15097,7 @@ signals unexpected behavior by returning an atypical return value.
     <Description>Test for floating point equality</Description>
   </BugCode>
   <Errors errors="0" missingClasses="0"></Errors>
-  <FindBugsSummary timestamp="Mon, 22 Jun 2026 15:14:24 +0000" total_classes="804" referenced_classes="1646" total_bugs="622" total_size="32806" num_packages="55" java_version="17.0.19" vm_version="17.0.19+10" cpu_seconds="70.10" clock_seconds="21.48" peak_mbytes="508.08" alloc_mbytes="1024.00" gc_seconds="0.49" priority_2="564" priority_1="58">
+  <FindBugsSummary timestamp="Mon, 27 Jul 2026 12:26:08 +0000" total_classes="809" referenced_classes="1651" total_bugs="622" total_size="32974" num_packages="55" java_version="17.0.19" vm_version="17.0.19+10" cpu_seconds="71.17" clock_seconds="22.07" peak_mbytes="494.54" alloc_mbytes="1024.00" gc_seconds="0.52" priority_2="564" priority_1="58">
     <FileStats path="org/aavso/tools/vstar/auth/AAVSOPostUserPassXMLAuthenticationSource.java" bugCount="1" size="68" bugHash="2b226ca312f5cbba10d35a00f50e21a4"/>
     <FileStats path="org/aavso/tools/vstar/auth/Auth0JSONAutheticationSource.java" bugCount="1" size="65" bugHash="03945e91cf6c274300ecb17b6aa07d37"/>
     <FileStats path="org/aavso/tools/vstar/auth/VSXWebServiceMemberInfo.java" bugCount="0" size="18"/>
@@ -15226,11 +15226,11 @@ signals unexpected behavior by returning an atypical return value.
     <FileStats path="org/aavso/tools/vstar/ui/VStar.java" bugCount="4" size="116" bugHash="7ca30deeb5097c1cad8416fca795c752"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/AboutBox.java" bugCount="0" size="131"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/AbstractOkCancelDialog.java" bugCount="0" size="90"/>
-    <FileStats path="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" bugCount="3" size="176" bugHash="d5085f04c76440e122bf4ca4881fcb39"/>
+    <FileStats path="org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java" bugCount="3" size="181" bugHash="86205e4400b515b62677ad7e1012249c"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/AuthCodeLoginDialog.java" bugCount="0" size="87"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/Checkbox.java" bugCount="1" size="29" bugHash="59e0d355090d7d4d2c41548965bfd0cb"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/DateToJdDialog.java" bugCount="2" size="179" bugHash="457064ec2a1d4837e9be4115afd5421c"/>
-    <FileStats path="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java" bugCount="1" size="95" bugHash="74c629b4e92a711a4f95033f21b36563"/>
+    <FileStats path="org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java" bugCount="1" size="100" bugHash="b2b23e76ed79ea292a8986855f8563cf"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/DiscrepantReportDialog.java" bugCount="0" size="75"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/DoubleField.java" bugCount="0" size="23"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/FileExtensionFilter.java" bugCount="1" size="25" bugHash="f46e9d8b2d3e179fb9ea186536884aa2"/>
@@ -15245,7 +15245,7 @@ signals unexpected behavior by returning an atypical return value.
     <FileStats path="org/aavso/tools/vstar/ui/dialog/MultiEntryComponentDialog.java" bugCount="1" size="79" bugHash="61d9571e6025331910c5e879fb8f0daf"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/NumberFieldBase.java" bugCount="1" size="41" bugHash="a1532e14453e67b384ca76559357a625"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/ObservationDetailsDialog.java" bugCount="1" size="104" bugHash="5ee4a5b84826bef80b9ada2b76c3503f"/>
-    <FileStats path="org/aavso/tools/vstar/ui/dialog/PNGImageFileSaveChooser.java" bugCount="0" size="16"/>
+    <FileStats path="org/aavso/tools/vstar/ui/dialog/PNGImageFileSaveChooser.java" bugCount="0" size="21"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/PhaseDialog.java" bugCount="0" size="127"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/PhaseParameterDialog.java" bugCount="1" size="114" bugHash="bb021387e06af5fc4728834f76c6fc13"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/PlotControlDialog.java" bugCount="2" size="198" bugHash="5f082632c4805663d40ddca55a7a6a22"/>
@@ -15282,6 +15282,7 @@ signals unexpected behavior by returning an atypical return value.
     <FileStats path="org/aavso/tools/vstar/ui/dialog/plugin/manager/PluginManager.java" bugCount="11" size="496" bugHash="9aac83c67bbccc3afe84c36ddd5110bc"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/plugin/manager/PluginManagerException.java" bugCount="0" size="13"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/ChartPropertiesSelectionPane.java" bugCount="4" size="344" bugHash="5e70640b9675b00ffd80a915f7cce9fb"/>
+    <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/DirectoriesSettingsPane.java" bugCount="0" size="90"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/IPreferenceComponent.java" bugCount="0" size="3"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/LocaleSelectionPane.java" bugCount="1" size="68" bugHash="5a70daaf4fd9e1c031595e81dbc97cf4"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/NewGroupDialog.java" bugCount="0" size="37"/>
@@ -15289,7 +15290,7 @@ signals unexpected behavior by returning an atypical return value.
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/NewStarDialog.java" bugCount="0" size="37"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/NumericPrecisionSelectionPane.java" bugCount="0" size="133"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/PluginSettingsPane.java" bugCount="0" size="136"/>
-    <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" bugCount="2" size="68" bugHash="a61856ed11b30f9e5c05d145a3d47ea8"/>
+    <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" bugCount="2" size="73" bugHash="6fcc045b04ddcb9e15b2d012180b2172"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/SeriesColorSelectionPane.java" bugCount="1" size="109" bugHash="ffb8a6fd8053f28d6b469511283d2552"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/SeriesSizeSelectionPane.java" bugCount="2" size="150" bugHash="5541c0399ad6e94b222fe6c202d2643e"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/StarGroupManagementPane.java" bugCount="0" size="190"/>
@@ -15470,6 +15471,7 @@ signals unexpected behavior by returning an atypical return value.
     <FileStats path="org/aavso/tools/vstar/util/period/wwz/WeightedWaveletZTransform.java" bugCount="22" size="446" bugHash="48e82a6a3d65d9f996f705c68fdf1e4e"/>
     <FileStats path="org/aavso/tools/vstar/util/plugin/URLAuthenticator.java" bugCount="0" size="10"/>
     <FileStats path="org/aavso/tools/vstar/util/prefs/ChartPropertiesPrefs.java" bugCount="2" size="121" bugHash="6b07f3919c872a2d99aa010b7657a4cd"/>
+    <FileStats path="org/aavso/tools/vstar/util/prefs/FilePathPrefs.java" bugCount="0" size="58"/>
     <FileStats path="org/aavso/tools/vstar/util/prefs/NumericPrecisionPrefs.java" bugCount="4" size="191" bugHash="4f6d0ebe02649d81fd042f54962cd397"/>
     <FileStats path="org/aavso/tools/vstar/util/property/ApplicationProperties.java" bugCount="3" size="81" bugHash="f098d3b995f2d2d8bd241a4874f08816"/>
     <FileStats path="org/aavso/tools/vstar/util/stats/Bin.java" bugCount="4" size="12" bugHash="02806939744bbb66a13131387d5570d9"/>
@@ -15773,14 +15775,14 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.ui.VStar$3" sourceFile="VStar.java" interface="false" size="7" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.VStar$4" sourceFile="VStar.java" interface="false" size="7" bugs="1" priority_2="1"/>
     </PackageStats>
-    <PackageStats package="org.aavso.tools.vstar.ui.dialog" total_bugs="30" total_types="70" total_size="3118" priority_2="28" priority_1="2">
+    <PackageStats package="org.aavso.tools.vstar.ui.dialog" total_bugs="30" total_types="70" total_size="3133" priority_2="28" priority_1="2">
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.AboutBox" sourceFile="AboutBox.java" interface="false" size="123" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.AboutBox$1" sourceFile="AboutBox.java" interface="false" size="8" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog" sourceFile="AbstractOkCancelDialog.java" interface="false" size="67" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog$1" sourceFile="AbstractOkCancelDialog.java" interface="false" size="7" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog$2" sourceFile="AbstractOkCancelDialog.java" interface="false" size="9" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog$3" sourceFile="AbstractOkCancelDialog.java" interface="false" size="7" bugs="0"/>
-      <ClassStats class="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" sourceFile="AdditiveLoadFileOrUrlChooser.java" interface="false" size="142" bugs="3" priority_2="3"/>
+      <ClassStats class="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser" sourceFile="AdditiveLoadFileOrUrlChooser.java" interface="false" size="147" bugs="3" priority_2="3"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser$1" sourceFile="AdditiveLoadFileOrUrlChooser.java" interface="false" size="11" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser$2" sourceFile="AdditiveLoadFileOrUrlChooser.java" interface="false" size="11" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser$3" sourceFile="AdditiveLoadFileOrUrlChooser.java" interface="false" size="8" bugs="0"/>
@@ -15792,7 +15794,7 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.DateToJdDialog" sourceFile="DateToJdDialog.java" interface="false" size="158" bugs="1" priority_2="1"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.DateToJdDialog$1" sourceFile="DateToJdDialog.java" interface="false" size="7" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.DateToJdDialog$DoubleFieldSeconds" sourceFile="DateToJdDialog.java" interface="false" size="14" bugs="1" priority_2="1"/>
-      <ClassStats class="org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser" sourceFile="DelimitedFieldFileSaveChooser.java" interface="false" size="87" bugs="1" priority_2="1"/>
+      <ClassStats class="org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser" sourceFile="DelimitedFieldFileSaveChooser.java" interface="false" size="92" bugs="1" priority_2="1"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser$1" sourceFile="DelimitedFieldFileSaveChooser.java" interface="false" size="8" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.DiscrepantReportDialog" sourceFile="DiscrepantReportDialog.java" interface="false" size="75" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.DoubleField" sourceFile="DoubleField.java" interface="false" size="23" bugs="0"/>
@@ -15812,7 +15814,7 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog$1" sourceFile="ObservationDetailsDialog.java" interface="false" size="8" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog$2" sourceFile="ObservationDetailsDialog.java" interface="false" size="26" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog$3" sourceFile="ObservationDetailsDialog.java" interface="false" size="14" bugs="0"/>
-      <ClassStats class="org.aavso.tools.vstar.ui.dialog.PNGImageFileSaveChooser" sourceFile="PNGImageFileSaveChooser.java" interface="false" size="16" bugs="0"/>
+      <ClassStats class="org.aavso.tools.vstar.ui.dialog.PNGImageFileSaveChooser" sourceFile="PNGImageFileSaveChooser.java" interface="false" size="21" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.PhaseDialog" sourceFile="PhaseDialog.java" interface="false" size="71" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.PhaseDialog$1" sourceFile="PhaseDialog.java" interface="false" size="15" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.PhaseDialog$2" sourceFile="PhaseDialog.java" interface="false" size="11" bugs="0"/>
@@ -15947,7 +15949,7 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager$Operation" sourceFile="PluginManager.java" interface="false" size="11" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagerException" sourceFile="PluginManagerException.java" interface="false" size="13" bugs="0"/>
     </PackageStats>
-    <PackageStats package="org.aavso.tools.vstar.ui.dialog.prefs" total_bugs="11" total_types="55" total_size="1416" priority_2="10" priority_1="1">
+    <PackageStats package="org.aavso.tools.vstar.ui.dialog.prefs" total_bugs="11" total_types="59" total_size="1511" priority_2="10" priority_1="1">
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.ChartPropertiesSelectionPane" sourceFile="ChartPropertiesSelectionPane.java" interface="false" size="165" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.ChartPropertiesSelectionPane$1" sourceFile="ChartPropertiesSelectionPane.java" interface="false" size="8" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.ChartPropertiesSelectionPane$2" sourceFile="ChartPropertiesSelectionPane.java" interface="false" size="10" bugs="0"/>
@@ -15961,6 +15963,10 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.ChartPropertiesSelectionPane$ChartFontLabel" sourceFile="ChartPropertiesSelectionPane.java" interface="false" size="20" bugs="1" priority_2="1"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.ChartPropertiesSelectionPane$ColorRectComponent" sourceFile="ChartPropertiesSelectionPane.java" interface="false" size="34" bugs="1" priority_2="1"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.ChartPropertiesSelectionPane$FontDialog" sourceFile="ChartPropertiesSelectionPane.java" interface="false" size="33" bugs="2" priority_2="1" priority_1="1"/>
+      <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.DirectoriesSettingsPane" sourceFile="DirectoriesSettingsPane.java" interface="false" size="56" bugs="0"/>
+      <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.DirectoriesSettingsPane$1" sourceFile="DirectoriesSettingsPane.java" interface="false" size="19" bugs="0"/>
+      <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.DirectoriesSettingsPane$2" sourceFile="DirectoriesSettingsPane.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.DirectoriesSettingsPane$3" sourceFile="DirectoriesSettingsPane.java" interface="false" size="7" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.IPreferenceComponent" sourceFile="IPreferenceComponent.java" interface="true" size="3" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.LocaleSelectionPane" sourceFile="LocaleSelectionPane.java" interface="false" size="46" bugs="1" priority_2="1"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.LocaleSelectionPane$1" sourceFile="LocaleSelectionPane.java" interface="false" size="7" bugs="0"/>
@@ -15980,7 +15986,7 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.PluginSettingsPane$2" sourceFile="PluginSettingsPane.java" interface="false" size="9" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.PluginSettingsPane$3" sourceFile="PluginSettingsPane.java" interface="false" size="21" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.PluginSettingsPane$4" sourceFile="PluginSettingsPane.java" interface="false" size="7" bugs="0"/>
-      <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" sourceFile="PreferencesDialog.java" interface="false" size="68" bugs="2" priority_2="2"/>
+      <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" sourceFile="PreferencesDialog.java" interface="false" size="73" bugs="2" priority_2="2"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.SeriesColorSelectionPane" sourceFile="SeriesColorSelectionPane.java" interface="false" size="74" bugs="1" priority_2="1"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.SeriesColorSelectionPane$1" sourceFile="SeriesColorSelectionPane.java" interface="false" size="11" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.SeriesColorSelectionPane$2" sourceFile="SeriesColorSelectionPane.java" interface="false" size="8" bugs="0"/>
@@ -16310,8 +16316,9 @@ signals unexpected behavior by returning an atypical return value.
     <PackageStats package="org.aavso.tools.vstar.util.plugin" total_bugs="0" total_types="1" total_size="10">
       <ClassStats class="org.aavso.tools.vstar.util.plugin.URLAuthenticator" sourceFile="URLAuthenticator.java" interface="false" size="10" bugs="0"/>
     </PackageStats>
-    <PackageStats package="org.aavso.tools.vstar.util.prefs" total_bugs="6" total_types="4" total_size="312" priority_2="4" priority_1="2">
+    <PackageStats package="org.aavso.tools.vstar.util.prefs" total_bugs="6" total_types="5" total_size="370" priority_2="4" priority_1="2">
       <ClassStats class="org.aavso.tools.vstar.util.prefs.ChartPropertiesPrefs" sourceFile="ChartPropertiesPrefs.java" interface="false" size="121" bugs="2" priority_1="2"/>
+      <ClassStats class="org.aavso.tools.vstar.util.prefs.FilePathPrefs" sourceFile="FilePathPrefs.java" interface="false" size="58" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs" sourceFile="NumericPrecisionPrefs.java" interface="false" size="166" bugs="3" priority_2="3"/>
       <ClassStats class="org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs$1" sourceFile="NumericPrecisionPrefs.java" interface="false" size="4" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs$Type" sourceFile="NumericPrecisionPrefs.java" interface="false" size="21" bugs="1" priority_2="1"/>
@@ -16420,57 +16427,53 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.vela.VeLaVisitor" sourceFile="VeLaVisitor.java" interface="true" size="32" bugs="0"/>
     </PackageStats>
     <FindBugsProfile>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="993" invocations="4156" avgMicrosecondsPerInvocation="239" maxMicrosecondsPerInvocation="16521" standardDeviationMicrosecondsPerInvocation="671"/>
-      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.NullDerefAndRedundantComparisonFinder" totalMilliseconds="973" invocations="4775" avgMicrosecondsPerInvocation="203" maxMicrosecondsPerInvocation="16227" standardDeviationMicrosecondsPerInvocation="658"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueNumberDataflowFactory" totalMilliseconds="955" invocations="5183" avgMicrosecondsPerInvocation="184" maxMicrosecondsPerInvocation="42350" standardDeviationMicrosecondsPerInvocation="861"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.TypeDataflowFactory" totalMilliseconds="882" invocations="5104" avgMicrosecondsPerInvocation="172" maxMicrosecondsPerInvocation="24050" standardDeviationMicrosecondsPerInvocation="657"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNoSideEffectMethods" totalMilliseconds="871" invocations="1646" avgMicrosecondsPerInvocation="529" maxMicrosecondsPerInvocation="29179" standardDeviationMicrosecondsPerInvocation="1445"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.IsNullValueDataflowFactory" totalMilliseconds="856" invocations="4959" avgMicrosecondsPerInvocation="172" maxMicrosecondsPerInvocation="11728" standardDeviationMicrosecondsPerInvocation="503"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.UnconditionalValueDerefDataflowFactory" totalMilliseconds="801" invocations="4935" avgMicrosecondsPerInvocation="162" maxMicrosecondsPerInvocation="41422" standardDeviationMicrosecondsPerInvocation="830"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="735" invocations="1646" avgMicrosecondsPerInvocation="446" maxMicrosecondsPerInvocation="12238" standardDeviationMicrosecondsPerInvocation="1047"/>
-      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="584" invocations="6909" avgMicrosecondsPerInvocation="84" maxMicrosecondsPerInvocation="4958" standardDeviationMicrosecondsPerInvocation="234"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison$SpecialTypeAnalysis" totalMilliseconds="544" invocations="3829" avgMicrosecondsPerInvocation="142" maxMicrosecondsPerInvocation="8968" standardDeviationMicrosecondsPerInvocation="369"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine" totalMilliseconds="506" invocations="4166" avgMicrosecondsPerInvocation="121" maxMicrosecondsPerInvocation="25025" standardDeviationMicrosecondsPerInvocation="927"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.CFGFactory" totalMilliseconds="494" invocations="5209" avgMicrosecondsPerInvocation="94" maxMicrosecondsPerInvocation="5837" standardDeviationMicrosecondsPerInvocation="214"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindReturnRef" totalMilliseconds="332" invocations="804" avgMicrosecondsPerInvocation="414" maxMicrosecondsPerInvocation="23073" standardDeviationMicrosecondsPerInvocation="1327"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ConstructorThrow" totalMilliseconds="302" invocations="804" avgMicrosecondsPerInvocation="375" maxMicrosecondsPerInvocation="11137" standardDeviationMicrosecondsPerInvocation="889"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ConstantDataflowFactory" totalMilliseconds="253" invocations="4959" avgMicrosecondsPerInvocation="51" maxMicrosecondsPerInvocation="22725" standardDeviationMicrosecondsPerInvocation="420"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers" totalMilliseconds="232" invocations="1646" avgMicrosecondsPerInvocation="140" maxMicrosecondsPerInvocation="3652" standardDeviationMicrosecondsPerInvocation="325"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ResourceInMultipleThreadsDetector" totalMilliseconds="230" invocations="804" avgMicrosecondsPerInvocation="286" maxMicrosecondsPerInvocation="10509" standardDeviationMicrosecondsPerInvocation="681"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine" totalMilliseconds="226" invocations="1984" avgMicrosecondsPerInvocation="114" maxMicrosecondsPerInvocation="14188" standardDeviationMicrosecondsPerInvocation="468"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.UnreadFields" totalMilliseconds="201" invocations="804" avgMicrosecondsPerInvocation="250" maxMicrosecondsPerInvocation="16274" standardDeviationMicrosecondsPerInvocation="788"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.LoadOfKnownNullValue" totalMilliseconds="198" invocations="804" avgMicrosecondsPerInvocation="246" maxMicrosecondsPerInvocation="26543" standardDeviationMicrosecondsPerInvocation="1130"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.SharedVariableAtomicityDetector" totalMilliseconds="184" invocations="804" avgMicrosecondsPerInvocation="229" maxMicrosecondsPerInvocation="67048" standardDeviationMicrosecondsPerInvocation="2626"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildObligationPolicyDatabase" totalMilliseconds="177" invocations="1646" avgMicrosecondsPerInvocation="108" maxMicrosecondsPerInvocation="14223" standardDeviationMicrosecondsPerInvocation="402"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.CalledMethods" totalMilliseconds="176" invocations="1646" avgMicrosecondsPerInvocation="106" maxMicrosecondsPerInvocation="3354" standardDeviationMicrosecondsPerInvocation="257"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.MethodGenFactory" totalMilliseconds="169" invocations="5209" avgMicrosecondsPerInvocation="32" maxMicrosecondsPerInvocation="14792" standardDeviationMicrosecondsPerInvocation="217"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUncalledPrivateMethods" totalMilliseconds="168" invocations="804" avgMicrosecondsPerInvocation="209" maxMicrosecondsPerInvocation="2089" standardDeviationMicrosecondsPerInvocation="221"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical" totalMilliseconds="164" invocations="1646" avgMicrosecondsPerInvocation="99" maxMicrosecondsPerInvocation="17451" standardDeviationMicrosecondsPerInvocation="558"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindInconsistentSync2" totalMilliseconds="158" invocations="804" avgMicrosecondsPerInvocation="197" maxMicrosecondsPerInvocation="8915" standardDeviationMicrosecondsPerInvocation="481"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.DumbMethods" totalMilliseconds="149" invocations="804" avgMicrosecondsPerInvocation="185" maxMicrosecondsPerInvocation="6395" standardDeviationMicrosecondsPerInvocation="410"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" totalMilliseconds="140" invocations="1646" avgMicrosecondsPerInvocation="85" maxMicrosecondsPerInvocation="4474" standardDeviationMicrosecondsPerInvocation="225"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildStringPassthruGraph" totalMilliseconds="137" invocations="1646" avgMicrosecondsPerInvocation="83" maxMicrosecondsPerInvocation="18070" standardDeviationMicrosecondsPerInvocation="492"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis" totalMilliseconds="135" invocations="1646" avgMicrosecondsPerInvocation="82" maxMicrosecondsPerInvocation="25112" standardDeviationMicrosecondsPerInvocation="725"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindDeadLocalStores" totalMilliseconds="128" invocations="804" avgMicrosecondsPerInvocation="160" maxMicrosecondsPerInvocation="7929" standardDeviationMicrosecondsPerInvocation="449"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.MethodReturnCheck" totalMilliseconds="126" invocations="804" avgMicrosecondsPerInvocation="157" maxMicrosecondsPerInvocation="4464" standardDeviationMicrosecondsPerInvocation="356"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison" totalMilliseconds="124" invocations="804" avgMicrosecondsPerInvocation="155" maxMicrosecondsPerInvocation="4584" standardDeviationMicrosecondsPerInvocation="335"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNullDeref$CheckCallSitesAndReturnInstructions" totalMilliseconds="121" invocations="4775" avgMicrosecondsPerInvocation="25" maxMicrosecondsPerInvocation="1561" standardDeviationMicrosecondsPerInvocation="62"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindPublicAttributes" totalMilliseconds="121" invocations="804" avgMicrosecondsPerInvocation="150" maxMicrosecondsPerInvocation="5091" standardDeviationMicrosecondsPerInvocation="377"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.SerializableIdiom" totalMilliseconds="121" invocations="804" avgMicrosecondsPerInvocation="150" maxMicrosecondsPerInvocation="8355" standardDeviationMicrosecondsPerInvocation="542"/>
-      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.TypeQualifierNullnessAnnotationDatabase" totalMilliseconds="118" invocations="122479" avgMicrosecondsPerInvocation="0" maxMicrosecondsPerInvocation="2012" standardDeviationMicrosecondsPerInvocation="7"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.LiveLocalStoreDataflowFactory" totalMilliseconds="114" invocations="4703" avgMicrosecondsPerInvocation="24" maxMicrosecondsPerInvocation="4797" standardDeviationMicrosecondsPerInvocation="102"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ReflectiveClasses" totalMilliseconds="112" invocations="1646" avgMicrosecondsPerInvocation="68" maxMicrosecondsPerInvocation="2550" standardDeviationMicrosecondsPerInvocation="178"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.CheckRelaxingNullnessAnnotation" totalMilliseconds="111" invocations="804" avgMicrosecondsPerInvocation="138" maxMicrosecondsPerInvocation="10266" standardDeviationMicrosecondsPerInvocation="485"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindPuzzlers" totalMilliseconds="111" invocations="804" avgMicrosecondsPerInvocation="138" maxMicrosecondsPerInvocation="4169" standardDeviationMicrosecondsPerInvocation="304"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindHEmismatch" totalMilliseconds="109" invocations="804" avgMicrosecondsPerInvocation="136" maxMicrosecondsPerInvocation="3555" standardDeviationMicrosecondsPerInvocation="276"/>
-      <ClassProfile name="edu.umd.cs.findbugs.util.TopologicalSort" totalMilliseconds="109" invocations="4048" avgMicrosecondsPerInvocation="26" maxMicrosecondsPerInvocation="4864" standardDeviationMicrosecondsPerInvocation="91"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueRangeAnalysisFactory" totalMilliseconds="108" invocations="5209" avgMicrosecondsPerInvocation="20" maxMicrosecondsPerInvocation="18905" standardDeviationMicrosecondsPerInvocation="320"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.MultipleInstantiationsOfSingletons" totalMilliseconds="108" invocations="804" avgMicrosecondsPerInvocation="134" maxMicrosecondsPerInvocation="3360" standardDeviationMicrosecondsPerInvocation="261"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindSelfComparison" totalMilliseconds="107" invocations="804" avgMicrosecondsPerInvocation="133" maxMicrosecondsPerInvocation="6775" standardDeviationMicrosecondsPerInvocation="380"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindOverridableMethodCall" totalMilliseconds="106" invocations="804" avgMicrosecondsPerInvocation="133" maxMicrosecondsPerInvocation="4961" standardDeviationMicrosecondsPerInvocation="318"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUselessObjects" totalMilliseconds="103" invocations="804" avgMicrosecondsPerInvocation="129" maxMicrosecondsPerInvocation="23206" standardDeviationMicrosecondsPerInvocation="902"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.SwitchFallthrough" totalMilliseconds="103" invocations="804" avgMicrosecondsPerInvocation="128" maxMicrosecondsPerInvocation="3989" standardDeviationMicrosecondsPerInvocation="307"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.RuntimeExceptionCapture" totalMilliseconds="101" invocations="804" avgMicrosecondsPerInvocation="125" maxMicrosecondsPerInvocation="3410" standardDeviationMicrosecondsPerInvocation="264"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine" totalMilliseconds="1416" invocations="4171" avgMicrosecondsPerInvocation="339" maxMicrosecondsPerInvocation="96929" standardDeviationMicrosecondsPerInvocation="3506"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="1037" invocations="4161" avgMicrosecondsPerInvocation="249" maxMicrosecondsPerInvocation="25130" standardDeviationMicrosecondsPerInvocation="799"/>
+      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.NullDerefAndRedundantComparisonFinder" totalMilliseconds="947" invocations="4799" avgMicrosecondsPerInvocation="197" maxMicrosecondsPerInvocation="26260" standardDeviationMicrosecondsPerInvocation="776"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNoSideEffectMethods" totalMilliseconds="924" invocations="1651" avgMicrosecondsPerInvocation="560" maxMicrosecondsPerInvocation="28226" standardDeviationMicrosecondsPerInvocation="1446"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.IsNullValueDataflowFactory" totalMilliseconds="900" invocations="4983" avgMicrosecondsPerInvocation="180" maxMicrosecondsPerInvocation="23629" standardDeviationMicrosecondsPerInvocation="707"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueNumberDataflowFactory" totalMilliseconds="894" invocations="5207" avgMicrosecondsPerInvocation="171" maxMicrosecondsPerInvocation="69212" standardDeviationMicrosecondsPerInvocation="1109"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.TypeDataflowFactory" totalMilliseconds="809" invocations="5128" avgMicrosecondsPerInvocation="157" maxMicrosecondsPerInvocation="19572" standardDeviationMicrosecondsPerInvocation="538"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="782" invocations="1651" avgMicrosecondsPerInvocation="473" maxMicrosecondsPerInvocation="15774" standardDeviationMicrosecondsPerInvocation="1088"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.UnconditionalValueDerefDataflowFactory" totalMilliseconds="701" invocations="4959" avgMicrosecondsPerInvocation="141" maxMicrosecondsPerInvocation="25066" standardDeviationMicrosecondsPerInvocation="593"/>
+      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="598" invocations="6933" avgMicrosecondsPerInvocation="86" maxMicrosecondsPerInvocation="12765" standardDeviationMicrosecondsPerInvocation="261"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison$SpecialTypeAnalysis" totalMilliseconds="560" invocations="3851" avgMicrosecondsPerInvocation="145" maxMicrosecondsPerInvocation="14386" standardDeviationMicrosecondsPerInvocation="506"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.CFGFactory" totalMilliseconds="482" invocations="5233" avgMicrosecondsPerInvocation="92" maxMicrosecondsPerInvocation="9361" standardDeviationMicrosecondsPerInvocation="232"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindReturnRef" totalMilliseconds="328" invocations="809" avgMicrosecondsPerInvocation="406" maxMicrosecondsPerInvocation="24690" standardDeviationMicrosecondsPerInvocation="1303"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ConstructorThrow" totalMilliseconds="297" invocations="809" avgMicrosecondsPerInvocation="367" maxMicrosecondsPerInvocation="16700" standardDeviationMicrosecondsPerInvocation="886"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers" totalMilliseconds="240" invocations="1651" avgMicrosecondsPerInvocation="145" maxMicrosecondsPerInvocation="7521" standardDeviationMicrosecondsPerInvocation="365"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine" totalMilliseconds="238" invocations="1989" avgMicrosecondsPerInvocation="119" maxMicrosecondsPerInvocation="15304" standardDeviationMicrosecondsPerInvocation="490"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ResourceInMultipleThreadsDetector" totalMilliseconds="228" invocations="809" avgMicrosecondsPerInvocation="281" maxMicrosecondsPerInvocation="16442" standardDeviationMicrosecondsPerInvocation="805"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ConstantDataflowFactory" totalMilliseconds="218" invocations="4983" avgMicrosecondsPerInvocation="43" maxMicrosecondsPerInvocation="12737" standardDeviationMicrosecondsPerInvocation="253"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.UnreadFields" totalMilliseconds="191" invocations="809" avgMicrosecondsPerInvocation="237" maxMicrosecondsPerInvocation="5224" standardDeviationMicrosecondsPerInvocation="472"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildObligationPolicyDatabase" totalMilliseconds="187" invocations="1651" avgMicrosecondsPerInvocation="113" maxMicrosecondsPerInvocation="25746" standardDeviationMicrosecondsPerInvocation="656"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.SharedVariableAtomicityDetector" totalMilliseconds="186" invocations="809" avgMicrosecondsPerInvocation="230" maxMicrosecondsPerInvocation="67057" standardDeviationMicrosecondsPerInvocation="2576"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.MethodGenFactory" totalMilliseconds="185" invocations="5233" avgMicrosecondsPerInvocation="35" maxMicrosecondsPerInvocation="22477" standardDeviationMicrosecondsPerInvocation="322"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUncalledPrivateMethods" totalMilliseconds="180" invocations="809" avgMicrosecondsPerInvocation="223" maxMicrosecondsPerInvocation="3563" standardDeviationMicrosecondsPerInvocation="284"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.LoadOfKnownNullValue" totalMilliseconds="176" invocations="809" avgMicrosecondsPerInvocation="218" maxMicrosecondsPerInvocation="12033" standardDeviationMicrosecondsPerInvocation="677"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.CalledMethods" totalMilliseconds="176" invocations="1651" avgMicrosecondsPerInvocation="106" maxMicrosecondsPerInvocation="6909" standardDeviationMicrosecondsPerInvocation="297"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindInconsistentSync2" totalMilliseconds="169" invocations="809" avgMicrosecondsPerInvocation="209" maxMicrosecondsPerInvocation="9442" standardDeviationMicrosecondsPerInvocation="579"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" totalMilliseconds="147" invocations="1651" avgMicrosecondsPerInvocation="89" maxMicrosecondsPerInvocation="4452" standardDeviationMicrosecondsPerInvocation="231"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.DumbMethods" totalMilliseconds="144" invocations="809" avgMicrosecondsPerInvocation="178" maxMicrosecondsPerInvocation="4757" standardDeviationMicrosecondsPerInvocation="395"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical" totalMilliseconds="138" invocations="1651" avgMicrosecondsPerInvocation="84" maxMicrosecondsPerInvocation="8111" standardDeviationMicrosecondsPerInvocation="254"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildStringPassthruGraph" totalMilliseconds="138" invocations="1651" avgMicrosecondsPerInvocation="83" maxMicrosecondsPerInvocation="16605" standardDeviationMicrosecondsPerInvocation="459"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ReflectiveClasses" totalMilliseconds="135" invocations="1651" avgMicrosecondsPerInvocation="81" maxMicrosecondsPerInvocation="16613" standardDeviationMicrosecondsPerInvocation="471"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindDeadLocalStores" totalMilliseconds="135" invocations="809" avgMicrosecondsPerInvocation="166" maxMicrosecondsPerInvocation="10505" standardDeviationMicrosecondsPerInvocation="530"/>
+      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.TypeQualifierNullnessAnnotationDatabase" totalMilliseconds="130" invocations="122729" avgMicrosecondsPerInvocation="1" maxMicrosecondsPerInvocation="3054" standardDeviationMicrosecondsPerInvocation="12"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis" totalMilliseconds="123" invocations="1651" avgMicrosecondsPerInvocation="74" maxMicrosecondsPerInvocation="27683" standardDeviationMicrosecondsPerInvocation="691"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison" totalMilliseconds="122" invocations="809" avgMicrosecondsPerInvocation="151" maxMicrosecondsPerInvocation="4740" standardDeviationMicrosecondsPerInvocation="327"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueRangeAnalysisFactory" totalMilliseconds="122" invocations="5233" avgMicrosecondsPerInvocation="23" maxMicrosecondsPerInvocation="17864" standardDeviationMicrosecondsPerInvocation="360"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNullDeref$CheckCallSitesAndReturnInstructions" totalMilliseconds="120" invocations="4799" avgMicrosecondsPerInvocation="25" maxMicrosecondsPerInvocation="4278" standardDeviationMicrosecondsPerInvocation="92"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUselessObjects" totalMilliseconds="119" invocations="809" avgMicrosecondsPerInvocation="148" maxMicrosecondsPerInvocation="23101" standardDeviationMicrosecondsPerInvocation="998"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.LiveLocalStoreDataflowFactory" totalMilliseconds="118" invocations="4727" avgMicrosecondsPerInvocation="25" maxMicrosecondsPerInvocation="3622" standardDeviationMicrosecondsPerInvocation="108"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.SerializableIdiom" totalMilliseconds="115" invocations="809" avgMicrosecondsPerInvocation="142" maxMicrosecondsPerInvocation="6348" standardDeviationMicrosecondsPerInvocation="470"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.MethodReturnCheck" totalMilliseconds="114" invocations="809" avgMicrosecondsPerInvocation="141" maxMicrosecondsPerInvocation="4319" standardDeviationMicrosecondsPerInvocation="332"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindPublicAttributes" totalMilliseconds="114" invocations="809" avgMicrosecondsPerInvocation="141" maxMicrosecondsPerInvocation="5771" standardDeviationMicrosecondsPerInvocation="403"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindHEmismatch" totalMilliseconds="113" invocations="809" avgMicrosecondsPerInvocation="140" maxMicrosecondsPerInvocation="3662" standardDeviationMicrosecondsPerInvocation="294"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ExplicitSerialization" totalMilliseconds="111" invocations="1651" avgMicrosecondsPerInvocation="67" maxMicrosecondsPerInvocation="15557" standardDeviationMicrosecondsPerInvocation="598"/>
+      <ClassProfile name="edu.umd.cs.findbugs.util.TopologicalSort" totalMilliseconds="107" invocations="4053" avgMicrosecondsPerInvocation="26" maxMicrosecondsPerInvocation="10604" standardDeviationMicrosecondsPerInvocation="172"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.MultipleInstantiationsOfSingletons" totalMilliseconds="106" invocations="809" avgMicrosecondsPerInvocation="131" maxMicrosecondsPerInvocation="4035" standardDeviationMicrosecondsPerInvocation="291"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindPuzzlers" totalMilliseconds="102" invocations="809" avgMicrosecondsPerInvocation="126" maxMicrosecondsPerInvocation="4734" standardDeviationMicrosecondsPerInvocation="331"/>
     </FindBugsProfile>
   </FindBugsSummary>
   <ClassFeatures></ClassFeatures>
