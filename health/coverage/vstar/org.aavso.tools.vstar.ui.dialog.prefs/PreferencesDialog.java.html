@@ -41,56 +41,60 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	private PluginSettingsPane pluginSettingsPane;
 	private LocaleSelectionPane localeSelectionPane;
 	private VeLaSettingsPane veLaSettingsPane;
+	private DirectoriesSettingsPane directoriesSettingsPane;
 	
 	/**
 	 * Constructor.
 	 */
 	private PreferencesDialog() {
-<span class="nc" id="L49">		super(&quot;Preferences&quot;);</span>
+<span class="nc" id="L50">		super(&quot;Preferences&quot;);</span>
 
-<span class="nc" id="L51">		Container contentPane = this.getContentPane();</span>
+<span class="nc" id="L52">		Container contentPane = this.getContentPane();</span>
 
-<span class="nc" id="L53">		JPanel topPane = new JPanel();</span>
-<span class="nc" id="L54">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
-<span class="nc" id="L55">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+<span class="nc" id="L54">		JPanel topPane = new JPanel();</span>
+<span class="nc" id="L55">		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L56">		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
 
-<span class="nc" id="L57">		topPane.add(createTabs());</span>
-<span class="nc" id="L58">		topPane.add(createButtonPane());</span>
+<span class="nc" id="L58">		topPane.add(createTabs());</span>
+<span class="nc" id="L59">		topPane.add(createButtonPane());</span>
 
-<span class="nc" id="L60">		contentPane.add(topPane);</span>
+<span class="nc" id="L61">		contentPane.add(topPane);</span>
 
-<span class="nc" id="L62">		this.pack();</span>
-<span class="nc" id="L63">		this.setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
-<span class="nc" id="L64">	}</span>
+<span class="nc" id="L63">		this.pack();</span>
+<span class="nc" id="L64">		this.setLocationRelativeTo(Mediator.getUI().getContentPane());</span>
+<span class="nc" id="L65">	}</span>
 
 	private JTabbedPane createTabs() {
-<span class="nc" id="L67">		JTabbedPane tabs = new JTabbedPane();</span>
+<span class="nc" id="L68">		JTabbedPane tabs = new JTabbedPane();</span>
 
-<span class="nc" id="L69">		seriesColorPane = new SeriesColorSelectionPane();</span>
-<span class="nc" id="L70">		tabs.addTab(&quot;Series Colors&quot;, seriesColorPane);</span>
+<span class="nc" id="L70">		seriesColorPane = new SeriesColorSelectionPane();</span>
+<span class="nc" id="L71">		tabs.addTab(&quot;Series Colors&quot;, seriesColorPane);</span>
 
-<span class="nc" id="L72">		seriesSizePane = new SeriesSizeSelectionPane();</span>
-<span class="nc" id="L73">		tabs.addTab(&quot;Series Size&quot;, seriesSizePane);</span>
+<span class="nc" id="L73">		seriesSizePane = new SeriesSizeSelectionPane();</span>
+<span class="nc" id="L74">		tabs.addTab(&quot;Series Size&quot;, seriesSizePane);</span>
 		
-<span class="nc" id="L75">		chartPropertiesPane = new ChartPropertiesSelectionPane();</span>
-<span class="nc" id="L76">		tabs.addTab(&quot;Chart Properties&quot;, chartPropertiesPane);</span>
+<span class="nc" id="L76">		chartPropertiesPane = new ChartPropertiesSelectionPane();</span>
+<span class="nc" id="L77">		tabs.addTab(&quot;Chart Properties&quot;, chartPropertiesPane);</span>
 		
-<span class="nc" id="L78">		numericPrecisionPane = new NumericPrecisionSelectionPane();</span>
-<span class="nc" id="L79">		tabs.addTab(&quot;Numeric Precision&quot;, numericPrecisionPane);</span>
+<span class="nc" id="L79">		numericPrecisionPane = new NumericPrecisionSelectionPane();</span>
+<span class="nc" id="L80">		tabs.addTab(&quot;Numeric Precision&quot;, numericPrecisionPane);</span>
 		
-<span class="nc" id="L81">		starGroupManagementPane = new StarGroupManagementPane();</span>
-<span class="nc" id="L82">		tabs.addTab(&quot;Star Groups&quot;, starGroupManagementPane);</span>
+<span class="nc" id="L82">		starGroupManagementPane = new StarGroupManagementPane();</span>
+<span class="nc" id="L83">		tabs.addTab(&quot;Star Groups&quot;, starGroupManagementPane);</span>
 		
-<span class="nc" id="L84">		pluginSettingsPane = new PluginSettingsPane();</span>
-<span class="nc" id="L85">		tabs.addTab(&quot;Plug-ins&quot;, pluginSettingsPane);</span>
+<span class="nc" id="L85">		pluginSettingsPane = new PluginSettingsPane();</span>
+<span class="nc" id="L86">		tabs.addTab(&quot;Plug-ins&quot;, pluginSettingsPane);</span>
 
-<span class="nc" id="L87">		localeSelectionPane = new LocaleSelectionPane();</span>
-<span class="nc" id="L88">		tabs.addTab(&quot;Locale&quot;, localeSelectionPane);</span>
+<span class="nc" id="L88">		localeSelectionPane = new LocaleSelectionPane();</span>
+<span class="nc" id="L89">		tabs.addTab(&quot;Locale&quot;, localeSelectionPane);</span>
 		
-<span class="nc" id="L90">		veLaSettingsPane = new VeLaSettingsPane();</span>
-<span class="nc" id="L91">		tabs.addTab(&quot;VeLa&quot;, veLaSettingsPane);</span>
+<span class="nc" id="L91">		veLaSettingsPane = new VeLaSettingsPane();</span>
+<span class="nc" id="L92">		tabs.addTab(&quot;VeLa&quot;, veLaSettingsPane);</span>
+
+<span class="nc" id="L94">		directoriesSettingsPane = new DirectoriesSettingsPane();</span>
+<span class="nc" id="L95">		tabs.addTab(&quot;Directories&quot;, directoriesSettingsPane);</span>
 		
-<span class="nc" id="L93">		return tabs;</span>
+<span class="nc" id="L97">		return tabs;</span>
 	}
 
 	/**
@@ -98,45 +102,47 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	 */
 	protected void cancelAction() {
 		// Nothing to do.
-<span class="nc" id="L101">	}</span>
+<span class="nc" id="L105">	}</span>
 
 	/**
 	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
 	 */
 	protected void okAction() {
-<span class="nc" id="L107">		seriesColorPane.update();</span>
-<span class="nc" id="L108">		seriesSizePane.update();</span>
-<span class="nc" id="L109">		chartPropertiesPane.update();</span>
-<span class="nc" id="L110">		numericPrecisionPane.update();</span>
-<span class="nc" id="L111">		starGroupManagementPane.update();</span>
-<span class="nc" id="L112">		pluginSettingsPane.update();</span>
-<span class="nc" id="L113">		localeSelectionPane.update();</span>
-<span class="nc" id="L114">		veLaSettingsPane.update();</span>
+<span class="nc" id="L111">		seriesColorPane.update();</span>
+<span class="nc" id="L112">		seriesSizePane.update();</span>
+<span class="nc" id="L113">		chartPropertiesPane.update();</span>
+<span class="nc" id="L114">		numericPrecisionPane.update();</span>
+<span class="nc" id="L115">		starGroupManagementPane.update();</span>
+<span class="nc" id="L116">		pluginSettingsPane.update();</span>
+<span class="nc" id="L117">		localeSelectionPane.update();</span>
+<span class="nc" id="L118">		veLaSettingsPane.update();</span>
+<span class="nc" id="L119">		directoriesSettingsPane.update();</span>
 		
-<span class="nc" id="L116">		this.setVisible(false);</span>
-<span class="nc" id="L117">	}</span>
+<span class="nc" id="L121">		this.setVisible(false);</span>
+<span class="nc" id="L122">	}</span>
 
 	/**
 	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#reset()
 	 */
 	protected void reset() {
-<span class="nc" id="L123">		seriesColorPane.reset();</span>
-<span class="nc" id="L124">		seriesSizePane.reset();</span>
-<span class="nc" id="L125">		chartPropertiesPane.reset();</span>
-<span class="nc" id="L126">		numericPrecisionPane.reset();</span>
-<span class="nc" id="L127">		starGroupManagementPane.reset();</span>
-<span class="nc" id="L128">		pluginSettingsPane.reset();</span>
-<span class="nc" id="L129">		localeSelectionPane.reset();</span>
-<span class="nc" id="L130">		veLaSettingsPane.reset();</span>
-<span class="nc" id="L131">	}</span>
+<span class="nc" id="L128">		seriesColorPane.reset();</span>
+<span class="nc" id="L129">		seriesSizePane.reset();</span>
+<span class="nc" id="L130">		chartPropertiesPane.reset();</span>
+<span class="nc" id="L131">		numericPrecisionPane.reset();</span>
+<span class="nc" id="L132">		starGroupManagementPane.reset();</span>
+<span class="nc" id="L133">		pluginSettingsPane.reset();</span>
+<span class="nc" id="L134">		localeSelectionPane.reset();</span>
+<span class="nc" id="L135">		veLaSettingsPane.reset();</span>
+<span class="nc" id="L136">		directoriesSettingsPane.reset();</span>
+<span class="nc" id="L137">	}</span>
 
 	/**
 	 * Singleton
 	 */
-<span class="nc" id="L136">	private static PreferencesDialog instance = new PreferencesDialog();</span>
+<span class="nc" id="L142">	private static PreferencesDialog instance = new PreferencesDialog();</span>
 
 	public static PreferencesDialog getInstance() {
-<span class="nc" id="L139">		return instance;</span>
+<span class="nc" id="L145">		return instance;</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

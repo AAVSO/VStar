@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DirectoriesSettingsPane.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.ui.dialog.prefs</a> &gt; <span class="el_source">DirectoriesSettingsPane.java</span></div><h1>DirectoriesSettingsPane.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2026  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.ui.dialog.prefs;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.prefs.FilePathPrefs;
+
+/**
+ * Default observation source and sink directory preferences panel.
+ */
+@SuppressWarnings(&quot;serial&quot;)
+public class DirectoriesSettingsPane extends JPanel implements
+		IPreferenceComponent {
+
+	private JTextField sourceDirField;
+	private JTextField sinkDirField;
+	private JFileChooser dirChooser;
+
+	/**
+	 * Constructor.
+	 */
+	public DirectoriesSettingsPane() {
+<span class="nc" id="L53">		super();</span>
+
+<span class="nc" id="L55">		JPanel directoriesPane = new JPanel();</span>
+<span class="nc" id="L56">		directoriesPane.setLayout(new BoxLayout(directoriesPane,</span>
+				BoxLayout.PAGE_AXIS));
+<span class="nc" id="L58">		directoriesPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+
+<span class="nc" id="L60">		dirChooser = new JFileChooser();</span>
+<span class="nc" id="L61">		dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);</span>
+
+<span class="nc" id="L63">		sourceDirField = new JTextField(FilePathPrefs.getObsSourceDir(), 40);</span>
+<span class="nc" id="L64">		directoriesPane.add(createDirectoryRow(&quot;Source directory&quot;,</span>
+				&quot;Default directory for opening observation files&quot;,
+<span class="nc" id="L66">				sourceDirField, createBrowseListener(true)));</span>
+
+<span class="nc" id="L68">		directoriesPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+<span class="nc" id="L70">		sinkDirField = new JTextField(FilePathPrefs.getObsSinkDir(), 40);</span>
+<span class="nc" id="L71">		directoriesPane.add(createDirectoryRow(&quot;Sink directory&quot;,</span>
+				&quot;Default directory for saving observation lists and plot images&quot;,
+<span class="nc" id="L73">				sinkDirField, createBrowseListener(false)));</span>
+
+<span class="nc" id="L75">		directoriesPane.add(Box.createRigidArea(new Dimension(10, 10)));</span>
+
+<span class="nc" id="L77">		directoriesPane.add(createButtonPane());</span>
+
+<span class="nc" id="L79">		this.add(directoriesPane);</span>
+<span class="nc" id="L80">	}</span>
+
+	private JPanel createDirectoryRow(String title, String toolTip,
+			JTextField field, ActionListener browseListener) {
+<span class="nc" id="L84">		JPanel row = new JPanel();</span>
+<span class="nc" id="L85">		row.setLayout(new BoxLayout(row, BoxLayout.LINE_AXIS));</span>
+
+<span class="nc" id="L87">		field.setToolTipText(toolTip);</span>
+<span class="nc" id="L88">		field.setBorder(BorderFactory.createTitledBorder(title));</span>
+<span class="nc" id="L89">		row.add(field);</span>
+
+<span class="nc" id="L91">		JButton browseButton = new JButton(&quot;Browse...&quot;);</span>
+<span class="nc" id="L92">		browseButton.addActionListener(browseListener);</span>
+<span class="nc" id="L93">		row.add(browseButton);</span>
+
+<span class="nc" id="L95">		return row;</span>
+	}
+
+	private JPanel createButtonPane() {
+<span class="nc" id="L99">		JPanel panel = new JPanel(new BorderLayout());</span>
+
+<span class="nc" id="L101">		JButton setDefaultsButton = new JButton(&quot;Set Defaults&quot;);</span>
+<span class="nc" id="L102">		setDefaultsButton</span>
+<span class="nc" id="L103">				.addActionListener(createSetDefaultsButtonActionListener());</span>
+<span class="nc" id="L104">		panel.add(setDefaultsButton, BorderLayout.LINE_START);</span>
+
+<span class="nc" id="L106">		JButton applyButton = new JButton(LocaleProps.get(&quot;APPLY_BUTTON&quot;));</span>
+<span class="nc" id="L107">		applyButton.addActionListener(createApplyButtonActionListener());</span>
+<span class="nc" id="L108">		panel.add(applyButton, BorderLayout.LINE_END);</span>
+
+<span class="nc" id="L110">		return panel;</span>
+	}
+
+	private ActionListener createBrowseListener(final boolean forSource) {
+<span class="nc" id="L114">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc bnc" id="L116" title="All 2 branches missed.">				JTextField field = forSource ? sourceDirField : sinkDirField;</span>
+<span class="nc" id="L117">				String current = field.getText().trim();</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">				if (!current.isEmpty()) {</span>
+<span class="nc" id="L119">					File currentDir = new File(current);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">					if (currentDir.isDirectory()) {</span>
+<span class="nc" id="L121">						dirChooser.setCurrentDirectory(currentDir);</span>
+					}
+				}
+
+<span class="nc" id="L125">				int retVal = dirChooser.showOpenDialog(DocumentManager</span>
+<span class="nc" id="L126">						.findActiveWindow());</span>
+
+<span class="nc bnc" id="L128" title="All 2 branches missed.">				if (retVal == JFileChooser.APPROVE_OPTION) {</span>
+<span class="nc" id="L129">					File file = dirChooser.getSelectedFile();</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">					if (file.isDirectory()) {</span>
+<span class="nc" id="L131">						field.setText(file.getAbsolutePath());</span>
+					}
+				}
+<span class="nc" id="L134">			}</span>
+		};
+	}
+
+	private ActionListener createSetDefaultsButtonActionListener() {
+<span class="nc" id="L139">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L141">				sourceDirField.setText(FilePathPrefs.DEFAULT_DIR);</span>
+<span class="nc" id="L142">				sinkDirField.setText(FilePathPrefs.DEFAULT_DIR);</span>
+<span class="nc" id="L143">			}</span>
+		};
+	}
+
+	private ActionListener createApplyButtonActionListener() {
+<span class="nc" id="L148">		return new ActionListener() {</span>
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L150">				update();</span>
+<span class="nc" id="L151">			}</span>
+		};
+	}
+
+	/**
+	 * Updates the stored preferences from the UI.
+	 */
+	@Override
+	public void update() {
+<span class="nc" id="L160">		FilePathPrefs.setObsSourceDir(sourceDirField.getText().trim());</span>
+<span class="nc" id="L161">		FilePathPrefs.setObsSinkDir(sinkDirField.getText().trim());</span>
+<span class="nc" id="L162">	}</span>
+
+	/**
+	 * Prepare this pane for use by resetting whatever state needs to be.
+	 */
+	@Override
+	public void reset() {
+<span class="nc" id="L169">		sourceDirField.setText(FilePathPrefs.getObsSourceDir());</span>
+<span class="nc" id="L170">		sinkDirField.setText(FilePathPrefs.getObsSinkDir());</span>
+<span class="nc" id="L171">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

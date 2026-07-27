@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilePathPrefs.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VStar</a> &gt; <a href="index.source.html" class="el_package">org.aavso.tools.vstar.util.prefs</a> &gt; <span class="el_source">FilePathPrefs.java</span></div><h1>FilePathPrefs.java</h1><pre class="source lang-java linenums">/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2026  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. 
+ */
+package org.aavso.tools.vstar.util.prefs;
+
+import java.io.File;
+import java.util.prefs.Preferences;
+
+import javax.swing.JFileChooser;
+
+/**
+ * Default observation source and sink file-path preferences.
+ */
+<span class="nc" id="L28">public class FilePathPrefs {</span>
+
+	public final static String DEFAULT_DIR = &quot;&quot;;
+
+	private final static String PREFS_PREFIX = &quot;FILE_PATH_&quot;;
+	private final static String OBS_SOURCE_DIR = &quot;OBS_SOURCE_DIR&quot;;
+	private final static String OBS_SINK_DIR = &quot;OBS_SINK_DIR&quot;;
+
+	private static Preferences prefs;
+
+<span class="nc" id="L38">	private static String obsSourceDir = DEFAULT_DIR;</span>
+<span class="nc" id="L39">	private static String obsSinkDir = DEFAULT_DIR;</span>
+
+	static {
+		try {
+<span class="nc" id="L43">			prefs = Preferences.userNodeForPackage(FilePathPrefs.class);</span>
+<span class="nc" id="L44">			loadPrefs();</span>
+<span class="nc" id="L45">		} catch (Throwable t) {</span>
+			// We need VStar to function in the absence of prefs.
+<span class="nc" id="L47">		}</span>
+<span class="nc" id="L48">	}</span>
+
+	public static String getObsSourceDir() {
+<span class="nc" id="L51">		return obsSourceDir;</span>
+	}
+
+	public static void setObsSourceDir(String dir) {
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		obsSourceDir = dir != null ? dir : DEFAULT_DIR;</span>
+<span class="nc" id="L56">		savePrefs();</span>
+<span class="nc" id="L57">	}</span>
+
+	public static String getObsSinkDir() {
+<span class="nc" id="L60">		return obsSinkDir;</span>
+	}
+
+	public static void setObsSinkDir(String dir) {
+<span class="nc bnc" id="L64" title="All 2 branches missed.">		obsSinkDir = dir != null ? dir : DEFAULT_DIR;</span>
+<span class="nc" id="L65">		savePrefs();</span>
+<span class="nc" id="L66">	}</span>
+
+	public static void setDefaultPrefs() {
+<span class="nc" id="L69">		obsSourceDir = DEFAULT_DIR;</span>
+<span class="nc" id="L70">		obsSinkDir = DEFAULT_DIR;</span>
+<span class="nc" id="L71">		savePrefs();</span>
+<span class="nc" id="L72">	}</span>
+
+	/**
+	 * Set the file chooser's current directory if the given path is a
+	 * non-empty existing directory; otherwise leave the chooser unchanged.
+	 */
+	public static void applyDirectory(JFileChooser fileChooser, String path) {
+<span class="nc bnc" id="L79" title="All 4 branches missed.">		if (fileChooser == null || path == null) {</span>
+<span class="nc" id="L80">			return;</span>
+		}
+
+<span class="nc" id="L83">		String trimmed = path.trim();</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">		if (trimmed.isEmpty()) {</span>
+<span class="nc" id="L85">			return;</span>
+		}
+
+<span class="nc" id="L88">		File dir = new File(trimmed);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		if (dir.isDirectory()) {</span>
+<span class="nc" id="L90">			fileChooser.setCurrentDirectory(dir);</span>
+		}
+<span class="nc" id="L92">	}</span>
+
+	private static void loadPrefs() {
+		try {
+<span class="nc" id="L96">			obsSourceDir = prefs.get(PREFS_PREFIX + OBS_SOURCE_DIR, DEFAULT_DIR);</span>
+<span class="nc" id="L97">			obsSinkDir = prefs.get(PREFS_PREFIX + OBS_SINK_DIR, DEFAULT_DIR);</span>
+<span class="nc" id="L98">		} catch (Throwable t) {</span>
+			// We need VStar to function in the absence of prefs.
+<span class="nc" id="L100">		}</span>
+<span class="nc" id="L101">	}</span>
+
+	private static void savePrefs() {
+		try {
+<span class="nc" id="L105">			prefs.put(PREFS_PREFIX + OBS_SOURCE_DIR, obsSourceDir);</span>
+<span class="nc" id="L106">			prefs.put(PREFS_PREFIX + OBS_SINK_DIR, obsSinkDir);</span>
+<span class="nc" id="L107">			prefs.flush();</span>
+<span class="nc" id="L108">		} catch (Throwable t) {</span>
+			// We need VStar to function in the absence of prefs.
+<span class="nc" id="L110">		}</span>
+<span class="nc" id="L111">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

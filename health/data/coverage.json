@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-22",
+  "updated": "2026-07-27",
   "java_version": "17",
   "tests": 1013,
   "passed": 1013,
@@ -7,8 +7,8 @@
   "errors": 0,
   "line_coverage": "57%",
   "branch_coverage": "48%",
-  "gui_line_coverage": "11.9%",
-  "gui_branch_coverage": "7.1%",
-  "combined_line_coverage": "35.1%",
-  "combined_branch_coverage": "32.6%"
+  "gui_line_coverage": "11.8%",
+  "gui_branch_coverage": "7.0%",
+  "combined_line_coverage": "34.9%",
+  "combined_branch_coverage": "32.5%"
 }

@@ -43,6 +43,7 @@ import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.prefs.FilePathPrefs;
 
 /**
  * This class aggregates a JFileChooser and additive load checkbox and URL entry
@@ -51,6 +52,7 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 public class AdditiveLoadFileOrUrlChooser {
 
     private JFileChooser fileChooser;
+    private boolean defaultDirectoryApplied;
     private JCheckBox additiveLoadCheckbox;
     private boolean urlProvided;
     private boolean obsTextProvided;
@@ -59,8 +61,8 @@ public class AdditiveLoadFileOrUrlChooser {
     private TextField urlField;
     private TextArea obsTextField;
     private TextArea velaFilterField;
-<span class="nc" id="L62">    private List&lt;String&gt; DEFAULT_EXTENSIONS = new ArrayList&lt;String&gt;();</span>
-<span class="nc" id="L63">    private List&lt;String&gt; extensions = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L64">    private List&lt;String&gt; DEFAULT_EXTENSIONS = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L65">    private List&lt;String&gt; extensions = new ArrayList&lt;String&gt;();</span>
     private Map&lt;String, ObservationSourcePluginBase&gt; plugins;
     private JComboBox&lt;String&gt; pluginChooser;
 
@@ -70,37 +72,38 @@ public class AdditiveLoadFileOrUrlChooser {
      * @param allowURL  Should a URL entry be allowed?
      * @param allowText Should a text entry be allowed?
      */
-<span class="nc" id="L73">    public AdditiveLoadFileOrUrlChooser(boolean allowURL, boolean allowText) {</span>
-<span class="nc" id="L74">        fileChooser = new JFileChooser();</span>
+<span class="nc" id="L75">    public AdditiveLoadFileOrUrlChooser(boolean allowURL, boolean allowText) {</span>
+<span class="nc" id="L76">        fileChooser = new JFileChooser();</span>
+<span class="nc" id="L77">        defaultDirectoryApplied = false;</span>
 
-<span class="nc" id="L76">        fileChooser.setMultiSelectionEnabled(true);</span>
+<span class="nc" id="L79">        fileChooser.setMultiSelectionEnabled(true);</span>
 
-<span class="nc" id="L78">        urlProvided = false;</span>
-<span class="nc" id="L79">        plugins = new TreeMap&lt;String, ObservationSourcePluginBase&gt;();</span>
+<span class="nc" id="L81">        urlProvided = false;</span>
+<span class="nc" id="L82">        plugins = new TreeMap&lt;String, ObservationSourcePluginBase&gt;();</span>
 
         // Default file extensions.
-<span class="nc" id="L82">        DEFAULT_EXTENSIONS.add(&quot;csv&quot;);</span>
-<span class="nc" id="L83">        DEFAULT_EXTENSIONS.add(&quot;dat&quot;);</span>
-<span class="nc" id="L84">        DEFAULT_EXTENSIONS.add(&quot;tsv&quot;);</span>
-<span class="nc" id="L85">        DEFAULT_EXTENSIONS.add(&quot;txt&quot;);</span>
-<span class="nc" id="L86">        setFileExtensions(DEFAULT_EXTENSIONS);</span>
+<span class="nc" id="L85">        DEFAULT_EXTENSIONS.add(&quot;csv&quot;);</span>
+<span class="nc" id="L86">        DEFAULT_EXTENSIONS.add(&quot;dat&quot;);</span>
+<span class="nc" id="L87">        DEFAULT_EXTENSIONS.add(&quot;tsv&quot;);</span>
+<span class="nc" id="L88">        DEFAULT_EXTENSIONS.add(&quot;txt&quot;);</span>
+<span class="nc" id="L89">        setFileExtensions(DEFAULT_EXTENSIONS);</span>
 
-<span class="nc" id="L88">        JPanel accessoryPane = new JPanel();</span>
-<span class="nc" id="L89">        accessoryPane.setLayout(new BoxLayout(accessoryPane, BoxLayout.PAGE_AXIS));</span>
-<span class="nc" id="L90">        accessoryPane.add(createAdditiveLoadCheckboxPane());</span>
-<span class="nc" id="L91">        accessoryPane.add(createUrlPane());</span>
-<span class="nc" id="L92">        accessoryPane.add(createObsTextPane());</span>
+<span class="nc" id="L91">        JPanel accessoryPane = new JPanel();</span>
+<span class="nc" id="L92">        accessoryPane.setLayout(new BoxLayout(accessoryPane, BoxLayout.PAGE_AXIS));</span>
+<span class="nc" id="L93">        accessoryPane.add(createAdditiveLoadCheckboxPane());</span>
+<span class="nc" id="L94">        accessoryPane.add(createUrlPane());</span>
+<span class="nc" id="L95">        accessoryPane.add(createObsTextPane());</span>
 
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {</span>
-<span class="nc" id="L95">            accessoryPane.add(createPluginsList());</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {</span>
+<span class="nc" id="L98">            accessoryPane.add(createPluginsList());</span>
         }
 
-<span class="nc" id="L98">        Pair&lt;TextArea, JPanel&gt; pair = PluginComponentFactory.createVeLaFilterPane();</span>
-<span class="nc" id="L99">        velaFilterField = pair.first;</span>
-<span class="nc" id="L100">        accessoryPane.add(pair.second);</span>
+<span class="nc" id="L101">        Pair&lt;TextArea, JPanel&gt; pair = PluginComponentFactory.createVeLaFilterPane();</span>
+<span class="nc" id="L102">        velaFilterField = pair.first;</span>
+<span class="nc" id="L103">        accessoryPane.add(pair.second);</span>
 
-<span class="nc" id="L102">        fileChooser.setAccessory(accessoryPane);</span>
-<span class="nc" id="L103">    }</span>
+<span class="nc" id="L105">        fileChooser.setAccessory(accessoryPane);</span>
+<span class="nc" id="L106">    }</span>
 
     /**
      * Returns the default file extensions.
@@ -108,7 +111,7 @@ public class AdditiveLoadFileOrUrlChooser {
      * @return the list of file extension strings.
      */
     public List&lt;String&gt; getDefaultFileExtensions() {
-<span class="nc" id="L111">        return extensions;</span>
+<span class="nc" id="L114">        return extensions;</span>
     }
 
     /**
@@ -117,9 +120,9 @@ public class AdditiveLoadFileOrUrlChooser {
      * @param extensions the list of extensions to filter files with
      */
     public synchronized void setFileExtensions(List&lt;String&gt; extensions) {
-<span class="nc" id="L120">        fileChooser.removeChoosableFileFilter(fileChooser.getFileFilter());</span>
-<span class="nc" id="L121">        fileChooser.setFileFilter(new FileExtensionFilter(extensions));</span>
-<span class="nc" id="L122">    }</span>
+<span class="nc" id="L123">        fileChooser.removeChoosableFileFilter(fileChooser.getFileFilter());</span>
+<span class="nc" id="L124">        fileChooser.setFileFilter(new FileExtensionFilter(extensions));</span>
+<span class="nc" id="L125">    }</span>
 
     /**
      * Returns the content of the VeLa filter field.
@@ -127,45 +130,45 @@ public class AdditiveLoadFileOrUrlChooser {
      * @return the string content of the VeLa filter field.
      */
     public String getVeLaFilter() {
-<span class="nc" id="L130">        return velaFilterField.getValue().trim();</span>
+<span class="nc" id="L133">        return velaFilterField.getValue().trim();</span>
     }
 
     /**
      * This component provides an additive load checkbox.
      */
     private JPanel createAdditiveLoadCheckboxPane() {
-<span class="nc" id="L137">        JPanel panel = new JPanel();</span>
-<span class="nc" id="L138">        panel.setBorder(BorderFactory.createTitledBorder(&quot;Additive Load&quot;));</span>
+<span class="nc" id="L140">        JPanel panel = new JPanel();</span>
+<span class="nc" id="L141">        panel.setBorder(BorderFactory.createTitledBorder(&quot;Additive Load&quot;));</span>
 
-<span class="nc" id="L140">        additiveLoadCheckbox = new JCheckBox(&quot;Add to current?&quot;);</span>
-<span class="nc" id="L141">        panel.add(additiveLoadCheckbox);</span>
+<span class="nc" id="L143">        additiveLoadCheckbox = new JCheckBox(&quot;Add to current?&quot;);</span>
+<span class="nc" id="L144">        panel.add(additiveLoadCheckbox);</span>
 
-<span class="nc" id="L143">        return panel;</span>
+<span class="nc" id="L146">        return panel;</span>
     }
 
     /**
      * This component creates a URL request button and corresponding action.
      */
     private JPanel createUrlPane() {
-<span class="nc" id="L150">        JPanel pane = new JPanel();</span>
+<span class="nc" id="L153">        JPanel pane = new JPanel();</span>
 
-<span class="nc" id="L152">        urlRequestButton = new JButton(&quot;Request URL&quot;);</span>
+<span class="nc" id="L155">        urlRequestButton = new JButton(&quot;Request URL&quot;);</span>
 
-<span class="nc" id="L154">        urlRequestButton.addActionListener(new ActionListener() {</span>
+<span class="nc" id="L157">        urlRequestButton.addActionListener(new ActionListener() {</span>
             @Override
             public void actionPerformed(ActionEvent e) {
-<span class="nc" id="L157">                urlField = new TextField(&quot;URL&quot;);</span>
-<span class="nc" id="L158">                TextDialog urlDialog = new TextDialog(&quot;Enter URL&quot;, urlField);</span>
-<span class="nc bnc" id="L159" title="All 4 branches missed.">                if (!urlDialog.isCancelled() &amp;&amp; !urlField.getValue().matches(&quot;^\\s*$&quot;)) {</span>
-<span class="nc" id="L160">                    urlProvided = true;</span>
-<span class="nc" id="L161">                    fileChooser.approveSelection();</span>
+<span class="nc" id="L160">                urlField = new TextField(&quot;URL&quot;);</span>
+<span class="nc" id="L161">                TextDialog urlDialog = new TextDialog(&quot;Enter URL&quot;, urlField);</span>
+<span class="nc bnc" id="L162" title="All 4 branches missed.">                if (!urlDialog.isCancelled() &amp;&amp; !urlField.getValue().matches(&quot;^\\s*$&quot;)) {</span>
+<span class="nc" id="L163">                    urlProvided = true;</span>
+<span class="nc" id="L164">                    fileChooser.approveSelection();</span>
                 }
-<span class="nc" id="L163">            }</span>
+<span class="nc" id="L166">            }</span>
         });
 
-<span class="nc" id="L166">        pane.add(urlRequestButton);</span>
+<span class="nc" id="L169">        pane.add(urlRequestButton);</span>
 
-<span class="nc" id="L168">        return pane;</span>
+<span class="nc" id="L171">        return pane;</span>
     }
 
     /**
@@ -173,25 +176,25 @@ public class AdditiveLoadFileOrUrlChooser {
      * action.
      */
     private JPanel createObsTextPane() {
-<span class="nc" id="L176">        JPanel pane = new JPanel();</span>
+<span class="nc" id="L179">        JPanel pane = new JPanel();</span>
 
-<span class="nc" id="L178">        obsTextRequestButton = new JButton(&quot;Request Observation Text&quot;);</span>
+<span class="nc" id="L181">        obsTextRequestButton = new JButton(&quot;Request Observation Text&quot;);</span>
 
-<span class="nc" id="L180">        obsTextRequestButton.addActionListener(new ActionListener() {</span>
+<span class="nc" id="L183">        obsTextRequestButton.addActionListener(new ActionListener() {</span>
             @Override
             public void actionPerformed(ActionEvent e) {
-<span class="nc" id="L183">                obsTextField = new TextArea(&quot;Observation Text&quot;, &quot;&quot;, 30, 60, false, false);</span>
-<span class="nc" id="L184">                TextDialog obsTextDialog = new TextDialog(&quot;Enter Observation Text&quot;, true, true, obsTextField);</span>
-<span class="nc bnc" id="L185" title="All 4 branches missed.">                if (!obsTextDialog.isCancelled() &amp;&amp; !obsTextField.getValue().matches(&quot;^\\s*$&quot;)) {</span>
-<span class="nc" id="L186">                    obsTextProvided = true;</span>
-<span class="nc" id="L187">                    fileChooser.approveSelection();</span>
+<span class="nc" id="L186">                obsTextField = new TextArea(&quot;Observation Text&quot;, &quot;&quot;, 30, 60, false, false);</span>
+<span class="nc" id="L187">                TextDialog obsTextDialog = new TextDialog(&quot;Enter Observation Text&quot;, true, true, obsTextField);</span>
+<span class="nc bnc" id="L188" title="All 4 branches missed.">                if (!obsTextDialog.isCancelled() &amp;&amp; !obsTextField.getValue().matches(&quot;^\\s*$&quot;)) {</span>
+<span class="nc" id="L189">                    obsTextProvided = true;</span>
+<span class="nc" id="L190">                    fileChooser.approveSelection();</span>
                 }
-<span class="nc" id="L189">            }</span>
+<span class="nc" id="L192">            }</span>
         });
 
-<span class="nc" id="L192">        pane.add(obsTextRequestButton);</span>
+<span class="nc" id="L195">        pane.add(obsTextRequestButton);</span>
 
-<span class="nc" id="L194">        return pane;</span>
+<span class="nc" id="L197">        return pane;</span>
     }
 
     /**
@@ -199,53 +202,53 @@ public class AdditiveLoadFileOrUrlChooser {
      * selected.
      */
     private JPanel createPluginsList() {
-<span class="nc" id="L202">        JPanel pane = new JPanel();</span>
+<span class="nc" id="L205">        JPanel pane = new JPanel();</span>
 
-<span class="nc" id="L204">        pane.setBorder(BorderFactory.createTitledBorder(&quot;Source&quot;));</span>
+<span class="nc" id="L207">        pane.setBorder(BorderFactory.createTitledBorder(&quot;Source&quot;));</span>
 
-<span class="nc bnc" id="L206" title="All 2 branches missed.">        for (ObservationSourcePluginBase plugin : PluginLoader.getObservationSourcePlugins()) {</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">        for (ObservationSourcePluginBase plugin : PluginLoader.getObservationSourcePlugins()) {</span>
 
-<span class="nc bnc" id="L208" title="All 2 branches missed.">            switch (plugin.getInputType()) {</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">            switch (plugin.getInputType()) {</span>
             case FILE:
             case FILE_OR_URL:
-<span class="nc" id="L211">                String name = plugin.getDisplayName();</span>
-<span class="nc bnc" id="L212" title="All 2 branches missed.">                if (name.equals(LocaleProps.get(&quot;FILE_MENU_NEW_STAR_FROM_FILE&quot;))) {</span>
+<span class="nc" id="L214">                String name = plugin.getDisplayName();</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">                if (name.equals(LocaleProps.get(&quot;FILE_MENU_NEW_STAR_FROM_FILE&quot;))) {</span>
                     // Handle localised &quot;New Star from File&quot;
-<span class="nc" id="L214">                    name = LocaleProps.get(&quot;TEXT_FORMAT_FILE&quot;);</span>
+<span class="nc" id="L217">                    name = LocaleProps.get(&quot;TEXT_FORMAT_FILE&quot;);</span>
                 } else {
                     // Shorten other &quot;New Star from &quot; plugin names.
-<span class="nc" id="L217">                    name = name.replace(&quot;New Star from &quot;, &quot;&quot;);</span>
-<span class="nc" id="L218">                    name = name.replace(&quot; File&quot;, &quot;&quot;);</span>
-<span class="nc" id="L219">                    name = name.replace(&quot;...&quot;, &quot;&quot;);</span>
+<span class="nc" id="L220">                    name = name.replace(&quot;New Star from &quot;, &quot;&quot;);</span>
+<span class="nc" id="L221">                    name = name.replace(&quot; File&quot;, &quot;&quot;);</span>
+<span class="nc" id="L222">                    name = name.replace(&quot;...&quot;, &quot;&quot;);</span>
                 }
-<span class="nc" id="L221">                plugins.put(name, plugin);</span>
+<span class="nc" id="L224">                plugins.put(name, plugin);</span>
             default:
             }
-<span class="nc" id="L224">        }</span>
+<span class="nc" id="L227">        }</span>
 
-<span class="nc" id="L226">        pluginChooser = new JComboBox&lt;String&gt;(plugins.keySet().toArray(new String[0]));</span>
-<span class="nc" id="L227">        pluginChooser.setSelectedItem(LocaleProps.get(&quot;TEXT_FORMAT_FILE&quot;));</span>
+<span class="nc" id="L229">        pluginChooser = new JComboBox&lt;String&gt;(plugins.keySet().toArray(new String[0]));</span>
+<span class="nc" id="L230">        pluginChooser.setSelectedItem(LocaleProps.get(&quot;TEXT_FORMAT_FILE&quot;));</span>
         // pluginChooser.setBorder(BorderFactory.createTitledBorder(&quot;Source&quot;));
 
-<span class="nc" id="L230">        pluginChooser.addActionListener(e -&gt; {</span>
-<span class="nc" id="L231">            updateFileAndUrlWidgetsForPlugin();</span>
-<span class="nc" id="L232">        });</span>
+<span class="nc" id="L233">        pluginChooser.addActionListener(e -&gt; {</span>
+<span class="nc" id="L234">            updateFileAndUrlWidgetsForPlugin();</span>
+<span class="nc" id="L235">        });</span>
 
-<span class="nc" id="L234">        pane.add(pluginChooser);</span>
+<span class="nc" id="L237">        pane.add(pluginChooser);</span>
 
-<span class="nc" id="L236">        JButton helpButton = new JButton(&quot;?&quot;);</span>
+<span class="nc" id="L239">        JButton helpButton = new JButton(&quot;?&quot;);</span>
 
-<span class="nc" id="L238">        helpButton.addActionListener(new ActionListener() {</span>
+<span class="nc" id="L241">        helpButton.addActionListener(new ActionListener() {</span>
             @Override
             public void actionPerformed(ActionEvent e) {
-<span class="nc" id="L241">                Optional&lt;ObservationSourcePluginBase&gt; plugin = getSelectedPlugin();</span>
-<span class="nc bnc" id="L242" title="All 2 branches missed.">                Help.openPluginHelp(plugin.isPresent() ? plugin.get().getDocName() : null);</span>
-<span class="nc" id="L243">            }</span>
+<span class="nc" id="L244">                Optional&lt;ObservationSourcePluginBase&gt; plugin = getSelectedPlugin();</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">                Help.openPluginHelp(plugin.isPresent() ? plugin.get().getDocName() : null);</span>
+<span class="nc" id="L246">            }</span>
         });
 
-<span class="nc" id="L246">        pane.add(helpButton);</span>
+<span class="nc" id="L249">        pane.add(helpButton);</span>
 
-<span class="nc" id="L248">        return pane;</span>
+<span class="nc" id="L251">        return pane;</span>
     }
 
     /**
@@ -256,12 +259,17 @@ public class AdditiveLoadFileOrUrlChooser {
      * @return Whether the dialog was &quot;approved&quot;.
      */
     public synchronized boolean showDialog(Component parent) {
-<span class="nc bnc" id="L259" title="All 2 branches missed.">        if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {</span>
-<span class="nc" id="L260">            updateFileAndUrlWidgetsForPlugin();</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">        if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {</span>
+<span class="nc" id="L263">            updateFileAndUrlWidgetsForPlugin();</span>
         }
 
-<span class="nc" id="L263">        int result = fileChooser.showOpenDialog(parent);</span>
-<span class="nc bnc" id="L264" title="All 2 branches missed.">        return result == JFileChooser.APPROVE_OPTION;</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">        if (!defaultDirectoryApplied) {</span>
+<span class="nc" id="L267">            FilePathPrefs.applyDirectory(fileChooser, FilePathPrefs.getObsSourceDir());</span>
+<span class="nc" id="L268">            defaultDirectoryApplied = true;</span>
+        }
+
+<span class="nc" id="L271">        int result = fileChooser.showOpenDialog(parent);</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">        return result == JFileChooser.APPROVE_OPTION;</span>
     }
 
     /**
@@ -270,22 +278,22 @@ public class AdditiveLoadFileOrUrlChooser {
      * @param isAllowed Is multiple file selection permitted?
      */
     public void setMultiFileSelectionState(boolean isAllowed) {
-<span class="nc" id="L273">        fileChooser.setMultiSelectionEnabled(isAllowed);</span>
-<span class="nc" id="L274">    }</span>
+<span class="nc" id="L281">        fileChooser.setMultiSelectionEnabled(isAllowed);</span>
+<span class="nc" id="L282">    }</span>
 
     /**
      * @return The selected files.
      */
     public File[] getSelectedFiles() {
-<span class="nc" id="L280">        File[] selectedFiles = null;</span>
+<span class="nc" id="L288">        File[] selectedFiles = null;</span>
 
-<span class="nc bnc" id="L282" title="All 2 branches missed.">        if (fileChooser.isMultiSelectionEnabled()) {</span>
-<span class="nc" id="L283">            selectedFiles = fileChooser.getSelectedFiles();</span>
+<span class="nc bnc" id="L290" title="All 2 branches missed.">        if (fileChooser.isMultiSelectionEnabled()) {</span>
+<span class="nc" id="L291">            selectedFiles = fileChooser.getSelectedFiles();</span>
         } else {
-<span class="nc" id="L285">            selectedFiles = new File[] { fileChooser.getSelectedFile() };</span>
+<span class="nc" id="L293">            selectedFiles = new File[] { fileChooser.getSelectedFile() };</span>
         }
 
-<span class="nc" id="L288">        return selectedFiles;</span>
+<span class="nc" id="L296">        return selectedFiles;</span>
     }
 
     /**
@@ -294,33 +302,33 @@ public class AdditiveLoadFileOrUrlChooser {
      * @return True or false.
      */
     public boolean isUrlProvided() {
-<span class="nc" id="L297">        return urlProvided;</span>
+<span class="nc" id="L305">        return urlProvided;</span>
     }
 
     /**
      * @param urlProvided the urlProvided to set
      */
     public synchronized void setUrlProvided(boolean urlProvided) {
-<span class="nc" id="L304">        this.urlProvided = urlProvided;</span>
-<span class="nc" id="L305">    }</span>
+<span class="nc" id="L312">        this.urlProvided = urlProvided;</span>
+<span class="nc" id="L313">    }</span>
 
     /**
      * @return The URL string.
      */
     public String getUrlString() {
-<span class="nc" id="L311">        return urlField.getValue().trim();</span>
+<span class="nc" id="L319">        return urlField.getValue().trim();</span>
     }
 
     public boolean isObsTextProvided() {
-<span class="nc" id="L315">        return obsTextProvided;</span>
+<span class="nc" id="L323">        return obsTextProvided;</span>
     }
 
     public void setObsTextProvided(boolean obsTextProvided) {
-<span class="nc" id="L319">        this.obsTextProvided = obsTextProvided;</span>
-<span class="nc" id="L320">    }</span>
+<span class="nc" id="L327">        this.obsTextProvided = obsTextProvided;</span>
+<span class="nc" id="L328">    }</span>
 
     public String getObsTextString() {
-<span class="nc" id="L323">        return obsTextField.getValue().trim();</span>
+<span class="nc" id="L331">        return obsTextField.getValue().trim();</span>
     }
 
     /**
@@ -329,7 +337,7 @@ public class AdditiveLoadFileOrUrlChooser {
      * @return Whether or not the load is additive.
      */
     public boolean isLoadAdditive() {
-<span class="nc" id="L332">        return additiveLoadCheckbox.isSelected();</span>
+<span class="nc" id="L340">        return additiveLoadCheckbox.isSelected();</span>
     }
 
     /**
@@ -340,43 +348,43 @@ public class AdditiveLoadFileOrUrlChooser {
     public Optional&lt;ObservationSourcePluginBase&gt; getSelectedPlugin() {
         Optional&lt;ObservationSourcePluginBase&gt; plugin;
 
-<span class="nc bnc" id="L343" title="All 2 branches missed.">        if (PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {</span>
-<span class="nc" id="L344">            plugin = Optional.empty();</span>
+<span class="nc bnc" id="L351" title="All 2 branches missed.">        if (PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {</span>
+<span class="nc" id="L352">            plugin = Optional.empty();</span>
         } else {
-<span class="nc" id="L346">            plugin = Optional.of(plugins.get(pluginChooser.getSelectedItem()));</span>
+<span class="nc" id="L354">            plugin = Optional.of(plugins.get(pluginChooser.getSelectedItem()));</span>
         }
 
-<span class="nc" id="L349">        return plugin;</span>
+<span class="nc" id="L357">        return plugin;</span>
     }
 
     /**
      * Reset this file selector's state before use.
      */
     public synchronized void reset() {
-<span class="nc" id="L356">        setUrlProvided(false);</span>
-<span class="nc" id="L357">        setObsTextProvided(false);</span>
-<span class="nc" id="L358">    }</span>
+<span class="nc" id="L364">        setUrlProvided(false);</span>
+<span class="nc" id="L365">        setObsTextProvided(false);</span>
+<span class="nc" id="L366">    }</span>
 
     // Helpers
 
     private void updateFileAndUrlWidgetsForPlugin() {
-<span class="nc" id="L363">        String name = (String) pluginChooser.getSelectedItem();</span>
-<span class="nc" id="L364">        ObservationSourcePluginBase plugin = plugins.get(name);</span>
+<span class="nc" id="L371">        String name = (String) pluginChooser.getSelectedItem();</span>
+<span class="nc" id="L372">        ObservationSourcePluginBase plugin = plugins.get(name);</span>
 
-<span class="nc" id="L366">        fileChooser.setMultiSelectionEnabled(plugin.isMultipleFileSelectionAllowed());</span>
+<span class="nc" id="L374">        fileChooser.setMultiSelectionEnabled(plugin.isMultipleFileSelectionAllowed());</span>
 
-<span class="nc bnc" id="L368" title="All 2 branches missed.">        if (plugin.getAdditionalFileExtensions() != null) {</span>
-<span class="nc" id="L369">            List&lt;String&gt; newFileExtensions = new ArrayList&lt;String&gt;();</span>
-<span class="nc" id="L370">            newFileExtensions.addAll(plugin.getAdditionalFileExtensions());</span>
-<span class="nc" id="L371">            setFileExtensions(newFileExtensions);</span>
-<span class="nc" id="L372">        } else {</span>
-<span class="nc" id="L373">            setFileExtensions(DEFAULT_EXTENSIONS);</span>
+<span class="nc bnc" id="L376" title="All 2 branches missed.">        if (plugin.getAdditionalFileExtensions() != null) {</span>
+<span class="nc" id="L377">            List&lt;String&gt; newFileExtensions = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L378">            newFileExtensions.addAll(plugin.getAdditionalFileExtensions());</span>
+<span class="nc" id="L379">            setFileExtensions(newFileExtensions);</span>
+<span class="nc" id="L380">        } else {</span>
+<span class="nc" id="L381">            setFileExtensions(DEFAULT_EXTENSIONS);</span>
         }
 
-<span class="nc bnc" id="L376" title="All 2 branches missed.">        boolean urlAllowed = plugin.getInputType() == InputType.FILE_OR_URL;</span>
-<span class="nc" id="L377">        urlRequestButton.setEnabled(urlAllowed);</span>
+<span class="nc bnc" id="L384" title="All 2 branches missed.">        boolean urlAllowed = plugin.getInputType() == InputType.FILE_OR_URL;</span>
+<span class="nc" id="L385">        urlRequestButton.setEnabled(urlAllowed);</span>
 
-<span class="nc" id="L379">        obsTextRequestButton.setEnabled(plugin.isTextSource());</span>
-<span class="nc" id="L380">    }</span>
+<span class="nc" id="L387">        obsTextRequestButton.setEnabled(plugin.isTextSource());</span>
+<span class="nc" id="L388">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

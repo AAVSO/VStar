@@ -37,6 +37,7 @@ import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.prefs.FilePathPrefs;
 
 /**
  * This class aggregates a JFileChooser, a plugin selector, and a field
@@ -45,6 +46,7 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 public class DelimitedFieldFileSaveChooser {
 
 	private JFileChooser fileChooser;
+	private boolean defaultDirectoryApplied;
 
 	private DefaultComboBoxModel&lt;String&gt; delimitersModel;
 	private JComboBox&lt;String&gt; delimiterChooser;
@@ -57,20 +59,21 @@ public class DelimitedFieldFileSaveChooser {
 	/**
 	 * Constructor
 	 */
-<span class="fc" id="L60">	public DelimitedFieldFileSaveChooser() {</span>
-<span class="fc" id="L61">		fileChooser = new JFileChooser();</span>
+<span class="fc" id="L62">	public DelimitedFieldFileSaveChooser() {</span>
+<span class="fc" id="L63">		fileChooser = new JFileChooser();</span>
+<span class="fc" id="L64">		defaultDirectoryApplied = false;</span>
 
-<span class="fc" id="L63">		delimiter = null;</span>
-<span class="fc" id="L64">		delimiterChooser = new JComboBox&lt;String&gt;();</span>
+<span class="fc" id="L66">		delimiter = null;</span>
+<span class="fc" id="L67">		delimiterChooser = new JComboBox&lt;String&gt;();</span>
 
-<span class="fc" id="L66">		JPanel accessoryPane = new JPanel();</span>
-<span class="fc" id="L67">		accessoryPane.setLayout(new BoxLayout(accessoryPane,</span>
+<span class="fc" id="L69">		JPanel accessoryPane = new JPanel();</span>
+<span class="fc" id="L70">		accessoryPane.setLayout(new BoxLayout(accessoryPane,</span>
 				BoxLayout.PAGE_AXIS));
-<span class="fc" id="L69">		accessoryPane.add(createPluginsList());</span>
-<span class="fc" id="L70">		accessoryPane.add(createDelimiterSelectionPane());</span>
+<span class="fc" id="L72">		accessoryPane.add(createPluginsList());</span>
+<span class="fc" id="L73">		accessoryPane.add(createDelimiterSelectionPane());</span>
 
-<span class="fc" id="L72">		fileChooser.setAccessory(accessoryPane);</span>
-<span class="fc" id="L73">	}</span>
+<span class="fc" id="L75">		fileChooser.setAccessory(accessoryPane);</span>
+<span class="fc" id="L76">	}</span>
 
 	/**
 	 * Return the currently selected observation sink plugin.
@@ -78,7 +81,7 @@ public class DelimitedFieldFileSaveChooser {
 	 * @return The plugin instance.
 	 */
 	public ObservationSinkPluginBase getSelectedPlugin() {
-<span class="nc" id="L81">		return plugins.get(pluginChooser.getSelectedItem());</span>
+<span class="nc" id="L84">		return plugins.get(pluginChooser.getSelectedItem());</span>
 	}
 
 	/**
@@ -89,28 +92,28 @@ public class DelimitedFieldFileSaveChooser {
 	 * @return The selected file (absolute path as a File object).
 	 */
 	public File getSelectedFile() {
-<span class="nc" id="L92">		File file = fileChooser.getSelectedFile();</span>
+<span class="nc" id="L95">		File file = fileChooser.getSelectedFile();</span>
 
-<span class="nc" id="L94">		ObservationSinkPluginBase plugin = getSelectedPlugin();</span>
-<span class="nc" id="L95">		Map&lt;String, String&gt; delimiter2suffixes = plugin</span>
-<span class="nc" id="L96">				.getDelimiterSuffixValuePairs();</span>
+<span class="nc" id="L97">		ObservationSinkPluginBase plugin = getSelectedPlugin();</span>
+<span class="nc" id="L98">		Map&lt;String, String&gt; delimiter2suffixes = plugin</span>
+<span class="nc" id="L99">				.getDelimiterSuffixValuePairs();</span>
 
-<span class="nc" id="L98">		String selectedDelimiterName = (String) delimiterChooser</span>
-<span class="nc" id="L99">				.getSelectedItem();</span>
-<span class="nc" id="L100">		String suffix = delimiter2suffixes.get(selectedDelimiterName);</span>
+<span class="nc" id="L101">		String selectedDelimiterName = (String) delimiterChooser</span>
+<span class="nc" id="L102">				.getSelectedItem();</span>
+<span class="nc" id="L103">		String suffix = delimiter2suffixes.get(selectedDelimiterName);</span>
 
-<span class="nc bnc" id="L102" title="All 4 branches missed.">		if (!file.getName().endsWith(suffix) &amp;&amp; delimiter2suffixes != null) {</span>
-<span class="nc" id="L103">			file = new File(file.getAbsolutePath() + &quot;.&quot; + suffix);</span>
+<span class="nc bnc" id="L105" title="All 4 branches missed.">		if (!file.getName().endsWith(suffix) &amp;&amp; delimiter2suffixes != null) {</span>
+<span class="nc" id="L106">			file = new File(file.getAbsolutePath() + &quot;.&quot; + suffix);</span>
 		}
 
-<span class="nc" id="L106">		return file;</span>
+<span class="nc" id="L109">		return file;</span>
 	}
 
 	/**
 	 * @return the delimiter
 	 */
 	public String getDelimiter() {
-<span class="nc" id="L113">		return delimiter;</span>
+<span class="nc" id="L116">		return delimiter;</span>
 	}
 
 	/**
@@ -122,7 +125,11 @@ public class DelimitedFieldFileSaveChooser {
 	 * @return Whether the dialog was &quot;approved&quot;.
 	 */
 	public boolean showDialog(Component parent) {
-<span class="nc bnc" id="L125" title="All 2 branches missed.">		return fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION;</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">		if (!defaultDirectoryApplied) {</span>
+<span class="nc" id="L129">			FilePathPrefs.applyDirectory(fileChooser, FilePathPrefs.getObsSinkDir());</span>
+<span class="nc" id="L130">			defaultDirectoryApplied = true;</span>
+		}
+<span class="nc bnc" id="L132" title="All 2 branches missed.">		return fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION;</span>
 	}
 
 	/**
@@ -130,50 +137,50 @@ public class DelimitedFieldFileSaveChooser {
 	 * is selected.
 	 */
 	private JPanel createPluginsList() {
-<span class="fc" id="L133">		JPanel pane = new JPanel();</span>
+<span class="fc" id="L140">		JPanel pane = new JPanel();</span>
 
-<span class="fc" id="L135">		pane.setBorder(BorderFactory.createTitledBorder(&quot;Type&quot;));</span>
+<span class="fc" id="L142">		pane.setBorder(BorderFactory.createTitledBorder(&quot;Type&quot;));</span>
 		
-<span class="fc" id="L137">		plugins = new HashMap&lt;String, ObservationSinkPluginBase&gt;();</span>
+<span class="fc" id="L144">		plugins = new HashMap&lt;String, ObservationSinkPluginBase&gt;();</span>
 
-<span class="fc bfc" id="L139" title="All 2 branches covered.">		for (ObservationSinkPluginBase plugin : PluginLoader</span>
-<span class="fc" id="L140">				.getObservationSinkPlugins()) {</span>
-<span class="fc" id="L141">			String name = plugin.getDisplayName();</span>
-<span class="fc" id="L142">			plugins.put(name, plugin);</span>
-<span class="fc" id="L143">		}</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">		for (ObservationSinkPluginBase plugin : PluginLoader</span>
+<span class="fc" id="L147">				.getObservationSinkPlugins()) {</span>
+<span class="fc" id="L148">			String name = plugin.getDisplayName();</span>
+<span class="fc" id="L149">			plugins.put(name, plugin);</span>
+<span class="fc" id="L150">		}</span>
 
-<span class="fc" id="L145">		pluginChooser = new JComboBox&lt;String&gt;(plugins.keySet().toArray(</span>
+<span class="fc" id="L152">		pluginChooser = new JComboBox&lt;String&gt;(plugins.keySet().toArray(</span>
 				new String[0]));
 		
-<span class="fc" id="L148">		pluginChooser.setSelectedItem(LocaleProps.get(&quot;DOWNLOAD_FORMAT_FILE&quot;));</span>
+<span class="fc" id="L155">		pluginChooser.setSelectedItem(LocaleProps.get(&quot;DOWNLOAD_FORMAT_FILE&quot;));</span>
 		//pluginChooser.setBorder(BorderFactory.createTitledBorder(&quot;Type&quot;));
 
-<span class="fc" id="L151">		pluginChooser.addActionListener(e -&gt; {</span>
-<span class="nc" id="L152">			String name = (String) pluginChooser.getSelectedItem();</span>
-<span class="nc" id="L153">			updateDelimiterChoices(plugins.get(name));</span>
-<span class="nc" id="L154">		});</span>
+<span class="fc" id="L158">		pluginChooser.addActionListener(e -&gt; {</span>
+<span class="nc" id="L159">			String name = (String) pluginChooser.getSelectedItem();</span>
+<span class="nc" id="L160">			updateDelimiterChoices(plugins.get(name));</span>
+<span class="nc" id="L161">		});</span>
 
-<span class="pc bpc" id="L156" title="1 of 2 branches missed.">		if (!plugins.isEmpty()) {</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">		if (!plugins.isEmpty()) {</span>
 			// Initial delimiter choices.
-<span class="fc" id="L158">			String name = (String) pluginChooser.getSelectedItem();</span>
-<span class="fc" id="L159">			updateDelimiterChoices(plugins.get(name));</span>
+<span class="fc" id="L165">			String name = (String) pluginChooser.getSelectedItem();</span>
+<span class="fc" id="L166">			updateDelimiterChoices(plugins.get(name));</span>
 		}
 
-<span class="fc" id="L162">		pane.add(pluginChooser);</span>
+<span class="fc" id="L169">		pane.add(pluginChooser);</span>
 		
-<span class="fc" id="L164">		JButton helpButton = new JButton(&quot;?&quot;);</span>
+<span class="fc" id="L171">		JButton helpButton = new JButton(&quot;?&quot;);</span>
 		
-<span class="fc" id="L166">		helpButton.addActionListener(new ActionListener() {</span>
+<span class="fc" id="L173">		helpButton.addActionListener(new ActionListener() {</span>
 			@Override
 			public void actionPerformed(ActionEvent e) {
-<span class="nc" id="L169">				ObservationSinkPluginBase plugin = getSelectedPlugin();</span>
-<span class="nc bnc" id="L170" title="All 2 branches missed.">				Help.openPluginHelp(plugin != null ? plugin.getDocName() : null);</span>
-<span class="nc" id="L171">			}</span>
+<span class="nc" id="L176">				ObservationSinkPluginBase plugin = getSelectedPlugin();</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">				Help.openPluginHelp(plugin != null ? plugin.getDocName() : null);</span>
+<span class="nc" id="L178">			}</span>
 		});
 
-<span class="fc" id="L174">		pane.add(helpButton);</span>
+<span class="fc" id="L181">		pane.add(helpButton);</span>
 
-<span class="fc" id="L176">		return pane;</span>
+<span class="fc" id="L183">		return pane;</span>
 	}
 
 	/**
@@ -184,49 +191,49 @@ public class DelimitedFieldFileSaveChooser {
 	 */
 	private void updateDelimiterChoices(ObservationSinkPluginBase plugin) {
 		try {
-<span class="fc" id="L187">			delimitersModel = new DefaultComboBoxModel&lt;String&gt;();</span>
+<span class="fc" id="L194">			delimitersModel = new DefaultComboBoxModel&lt;String&gt;();</span>
 
-<span class="pc bpc" id="L189" title="1 of 2 branches missed.">			if (plugin.getDelimiterNameValuePairs() != null) {</span>
-<span class="fc" id="L190">				delimiters = plugin.getDelimiterNameValuePairs();</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">			if (plugin.getDelimiterNameValuePairs() != null) {</span>
+<span class="fc" id="L197">				delimiters = plugin.getDelimiterNameValuePairs();</span>
 
-<span class="fc bfc" id="L192" title="All 2 branches covered.">				for (String delim : delimiters.keySet().toArray(new String[0])) {</span>
-<span class="fc" id="L193">					delimitersModel.addElement(delim);</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">				for (String delim : delimiters.keySet().toArray(new String[0])) {</span>
+<span class="fc" id="L200">					delimitersModel.addElement(delim);</span>
 				}
 
-<span class="fc" id="L196">				delimiterChooser.setModel(delimitersModel);</span>
-<span class="fc" id="L197">				delimiterChooser.setSelectedIndex(0);</span>
+<span class="fc" id="L203">				delimiterChooser.setModel(delimitersModel);</span>
+<span class="fc" id="L204">				delimiterChooser.setSelectedIndex(0);</span>
 			} else {
-<span class="nc" id="L199">				delimiterChooser.setModel(delimitersModel);</span>
+<span class="nc" id="L206">				delimiterChooser.setModel(delimitersModel);</span>
 			}
-<span class="nc" id="L201">		} catch (Exception e) {</span>
-<span class="nc" id="L202">			Exception f = e;</span>
-<span class="fc" id="L203">		}</span>
-<span class="fc" id="L204">	}</span>
+<span class="nc" id="L208">		} catch (Exception e) {</span>
+<span class="nc" id="L209">			Exception f = e;</span>
+<span class="fc" id="L210">		}</span>
+<span class="fc" id="L211">	}</span>
 
 	/**
 	 * This component permits selection between field delimiters.
 	 */
 	private JPanel createDelimiterSelectionPane() {
-<span class="fc" id="L210">		JPanel panel = new JPanel();</span>
+<span class="fc" id="L217">		JPanel panel = new JPanel();</span>
 		//panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-<span class="fc" id="L212">		panel.setLayout(new BorderLayout());</span>
-<span class="fc" id="L213">		panel.setBorder(BorderFactory.createTitledBorder(&quot;Delimiter&quot;));</span>
+<span class="fc" id="L219">		panel.setLayout(new BorderLayout());</span>
+<span class="fc" id="L220">		panel.setBorder(BorderFactory.createTitledBorder(&quot;Delimiter&quot;));</span>
 
-<span class="fc" id="L215">		delimiterChooser.addActionListener(e -&gt; {</span>
-<span class="nc" id="L216">			String name = (String) delimiterChooser.getSelectedItem();</span>
-<span class="nc" id="L217">			delimiter = delimiters.get(name);</span>
-<span class="nc" id="L218">		});</span>
+<span class="fc" id="L222">		delimiterChooser.addActionListener(e -&gt; {</span>
+<span class="nc" id="L223">			String name = (String) delimiterChooser.getSelectedItem();</span>
+<span class="nc" id="L224">			delimiter = delimiters.get(name);</span>
+<span class="nc" id="L225">		});</span>
 
-<span class="pc bpc" id="L220" title="2 of 4 branches missed.">		if (delimiters != null &amp;&amp; !delimiters.isEmpty()) {</span>
+<span class="pc bpc" id="L227" title="2 of 4 branches missed.">		if (delimiters != null &amp;&amp; !delimiters.isEmpty()) {</span>
 			// Initial delimiter selection.
-<span class="fc" id="L222">			String name = (String) delimiterChooser.getSelectedItem();</span>
-<span class="fc" id="L223">			delimiter = delimiters.get(name);</span>
+<span class="fc" id="L229">			String name = (String) delimiterChooser.getSelectedItem();</span>
+<span class="fc" id="L230">			delimiter = delimiters.get(name);</span>
 		}
 
 		//panel.add(delimiterChooser);
-<span class="fc" id="L227">		panel.add(delimiterChooser, BorderLayout.PAGE_START);</span>
+<span class="fc" id="L234">		panel.add(delimiterChooser, BorderLayout.PAGE_START);</span>
 
-<span class="fc" id="L229">		return panel;</span>
+<span class="fc" id="L236">		return panel;</span>
 	}
 	
 }
