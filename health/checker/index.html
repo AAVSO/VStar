@@ -41,17 +41,17 @@
 <body>
 <header>
   <h1>Checker Framework &mdash; Nullness Report</h1>
-  <p>Generated 2026-06-22</p>
+  <p>Generated 2026-07-27</p>
   <a class="home-link" href="../">&larr; Back to Project Health</a>
 </header>
 <main>
   <div class="summary">
-    <div class="stat"><div class="num">1596</div><div class="label">Total warnings</div></div>
-    <div class="stat"><div class="num">938</div><div class="label">Nullness</div></div>
-    <div class="stat"><div class="num">118</div><div class="label">Initialization</div></div>
+    <div class="stat"><div class="num">1603</div><div class="label">Total warnings</div></div>
+    <div class="stat"><div class="num">939</div><div class="label">Nullness</div></div>
+    <div class="stat"><div class="num">119</div><div class="label">Initialization</div></div>
   </div>
   <div class="toolbar"><a href="checker-report.txt">Download raw report (.txt)</a></div>
-  <pre>    [javac] Compiling 407 source files to /home/runner/work/VStar/VStar/test_report/checkerframework/classes
+  <pre>    [javac] Compiling 409 source files to /home/runner/work/VStar/VStar/test_report/checkerframework/classes
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/auth/AAVSOPostUserPassXMLAuthenticationSource.java:55: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: userID
     [javac] 	public AAVSOPostUserPassXMLAuthenticationSource(String endPoint) {
     [javac] 	       ^
@@ -1438,50 +1438,50 @@
     [javac] 		                ^
     [javac]   type of expression: @Initialized @Nullable AdditiveLoadFileOrUrlChooser
     [javac]   method return type: @Initialized @NonNull AdditiveLoadFileOrUrlChooser
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:73: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: additiveLoadCheckbox, urlRequestButton, obsTextRequestButton, urlField, obsTextField, pluginChooser
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:75: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: additiveLoadCheckbox, urlRequestButton, obsTextRequestButton, urlField, obsTextField, pluginChooser
     [javac]     public AdditiveLoadFileOrUrlChooser(boolean allowURL, boolean allowText) {
     [javac]            ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:86: warning: [method.invocation] call to setFileExtensions(java.util.List&lt;java.lang.String&gt;) not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:89: warning: [method.invocation] call to setFileExtensions(java.util.List&lt;java.lang.String&gt;) not allowed on the given receiver.
     [javac]         setFileExtensions(DEFAULT_EXTENSIONS);
     [javac]                          ^
     [javac]   found   : @UnderInitialization @NonNull AdditiveLoadFileOrUrlChooser
     [javac]   required: @Initialized @NonNull AdditiveLoadFileOrUrlChooser
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:90: warning: [method.invocation] call to createAdditiveLoadCheckboxPane() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:93: warning: [method.invocation] call to createAdditiveLoadCheckboxPane() not allowed on the given receiver.
     [javac]         accessoryPane.add(createAdditiveLoadCheckboxPane());
     [javac]                                                         ^
     [javac]   found   : @UnderInitialization @NonNull AdditiveLoadFileOrUrlChooser
     [javac]   required: @Initialized @NonNull AdditiveLoadFileOrUrlChooser
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:91: warning: [method.invocation] call to createUrlPane() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:94: warning: [method.invocation] call to createUrlPane() not allowed on the given receiver.
     [javac]         accessoryPane.add(createUrlPane());
     [javac]                                        ^
     [javac]   found   : @UnderInitialization @NonNull AdditiveLoadFileOrUrlChooser
     [javac]   required: @Initialized @NonNull AdditiveLoadFileOrUrlChooser
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:92: warning: [method.invocation] call to createObsTextPane() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:95: warning: [method.invocation] call to createObsTextPane() not allowed on the given receiver.
     [javac]         accessoryPane.add(createObsTextPane());
     [javac]                                            ^
     [javac]   found   : @UnderInitialization @NonNull AdditiveLoadFileOrUrlChooser
     [javac]   required: @Initialized @NonNull AdditiveLoadFileOrUrlChooser
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:95: warning: [method.invocation] call to createPluginsList() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:98: warning: [method.invocation] call to createPluginsList() not allowed on the given receiver.
     [javac]             accessoryPane.add(createPluginsList());
     [javac]                                                ^
     [javac]   found   : @UnderInitialization @NonNull AdditiveLoadFileOrUrlChooser
     [javac]   required: @Initialized @NonNull AdditiveLoadFileOrUrlChooser
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:242: warning: [argument] incompatible argument for parameter plugin_doc_name of Help.openPluginHelp.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:245: warning: [argument] incompatible argument for parameter plugin_doc_name of Help.openPluginHelp.
     [javac]                 Help.openPluginHelp(plugin.isPresent() ? plugin.get().getDocName() : null);
     [javac]                                                        ^
     [javac]   found   : @Initialized @Nullable String
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:285: warning: [assignment] incompatible types in assignment.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:293: warning: [assignment] incompatible types in assignment.
     [javac]             selectedFiles = new File[] { fileChooser.getSelectedFile() };
     [javac]                             ^
     [javac]   found   : @Initialized @Nullable File @Initialized @NonNull []
     [javac]   required: @Initialized @NonNull File @UnknownInitialization @Nullable []
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:346: warning: [argument] incompatible argument for parameter value of Optional.of.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:354: warning: [argument] incompatible argument for parameter value of Optional.of.
     [javac]             plugin = Optional.of(plugins.get(pluginChooser.getSelectedItem()));
     [javac]                                             ^
     [javac]   found   : @Initialized @Nullable ObservationSourcePluginBase
     [javac]   required: @Initialized @NonNull ObservationSourcePluginBase
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:366: warning: [dereference.of.nullable] dereference of possibly-null reference plugin
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/AdditiveLoadFileOrUrlChooser.java:374: warning: [dereference.of.nullable] dereference of possibly-null reference plugin
     [javac]         fileChooser.setMultiSelectionEnabled(plugin.isMultipleFileSelectionAllowed());
     [javac]                                              ^
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/TextArea.java:70: warning: [method.invocation] call to isReadOnly() not allowed on the given receiver.
@@ -3921,63 +3921,63 @@
     [javac] 		       ^
     [javac]   type of expression: @Initialized @Nullable LegendItem
     [javac]   method return type: @Initialized @NonNull LegendItem
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:60: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: delimitersModel, delimiters, plugins, pluginChooser
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:62: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: delimitersModel, delimiters, plugins, pluginChooser
     [javac] 	public DelimitedFieldFileSaveChooser() {
     [javac] 	       ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:63: warning: [assignment] incompatible types in assignment.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:66: warning: [assignment] incompatible types in assignment.
     [javac] 		delimiter = null;
     [javac] 		            ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:69: warning: [method.invocation] call to createPluginsList() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:72: warning: [method.invocation] call to createPluginsList() not allowed on the given receiver.
     [javac] 		accessoryPane.add(createPluginsList());
     [javac] 		                                   ^
     [javac]   found   : @UnderInitialization @NonNull DelimitedFieldFileSaveChooser
     [javac]   required: @Initialized @NonNull DelimitedFieldFileSaveChooser
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:70: warning: [method.invocation] call to createDelimiterSelectionPane() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:73: warning: [method.invocation] call to createDelimiterSelectionPane() not allowed on the given receiver.
     [javac] 		accessoryPane.add(createDelimiterSelectionPane());
     [javac] 		                                              ^
     [javac]   found   : @UnderInitialization @NonNull DelimitedFieldFileSaveChooser
     [javac]   required: @Initialized @NonNull DelimitedFieldFileSaveChooser
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:81: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:84: warning: [return] incompatible types in return.
     [javac] 		return plugins.get(pluginChooser.getSelectedItem());
     [javac] 		                  ^
     [javac]   type of expression: @Initialized @Nullable ObservationSinkPluginBase
     [javac]   method return type: @Initialized @NonNull ObservationSinkPluginBase
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:102: warning: [dereference.of.nullable] dereference of possibly-null reference file
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:105: warning: [dereference.of.nullable] dereference of possibly-null reference file
     [javac] 		if (!file.getName().endsWith(suffix) &amp;&amp; delimiter2suffixes != null) {
     [javac] 		     ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:102: warning: [argument] incompatible argument for parameter suffix of String.endsWith.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:105: warning: [argument] incompatible argument for parameter suffix of String.endsWith.
     [javac] 		if (!file.getName().endsWith(suffix) &amp;&amp; delimiter2suffixes != null) {
     [javac] 		                             ^
     [javac]   found   : @Initialized @Nullable String
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:153: warning: [argument] incompatible argument for parameter plugin of DelimitedFieldFileSaveChooser.updateDelimiterChoices.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:160: warning: [argument] incompatible argument for parameter plugin of DelimitedFieldFileSaveChooser.updateDelimiterChoices.
     [javac] 			updateDelimiterChoices(plugins.get(name));
     [javac] 			                                  ^
     [javac]   found   : @Initialized @Nullable ObservationSinkPluginBase
     [javac]   required: @Initialized @NonNull ObservationSinkPluginBase
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:159: warning: [argument] incompatible argument for parameter plugin of DelimitedFieldFileSaveChooser.updateDelimiterChoices.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:166: warning: [argument] incompatible argument for parameter plugin of DelimitedFieldFileSaveChooser.updateDelimiterChoices.
     [javac] 			updateDelimiterChoices(plugins.get(name));
     [javac] 			                                  ^
     [javac]   found   : @Initialized @Nullable ObservationSinkPluginBase
     [javac]   required: @Initialized @NonNull ObservationSinkPluginBase
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:170: warning: [argument] incompatible argument for parameter plugin_doc_name of Help.openPluginHelp.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:177: warning: [argument] incompatible argument for parameter plugin_doc_name of Help.openPluginHelp.
     [javac] 				Help.openPluginHelp(plugin != null ? plugin.getDocName() : null);
     [javac] 				                                   ^
     [javac]   found   : @Initialized @Nullable String
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:217: warning: [assignment] incompatible types in assignment.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:224: warning: [assignment] incompatible types in assignment.
     [javac] 			delimiter = delimiters.get(name);
     [javac] 			                          ^
     [javac]   found   : @Initialized @Nullable String
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:223: warning: [assignment] incompatible types in assignment.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/DelimitedFieldFileSaveChooser.java:230: warning: [assignment] incompatible types in assignment.
     [javac] 			delimiter = delimiters.get(name);
     [javac] 			                          ^
     [javac]   found   : @Initialized @Nullable String
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/PNGImageFileSaveChooser.java:68: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/PNGImageFileSaveChooser.java:76: warning: [return] incompatible types in return.
     [javac] 		return path;
     [javac] 		       ^
     [javac]   type of expression: @Initialized @Nullable File
@@ -6287,6 +6287,34 @@
     [javac] 		                     ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Integer
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/DirectoriesSettingsPane.java:64: warning: [method.invocation] call to createDirectoryRow(java.lang.String,java.lang.String,javax.swing.JTextField,java.awt.event.ActionListener) not allowed on the given receiver.
+    [javac] 		directoriesPane.add(createDirectoryRow(&quot;Source directory&quot;,
+    [javac] 		                                      ^
+    [javac]   found   : @UnderInitialization(javax.swing.JPanel.class) @NonNull DirectoriesSettingsPane
+    [javac]   required: @Initialized @NonNull DirectoriesSettingsPane
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/DirectoriesSettingsPane.java:66: warning: [method.invocation] call to createBrowseListener(boolean) not allowed on the given receiver.
+    [javac] 				sourceDirField, createBrowseListener(true)));
+    [javac] 				                                    ^
+    [javac]   found   : @UnderInitialization(javax.swing.JPanel.class) @NonNull DirectoriesSettingsPane
+    [javac]   required: @Initialized @NonNull DirectoriesSettingsPane
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/DirectoriesSettingsPane.java:71: warning: [method.invocation] call to createDirectoryRow(java.lang.String,java.lang.String,javax.swing.JTextField,java.awt.event.ActionListener) not allowed on the given receiver.
+    [javac] 		directoriesPane.add(createDirectoryRow(&quot;Sink directory&quot;,
+    [javac] 		                                      ^
+    [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.dialog.prefs.DirectoriesSettingsPane.class) @NonNull DirectoriesSettingsPane
+    [javac]   required: @Initialized @NonNull DirectoriesSettingsPane
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/DirectoriesSettingsPane.java:73: warning: [method.invocation] call to createBrowseListener(boolean) not allowed on the given receiver.
+    [javac] 				sinkDirField, createBrowseListener(false)));
+    [javac] 				                                  ^
+    [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.dialog.prefs.DirectoriesSettingsPane.class) @NonNull DirectoriesSettingsPane
+    [javac]   required: @Initialized @NonNull DirectoriesSettingsPane
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/DirectoriesSettingsPane.java:77: warning: [method.invocation] call to createButtonPane() not allowed on the given receiver.
+    [javac] 		directoriesPane.add(createButtonPane());
+    [javac] 		                                    ^
+    [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.dialog.prefs.DirectoriesSettingsPane.class) @NonNull DirectoriesSettingsPane
+    [javac]   required: @Initialized @NonNull DirectoriesSettingsPane
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/DirectoriesSettingsPane.java:130: warning: [dereference.of.nullable] dereference of possibly-null reference file
+    [javac] 					if (file.isDirectory()) {
+    [javac] 					    ^
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/LocaleSelectionPane.java:51: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: currentLocale
     [javac] 	public LocaleSelectionPane() {
     [javac] 	       ^
@@ -6477,30 +6505,30 @@
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PluginSettingsPane.java:181: warning: [dereference.of.nullable] dereference of possibly-null reference file
     [javac] 					if (file.isDirectory()) {
     [javac] 					    ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:48: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: seriesColorPane, seriesSizePane, chartPropertiesPane, numericPrecisionPane, starGroupManagementPane, pluginSettingsPane, localeSelectionPane, veLaSettingsPane
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:49: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: seriesColorPane, seriesSizePane, chartPropertiesPane, numericPrecisionPane, starGroupManagementPane, pluginSettingsPane, localeSelectionPane, veLaSettingsPane, directoriesSettingsPane
     [javac] 	private PreferencesDialog() {
     [javac] 	        ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:51: warning: [method.invocation] call to getContentPane() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:52: warning: [method.invocation] call to getContentPane() not allowed on the given receiver.
     [javac] 		Container contentPane = this.getContentPane();
     [javac] 		                                           ^
     [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog.class) @NonNull PreferencesDialog
     [javac]   required: @Initialized @NonNull JDialog
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:57: warning: [method.invocation] call to createTabs() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:58: warning: [method.invocation] call to createTabs() not allowed on the given receiver.
     [javac] 		topPane.add(createTabs());
     [javac] 		                      ^
     [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog.class) @NonNull PreferencesDialog
     [javac]   required: @Initialized @NonNull PreferencesDialog
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:58: warning: [method.invocation] call to createButtonPane() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:59: warning: [method.invocation] call to createButtonPane() not allowed on the given receiver.
     [javac] 		topPane.add(createButtonPane());
     [javac] 		                            ^
     [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog.class) @NonNull PreferencesDialog
     [javac]   required: @Initialized @NonNull AbstractOkCancelDialog
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:62: warning: [method.invocation] call to pack() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:63: warning: [method.invocation] call to pack() not allowed on the given receiver.
     [javac] 		this.pack();
     [javac] 		         ^
     [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog.class) @NonNull PreferencesDialog
     [javac]   required: @Initialized @NonNull Window
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:63: warning: [method.invocation] call to setLocationRelativeTo(java.awt.Component) not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:64: warning: [method.invocation] call to setLocationRelativeTo(java.awt.Component) not allowed on the given receiver.
     [javac] 		this.setLocationRelativeTo(Mediator.getUI().getContentPane());
     [javac] 		                          ^
     [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog.class) @NonNull PreferencesDialog
@@ -7362,6 +7390,9 @@
     [javac] 		            ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Font
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/prefs/FilePathPrefs.java:36: warning: [initialization.static.field.uninitialized] static field prefs not initialized
+    [javac] 	private static Preferences prefs;
+    [javac] 	                           ^
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/prefs/NumericPrecisionPrefs.java:48: warning: [return] incompatible types in return.
     [javac] 			return s;
     [javac] 			       ^
@@ -7464,7 +7495,7 @@
     [javac] Note: Recompile with -Xlint:deprecation for details.
     [javac] Note: Some input files use unchecked or unsafe operations.
     [javac] Note: Recompile with -Xlint:unchecked for details.
-    [javac] 1596 warnings
+    [javac] 1603 warnings
 </pre>
 </main>
 <footer><p><a href="https://github.com/AAVSO/VStar">AAVSO/VStar</a> &mdash;
