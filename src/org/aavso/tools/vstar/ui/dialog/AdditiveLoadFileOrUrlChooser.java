@@ -43,6 +43,7 @@ import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.prefs.FilePathPrefs;
 
 /**
  * This class aggregates a JFileChooser and additive load checkbox and URL entry
@@ -51,6 +52,7 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 public class AdditiveLoadFileOrUrlChooser {
 
     private JFileChooser fileChooser;
+    private boolean defaultDirectoryApplied;
     private JCheckBox additiveLoadCheckbox;
     private boolean urlProvided;
     private boolean obsTextProvided;
@@ -72,6 +74,7 @@ public class AdditiveLoadFileOrUrlChooser {
      */
     public AdditiveLoadFileOrUrlChooser(boolean allowURL, boolean allowText) {
         fileChooser = new JFileChooser();
+        defaultDirectoryApplied = false;
 
         fileChooser.setMultiSelectionEnabled(true);
 
@@ -258,6 +261,11 @@ public class AdditiveLoadFileOrUrlChooser {
     public synchronized boolean showDialog(Component parent) {
         if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
             updateFileAndUrlWidgetsForPlugin();
+        }
+
+        if (!defaultDirectoryApplied) {
+            FilePathPrefs.applyDirectory(fileChooser, FilePathPrefs.getObsSourceDir());
+            defaultDirectoryApplied = true;
         }
 
         int result = fileChooser.showOpenDialog(parent);

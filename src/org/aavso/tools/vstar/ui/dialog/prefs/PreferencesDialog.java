@@ -41,6 +41,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	private PluginSettingsPane pluginSettingsPane;
 	private LocaleSelectionPane localeSelectionPane;
 	private VeLaSettingsPane veLaSettingsPane;
+	private DirectoriesSettingsPane directoriesSettingsPane;
 	
 	/**
 	 * Constructor.
@@ -89,6 +90,9 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		
 		veLaSettingsPane = new VeLaSettingsPane();
 		tabs.addTab("VeLa", veLaSettingsPane);
+
+		directoriesSettingsPane = new DirectoriesSettingsPane();
+		tabs.addTab("Directories", directoriesSettingsPane);
 		
 		return tabs;
 	}
@@ -112,6 +116,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		pluginSettingsPane.update();
 		localeSelectionPane.update();
 		veLaSettingsPane.update();
+		directoriesSettingsPane.update();
 		
 		this.setVisible(false);
 	}
@@ -128,6 +133,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		pluginSettingsPane.reset();
 		localeSelectionPane.reset();
 		veLaSettingsPane.reset();
+		directoriesSettingsPane.reset();
 	}
 
 	/**

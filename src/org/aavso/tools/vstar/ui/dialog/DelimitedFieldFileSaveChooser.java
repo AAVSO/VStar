@@ -37,6 +37,7 @@ import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.prefs.FilePathPrefs;
 
 /**
  * This class aggregates a JFileChooser, a plugin selector, and a field
@@ -45,6 +46,7 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 public class DelimitedFieldFileSaveChooser {
 
 	private JFileChooser fileChooser;
+	private boolean defaultDirectoryApplied;
 
 	private DefaultComboBoxModel<String> delimitersModel;
 	private JComboBox<String> delimiterChooser;
@@ -59,6 +61,7 @@ public class DelimitedFieldFileSaveChooser {
 	 */
 	public DelimitedFieldFileSaveChooser() {
 		fileChooser = new JFileChooser();
+		defaultDirectoryApplied = false;
 
 		delimiter = null;
 		delimiterChooser = new JComboBox<String>();
@@ -122,6 +125,10 @@ public class DelimitedFieldFileSaveChooser {
 	 * @return Whether the dialog was "approved".
 	 */
 	public boolean showDialog(Component parent) {
+		if (!defaultDirectoryApplied) {
+			FilePathPrefs.applyDirectory(fileChooser, FilePathPrefs.getObsSinkDir());
+			defaultDirectoryApplied = true;
+		}
 		return fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION;
 	}
 
