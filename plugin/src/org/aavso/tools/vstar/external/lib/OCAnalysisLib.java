@@ -785,6 +785,214 @@ public class OCAnalysisLib {
         return buf.toString();
     }
 
+    /**
+     * Which fit the user is viewing on the O-C diagram (drives pattern text).
+     */
+    public enum OcDiagramFitMode {
+        LINEAR,
+        QUADRATIC,
+        TWO_SEGMENT
+    }
+
+    /**
+     * Rule-based Foster ch. 13 pattern diagnosis for an O-C diagram. This is
+     * not machine learning; it applies thresholds to the active fit.
+     */
+    public static String interpretOcDiagram(LinearFit linearFit,
+            QuadraticFit quadraticFit, TwoSegmentFit twoSegmentFit,
+            List<Point> points, OcDiagramFitMode preferredMode,
+            double modelPeriod) {
+        if (points == null || points.isEmpty()) {
+            return "Not enough O-C points for an interpretation.";
+        }
+        StringBuilder buf = new StringBuilder();
+        switch (preferredMode) {
+        case TWO_SEGMENT:
+            appendTwoSegmentOcPattern(buf, twoSegmentFit, points,
+                    modelPeriod);
+            break;
+        case QUADRATIC:
+            appendQuadraticOcPattern(buf, linearFit, quadraticFit, points,
+                    modelPeriod);
+            break;
+        case LINEAR:
+        default:
+            appendLinearOcPattern(buf, linearFit, points, modelPeriod);
+            break;
+        }
+        buf.append(" Suggestive only — see Foster ch. 13 and Notes below.");
+        return buf.toString();
+    }
+
+    private static void appendLinearOcPattern(StringBuilder buf, LinearFit fit,
+            List<Point> points, double modelPeriod) {
+        if (fit == null) {
+            buf.append("Not enough O-C points for a linear interpretation.");
+            return;
+        }
+        double slopeTol = slopeThreshold(fit, points);
+        double interceptTol = interceptThreshold(fit);
+        boolean flatSlope = Math.abs(fit.slope) <= slopeTol;
+        boolean zeroOffset = Math.abs(fit.intercept) <= interceptTol;
+        if (flatSlope && zeroOffset) {
+            buf.append("Pattern: flat O-C at 0. Likely cause: ephemeris "
+                    + "matches the timings.");
+        } else if (flatSlope) {
+            buf.append("Pattern: flat O-C with constant offset. Likely cause: "
+                    + "epoch wrong, period OK. ");
+            buf.append(summarizeEpochCorrection(fit.intercept));
+        } else {
+            buf.append("Pattern: linear O-C slope. Likely cause: period wrong. ");
+            buf.append(summarizePeriodCorrection(fit, modelPeriod));
+        }
+    }
+
+    private static void appendQuadraticOcPattern(StringBuilder buf,
+            LinearFit linearFit, QuadraticFit quadraticFit,
+            List<Point> points, double modelPeriod) {
+        if (quadraticFit != null
+                && quadraticPatternSignificant(quadraticFit, linearFit,
+                        points)) {
+            buf.append("Pattern: curved (parabolic) O-C. Likely cause: "
+                    + "evolving period. ");
+            buf.append(summarizeEvolvingPeriod(quadraticFit));
+            return;
+        }
+        if (linearFit != null) {
+            buf.append("A clear parabolic trend was not detected; showing the "
+                    + "linear pattern instead. ");
+            appendLinearOcPattern(buf, linearFit, points, modelPeriod);
+            return;
+        }
+        buf.append("Not enough O-C points for a quadratic interpretation.");
+    }
+
+    private static void appendTwoSegmentOcPattern(StringBuilder buf,
+            TwoSegmentFit fit, List<Point> points, double modelPeriod) {
+        if (fit == null) {
+            buf.append("Two-segment fit is selected on the plot, but no break "
+                    + "cycle has been applied yet. Enter a break cycle and "
+                    + "click Apply on the O-C diagram tab.");
+            return;
+        }
+        double slopeTol = Math.max(slopeThreshold(fit.firstSegment, points),
+                slopeThreshold(fit.secondSegment, points));
+        double slopeDiff = Math.abs(fit.firstSegment.slope
+                - fit.secondSegment.slope);
+        boolean distinctSlopes = slopeDiff > slopeTol
+                && slopeDiff > 0.2 * Math.max(Math.abs(fit.firstSegment.slope),
+                        Math.max(Math.abs(fit.secondSegment.slope), slopeTol));
+        if (distinctSlopes) {
+            buf.append("Pattern: broken O-C line with different slopes. "
+                    + "Likely cause: period change near cycle ");
+            buf.append(fit.breakCycle);
+            buf.append(". ");
+            buf.append(summarizePeriodChange(fit, modelPeriod));
+        } else {
+            buf.append("Pattern: broken O-C line with parallel segments. "
+                    + "Likely cause: epoch jump near cycle ");
+            buf.append(fit.breakCycle);
+            buf.append(". ");
+            buf.append(summarizeEpochJump(fit));
+        }
+    }
+
+    private static String summarizeEpochCorrection(double interceptDays) {
+        return "Epoch correction ≈ " + formatSmallDays(interceptDays) + " d.";
+    }
+
+    private static String summarizePeriodCorrection(LinearFit fit,
+            double modelPeriod) {
+        if (Math.abs(fit.slope) <= 0) {
+            return "";
+        }
+        return "Corrected period ≈ " + formatSmallDays(modelPeriod + fit.slope)
+                + " d (ΔP ≈ " + formatSmallDays(fit.slope) + " d/cycle).";
+    }
+
+    private static String summarizeEvolvingPeriod(QuadraticFit fit) {
+        double deltaPPerCycle = 2.0 * fit.quadratic;
+        return "ΔP/cycle ≈ " + formatSmallDays(deltaPPerCycle) + " d.";
+    }
+
+    private static String summarizePeriodChange(TwoSegmentFit fit,
+            double modelPeriod) {
+        double deltaSlope = fit.secondSegment.slope - fit.firstSegment.slope;
+        return "Segment period change ≈ " + formatSmallDays(deltaSlope)
+                + " d/cycle (second minus first segment).";
+    }
+
+    private static String summarizeEpochJump(TwoSegmentFit fit) {
+        double jump = fit.secondSegment.intercept - fit.firstSegment.intercept;
+        return "O-C offset change across the break ≈ "
+                + formatSmallDays(jump) + " d.";
+    }
+
+    private static boolean quadraticPatternSignificant(QuadraticFit quadratic,
+            LinearFit linear, List<Point> points) {
+        int span = cycleSpan(points);
+        double scale = Math.max(1, maxAbsCycle(points));
+        double curvature = Math.abs(quadratic.quadratic) * scale * scale;
+        double curvatureTol = linear != null
+                ? Math.max(1e-6, interceptThreshold(linear))
+                : 1e-6;
+        if (curvature > curvatureTol) {
+            return true;
+        }
+        return linear != null && quadratic.rms < linear.rms * 0.85
+                && Math.abs(quadratic.quadratic) > 1e-7;
+    }
+
+    private static int cycleSpan(List<Point> points) {
+        if (points.isEmpty()) {
+            return 1;
+        }
+        return Math.max(1, maxCycle(points) - minCycle(points));
+    }
+
+    private static int minCycle(List<Point> points) {
+        int min = Integer.MAX_VALUE;
+        for (Point p : points) {
+            if (p.cycle < min) {
+                min = p.cycle;
+            }
+        }
+        return min;
+    }
+
+    private static int maxCycle(List<Point> points) {
+        int max = Integer.MIN_VALUE;
+        for (Point p : points) {
+            if (p.cycle > max) {
+                max = p.cycle;
+            }
+        }
+        return max;
+    }
+
+    private static int maxAbsCycle(List<Point> points) {
+        int max = 0;
+        for (Point p : points) {
+            max = Math.max(max, Math.abs(p.cycle));
+        }
+        return Math.max(1, max);
+    }
+
+    private static double slopeThreshold(LinearFit fit, List<Point> points) {
+        double base = 1e-4;
+        if (fit != null && fit.rms > 0) {
+            base = Math.max(base, 1.5 * fit.rms / cycleSpan(points));
+        }
+        return base;
+    }
+
+    private static double interceptThreshold(LinearFit fit) {
+        if (fit == null) {
+            return 1e-4;
+        }
+        return Math.max(1e-4, 2.0 * fit.rms);
+    }
+
     private static String formatSmallDays(double days) {
         if (Math.abs(days) >= 0.0001) {
             return String.format("%.7f", days);

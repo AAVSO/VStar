@@ -887,8 +887,6 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             this.quadraticFit = quadraticFit;
             this.seriesColor = seriesColor;
             this.ocRenderer = createOcRenderer(seriesColor);
-            fitSummaryLabel = new JLabel(buildFitSummaryHtml());
-            fitSummaryLabel.setVerticalAlignment(SwingConstants.TOP);
             breakCycleField = new JTextField(4);
             tightenFieldHeight(breakCycleField);
             breakCycleField.setToolTipText(
@@ -953,6 +951,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 public void itemStateChanged(ItemEvent e) {
                     if (e.getStateChange() == ItemEvent.SELECTED) {
                         updateFitControls();
+                        refreshFitSummary();
                         refreshChart();
                     }
                 }
@@ -961,6 +960,9 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             quadraticFitButton.addItemListener(fitListener);
             twoSegmentFitButton.addItemListener(fitListener);
             updateFitControls();
+
+            fitSummaryLabel = new JLabel(buildFitSummaryHtml());
+            fitSummaryLabel.setVerticalAlignment(SwingConstants.TOP);
 
             JFreeChart chart = ChartFactory.createScatterPlot(
                     "O-C diagram", XAxisMode.CYCLE.label, "O-C (days)",
@@ -1075,7 +1077,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             String text = breakCycleField.getText().trim();
             if (text.isEmpty()) {
                 twoSegmentFit = null;
-                fitSummaryLabel.setText(buildFitSummaryHtml());
+                refreshFitSummary();
                 updateFitControls();
                 refreshChart();
                 return;
@@ -1099,10 +1101,27 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 return;
             }
             twoSegmentFit = fit;
-            fitSummaryLabel.setText(buildFitSummaryHtml());
+            refreshFitSummary();
             updateFitControls();
             twoSegmentFitButton.setSelected(true);
             refreshChart();
+        }
+
+        private void refreshFitSummary() {
+            fitSummaryLabel.setText(buildFitSummaryHtml());
+        }
+
+        private static OCAnalysisLib.OcDiagramFitMode toLibFitMode(
+                FitDisplayMode mode) {
+            switch (mode) {
+            case TWO_SEGMENT:
+                return OCAnalysisLib.OcDiagramFitMode.TWO_SEGMENT;
+            case QUADRATIC:
+                return OCAnalysisLib.OcDiagramFitMode.QUADRATIC;
+            case LINEAR:
+            default:
+                return OCAnalysisLib.OcDiagramFitMode.LINEAR;
+            }
         }
 
         private static int minCycle(List<Point> points) {
@@ -1128,6 +1147,11 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         private String buildFitSummaryHtml() {
             StringBuilder buf = new StringBuilder();
             appendHtmlBodyStart(buf);
+            appendHtmlSection(buf, "Interpretation");
+            appendHtmlParagraph(buf, OCAnalysisLib.interpretOcDiagram(linearFit,
+                    quadraticFit, twoSegmentFit, result.points,
+                    toLibFitMode(selectedFitDisplayMode()),
+                    result.parameters.period));
             if (linearFit != null) {
                 appendHtmlSection(buf, "Linear fit (O-C vs cycle)");
                 appendLinearFitDetails(buf, linearFit, result.parameters.period);
@@ -1161,10 +1185,6 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             }
             appendHtmlSection(buf, "Notes");
             appendHtmlParagraph(buf, OCAnalysisLib.getPeriodScatterWarning());
-            appendHtmlParagraph(buf,
-                    "A horizontal O-C trend suggests an epoch offset; a "
-                            + "linear slope suggests a period correction "
-                            + "(Foster, ch. 13).");
             appendHtmlBodyEnd(buf);
             return buf.toString();
         }

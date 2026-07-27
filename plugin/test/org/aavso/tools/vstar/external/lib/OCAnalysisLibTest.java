@@ -31,11 +31,13 @@ import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData.DemoDataset;
 import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData.DemoScenario;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.EventType;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.ImportedTiming;
+import org.aavso.tools.vstar.external.lib.OCAnalysisLib.LinearFit;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Parameters;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Point;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.QuadraticFit;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.Result;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.TimingMethod;
+import org.aavso.tools.vstar.external.lib.OCAnalysisLib.TwoSegmentFit;
 
 import junit.framework.TestCase;
 
@@ -290,6 +292,69 @@ public class OCAnalysisLibTest extends TestCase {
         String text = OCAnalysisLib.interpretQuadraticFit(fit, 1.0);
         assertTrue(text.contains("evolving period"));
         assertTrue(text.contains("ΔP/cycle"));
+    }
+
+    public void testInterpretOcDiagramFosterClock1FlatAtZero() {
+        List<Point> points = fosterOcPoints(OCAnalysisDemoData.FOSTER_CLOCK_1);
+        LinearFit linear = OCAnalysisLib.fitLinear(points);
+        String text = OCAnalysisLib.interpretOcDiagram(linear, null, null,
+                points, OCAnalysisLib.OcDiagramFitMode.LINEAR, 1.0);
+        assertTrue(text.contains("flat O-C at 0"));
+        assertTrue(text.contains("ephemeris"));
+    }
+
+    public void testInterpretOcDiagramFosterClock2EpochOffset() {
+        List<Point> points = fosterOcPoints(OCAnalysisDemoData.FOSTER_CLOCK_2);
+        LinearFit linear = OCAnalysisLib.fitLinear(points);
+        String text = OCAnalysisLib.interpretOcDiagram(linear, null, null,
+                points, OCAnalysisLib.OcDiagramFitMode.LINEAR, 1.0);
+        assertTrue(text.contains("epoch wrong"));
+        assertTrue(text.contains("period OK"));
+    }
+
+    public void testInterpretOcDiagramFosterClock3PeriodError() {
+        List<Point> points = fosterOcPoints(OCAnalysisDemoData.FOSTER_CLOCK_3);
+        LinearFit linear = OCAnalysisLib.fitLinear(points);
+        String text = OCAnalysisLib.interpretOcDiagram(linear, null, null,
+                points, OCAnalysisLib.OcDiagramFitMode.LINEAR, 1.0);
+        assertTrue(text.contains("period wrong"));
+    }
+
+    public void testInterpretOcDiagramFosterClock4EpochJump() {
+        List<Point> points = fosterOcPoints(OCAnalysisDemoData.FOSTER_CLOCK_4);
+        // Break at 3 keeps the pre-jump plateaus separate from post-jump cycles.
+        TwoSegmentFit fit = OCAnalysisLib.fitTwoSegment(points, 3);
+        String text = OCAnalysisLib.interpretOcDiagram(
+                OCAnalysisLib.fitLinear(points), null, fit, points,
+                OCAnalysisLib.OcDiagramFitMode.TWO_SEGMENT, 1.0);
+        assertTrue(text.contains("epoch jump"));
+    }
+
+    public void testInterpretOcDiagramFosterClock5PeriodChange() {
+        List<Point> points = fosterOcPoints(OCAnalysisDemoData.FOSTER_CLOCK_5);
+        TwoSegmentFit fit = OCAnalysisLib.fitTwoSegment(points, 6);
+        String text = OCAnalysisLib.interpretOcDiagram(
+                OCAnalysisLib.fitLinear(points), null, fit, points,
+                OCAnalysisLib.OcDiagramFitMode.TWO_SEGMENT, 1.0);
+        assertTrue(text.contains("period change"));
+    }
+
+    public void testInterpretOcDiagramFosterClock6EvolvingPeriod() {
+        List<Point> points = fosterOcPoints(OCAnalysisDemoData.FOSTER_CLOCK_6);
+        QuadraticFit quadratic = OCAnalysisLib.fitQuadratic(points);
+        String text = OCAnalysisLib.interpretOcDiagram(
+                OCAnalysisLib.fitLinear(points), quadratic, null, points,
+                OCAnalysisLib.OcDiagramFitMode.QUADRATIC, 1.0);
+        assertTrue(text.contains("evolving period"));
+    }
+
+    private static List<Point> fosterOcPoints(double[] dayOffsetsFromEpoch) {
+        List<Point> points = new ArrayList<Point>();
+        for (int n = 0; n < dayOffsetsFromEpoch.length; n++) {
+            points.add(new Point(n, dayOffsetsFromEpoch[n], n, Double.NaN, 5,
+                    EventType.MAXIMUM));
+        }
+        return points;
     }
 
     public void testAnalyzeBothEventTypeReturnsMaxAndMin() {
