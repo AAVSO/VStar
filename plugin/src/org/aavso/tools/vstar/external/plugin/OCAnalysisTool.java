@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.external.plugin;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -105,14 +106,17 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.help.Help;
+import org.aavso.tools.vstar.util.prefs.ChartPropertiesPrefs;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.YIntervalRenderer;
+import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.data.xy.YIntervalSeries;
@@ -417,6 +421,42 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         int height = Math.min(pref.height, 24);
         comp.setPreferredSize(new Dimension(pref.width, height));
         comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+    }
+
+    /**
+     * Match chart background, gridlines, fonts, and padding to the main
+     * light-curve plot preferences.
+     */
+    private static void applyChartProperties(JFreeChart chart) {
+        StandardChartTheme chartTheme = (StandardChartTheme) StandardChartTheme
+                .createJFreeTheme();
+        try {
+            Font font = ChartPropertiesPrefs.getChartExtraLargeFont();
+            if (font != null) {
+                chartTheme.setExtraLargeFont(font);
+            }
+            font = ChartPropertiesPrefs.getChartLargeFont();
+            if (font != null) {
+                chartTheme.setLargeFont(font);
+            }
+            font = ChartPropertiesPrefs.getChartRegularFont();
+            if (font != null) {
+                chartTheme.setRegularFont(font);
+            }
+            font = ChartPropertiesPrefs.getChartSmallFont();
+            if (font != null) {
+                chartTheme.setSmallFont(font);
+            }
+            chartTheme.apply(chart);
+        } catch (Exception e) {
+            // ignore
+        }
+
+        XYPlot plot = chart.getXYPlot();
+        plot.setBackgroundPaint(ChartPropertiesPrefs.getChartBackgroundColor());
+        plot.setDomainGridlinePaint(ChartPropertiesPrefs.getChartGridlinesColor());
+        plot.setRangeGridlinePaint(ChartPropertiesPrefs.getChartGridlinesColor());
+        chart.setPadding(new RectangleInsets(0, 0, 0, 30));
     }
 
     /**
@@ -868,6 +908,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             XYPlot plot = chart.getXYPlot();
             plot.setRenderer(0, ocRenderer);
             plot.setRenderer(1, fitRenderer);
+            applyChartProperties(chart);
+            restoreChartRendererStyles(plot);
             chartPanel = new ChartPanel(chart);
             chartPanel.setPreferredSize(new Dimension(640, 360));
 
@@ -1245,6 +1287,21 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             renderer.setSeriesPaint(0, Color.BLUE);
             renderer.setSeriesShape(0, new Ellipse2D.Double(-3.0, -3.0, 6.0, 6.0));
             return renderer;
+        }
+
+        private static void restoreChartRendererStyles(XYPlot plot) {
+            YIntervalRenderer oc = (YIntervalRenderer) plot.getRenderer(0);
+            if (oc != null) {
+                oc.setSeriesPaint(0, Color.BLUE);
+                oc.setSeriesShape(0, new Ellipse2D.Double(-3.0, -3.0, 6.0, 6.0));
+            }
+            XYLineAndShapeRenderer fit = (XYLineAndShapeRenderer) plot
+                    .getRenderer(1);
+            if (fit != null) {
+                fit.setSeriesPaint(0, Color.RED);
+                fit.setSeriesPaint(1, new Color(255, 128, 0));
+                fit.setDefaultShapesVisible(false);
+            }
         }
 
         private static XYLineAndShapeRenderer createFitRenderer() {
