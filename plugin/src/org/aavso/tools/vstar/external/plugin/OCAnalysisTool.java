@@ -845,6 +845,18 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             }
         }
 
+        private enum FitDisplayMode {
+            LINEAR("Linear"),
+            QUADRATIC("Quadratic"),
+            TWO_SEGMENT("Two-segment");
+
+            private final String label;
+
+            FitDisplayMode(String label) {
+                this.label = label;
+            }
+        }
+
         private final Result result;
         private final LinearFit linearFit;
         private TwoSegmentFit twoSegmentFit;
@@ -856,8 +868,12 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         private final ChartPanel chartPanel;
         private final JRadioButton cycleAxisButton;
         private final JRadioButton timeAxisButton;
+        private final JRadioButton linearFitButton;
+        private final JRadioButton quadraticFitButton;
+        private final JRadioButton twoSegmentFitButton;
         private final JLabel fitSummaryLabel;
         private final JTextField breakCycleField;
+        private final JButton applyTwoSegmentButton;
 
         OCAnalysisResultDialog(String seriesName, Result result,
                 LinearFit linearFit, QuadraticFit quadraticFit,
@@ -877,8 +893,20 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             tightenFieldHeight(breakCycleField);
             breakCycleField.setToolTipText(
                     "Cycle number where the O-C trend appears to change "
-                            + "(Foster ch. 13). Leave blank for a single "
-                            + "linear fit only.");
+                            + "(Foster ch. 13).");
+            int minCycle = minCycle(result.points);
+            int maxCycle = maxCycle(result.points);
+            applyTwoSegmentButton = new JButton("Apply");
+            applyTwoSegmentButton.setToolTipText(String.format(
+                    "Fit separate lines before and after the break cycle. "
+                            + "Cycles %d–%d; need ≥2 points each side of break.",
+                    minCycle, maxCycle));
+            applyTwoSegmentButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    applyTwoSegmentFit();
+                }
+            });
 
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
@@ -909,6 +937,30 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             };
             cycleAxisButton.addItemListener(axisListener);
             timeAxisButton.addItemListener(axisListener);
+
+            linearFitButton = new JRadioButton(FitDisplayMode.LINEAR.label,
+                    true);
+            quadraticFitButton = new JRadioButton(
+                    FitDisplayMode.QUADRATIC.label, false);
+            twoSegmentFitButton = new JRadioButton(
+                    FitDisplayMode.TWO_SEGMENT.label, false);
+            ButtonGroup fitGroup = new ButtonGroup();
+            fitGroup.add(linearFitButton);
+            fitGroup.add(quadraticFitButton);
+            fitGroup.add(twoSegmentFitButton);
+            ItemListener fitListener = new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    if (e.getStateChange() == ItemEvent.SELECTED) {
+                        updateFitControls();
+                        refreshChart();
+                    }
+                }
+            };
+            linearFitButton.addItemListener(fitListener);
+            quadraticFitButton.addItemListener(fitListener);
+            twoSegmentFitButton.addItemListener(fitListener);
+            updateFitControls();
 
             JFreeChart chart = ChartFactory.createScatterPlot(
                     "O-C diagram", XAxisMode.CYCLE.label, "O-C (days)",
@@ -955,8 +1007,48 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             axisPane.add(Box.createHorizontalStrut(10));
             axisPane.add(timeAxisButton);
             panel.add(axisPane);
+
+            JPanel fitPane = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+            fitPane.setBorder(BorderFactory.createTitledBorder("Fit on plot"));
+            fitPane.add(linearFitButton);
+            fitPane.add(quadraticFitButton);
+            fitPane.add(twoSegmentFitButton);
+            fitPane.add(new JLabel("Break cycle:"));
+            fitPane.add(breakCycleField);
+            fitPane.add(applyTwoSegmentButton);
+            panel.add(fitPane);
             panel.add(chartPanel);
             return panel;
+        }
+
+        private void updateFitControls() {
+            linearFitButton.setEnabled(linearFit != null);
+            quadraticFitButton.setEnabled(quadraticFit != null);
+            twoSegmentFitButton.setEnabled(result.points.size() >= 4);
+
+            if (quadraticFitButton.isSelected() && quadraticFit == null) {
+                linearFitButton.setSelected(true);
+            } else if (twoSegmentFitButton.isSelected()
+                    && result.points.size() < 4) {
+                linearFitButton.setSelected(true);
+            } else if (linearFitButton.isSelected() && linearFit == null
+                    && quadraticFit != null) {
+                quadraticFitButton.setSelected(true);
+            }
+
+            boolean twoSegmentMode = twoSegmentFitButton.isSelected();
+            breakCycleField.setEnabled(twoSegmentMode);
+            applyTwoSegmentButton.setEnabled(twoSegmentMode);
+        }
+
+        private FitDisplayMode selectedFitDisplayMode() {
+            if (twoSegmentFitButton.isSelected()) {
+                return FitDisplayMode.TWO_SEGMENT;
+            }
+            if (quadraticFitButton.isSelected()) {
+                return FitDisplayMode.QUADRATIC;
+            }
+            return FitDisplayMode.LINEAR;
         }
 
         private JScrollPane createTablePane() {
@@ -969,28 +1061,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         }
 
         private JPanel createFitPane() {
-            JPanel panel = new JPanel(new BorderLayout(0, 4));
+            JPanel panel = new JPanel(new BorderLayout());
             panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-            JPanel twoSegmentPane = new JPanel(new FlowLayout(
-                    FlowLayout.LEFT, 6, 0));
-            twoSegmentPane.add(new JLabel("Break cycle:"));
-            twoSegmentPane.add(breakCycleField);
-            JButton applyTwoSegmentButton = new JButton("Apply");
-            int minCycle = minCycle(result.points);
-            int maxCycle = maxCycle(result.points);
-            applyTwoSegmentButton.setToolTipText(String.format(
-                    "Fit separate lines before and after the break cycle. "
-                            + "Cycles %d–%d; need ≥2 points each side of break.",
-                    minCycle, maxCycle));
-            applyTwoSegmentButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    applyTwoSegmentFit();
-                }
-            });
-            twoSegmentPane.add(applyTwoSegmentButton);
-            panel.add(twoSegmentPane, BorderLayout.NORTH);
 
             JScrollPane pane = new JScrollPane(fitSummaryLabel);
             pane.setPreferredSize(new Dimension(640, 220));
@@ -1004,6 +1076,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             if (text.isEmpty()) {
                 twoSegmentFit = null;
                 fitSummaryLabel.setText(buildFitSummaryHtml());
+                updateFitControls();
                 refreshChart();
                 return;
             }
@@ -1027,6 +1100,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             }
             twoSegmentFit = fit;
             fitSummaryLabel.setText(buildFitSummaryHtml());
+            updateFitControls();
+            twoSegmentFitButton.setSelected(true);
             refreshChart();
         }
 
@@ -1283,9 +1358,10 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             plot.setDataset(0, dataCollection);
             plot.getDomainAxis().setLabel(mode.label);
 
-            if (linearFit != null || twoSegmentFit != null) {
-                plot.setDataset(1, buildFitSeries(mode, linearFit,
-                        twoSegmentFit));
+            XYSeriesCollection fitSeries = buildFitSeries(mode,
+                    selectedFitDisplayMode());
+            if (fitSeries != null && fitSeries.getSeriesCount() > 0) {
+                plot.setDataset(1, fitSeries);
             } else if (plot.getDatasetCount() > 1) {
                 plot.setDataset(1, null);
             }
@@ -1323,20 +1399,92 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         }
 
         private XYSeriesCollection buildFitSeries(XAxisMode mode,
-                LinearFit singleFit, TwoSegmentFit segmentFit) {
+                FitDisplayMode fitMode) {
             XYSeriesCollection collection = new XYSeriesCollection();
-            if (segmentFit != null) {
-                collection.addSeries(buildSegmentSeries("First segment",
-                        segmentFit.firstSegment, result.points, mode, true,
-                        segmentFit.breakCycle));
-                collection.addSeries(buildSegmentSeries("Second segment",
-                        segmentFit.secondSegment, result.points, mode, false,
-                        segmentFit.breakCycle));
-            } else if (singleFit != null) {
-                collection.addSeries(buildFullSeries("Linear fit", singleFit,
-                        result.points, mode));
+            switch (fitMode) {
+            case TWO_SEGMENT:
+                if (twoSegmentFit != null) {
+                    collection.addSeries(buildSegmentSeries("First segment",
+                            twoSegmentFit.firstSegment, result.points, mode,
+                            true, twoSegmentFit.breakCycle));
+                    collection.addSeries(buildSegmentSeries("Second segment",
+                            twoSegmentFit.secondSegment, result.points, mode,
+                            false, twoSegmentFit.breakCycle));
+                }
+                break;
+            case QUADRATIC:
+                if (quadraticFit != null) {
+                    collection.addSeries(buildQuadraticSeries("Quadratic fit",
+                            quadraticFit, result.points, mode));
+                }
+                break;
+            case LINEAR:
+            default:
+                if (linearFit != null) {
+                    collection.addSeries(buildFullSeries("Linear fit", linearFit,
+                            result.points, mode));
+                }
+                break;
             }
             return collection;
+        }
+
+        private XYSeries buildQuadraticSeries(String name, QuadraticFit fit,
+                List<Point> points, XAxisMode mode) {
+            XYSeries series = new XYSeries(name);
+            if (points.isEmpty()) {
+                return series;
+            }
+            int minCycle = minCycle(points);
+            int maxCycle = maxCycle(points);
+            int range = maxCycle - minCycle;
+            int steps = Math.min(Math.max(2, range + 1), 50);
+            for (int i = 0; i < steps; i++) {
+                int cycle = range == 0 ? minCycle
+                        : minCycle + (int) Math.round(i * range
+                                / (double) (steps - 1));
+                addQuadraticFitPoint(series, fit, cycle, points, mode);
+            }
+            return series;
+        }
+
+        private void addQuadraticFitPoint(XYSeries series, QuadraticFit fit,
+                int cycle, List<Point> points, XAxisMode mode) {
+            double x = mode == XAxisMode.CYCLE ? cycle
+                    : observedTimeForCycle(cycle, points);
+            series.add(x, fit.evaluate(cycle));
+        }
+
+        private static double observedTimeForCycle(int cycle, List<Point> points) {
+            Point below = null;
+            Point above = null;
+            for (Point p : points) {
+                if (p.cycle <= cycle) {
+                    below = p;
+                }
+                if (p.cycle >= cycle && above == null) {
+                    above = p;
+                }
+            }
+            if (below != null && below.cycle == cycle) {
+                return below.observedTime;
+            }
+            if (above != null && above.cycle == cycle) {
+                return above.observedTime;
+            }
+            if (below != null && above != null && below != above) {
+                double fraction = (cycle - below.cycle)
+                        / (double) (above.cycle - below.cycle);
+                return below.observedTime + fraction
+                        * (above.observedTime - below.observedTime);
+            }
+            if (below != null) {
+                return below.observedTime;
+            }
+            if (above != null) {
+                return above.observedTime;
+            }
+            return cycle;
         }
 
         private XYSeries buildFullSeries(String name, LinearFit fit,
