@@ -909,7 +909,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         private JScrollPane createTablePane() {
             JTable table = new JTable(new OCTableModel(result.points));
-            table.setCellSelectionEnabled(true);
+            table.setColumnSelectionAllowed(false);
+            table.setRowSelectionAllowed(true);
             JScrollPane pane = new JScrollPane(table);
             pane.setPreferredSize(new Dimension(640, 240));
             return pane;
