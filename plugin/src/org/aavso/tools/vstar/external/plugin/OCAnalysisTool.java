@@ -310,6 +310,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         String resultLabel;
         List<ValidObservation> obs = null;
+        SeriesType selectedSeries = null;
         if (fromImportedTimings) {
             resultLabel = resolveStarLabel();
         } else {
@@ -328,6 +329,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 return;
             }
             SeriesType series = seriesDlg.getSeries();
+            selectedSeries = series;
             obs = seriesInfo.getObservations(series);
             if (obs == null || obs.isEmpty()) {
                 MessageBox.showErrorDialog(getDisplayName(),
@@ -382,8 +384,11 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         LinearFit linearFit = OCAnalysisLib.fitLinear(result.points);
         QuadraticFit quadraticFit = OCAnalysisLib.fitQuadratic(result.points);
 
+        Color seriesColor = selectedSeries != null
+                ? SeriesType.getColorFromSeries(selectedSeries)
+                : Color.BLUE;
         new OCAnalysisResultDialog(resultLabel, result, linearFit,
-                quadraticFit);
+                quadraticFit, seriesColor);
     }
 
     private static void applyDataSourceFields(String dataSource,
@@ -844,8 +849,9 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         private final LinearFit linearFit;
         private TwoSegmentFit twoSegmentFit;
         private final QuadraticFit quadraticFit;
+        private final Color seriesColor;
         private final YIntervalSeries ocSeries = new YIntervalSeries("O-C");
-        private final YIntervalRenderer ocRenderer = createOcRenderer();
+        private final YIntervalRenderer ocRenderer;
         private final XYLineAndShapeRenderer fitRenderer = createFitRenderer();
         private final ChartPanel chartPanel;
         private final JRadioButton cycleAxisButton;
@@ -854,7 +860,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         private final JTextField breakCycleField;
 
         OCAnalysisResultDialog(String seriesName, Result result,
-                LinearFit linearFit, QuadraticFit quadraticFit) {
+                LinearFit linearFit, QuadraticFit quadraticFit,
+                Color seriesColor) {
             super(org.aavso.tools.vstar.ui.mediator.DocumentManager
                     .findActiveWindow(), "O-C: " + seriesName,
                     ModalityType.MODELESS);
@@ -862,6 +869,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             this.linearFit = linearFit;
             this.twoSegmentFit = null;
             this.quadraticFit = quadraticFit;
+            this.seriesColor = seriesColor;
+            this.ocRenderer = createOcRenderer(seriesColor);
             fitSummaryLabel = new JLabel(buildFitSummaryHtml());
             fitSummaryLabel.setVerticalAlignment(SwingConstants.TOP);
             breakCycleField = new JTextField(4);
@@ -1282,17 +1291,17 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             }
         }
 
-        private static YIntervalRenderer createOcRenderer() {
+        private static YIntervalRenderer createOcRenderer(Color seriesColor) {
             YIntervalRenderer renderer = new YIntervalRenderer();
-            renderer.setSeriesPaint(0, Color.BLUE);
+            renderer.setSeriesPaint(0, seriesColor);
             renderer.setSeriesShape(0, new Ellipse2D.Double(-3.0, -3.0, 6.0, 6.0));
             return renderer;
         }
 
-        private static void restoreChartRendererStyles(XYPlot plot) {
+        private void restoreChartRendererStyles(XYPlot plot) {
             YIntervalRenderer oc = (YIntervalRenderer) plot.getRenderer(0);
             if (oc != null) {
-                oc.setSeriesPaint(0, Color.BLUE);
+                oc.setSeriesPaint(0, seriesColor);
                 oc.setSeriesShape(0, new Ellipse2D.Double(-3.0, -3.0, 6.0, 6.0));
             }
             XYLineAndShapeRenderer fit = (XYLineAndShapeRenderer) plot
