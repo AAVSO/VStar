@@ -40,12 +40,24 @@ import org.apache.commons.math.optimization.GoalType;
  * O-C (observed minus computed) analysis for times of light-curve extrema.
  *
  * <p>
- * See Grant Foster, "Analyzing Light Curves", chapter 13. For cycle n with
- * ephemeris (epoch t0, period P), the computed time of maximum is Cn = t0 + nP
- * and (O-C)n = On - Cn.
+ * Teaching material for the six-clock O-C tutorial follows AAVSO
+ * <em>Variable Star Astronomy</em>, chapter 13 (Grant Foster), freely available
+ * at {@link #VSA_CHAPTER13_PDF_URL}. For cycle n with ephemeris (epoch t0,
+ * period P), the computed time of maximum is Cn = t0 + nP and (O-C)n = On − Cn.
  * </p>
  */
 public class OCAnalysisLib {
+
+    /**
+     * Free PDF for AAVSO Variable Star Astronomy, chapter 13 (six-clock O-C
+     * tutorial, Tables 13.1–13.2).
+     */
+    public static final String VSA_CHAPTER13_PDF_URL =
+            "https://www.aavso.org/sites/default/files/education/vsa/Chapter13.pdf";
+
+    /** Short citation for user-facing interpretation text. */
+    public static final String VSA_CHAPTER13_CITE =
+            "AAVSO Variable Star Astronomy, ch. 13";
 
     /**
      * Which extremum to time in each cycle.
@@ -466,7 +478,7 @@ public class OCAnalysisLib {
     }
 
     /**
-     * Foster ch. 13 interpretation for a quadratic O-C trend (evolving period).
+     * VSA chapter 13 interpretation for a quadratic O-C trend (evolving period).
      */
     public static String interpretQuadraticFit(QuadraticFit fit,
             double modelPeriod) {
@@ -485,7 +497,9 @@ public class OCAnalysisLib {
         buf.append(formatSmallDays(fit.quadratic));
         buf.append(" d/cycle² → ΔP/cycle ≈ ");
         buf.append(formatSmallDays(deltaPPerCycle));
-        buf.append(" d (evolving period, Foster §13.4); RMS = ");
+        buf.append(" d (evolving period, ");
+        buf.append(VSA_CHAPTER13_CITE);
+        buf.append("); RMS = ");
         buf.append(formatSmallDays(fit.rms));
         buf.append(" d.");
         return buf.toString();
@@ -719,18 +733,19 @@ public class OCAnalysisLib {
     }
 
     /**
-     * Foster ch. 13 warning about period scatter in LPVs (non-white O-C noise).
+     * VSA chapter 13 warning about period scatter in LPVs (non-white O-C noise).
      */
     public static String getPeriodScatterWarning() {
-        return "Caution (Foster §13.5): for long-period variables and other stars "
-                + "with cycle-to-cycle period scatter, O-C residuals are not white "
-                + "noise — apparent trends may reflect intrinsic period jitter "
-                + "rather than a true ephemeris change. See Foster (1993, JAAVSO 22, "
-                + "145) on O-C autocorrelation.";
+        return "Caution (" + VSA_CHAPTER13_CITE + "): for long-period variables "
+                + "and other stars with cycle-to-cycle period scatter, O-C "
+                + "residuals are not white noise — apparent trends may reflect "
+                + "intrinsic period jitter rather than a true ephemeris change. "
+                + "See also Foster (1993, JAAVSO 22, 145) on O-C autocorrelation. "
+                + "Chapter PDF: " + VSA_CHAPTER13_PDF_URL;
     }
 
     /**
-     * Foster ch. 13 interpretation for a linear O-C trend versus cycle number.
+     * VSA chapter 13 interpretation for a linear O-C trend versus cycle number.
      */
     public static String interpretLinearFit(LinearFit fit, double modelPeriod) {
         if (fit == null) {
@@ -777,10 +792,10 @@ public class OCAnalysisLib {
         if (Math.abs(fit.firstSegment.slope - fit.secondSegment.slope) > 0) {
             buf.append(" Different slopes suggest a period change near cycle ");
             buf.append(fit.breakCycle);
-            buf.append(" (Foster, ch. 13).");
+            buf.append(" (").append(VSA_CHAPTER13_CITE).append(").");
         } else {
             buf.append(" Parallel segments suggest an epoch jump with unchanged "
-                    + "period (Foster, ch. 13).");
+                    + "period (").append(VSA_CHAPTER13_CITE).append(").");
         }
         return buf.toString();
     }
@@ -795,7 +810,7 @@ public class OCAnalysisLib {
     }
 
     /**
-     * Rule-based Foster ch. 13 pattern diagnosis for an O-C diagram. This is
+     * Rule-based VSA chapter 13 pattern diagnosis for an O-C diagram. This is
      * not machine learning; it applies thresholds to the active fit.
      */
     public static String interpretOcDiagram(LinearFit linearFit,
@@ -820,7 +835,9 @@ public class OCAnalysisLib {
             appendLinearOcPattern(buf, linearFit, points, modelPeriod);
             break;
         }
-        buf.append(" Suggestive only — see Foster ch. 13 and Notes below.");
+        buf.append(" Suggestive only — see ");
+        buf.append(VSA_CHAPTER13_CITE);
+        buf.append(" (").append(VSA_CHAPTER13_PDF_URL).append(") and Notes below.");
         return buf.toString();
     }
 

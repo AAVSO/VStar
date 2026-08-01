@@ -332,7 +332,7 @@ public class OCAnalysisLibTest extends TestCase {
 
     public void testInterpretOcDiagramFosterClock5PeriodChange() {
         List<Point> points = fosterOcPoints(OCAnalysisDemoData.FOSTER_CLOCK_5);
-        TwoSegmentFit fit = OCAnalysisLib.fitTwoSegment(points, 6);
+        TwoSegmentFit fit = OCAnalysisLib.fitTwoSegment(points, 5);
         String text = OCAnalysisLib.interpretOcDiagram(
                 OCAnalysisLib.fitLinear(points), null, fit, points,
                 OCAnalysisLib.OcDiagramFitMode.TWO_SEGMENT, 1.0);
@@ -405,7 +405,8 @@ public class OCAnalysisLibTest extends TestCase {
     public void testGetPeriodScatterWarningNotEmpty() {
         String warning = OCAnalysisLib.getPeriodScatterWarning();
         assertNotNull(warning);
-        assertTrue(warning.contains("Foster"));
+        assertTrue(warning.contains("Variable Star Astronomy"));
+        assertTrue(warning.contains(OCAnalysisLib.VSA_CHAPTER13_PDF_URL));
         assertTrue(warning.contains("period scatter"));
     }
 

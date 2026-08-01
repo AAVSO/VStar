@@ -78,7 +78,22 @@ public class OCAnalysisDemoDataTest extends TestCase {
     public void testFosterClock4SuggestedBreakCycle() {
         DemoDataset dataset = OCAnalysisDemoData
                 .generate(DemoScenario.EPOCH_JUMP);
-        assertEquals(Integer.valueOf(4), dataset.suggestedBreakCycle);
+        assertEquals(Integer.valueOf(3), dataset.suggestedBreakCycle);
+        assertTrue(dataset.expectedPattern.contains("break cycle 3"));
+    }
+
+    public void testFosterClock5SuggestedBreakCycle() {
+        DemoDataset dataset = OCAnalysisDemoData
+                .generate(DemoScenario.PERIOD_CHANGE);
+        assertEquals(Integer.valueOf(5), dataset.suggestedBreakCycle);
+        assertTrue(dataset.expectedPattern.contains("break cycle 5"));
+    }
+
+    public void testFosterClock6HasNoBreakCycle() {
+        DemoDataset dataset = OCAnalysisDemoData
+                .generate(DemoScenario.EVOLVING_PERIOD);
+        assertNull(dataset.suggestedBreakCycle);
+        assertTrue(dataset.expectedPattern.contains("Quadratic"));
     }
 
     public void testScenarioFromLabel() {

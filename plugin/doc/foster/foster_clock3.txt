@@ -1,4 +1,4 @@
-# Foster ch. 13, Table 13.1 — Clock 3 (period error)
+# VSA ch. 13 / Foster, Table 13.1 — Clock 3 (period error)
 # O-C tool: Imported timings; P = 1.0 d; epoch = 2450000.0
 # Expected O-C: linear slope +0.0021 d/cycle (Table 13.2)
 0 2450000.0000

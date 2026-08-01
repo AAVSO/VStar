@@ -35,8 +35,8 @@ import org.aavso.tools.vstar.ui.dialog.SelectableTextField;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
- * Observation source that loads Foster-style synthetic light curves for O-C
- * analysis tutorials.
+ * Observation source that loads VSA chapter 13–style synthetic light curves for
+ * O-C analysis tutorials (six clocks; Tables 13.1–13.2).
  */
 public class OCAnalysisDemoObservationSource extends ObservationSourcePluginBase {
 
@@ -51,7 +51,7 @@ public class OCAnalysisDemoObservationSource extends ObservationSourcePluginBase
 
     @Override
     public String getDescription() {
-        return "Synthetic light curves for O-C tutorials (Foster ch. 13)";
+        return "Synthetic light curves for O-C tutorials (AAVSO VSA ch. 13)";
     }
 
     @Override
@@ -99,7 +99,7 @@ public class OCAnalysisDemoObservationSource extends ObservationSourcePluginBase
         dataset = OCAnalysisDemoData.generate(scenario);
         StringBuilder msg = new StringBuilder();
         msg.append(dataset.description);
-        msg.append("\n\nSuggested ephemeris for O-C (Foster test ");
+        msg.append("\n\nSuggested ephemeris for O-C (VSA ch. 13 test ");
         msg.append("theory): P = ");
         msg.append(dataset.modelPeriod);
         msg.append(" d, epoch = ");
@@ -108,7 +108,7 @@ public class OCAnalysisDemoObservationSource extends ObservationSourcePluginBase
         if (dataset.suggestedBreakCycle != null) {
             msg.append("\nSuggested two-segment break cycle: ");
             msg.append(dataset.suggestedBreakCycle);
-            msg.append(".");
+            msg.append(" (first segment = cycles ≤ break).");
         }
         msg.append("\n\nExpected O-C pattern: ");
         msg.append(dataset.expectedPattern);

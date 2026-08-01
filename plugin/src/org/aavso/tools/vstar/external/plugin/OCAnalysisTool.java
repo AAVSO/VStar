@@ -51,6 +51,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -63,6 +64,8 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -126,7 +129,8 @@ import org.jfree.data.xy.YIntervalSeriesCollection;
  * O-C (observed minus computed) analysis tool for times of light-curve extrema.
  *
  * <p>
- * See Grant Foster, "Analyzing Light Curves", chapter 13.
+ * See AAVSO <em>Variable Star Astronomy</em>, chapter 13 (Grant Foster):
+ * {@link OCAnalysisLib#VSA_CHAPTER13_PDF_URL}.
  * </p>
  */
 public class OCAnalysisTool extends GeneralToolPluginBase {
@@ -871,7 +875,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         private final JRadioButton linearFitButton;
         private final JRadioButton quadraticFitButton;
         private final JRadioButton twoSegmentFitButton;
-        private final JLabel fitSummaryLabel;
+        private final JEditorPane fitSummaryPane;
+        private final JLabel dialogSummaryLabel;
         private final JTextField breakCycleField;
         private final JButton applyTwoSegmentButton;
 
@@ -891,7 +896,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             tightenFieldHeight(breakCycleField);
             breakCycleField.setToolTipText(
                     "Cycle number where the O-C trend appears to change "
-                            + "(Foster ch. 13).");
+                            + "(" + OCAnalysisLib.VSA_CHAPTER13_CITE + ").");
             int minCycle = minCycle(result.points);
             int maxCycle = maxCycle(result.points);
             applyTwoSegmentButton = new JButton("Apply");
@@ -961,8 +966,10 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             twoSegmentFitButton.addItemListener(fitListener);
             updateFitControls();
 
-            fitSummaryLabel = new JLabel(buildFitSummaryHtml());
-            fitSummaryLabel.setVerticalAlignment(SwingConstants.TOP);
+            fitSummaryPane = createFitSummaryPane();
+            dialogSummaryLabel = new JLabel();
+            dialogSummaryLabel.setVerticalAlignment(SwingConstants.TOP);
+            refreshFitSummary();
 
             JFreeChart chart = ChartFactory.createScatterPlot(
                     "O-C diagram", XAxisMode.CYCLE.label, "O-C (days)",
@@ -1066,11 +1073,30 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             JPanel panel = new JPanel(new BorderLayout());
             panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-            JScrollPane pane = new JScrollPane(fitSummaryLabel);
+            JScrollPane pane = new JScrollPane(fitSummaryPane);
             pane.setPreferredSize(new Dimension(640, 220));
             pane.getVerticalScrollBar().setUnitIncrement(16);
             panel.add(pane, BorderLayout.CENTER);
             return panel;
+        }
+
+        private static JEditorPane createFitSummaryPane() {
+            JEditorPane pane = new JEditorPane();
+            pane.setContentType("text/html");
+            pane.setEditable(false);
+            pane.setOpaque(false);
+            pane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                    Boolean.TRUE);
+            pane.addHyperlinkListener(new HyperlinkListener() {
+                @Override
+                public void hyperlinkUpdate(HyperlinkEvent e) {
+                    if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
+                            && e.getURL() != null) {
+                        Help.openURLInWebBrowser(e.getURL().toString(), "O-C");
+                    }
+                }
+            });
+            return pane;
         }
 
         private void applyTwoSegmentFit() {
@@ -1108,7 +1134,9 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         }
 
         private void refreshFitSummary() {
-            fitSummaryLabel.setText(buildFitSummaryHtml());
+            fitSummaryPane.setText(buildFitSummaryHtml());
+            fitSummaryPane.setCaretPosition(0);
+            dialogSummaryLabel.setText(buildSummaryHtml());
         }
 
         private static OCAnalysisLib.OcDiagramFitMode toLibFitMode(
@@ -1172,11 +1200,13 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                     appendHtmlParagraph(buf,
                             "Different slopes suggest a period change near "
                                     + "cycle " + twoSegmentFit.breakCycle
-                                    + " (Foster, ch. 13).");
+                                    + " (" + OCAnalysisLib.VSA_CHAPTER13_CITE
+                                    + ").");
                 } else {
                     appendHtmlParagraph(buf,
                             "Parallel segments suggest an epoch jump with "
-                                    + "unchanged period (Foster, ch. 13).");
+                                    + "unchanged period ("
+                                    + OCAnalysisLib.VSA_CHAPTER13_CITE + ").");
                 }
             }
             if (quadraticFit != null) {
@@ -1185,6 +1215,9 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             }
             appendHtmlSection(buf, "Notes");
             appendHtmlParagraph(buf, OCAnalysisLib.getPeriodScatterWarning());
+            appendHtmlParagraphWithLink(buf, "O-C pattern reference: ",
+                    OCAnalysisLib.VSA_CHAPTER13_CITE,
+                    OCAnalysisLib.VSA_CHAPTER13_PDF_URL);
             appendHtmlBodyEnd(buf);
             return buf.toString();
         }
@@ -1212,8 +1245,31 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         private static void appendHtmlParagraph(StringBuilder buf, String text) {
             buf.append("<p style='margin-top:2px;margin-bottom:2px;"
-                    + "margin-left:12px'>").append(escapeHtml(text))
+                    + "margin-left:12px'>").append(htmlWithLinks(text))
                     .append("</p>");
+        }
+
+        private static void appendHtmlParagraphWithLink(StringBuilder buf,
+                String beforeLink, String linkText, String url) {
+            buf.append("<p style='margin-top:2px;margin-bottom:2px;"
+                    + "margin-left:12px'>").append(escapeHtml(beforeLink))
+                    .append("<a href='").append(escapeHtml(url)).append("'>")
+                    .append(escapeHtml(linkText)).append("</a></p>");
+        }
+
+        /**
+         * Escape text for HTML, then turn known/absolute http(s) URLs into
+         * anchors so the Fit summary pane can open them.
+         */
+        private static String htmlWithLinks(String text) {
+            String escaped = escapeHtml(text);
+            String url = OCAnalysisLib.VSA_CHAPTER13_PDF_URL;
+            String escapedUrl = escapeHtml(url);
+            if (escaped.contains(escapedUrl)) {
+                escaped = escaped.replace(escapedUrl,
+                        "<a href='" + escapedUrl + "'>" + escapedUrl + "</a>");
+            }
+            return escaped;
         }
 
         private static void appendHtmlDetail(StringBuilder buf, String label,
@@ -1253,8 +1309,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             appendHtmlDetail(buf, "Quadratic coefficient",
                     formatDays(fit.quadratic) + " d/cycle²");
             appendHtmlDetail(buf, "ΔP per cycle",
-                    formatDays(deltaPPerCycle)
-                            + " d (evolving period, Foster §13.4)");
+                    formatDays(deltaPPerCycle) + " d (evolving period, "
+                            + OCAnalysisLib.VSA_CHAPTER13_CITE + ")");
             appendHtmlDetail(buf, "RMS", formatDays(fit.rms) + " d");
         }
 
@@ -1282,12 +1338,43 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                                     result.parameters.epoch));
             appendSummaryRow(buf, "Data",
                     result.points.size() + " O-C points");
-            if (linearFit != null) {
-                appendSummaryRow(buf, "Linear fit",
-                        "slope = " + formatDays(linearFit.slope)
-                                + " d/cycle, intercept = "
-                                + formatDays(linearFit.intercept) + " d, RMS = "
-                                + formatDays(linearFit.rms) + " d");
+            FitDisplayMode mode = selectedFitDisplayMode();
+            switch (mode) {
+            case QUADRATIC:
+                if (quadraticFit != null) {
+                    appendSummaryRow(buf, "Quadratic fit",
+                            "ΔP/cycle ≈ "
+                                    + formatDays(2.0 * quadraticFit.quadratic)
+                                    + " d, RMS = "
+                                    + formatDays(quadraticFit.rms) + " d");
+                }
+                break;
+            case TWO_SEGMENT:
+                if (twoSegmentFit != null) {
+                    appendSummaryRow(buf, "Two-segment fit",
+                            "break at cycle " + twoSegmentFit.breakCycle
+                                    + "; slopes "
+                                    + formatDays(twoSegmentFit.firstSegment.slope)
+                                    + " / "
+                                    + formatDays(
+                                            twoSegmentFit.secondSegment.slope)
+                                    + " d/cycle");
+                } else {
+                    appendSummaryRow(buf, "Two-segment fit",
+                            "enter break cycle and Apply");
+                }
+                break;
+            case LINEAR:
+            default:
+                if (linearFit != null) {
+                    appendSummaryRow(buf, "Linear fit",
+                            "slope = " + formatDays(linearFit.slope)
+                                    + " d/cycle, intercept = "
+                                    + formatDays(linearFit.intercept)
+                                    + " d, RMS = "
+                                    + formatDays(linearFit.rms) + " d");
+                }
+                break;
             }
             buf.append("</table>");
             appendHtmlBodyEnd(buf);
@@ -1306,10 +1393,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             JPanel panel = new JPanel();
             panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
             panel.setBorder(BorderFactory.createTitledBorder("Summary"));
-
-            JLabel summaryLabel = new JLabel(buildSummaryHtml());
-            summaryLabel.setVerticalAlignment(SwingConstants.TOP);
-            panel.add(summaryLabel);
+            panel.add(dialogSummaryLabel);
             return panel;
         }
 

@@ -1,6 +1,6 @@
-# Foster ch. 13, Table 13.1 — Clock 6 (slowing / evolving clock)
+# VSA ch. 13 / Foster, Table 13.1 — Clock 6 (slowing / evolving clock)
 # O-C tool: Imported timings; P = 1.0 d; epoch = 2450000.0
-# Expected O-C: curved trend (Table 13.2); read quadratic fit on Fit summary
+# Expected O-C: curved trend (Table 13.2); select Quadratic under Fit on plot
 0 2450000.0000
 1 2450001.0000
 2 2450002.0007

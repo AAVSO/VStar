@@ -27,13 +27,13 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.EventType;
 
 /**
- * Synthetic light curves for teaching O-C analysis (Foster, ch. 13, Tables
- * 13.1–13.2).
+ * Synthetic light curves for teaching O-C analysis (AAVSO Variable Star
+ * Astronomy, ch. 13 / Grant Foster; Tables 13.1–13.2).
  *
  * <p>
- * Each {@link DemoScenario} places synthetic maxima at Foster's observed clock
- * times (test theory: P = 1 d, epoch = cycle 0). Light-curve shape is identical
- * for every scenario; only timing differs, as in Foster's clock analogy.
+ * Each {@link DemoScenario} places synthetic maxima at the chapter's observed
+ * clock times (test theory: P = 1 d, epoch = cycle 0). Light-curve shape is
+ * identical for every scenario; only timing differs, as in the clock analogy.
  * </p>
  */
 public final class OCAnalysisDemoData {
@@ -42,11 +42,11 @@ public final class OCAnalysisDemoData {
     public static final double DEFAULT_PERIOD = 1.0;
     public static final int DEFAULT_NUM_CYCLES = 10;
 
-    /** Foster test theory period (1 day). */
+    /** VSA / Foster test theory period (1 day). */
     public static final double FOSTER_THEORY_PERIOD = 1.0;
 
     /**
-     * Observed event times in days from epoch (Foster Table 13.1, cycles 0–9).
+     * Observed event times in days from epoch (VSA Table 13.1, cycles 0–9).
      */
     public static final double[] FOSTER_CLOCK_1 = { 0, 1, 2, 3, 4, 5, 6, 7,
             8, 9 };
@@ -62,8 +62,8 @@ public final class OCAnalysisDemoData {
             4.0042, 5.0069, 6.0104, 7.0146, 8.0194, 9.0250 };
 
     /**
-     * Foster-style demonstration scenarios (six clocks; no eclipsing-binary
-     * example in Foster ch. 13).
+     * Demonstration scenarios for the six clocks in VSA ch. 13 (no eclipsing-binary
+     * example in that chapter).
      */
     public enum DemoScenario {
         CORRECT_EPHEMERIS("Foster clock 1 — correct ephemeris",
@@ -73,11 +73,16 @@ public final class OCAnalysisDemoData {
         PERIOD_ERROR("Foster clock 3 — period error",
                 "Linear O-C slope ≈ +0.0021 d/cycle (Table 13.2, clock 3)."),
         EPOCH_JUMP("Foster clock 4 — epoch jump",
-                "O-C step at cycle 4 — try two-segment break cycle 4."),
+                "O-C steps at cycle 4 (Table 13.2). Use Two-segment with "
+                        + "break cycle 3 (cycles ≤ 3 pre-jump; cycle 4 is "
+                        + "already post-jump)."),
         PERIOD_CHANGE("Foster clock 5 — period change",
-                "O-C slope change — try two-segment break cycle 6."),
+                "O-C slope changes after cycle 5 (Table 13.2). Use "
+                        + "Two-segment with break cycle 5 (cycles ≤ 5 first "
+                        + "slope; cycle 6 starts the new regime)."),
         EVOLVING_PERIOD("Foster clock 6 — slowing clock",
-                "Curved O-C — read quadratic fit on Fit summary tab.");
+                "Curved O-C (Table 13.2). Select Quadratic under Fit on plot "
+                        + "and read the Fit summary interpretation.");
 
         private final String label;
         private final String expectedPattern;
@@ -102,7 +107,7 @@ public final class OCAnalysisDemoData {
     public static final class DemoDataset {
         public final DemoScenario scenario;
         public final List<ValidObservation> observations;
-        /** Ephemeris to enter in the O-C tool (Foster test theory). */
+        /** Ephemeris to enter in the O-C tool (VSA ch. 13 test theory). */
         public final double modelPeriod;
         public final double modelEpoch;
         public final double truePeriod;
@@ -160,11 +165,13 @@ public final class OCAnalysisDemoData {
             break;
         case EPOCH_JUMP:
             fosterDays = FOSTER_CLOCK_4;
-            breakCycle = Integer.valueOf(4);
+            // Last cycle of the pre-jump plateau (cycle 4 is already post-jump).
+            breakCycle = Integer.valueOf(3);
             break;
         case PERIOD_CHANGE:
             fosterDays = FOSTER_CLOCK_5;
-            breakCycle = Integer.valueOf(6);
+            // Last cycle of the first slope (cycle 6 is already in the new regime).
+            breakCycle = Integer.valueOf(5);
             break;
         case EVOLVING_PERIOD:
             fosterDays = FOSTER_CLOCK_6;
@@ -187,7 +194,7 @@ public final class OCAnalysisDemoData {
     }
 
     /**
-     * Foster Table 13.2 O-C for a clock, using theory P = 1 d and epoch at
+     * VSA Table 13.2 O-C for a clock, using theory P = 1 d and epoch at
      * cycle 0.
      */
     public static double[] fosterOcValues(double[] fosterObservedDays) {

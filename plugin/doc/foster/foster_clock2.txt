@@ -1,4 +1,4 @@
-# Foster ch. 13, Table 13.1 — Clock 2 (epoch offset)
+# VSA ch. 13 / Foster, Table 13.1 — Clock 2 (epoch offset)
 # O-C tool: Imported timings; P = 1.0 d; epoch = 2450000.0
 # Expected O-C: constant +0.0035 d (Table 13.2)
 0 2450000.0035

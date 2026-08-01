@@ -7,8 +7,11 @@ light-curve extrema and displays an O-C diagram. A fixed test ephemeris (period
 and epoch) is compared against observed times of maximum (or minimum) light to
 reveal timing errors.
 
-Primary reference: Grant Foster, *Analyzing Light Curves*, chapter 13 (AAVSO
-Variable Star Analytics; clock analogy in Tables 13.1–13.2).
+Primary reference for the six-clock O-C tutorial (Tables 13.1–13.2): AAVSO
+*Variable Star Astronomy*, chapter 13 — freely available PDF:
+[Variable Stars and O–C Diagrams](https://www.aavso.org/sites/default/files/education/vsa/Chapter13.pdf)
+(Grant Foster). The same material appears in Foster, *Analyzing Light Curves*,
+ch. 13.
 
 Two plug-ins are provided.
 
@@ -46,110 +49,118 @@ download URL matches your VStar version (see the
 4. Review the results dialog: **O-C diagram**, **Data table**, and **Fit
    summary**.
 
-See **Examples** for walkthroughs. **Example 2** uses the optional demo
-observation source; **Appendix A** covers Foster validation (including
-imported timings for all six clocks).
+See **Examples** for Foster demo walkthroughs. **Appendix A** covers all six
+clocks (demo light curves or imported timings). For a typical workflow on your
+own AID data (measure → export CSV → re-import), see **Appendix C**.
 
 ## Examples
 
-These walkthroughs build on each other:
+These three walkthroughs use the optional **O-C demo data** plug-in (no real
+star or downloaded timing file required). Install it if needed (see
+**Installation**), then restart VStar. Each example uses the VSA/Foster test
+ephemeris **P = 1.0 d**, **epoch = 2450000.0** (Tables 13.1–13.2 in the
+[Chapter 13 PDF](https://www.aavso.org/sites/default/files/education/vsa/Chapter13.pdf)).
 
-| Example | Purpose |
-|---------|---------|
-| **1** | Real AID light curve → measure timings → export CSV → re-import timings (typical workflow on your own data) |
-| **2** | Bundled Foster clock 2 demo → validate the tool against a known O-C offset (no download or real star required) |
+| Example | Demo scenario (VSA clock) | Purpose |
+|---------|---------------------------|---------|
+| **1** | Foster clock 4 — epoch jump | Two-segment fit with **parallel** segments |
+| **2** | Foster clock 5 — period change | Compare linear, quadratic, and two-segment (**different slopes**) |
+| **3** | Foster clock 6 — slowing clock | Compare **linear** vs **quadratic** for a curved O-C |
 
-Use **Appendix A** to validate the other Foster clocks or to import pre-computed timing files.
+Clocks 1–3 (correct ephemeris, epoch offset, period error) are covered in
+**Appendix A**. Demo menu labels keep the “Foster clock” wording used in the
+plug-in; the numbers and tables are those of the VSA chapter.
 
-### Example 1 — O-C from loaded observations (AID data)
+Shared setup for each example (details only in Example 1; abbreviated later):
 
-Use this when you have a light curve in VStar and want times of eclipse minima
-(or maxima) measured from the data.
+1. **File → O-C demo data…** → choose the demo scenario for that clock → **OK**.
+2. **Tools → O-C…** → **From observations** → **Star metadata** → **Event:**
+   Maximum → **Timing method:** Parabolic interpolation → **OK** → select
+   **Johnson V**.
 
-**Suggested target:** **RZ Cas** (AUID `000-BBF-490`), a bright Algol-type
-eclipsing binary (EA). Period ≈ **1.20 d** (VSX), good AAVSO **V** coverage,
-and a deep primary minimum suited to parabolic timing.
+### Example 1 — Epoch jump (clock 4)
 
-**Suggested JD range:** **2452700 – 2461000** (about 22 years; calendar
-**2003-03-01** through **2025-11-20**). The AID holds **9000+ V** observations
-in this span. In the load dialog, enter those minimum and maximum JD values and
-select **V** only (clear other series checkboxes).
+A sudden step in O-C with unchanged slope on each side (VSA Table 13.2, clock 4).
 
-1. Load the star from the AAVSO International Database (**File → New Star from
-   AAVSO Database…**): star name **RZ Cas**, JD range and **V** series as above.
-2. Optional: refine period and epoch with **period analysis** or a **phase
-   plot** if you plan to use **Phase plot** as the ephemeris source (see
-   **Appendix B**). For this example, **Star metadata** (VSX period and epoch)
-   is enough to start.
-3. **Tools → O-C…**
-4. **Data source:** From observations.
-5. **Ephemeris source:** **Star metadata** (VSX values loaded with the star).
-6. **Event:** Minimum (primary eclipse). **Timing method:** Parabolic
-   interpolation. **Minimum observations per cycle:** 3 (defaults are fine if
-   already set).
-7. Click **OK**, select the **V** series if prompted.
-8. On the **O-C diagram**, check the trend. Open **Fit summary** for linear
-   (and, if applicable, quadratic) interpretation text. Over many years, EB O-C
-   can show real long-term effects (apsidal motion, mass transfer); see
-   **Further reading** below.
-9. Click **Export CSV…** in the results dialog and save the file (e.g.
-   `rz_cas_timings.csv`). The export lists each timed eclipse (`Cycle`,
-   `O_time`, optional `OC_sigma`) plus O-C columns and fit metadata in `#`
-   comment lines.
-10. **Tools → O-C…** again (no star loaded is fine).
-11. **Data source:** Imported timings file → **OK** → select the CSV from step 9.
-12. Leave **Period**, **Epoch**, and **Event** at their defaults — an O-C export
-    CSV supplies these from its `# period=…, epoch=…` comment and `Event` column.
-    Click **OK** again. The O-C diagram should match step 8 without re-processing
-    the AID light curve.
+1. Load **Foster clock 4 — epoch jump** and open O-C as in the shared setup.
+   Note the load-message hint: break cycle **3** (cycles 0–3 are the pre-jump
+   plateau; cycle 4 is already post-jump).
+2. On the **O-C diagram**, the points step upward at cycle 4. Select
+   **Two-segment**, enter **Break cycle** **3**, click **Apply**. Both
+   segments should be nearly flat (slope ≈ 0) with different intercepts.
 
-![O-C parameter dialog](images/oc_parameter_dialog.png)
+![Example 1 — two-segment fit on epoch-jump O-C](images/oc_ex1_clock4_two_segment.png)
 
-![O-C results diagram](images/oc_results_diagram.png)
+3. Open **Fit summary**. The **Interpretation** should describe parallel
+   segments (epoch jump with unchanged period).
 
-### Example 2 — O-C from demo light curve (Foster clock 2)
+![Example 1 — Fit summary interpretation](images/oc_ex1_clock4_fit_summary.png)
 
-Use this to walk through Foster's clock analogy with bundled synthetic data —
-no real star or downloaded timing file required. This example loads Foster
-clock 2 light curves whose maxima match Table 13.1 and should yield a flat O-C
-offset of **+0.0035 d** (Table 13.2).
+### Example 2 — Period change (clock 5)
 
-1. Install the optional **O-C demo data** plug-in if needed (see
-   **Installation**), then restart VStar.
-2. **File → O-C demo data…**
-3. **Demo scenario:** **Foster clock 2 — epoch offset** → **OK**.
-4. Read the load message. Note the **suggested ephemeris** for Foster test
-   theory: **P = 1.0 d**, **epoch = 2450000.0**, and the expected flat O-C
-   ≈ **+0.0035 d**.
-5. **Tools → O-C…**
-6. **Data source:** From observations.
-7. **Ephemeris source:** **Star metadata** (pre-fills the suggested period and
-   epoch from step 4). **Event:** Maximum. **Timing method:** Parabolic
-   interpolation (defaults are fine).
-8. Click **OK**, select the **V** series if prompted.
-9. Review results: O-C should be flat near **+0.0035 d** on every cycle (Foster
-   Table 13.2, clock 2). Open **Fit summary** for the linear-fit interpretation.
+A slope change mid-run: a single line or parabola is a poor model; two segments
+with different slopes match Table 13.2 (clock 5).
 
-To validate the other Foster clocks from light curves, repeat steps 2–9 with a
-different **Demo scenario** (see **Appendix A**, demo scenario mapping). To
-validate from pre-computed times instead, use **Appendix A**, Method A.
+1. Load **Foster clock 5 — period change** and open O-C as in the shared setup.
+   Note the hint: break cycle **5** (cycles 0–5 are the first slope; cycle 6
+   starts the new regime).
+2. Leave **Fit on plot** on **Linear**. The points show a kink; one line is only
+   a compromise across both segments.
 
-![O-C Fit summary tab](images/oc_fit_summary.png)
+![Example 2 — linear fit on period-change O-C](images/oc_ex2_clock5_linear.png)
+
+3. Switch to **Quadratic**. A parabola may look somewhat better, but it still
+   does not capture a sharp period change at one cycle.
+
+![Example 2 — quadratic fit on period-change O-C](images/oc_ex2_clock5_quadratic.png)
+
+4. Switch to **Two-segment**, enter **Break cycle** **5**, click **Apply**.
+   Separate lines before and after the break should show different slopes.
+
+![Example 2 — two-segment fit (break at cycle 5)](images/oc_ex2_clock5_two_segment.png)
+
+5. Open **Fit summary**. With **Two-segment** selected, the **Interpretation**
+   should report a period change. Switch **Fit on plot** back to **Linear** or
+   **Quadratic** and return to **Fit summary** — the text follows the fit shown
+   on the diagram. Compare with Example 1 (parallel segments / epoch jump).
+
+![Example 2 — Fit summary interpretation](images/oc_ex2_clock5_fit_summary.png)
+
+### Example 3 — Evolving period (clock 6)
+
+A smoothly curving O-C from an evolving period (Table 13.2, clock 6). Here
+**linear** vs **quadratic** is the main contrast (no break cycle required).
+
+1. Load **Foster clock 6 — slowing clock** and open O-C as in the shared setup.
+2. Leave **Fit on plot** on **Linear**. A straight line cannot follow the curve.
+
+![Example 3 — linear fit on evolving-period O-C](images/oc_ex3_clock6_linear.png)
+
+3. Switch to **Quadratic**. The parabola should track the points.
+
+![Example 3 — quadratic fit on evolving-period O-C](images/oc_ex3_clock6_quadratic.png)
+
+4. **Fit
+   summary** should interpret a curved O-C (evolving period) when **Quadratic**
+   is selected.
+   
+![Example 3 — Fit summary interpretation](images/oc_ex3_clock6_fit_summary.png)
 
 ### Further reading — X Tri, eclipsing binaries, and other real stars
 
-Foster discusses real variables (e.g. X Tri, SU Vir, Z Aur) with O-C diagrams
-built from published **times of maxima** over many cycles. Those examples need
-literature ephemerides and timing tables; they are not bundled with this
-plug-in. **Example 2** walks through Foster clock 2 via the demo source; use
-**Appendix A** for all six clocks (demo light curves or imported timings). For real
-stars, obtain timings from the literature or measure extrema from your own
-observations, then run O-C with **From observations** or **Imported timings**.
+The VSA chapter also discusses real variables (e.g. X Tri, SU Vir, Z Aur) with
+O-C diagrams built from published **times of maxima** over many cycles. Those
+examples need literature ephemerides and timing tables; they are not bundled
+with this plug-in. The **Examples** above use clocks 4–6 from the
+[Chapter 13 PDF](https://www.aavso.org/sites/default/files/education/vsa/Chapter13.pdf);
+use **Appendix A** for all six clocks (demo light curves or imported timings).
+For real stars, obtain timings from the literature or measure extrema from your
+own observations, then run O-C with **From observations** or **Imported
+timings** (see **Appendix C** for an AID export/re-import outline).
 
 For **eclipsing binaries**, decades of **eclipse timings** can reveal
 **apsidal motion** (sinusoidal O-C from general relativity and tidal distortion)
-or **period change** from mass transfer; those effects need much longer baselines
-than Example 1.
+or **period change** from mass transfer; those effects need long baselines.
 
 ## Results dialog
 
@@ -157,22 +168,21 @@ After O-C is computed, a modeless results window opens with three tabs:
 
 | Tab | Contents |
 |-----|------------|
-| **O-C diagram** | O-C points (optional error bars); toggle **Cycle number** or **Observed time** on the x-axis |
+| **O-C diagram** | O-C points (optional error bars); **X axis** and **Fit on plot** controls |
 | **Data table** | Cycle, observed time, computed time, O-C, uncertainty |
-| **Fit summary** | Interpretation text for fits (see below) |
+| **Fit summary** | Pattern interpretation for the selected fit, plus fit details |
 
-**Linear fit** — computed automatically when there are at least two O-C points;
-shown as a line on the diagram and described on **Fit summary**.
+**Fit on plot** — radio buttons choose which fit is drawn:
 
-**Quadratic fit** — there is **no** quadratic option in the parameter dialog.
-When there are at least three O-C points, a quadratic least-squares fit of O-C
-versus cycle is computed automatically and described **only on Fit summary**
-(text, not drawn on the chart). Use this for curved O-C trends (Foster clock
-6 / evolving period).
+| Option | When available | Notes |
+|--------|----------------|-------|
+| **Linear** | ≥2 O-C points | Default; single least-squares line |
+| **Quadratic** | ≥3 O-C points | Curved trend (Foster clock 6 / evolving period) |
+| **Two-segment** | ≥4 O-C points | Enable **Break cycle** + **Apply** on the same row |
 
-**Two-segment fit** — optional. On **Fit summary**, enter a **break cycle** and
-click **Apply** (see **Appendix B**). Needs at least four O-C points and at
-least two on each side of the break.
+**Fit summary** — leads with an **Interpretation** paragraph for the fit
+currently selected on the diagram (VSA / Foster ch. 13 patterns). Fit coefficients
+and the LPV period-scatter caution follow below.
 
 **Export CSV…** on the results dialog saves O-C points and fit metadata to a
 file.
@@ -190,17 +200,22 @@ save results.
 
 ### O-C demo data (observation source)
 
-Optional. Loads synthetic light curves whose **maximum timings** match Foster
-Table 13.1 (clocks 1–6). Bump shape is identical for every clock; only timing
+Optional. Loads synthetic light curves whose **maximum timings** match
+Tables 13.1–13.2 of the
+[VSA Chapter 13 PDF](https://www.aavso.org/sites/default/files/education/vsa/Chapter13.pdf)
+(clocks 1–6). Bump shape is identical for every clock; only timing
 differs. Then run **Tools → O-C…** with **From observations** and the
 suggested ephemeris from the load message (P = 1 d).
 
 ---
 
-## Appendix A — Validation against Foster (Tables 13.1–13.2)
+## Appendix A — Validation against VSA Tables 13.1–13.2
 
-Foster’s six test clocks use theory **P = 1 day**, **epoch = cycle 0**. Computed
-time C_n = n. O-C = O_n − C_n (Table 13.2).
+The six test clocks (theory **P = 1 day**, **epoch = cycle 0**) are from AAVSO
+*Variable Star Astronomy* chapter 13
+([PDF](https://www.aavso.org/sites/default/files/education/vsa/Chapter13.pdf)).
+Computed time C_n = n. O-C = O_n − C_n (Table 13.2). The same tables appear in
+Foster, *Analyzing Light Curves*, ch. 13.
 
 ### Reference O-C values (Table 13.2)
 
@@ -219,14 +234,14 @@ time C_n = n. O-C = O_n − C_n (Table 13.2).
 
 ### Demo scenario mapping
 
-| Foster clock | Demo menu label | Expected in plug-in |
+| VSA / Foster clock | Demo menu label | Expected in plug-in |
 |--------------|-----------------|---------------------|
 | 1 | Foster clock 1 — correct ephemeris | Flat O-C ≈ 0 |
 | 2 | Foster clock 2 — epoch offset | Flat O-C ≈ +0.0035 d |
 | 3 | Foster clock 3 — period error | Slope ≈ +0.0021 d/cycle |
-| 4 | Foster clock 4 — epoch jump | Step at cycle 4; break **4** |
-| 5 | Foster clock 5 — period change | Slope change; break **6** |
-| 6 | Foster clock 6 — slowing clock | Curved O-C; quadratic on Fit summary |
+| 4 | Foster clock 4 — epoch jump | Step at cycle 4; break **3** |
+| 5 | Foster clock 5 — period change | Slope change; break **5** |
+| 6 | Foster clock 6 — slowing clock | Curved O-C; select **Quadratic** on Fit on plot |
 
 ### Method A — imported timings
 
@@ -238,16 +253,16 @@ For each clock, download the timing file (links below), then:
 
 ### Method B — demo observation source
 
-See **Example 2** for Foster clock 2. For any clock:
+See **Examples** for clocks 4–6. For any clock:
 
 1. **File → O-C demo data…** → pick a Foster clock (labels match the
    demo scenario mapping table above).
 2. **Tools → O-C…** → **From observations**; use the suggested
    ephemeris from the load message (**Star metadata** pre-fills period and
    epoch).
-3. Compare O-C and **Fit summary** to Table 13.2.
+3. Compare O-C, **Fit on plot**, and **Fit summary** to Table 13.2.
 
-### Foster timing files (Table 13.1 → times)
+### Timing files (Table 13.1 → times)
 
 Epoch **2450000.0**, period **1.0** d for O-C tool entry. Download from
 [aavso.github.io](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/)
@@ -258,9 +273,9 @@ Epoch **2450000.0**, period **1.0** d for O-C tool entry. Download from
 | 1 | Correct ephemeris | [foster_clock1.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/foster_clock1.txt) |
 | 2 | Epoch offset | [foster_clock2.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/foster_clock2.txt) |
 | 3 | Period error | [foster_clock3.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/foster_clock3.txt) |
-| 4 | Epoch jump (try break cycle 4) | [foster_clock4.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/foster_clock4.txt) |
-| 5 | Period change (try break cycle 6) | [foster_clock5.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/foster_clock5.txt) |
-| 6 | Slowing clock (quadratic on Fit summary) | [foster_clock6.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/foster_clock6.txt) |
+| 4 | Epoch jump (try break cycle 3) | [foster_clock4.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/foster_clock4.txt) |
+| 5 | Period change (try break cycle 5) | [foster_clock5.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/foster_clock5.txt) |
+| 6 | Slowing clock (Quadratic on Fit on plot) | [foster_clock6.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/foster_clock6.txt) |
 
 ---
 
@@ -305,7 +320,7 @@ columns are `O_time` and `C_time` (not a specific JD flavour).
 
 - **Maximum** or **Minimum**
 - **Both maxima and minima** — for eclipsing binaries on real data (not used in
-  Foster’s six-clock tutorial)
+  six-clock tutorial in the VSA Chapter 13 PDF)
 
 ### Interpreting O-C diagrams
 
@@ -316,11 +331,12 @@ columns are `O_time` and `C_time` (not a specific JD flavour).
 | Linear slope | Period wrong |
 | Broken line, parallel segments | Epoch jump |
 | Broken line, different slopes | Period change |
-| Curved (parabolic) | Evolving period → Fit summary quadratic |
+| Curved (parabolic) | Evolving period → select **Quadratic** on the diagram |
 
 ### Two-segment fit
 
-On **Fit summary** after results: enter **break cycle**, click **Apply**. Needs ≥4 O-C points and ≥2 per segment.
+On the **O-C diagram** tab: select **Two-segment**, enter a **break cycle**,
+click **Apply**. Needs ≥4 O-C points and ≥2 per segment.
 
 ![Two-segment fit on O-C diagram](images/oc_two_segment.png)
 
@@ -338,22 +354,53 @@ On **Fit summary** after results: enter **break cycle**, click **Apply**. Needs 
 
 | Output | When |
 |--------|------|
-| Linear fit | ≥2 O-C points; drawn on chart |
-| Quadratic fit | ≥3 O-C points; **text only** on Fit summary |
-| Two-segment fit | User break cycle + Apply; drawn on chart |
+| Interpretation | Updates with the fit selected under **Fit on plot** |
+| Linear fit details | ≥2 O-C points |
+| Quadratic fit details | ≥3 O-C points |
+| Two-segment fit details | After **Apply** with a break cycle |
+
+---
+
+## Appendix C — AID workflow (export and re-import)
+
+Typical path on your own data: measure extrema from a loaded light curve,
+export timings, then re-open them without reprocessing the AID.
+
+**Suggested target:** **RZ Cas** (AUID `000-BBF-490`), Algol-type EA.
+Period ≈ **1.20 d** (VSX). **Suggested JD range:** **2452700 – 2461000**
+(about 22 years); load **V** only.
+
+1. Load **RZ Cas** from the AAVSO International Database with the JD range and
+   **V** series above.
+2. **Tools → O-C…** → **From observations** → **Star metadata** → **Event:**
+   Minimum → **OK** → select **V**.
+3. Review the diagram, then **Export CSV…** (e.g. `rz_cas_timings.csv`).
+4. **Tools → O-C…** again → **Imported timings file** → select the CSV.
+   Period, epoch, and event are taken from the export metadata when present.
+
+![O-C parameter dialog](images/oc_parameter_dialog.png)
+
+![O-C results diagram](images/oc_results_diagram.png)
 
 ---
 
 ## References
 
-- Foster, G. *Analyzing Light Curves*, O-C Analysis, ch. 13, pp. 263–282
-- AAVSO Variable Star Astronomy, ch. 13:
+- AAVSO *Variable Star Astronomy*, chapter 13 (Grant Foster) — free PDF:
   [Variable Stars and O–C Diagrams](https://www.aavso.org/sites/default/files/education/vsa/Chapter13.pdf)
+  (primary reference for Tables 13.1–13.2 and the six-clock examples)
+- Foster, G. *Analyzing Light Curves*, O-C Analysis, ch. 13, pp. 263–282
+  (same clock material; book form)
 - [VStar plug-in library](https://www.aavso.org/vstar-plugin-library)
 - [VStar issue #93](https://github.com/AAVSO/VStar/issues/93)
 
 ## Version history
 
+- **1.10** — Examples rewritten around VSA/Foster clocks 4–6; cite free
+  [VSA Chapter 13 PDF](https://www.aavso.org/sites/default/files/education/vsa/Chapter13.pdf)
+  as primary reference for Tables 13.1–13.2; AID export/re-import moved to
+  Appendix C; Results dialog docs updated for **Fit on plot** and
+  interpretation.
 - **1.9** — `OCAnalysisTool.test()` smoke check (Foster clock 2) for plug-in
   harness coverage.
 - **1.8** — Neutral time labels (`O_time` / `C_time`, Epoch, Observed time);
