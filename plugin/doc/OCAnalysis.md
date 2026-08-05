@@ -89,12 +89,12 @@ A sudden step in O-C with unchanged slope on each side (VSA Table 13.2, clock 4)
    **Two-segment**, enter **Break cycle** **3**, click **Apply**. Both
    segments should be nearly flat (slope ≈ 0) with different intercepts.
 
-![Example 1 — two-segment fit on epoch-jump O-C](images/oc_ex1_clock4_two_segment.png)
+   ![Example 1 — two-segment fit on epoch-jump O-C](images/oc_ex1_clock4_two_segment.png)
 
 3. Open **Fit summary**. The **Interpretation** should describe parallel
    segments (epoch jump with unchanged period).
 
-![Example 1 — Fit summary interpretation](images/oc_ex1_clock4_fit_summary.png)
+   ![Example 1 — Fit summary interpretation](images/oc_ex1_clock4_fit_summary.png)
 
 ### Example 2 — Period change (clock 5)
 
@@ -107,24 +107,24 @@ with different slopes match Table 13.2 (clock 5).
 2. Leave **Fit on plot** on **Linear**. The points show a kink; one line is only
    a compromise across both segments.
 
-![Example 2 — linear fit on period-change O-C](images/oc_ex2_clock5_linear.png)
+   ![Example 2 — linear fit on period-change O-C](images/oc_ex2_clock5_linear.png)
 
 3. Switch to **Quadratic**. A parabola may look somewhat better, but it still
    does not capture a sharp period change at one cycle.
 
-![Example 2 — quadratic fit on period-change O-C](images/oc_ex2_clock5_quadratic.png)
+   ![Example 2 — quadratic fit on period-change O-C](images/oc_ex2_clock5_quadratic.png)
 
 4. Switch to **Two-segment**, enter **Break cycle** **5**, click **Apply**.
    Separate lines before and after the break should show different slopes.
 
-![Example 2 — two-segment fit (break at cycle 5)](images/oc_ex2_clock5_two_segment.png)
+   ![Example 2 — two-segment fit (break at cycle 5)](images/oc_ex2_clock5_two_segment.png)
 
 5. Open **Fit summary**. With **Two-segment** selected, the **Interpretation**
    should report a period change. Switch **Fit on plot** back to **Linear** or
    **Quadratic** and return to **Fit summary** — the text follows the fit shown
    on the diagram. Compare with Example 1 (parallel segments / epoch jump).
 
-![Example 2 — Fit summary interpretation](images/oc_ex2_clock5_fit_summary.png)
+   ![Example 2 — Fit summary interpretation](images/oc_ex2_clock5_fit_summary.png)
 
 ### Example 3 — Evolving period (clock 6)
 
@@ -134,17 +134,16 @@ A smoothly curving O-C from an evolving period (Table 13.2, clock 6). Here
 1. Load **Foster clock 6 — slowing clock** and open O-C as in the shared setup.
 2. Leave **Fit on plot** on **Linear**. A straight line cannot follow the curve.
 
-![Example 3 — linear fit on evolving-period O-C](images/oc_ex3_clock6_linear.png)
+   ![Example 3 — linear fit on evolving-period O-C](images/oc_ex3_clock6_linear.png)
 
 3. Switch to **Quadratic**. The parabola should track the points.
 
-![Example 3 — quadratic fit on evolving-period O-C](images/oc_ex3_clock6_quadratic.png)
+   ![Example 3 — quadratic fit on evolving-period O-C](images/oc_ex3_clock6_quadratic.png)
 
-4. **Fit
-   summary** should interpret a curved O-C (evolving period) when **Quadratic**
-   is selected.
-   
-![Example 3 — Fit summary interpretation](images/oc_ex3_clock6_fit_summary.png)
+4. **Fit summary** should interpret a curved O-C (evolving period) when
+   **Quadratic** is selected.
+
+   ![Example 3 — Fit summary interpretation](images/oc_ex3_clock6_fit_summary.png)
 
 ### Further reading — X Tri, eclipsing binaries, and other real stars
 
@@ -178,7 +177,7 @@ After O-C is computed, a modeless results window opens with three tabs:
 |--------|----------------|-------|
 | **Linear** | ≥2 O-C points | Default; single least-squares line |
 | **Quadratic** | ≥3 O-C points | Curved trend (Foster clock 6 / evolving period) |
-| **Two-segment** | ≥4 O-C points | Enable **Break cycle** + **Apply** on the same row |
+| **Two-segment** | ≥4 O-C points (≥2 per segment) | Enable **Break cycle** + **Apply** on the same row |
 
 **Fit summary** — leads with an **Interpretation** paragraph for the fit
 currently selected on the diagram (VSA / Foster ch. 13 patterns). Fit coefficients
@@ -281,6 +280,10 @@ Epoch **2450000.0**, period **1.0** d for O-C tool entry. Download from
 
 ## Appendix B — Reference
 
+**Data source** in the parameter dialog is either **From observations** or
+**Imported timings file**. Period and epoch define the test ephemeris (required;
+same time system as the data — see below).
+
 ### Ephemeris source
 
 When **From observations** is selected:
@@ -312,6 +315,9 @@ columns are `O_time` and `C_time` (not a specific JD flavour).
 
 ### Timing methods (From observations)
 
+Observations only (with **Extreme N%** and **Minimum observations per cycle**
+as applicable):
+
 - **Parabolic interpolation** — parabolic refinement at discrete extremum.
 - **Mean JD of extreme N%** — mean time of brightest N% in each cycle.
 - **From current model function** — analytic extrema from a JD-based model.
@@ -332,32 +338,6 @@ columns are `O_time` and `C_time` (not a specific JD flavour).
 | Broken line, parallel segments | Epoch jump |
 | Broken line, different slopes | Period change |
 | Curved (parabolic) | Evolving period → select **Quadratic** on the diagram |
-
-### Two-segment fit
-
-On the **O-C diagram** tab: select **Two-segment**, enter a **break cycle**,
-click **Apply**. Needs ≥4 O-C points and ≥2 per segment.
-
-![Two-segment fit on O-C diagram](images/oc_two_segment.png)
-
-### Parameters (initial dialog)
-
-| Parameter | Description |
-|-----------|-------------|
-| Data source | Observations or imported timings |
-| Ephemeris source | Pre-fill (observations only) |
-| Period, epoch | Test ephemeris (required; same time system as the data) |
-| Event | Maximum, minimum, or both |
-| Timing method, extreme N%, min obs | Observations only |
-
-### Fit summary (after results)
-
-| Output | When |
-|--------|------|
-| Interpretation | Updates with the fit selected under **Fit on plot** |
-| Linear fit details | ≥2 O-C points |
-| Quadratic fit details | ≥3 O-C points |
-| Two-segment fit details | After **Apply** with a break cycle |
 
 ---
 
