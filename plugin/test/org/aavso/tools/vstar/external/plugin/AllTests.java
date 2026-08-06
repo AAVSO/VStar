@@ -39,6 +39,7 @@ public class AllTests {
 		suite.addTestSuite(PiecewiseLinearModelTest.class);
 		suite.addTestSuite(ConvertHelperTest.class);
 		suite.addTestSuite(HipparcosLoadTest.class);
+		suite.addTestSuite(org.aavso.tools.vstar.external.lib.KweeVanWoerdenLibTest.class);
 		// $JUnit-END$
 		
 		return suite;
