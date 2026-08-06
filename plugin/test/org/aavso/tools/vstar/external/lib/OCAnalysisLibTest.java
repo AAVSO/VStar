@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData;
 import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData.DemoDataset;
@@ -462,6 +463,100 @@ public class OCAnalysisLibTest extends TestCase {
         assertNull(meta.period);
         assertNull(meta.epoch);
         assertNull(meta.eventType);
+    }
+
+    /**
+     * From-observations points record finite peak magnitudes for light-curve
+     * markers.
+     */
+    public void testObservedMagnitudesFromParabolicAnalysis() {
+        DemoDataset dataset = OCAnalysisDemoData
+                .generate(DemoScenario.CORRECT_EPHEMERIS);
+        Parameters params = new Parameters(dataset.modelPeriod,
+                dataset.modelEpoch, EventType.MAXIMUM, TimingMethod.PARABOLIC,
+                10, 3);
+        Result result = OCAnalysisLib.analyze(dataset.observations, params);
+        assertTrue(result.points.size() >= 5);
+        for (Point p : result.points) {
+            assertFalse("cycle " + p.cycle + " mag",
+                    Double.isNaN(p.observedMagnitude));
+            assertFalse("cycle " + p.cycle + " mag",
+                    Double.isInfinite(p.observedMagnitude));
+            // Demo bumps peak near mag 10-ish; allow a generous range.
+            assertTrue("cycle " + p.cycle + " mag=" + p.observedMagnitude,
+                    p.observedMagnitude > 0 && p.observedMagnitude < 20);
+        }
+    }
+
+    public void testToExtremumObservationsMatchesPoints() {
+        DemoDataset dataset = OCAnalysisDemoData
+                .generate(DemoScenario.EPOCH_OFFSET);
+        Parameters params = new Parameters(dataset.modelPeriod,
+                dataset.modelEpoch, EventType.MAXIMUM, TimingMethod.PARABOLIC,
+                10, 3);
+        Result result = OCAnalysisLib.analyze(dataset.observations, params);
+        List<ValidObservation> markers = OCAnalysisLib
+                .toExtremumObservations(result);
+        assertEquals(result.points.size(), markers.size());
+        SeriesType series = OCAnalysisLib.extremaSeriesType();
+        assertEquals(OCAnalysisLib.EXTREMA_SERIES_DESCRIPTION,
+                series.getDescription());
+        for (int i = 0; i < result.points.size(); i++) {
+            Point p = result.points.get(i);
+            ValidObservation m = markers.get(i);
+            assertEquals(p.observedTime, m.getJD(), TOL);
+            assertEquals(p.observedMagnitude, m.getMag(), 1e-6);
+            assertEquals(series, m.getBand());
+            assertTrue(m.getComments().contains("cycle=" + p.cycle));
+        }
+    }
+
+    public void testToExtremumObservationsSkipsImportedNaNMags()
+            throws IOException {
+        List<ImportedTiming> timings = Arrays.asList(
+                new ImportedTiming(0, 2450000.0, Double.NaN),
+                new ImportedTiming(1, 2450001.0, 0.001));
+        Parameters params = new Parameters(1.0, 2450000.0, EventType.MAXIMUM,
+                TimingMethod.PARABOLIC, 10, 1);
+        Result result = OCAnalysisLib.analyzeImported(timings, params);
+        assertEquals(2, result.points.size());
+        assertTrue(Double.isNaN(result.points.get(0).observedMagnitude));
+        List<ValidObservation> markers = OCAnalysisLib
+                .toExtremumObservations(result);
+        assertTrue(markers.isEmpty());
+    }
+
+    public void testMeanExtremeObservedMagnitude() {
+        List<ValidObservation> cycle = new ArrayList<ValidObservation>();
+        // Brightest (max light) are first two by mag order among bright end:
+        // mags 11.0, 11.1 should average for 20% of 5 points → 1 point? 
+        // 20% of 5 = 1 point of brightest.
+        // Use 40% of 5 points = 2 brightest for a meaningful mean.
+        addObs(cycle, 2450000.00, 12.0);
+        addObs(cycle, 2450000.05, 11.0);
+        addObs(cycle, 2450000.10, 11.2);
+        addObs(cycle, 2450000.15, 12.1);
+        addObs(cycle, 2450000.20, 12.5);
+        // Make a multi-cycle set so analyze works with minObs=3 and period=1
+        List<ValidObservation> obs = new ArrayList<ValidObservation>(cycle);
+        addObs(obs, 2450001.00, 12.0);
+        addObs(obs, 2450001.05, 11.0);
+        addObs(obs, 2450001.10, 11.2);
+        Parameters params = new Parameters(1.0, 2450000.0, EventType.MAXIMUM,
+                TimingMethod.MEAN_OF_EXTREME, 40, 3);
+        Result result = OCAnalysisLib.analyze(obs, params);
+        assertTrue(result.points.size() >= 1);
+        Point p0 = result.points.get(0);
+        // Mean of 2 brightest of 5 (40%) at cycle 0: 11.0 and 11.2 → 11.1
+        assertEquals(11.1, p0.observedMagnitude, 1e-6);
+    }
+
+    private static void addObs(List<ValidObservation> obs, double jd,
+            double mag) {
+        ValidObservation ob = new ValidObservation();
+        ob.setJD(jd);
+        ob.setMagnitude(new Magnitude(mag, 0.01));
+        obs.add(ob);
     }
 
     private static double estimateSlope(List<Point> points) {

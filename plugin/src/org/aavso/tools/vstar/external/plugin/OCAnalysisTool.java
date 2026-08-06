@@ -103,6 +103,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesCreationMessage;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
@@ -388,11 +389,36 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         LinearFit linearFit = OCAnalysisLib.fitLinear(result.points);
         QuadraticFit quadraticFit = OCAnalysisLib.fitQuadratic(result.points);
 
+        boolean publishedExtrema = false;
+        if (!fromImportedTimings) {
+            publishedExtrema = publishExtremaSeries(result);
+        }
+
         Color seriesColor = selectedSeries != null
                 ? SeriesType.getColorFromSeries(selectedSeries)
                 : Color.BLUE;
         new OCAnalysisResultDialog(resultLabel, result, linearFit,
-                quadraticFit, seriesColor);
+                quadraticFit, seriesColor, publishedExtrema);
+    }
+
+    /**
+     * Add or replace the synthetic "O-C extrema" series on the light curve so
+     * measured times of max/min can be checked against the data.
+     *
+     * @return true if markers were published
+     */
+    private static boolean publishExtremaSeries(Result result) {
+        List<ValidObservation> markers = OCAnalysisLib
+                .toExtremumObservations(result);
+        if (markers.isEmpty()) {
+            return false;
+        }
+        SeriesCreationMessage msg = new SeriesCreationMessage(
+                OCAnalysisTool.class, OCAnalysisLib.extremaSeriesType(),
+                markers);
+        Mediator.getInstance().getSeriesCreationNotifier()
+                .notifyListeners(msg);
+        return true;
     }
 
     private static void applyDataSourceFields(String dataSource,
@@ -866,6 +892,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         private TwoSegmentFit twoSegmentFit;
         private final QuadraticFit quadraticFit;
         private final Color seriesColor;
+        private final boolean extremaPublished;
         private final YIntervalSeries ocSeries = new YIntervalSeries("O-C");
         private final YIntervalRenderer ocRenderer;
         private final XYLineAndShapeRenderer fitRenderer = createFitRenderer();
@@ -882,7 +909,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         OCAnalysisResultDialog(String seriesName, Result result,
                 LinearFit linearFit, QuadraticFit quadraticFit,
-                Color seriesColor) {
+                Color seriesColor, boolean extremaPublished) {
             super(org.aavso.tools.vstar.ui.mediator.DocumentManager
                     .findActiveWindow(), "O-C: " + seriesName,
                     ModalityType.MODELESS);
@@ -891,6 +918,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             this.twoSegmentFit = null;
             this.quadraticFit = quadraticFit;
             this.seriesColor = seriesColor;
+            this.extremaPublished = extremaPublished;
             this.ocRenderer = createOcRenderer(seriesColor);
             breakCycleField = new JTextField(4);
             tightenFieldHeight(breakCycleField);
@@ -1375,6 +1403,11 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                                     + formatDays(linearFit.rms) + " d");
                 }
                 break;
+            }
+            if (extremaPublished) {
+                appendSummaryRow(buf, "Light curve",
+                        OCAnalysisLib.EXTREMA_SERIES_DESCRIPTION
+                                + " series added (toggle via Series)");
             }
             buf.append("</table>");
             appendHtmlBodyEnd(buf);

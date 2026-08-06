@@ -183,6 +183,13 @@ After O-C is computed, a modeless results window opens with three tabs:
 currently selected on the diagram (VSA / Foster ch. 13 patterns). Fit coefficients
 and the LPV period-scatter caution follow below.
 
+**Light-curve check (from observations)** — measured extrema are also added as a
+synthetic **O-C extrema** series on the main light curve (and phase plot, if
+open). Markers at each measured (O, mag) make it clear whether timings sit on
+real peaks or troughs. Toggle or hide the series with the usual **Series** UI.
+Re-running O-C replaces the series. Imported timings alone do not create
+markers (no magnitudes from the file).
+
 **Export CSV…** on the results dialog saves O-C points and fit metadata to a
 file.
 
@@ -376,6 +383,9 @@ Period ≈ **1.20 d** (VSX). **Suggested JD range:** **2452700 – 2461000**
 
 ## Version history
 
+- **1.11** — From-observations runs add an **O-C extrema** series on the light
+  curve (markers at measured O, mag) for checking timings; re-run replaces the
+  series. Imported timings do not.
 - **1.10** — Examples rewritten around VSA/Foster clocks 4–6; cite free
   [VSA Chapter 13 PDF](https://www.aavso.org/sites/default/files/education/vsa/Chapter13.pdf)
   as primary reference for Tables 13.1–13.2; AID export/re-import moved to

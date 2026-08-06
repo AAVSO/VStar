@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.external.lib;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -26,6 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
@@ -33,6 +37,7 @@ import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.util.ApacheCommonsBrentOptimiserExtremaFinder;
 import org.aavso.tools.vstar.util.model.IModel;
+import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.optimization.GoalType;
 
@@ -58,6 +63,12 @@ public class OCAnalysisLib {
     /** Short citation for user-facing interpretation text. */
     public static final String VSA_CHAPTER13_CITE =
             "AAVSO Variable Star Astronomy, ch. 13";
+
+    /** Description for the synthetic light-curve series of measured extrema. */
+    public static final String EXTREMA_SERIES_DESCRIPTION = "O-C extrema";
+
+    /** Short name for the synthetic O-C extrema series. */
+    public static final String EXTREMA_SERIES_SHORT = "OC-X";
 
     /**
      * Which extremum to time in each cycle.
@@ -170,9 +181,21 @@ public class OCAnalysisLib {
         public final int obsInCycle;
         /** Extremum timed for this point (max, min, or inferred for imports). */
         public final EventType extremumType;
+        /**
+         * Magnitude at the measured extremum for light-curve markers, or
+         * {@link Double#NaN} if unknown (e.g. imported timings).
+         */
+        public final double observedMagnitude;
 
         Point(int cycle, double observedTime, double computedTime,
                 double ocUncertainty, int obsInCycle, EventType extremumType) {
+            this(cycle, observedTime, computedTime, ocUncertainty, obsInCycle,
+                    extremumType, Double.NaN);
+        }
+
+        Point(int cycle, double observedTime, double computedTime,
+                double ocUncertainty, int obsInCycle, EventType extremumType,
+                double observedMagnitude) {
             this.cycle = cycle;
             this.observedTime = observedTime;
             this.computedTime = computedTime;
@@ -180,6 +203,7 @@ public class OCAnalysisLib {
             this.ocUncertainty = ocUncertainty;
             this.obsInCycle = obsInCycle;
             this.extremumType = extremumType;
+            this.observedMagnitude = observedMagnitude;
         }
     }
 
@@ -297,7 +321,7 @@ public class OCAnalysisLib {
                     timing.observedTime, params.epoch, params.period);
             double computed = params.computedTime(cycle);
             points.add(new Point(cycle, timing.observedTime, computed,
-                    timing.uncertaintyDays, 0, pointType));
+                    timing.uncertaintyDays, 0, pointType, Double.NaN));
         }
         Collections.sort(points, new Comparator<Point>() {
             @Override
@@ -306,6 +330,41 @@ public class OCAnalysisLib {
             }
         });
         return new Result(params, points);
+    }
+
+    /**
+     * Synthetic series type used to mark measured extrema on the light curve.
+     */
+    public static SeriesType extremaSeriesType() {
+        return SeriesType.create(EXTREMA_SERIES_DESCRIPTION,
+                EXTREMA_SERIES_SHORT, new Color(255, 128, 0), true, false);
+    }
+
+    /**
+     * Build synthetic observations at each measured extremum (O, mag) for
+     * display on the light curve. Points without a finite magnitude are
+     * skipped (e.g. pure imported timings).
+     */
+    public static List<ValidObservation> toExtremumObservations(Result result) {
+        if (result == null || result.points.isEmpty()) {
+            return Collections.emptyList();
+        }
+        SeriesType series = extremaSeriesType();
+        List<ValidObservation> markers = new ArrayList<ValidObservation>();
+        for (Point p : result.points) {
+            if (Double.isNaN(p.observedMagnitude)
+                    || Double.isInfinite(p.observedMagnitude)) {
+                continue;
+            }
+            ValidObservation ob = new ValidObservation();
+            ob.setDateInfo(new DateInfo(p.observedTime));
+            ob.setMagnitude(new Magnitude(p.observedMagnitude, 0));
+            ob.setBand(series);
+            ob.setComments(String.format("O-C extremum cycle=%d type=%s",
+                    p.cycle, p.extremumType.name().toLowerCase()));
+            markers.add(ob);
+        }
+        return markers;
     }
 
     /**
@@ -601,7 +660,7 @@ public class OCAnalysisLib {
             double computed = params.computedTime(cycle);
             points.add(new Point(cycle, estimate.time, computed,
                     estimate.uncertaintyDays, cycleObs.size(),
-                    params.eventType));
+                    params.eventType, estimate.magnitude));
         }
 
         return new Result(params, points);
@@ -1064,10 +1123,12 @@ public class OCAnalysisLib {
     private static class TimingEstimate {
         final Double time;
         final double uncertaintyDays;
+        final double magnitude;
 
-        TimingEstimate(Double time, double uncertaintyDays) {
+        TimingEstimate(Double time, double uncertaintyDays, double magnitude) {
             this.time = time;
             this.uncertaintyDays = uncertaintyDays;
+            this.magnitude = magnitude;
         }
     }
 
@@ -1082,22 +1143,70 @@ public class OCAnalysisLib {
             List<ValidObservation> cycleObs, Parameters params) {
         switch (params.timingMethod) {
         case PARABOLIC:
-            Double parabolic = parabolicTime(cycleObs, params.eventType);
-            return new TimingEstimate(parabolic,
-                    estimateParabolicUncertainty(cycleObs, params.eventType,
-                            parabolic));
+            return parabolicEstimate(cycleObs, params.eventType);
         case MEAN_OF_EXTREME:
-            Double meanTime = meanExtremeTime(cycleObs, params.eventType,
+            return meanExtremeEstimate(cycleObs, params.eventType,
                     params.meanExtremePercent);
-            return new TimingEstimate(meanTime,
-                    estimateMeanExtremeUncertainty(cycleObs, params.eventType,
-                            params.meanExtremePercent));
         case FROM_MODEL:
-            Double modelTime = modelExtremumTime(cycleObs, params.model,
+            return modelExtremumEstimate(cycleObs, params.model,
                     params.eventType);
-            return new TimingEstimate(modelTime, Double.NaN);
         default:
             return null;
+        }
+    }
+
+    private static TimingEstimate parabolicEstimate(
+            List<ValidObservation> cycleObs, EventType eventType) {
+        Double time = parabolicTime(cycleObs, eventType);
+        if (time == null) {
+            return null;
+        }
+        double magnitude = parabolicMagnitude(cycleObs, eventType);
+        return new TimingEstimate(time,
+                estimateParabolicUncertainty(cycleObs, eventType, time),
+                magnitude);
+    }
+
+    private static TimingEstimate meanExtremeEstimate(
+            List<ValidObservation> cycleObs, EventType eventType,
+            int meanExtremePercent) {
+        List<ValidObservation> sorted = extremeSorted(cycleObs, eventType);
+        int count = Math.max(1,
+                (int) Math.ceil(sorted.size() * meanExtremePercent / 100.0));
+        double sumTime = 0;
+        double sumMag = 0;
+        for (int i = 0; i < count; i++) {
+            sumTime += sorted.get(i).getJD();
+            sumMag += mag(sorted.get(i));
+        }
+        double meanTime = sumTime / count;
+        double meanMag = sumMag / count;
+        return new TimingEstimate(meanTime,
+                estimateMeanExtremeUncertainty(cycleObs, eventType,
+                        meanExtremePercent),
+                meanMag);
+    }
+
+    private static TimingEstimate modelExtremumEstimate(
+            List<ValidObservation> cycleObs, IModel model,
+            EventType eventType) {
+        Double modelTime = modelExtremumTime(cycleObs, model, eventType);
+        if (modelTime == null) {
+            return null;
+        }
+        double magnitude = modelMagnitudeAt(model, modelTime);
+        return new TimingEstimate(modelTime, Double.NaN, magnitude);
+    }
+
+    private static double modelMagnitudeAt(IModel model, double time) {
+        if (model == null || model.getModelFunction() == null) {
+            return Double.NaN;
+        }
+        ContinuousModelFunction cmf = model.getModelFunction();
+        try {
+            return cmf.getFunction().value(time - cmf.getZeroPoint());
+        } catch (FunctionEvaluationException e) {
+            return Double.NaN;
         }
     }
 
@@ -1147,17 +1256,7 @@ public class OCAnalysisLib {
     private static double estimateMeanExtremeUncertainty(
             List<ValidObservation> cycleObs, EventType eventType,
             int meanExtremePercent) {
-        List<ValidObservation> sorted = new ArrayList<ValidObservation>(
-                cycleObs);
-        Collections.sort(sorted, new Comparator<ValidObservation>() {
-            @Override
-            public int compare(ValidObservation a, ValidObservation b) {
-                if (eventType == EventType.MAXIMUM) {
-                    return Double.compare(mag(a), mag(b));
-                }
-                return Double.compare(mag(b), mag(a));
-            }
-        });
+        List<ValidObservation> sorted = extremeSorted(cycleObs, eventType);
         int count = Math.max(1,
                 (int) Math.ceil(sorted.size() * meanExtremePercent / 100.0));
         double sumVar = 0;
@@ -1283,11 +1382,40 @@ public class OCAnalysisLib {
      */
     static Double parabolicTime(List<ValidObservation> cycleObs,
             EventType eventType) {
+        ParabolaExtremum pe = parabolicExtremum(cycleObs, eventType);
+        return pe != null ? pe.time : null;
+    }
+
+    /**
+     * Magnitude at the parabolic extremum used for O-C timing (for LC markers).
+     */
+    static double parabolicMagnitude(List<ValidObservation> cycleObs,
+            EventType eventType) {
+        ParabolaExtremum pe = parabolicExtremum(cycleObs, eventType);
+        if (pe != null && !Double.isNaN(pe.magnitude)) {
+            return pe.magnitude;
+        }
+        int imin = extremumIndex(cycleObs, eventType);
+        return mag(cycleObs.get(imin));
+    }
+
+    private static class ParabolaExtremum {
+        final double time;
+        final double magnitude;
+
+        ParabolaExtremum(double time, double magnitude) {
+            this.time = time;
+            this.magnitude = magnitude;
+        }
+    }
+
+    private static ParabolaExtremum parabolicExtremum(
+            List<ValidObservation> cycleObs, EventType eventType) {
         int imin = extremumIndex(cycleObs, eventType);
         ValidObservation centre = cycleObs.get(imin);
 
         if (cycleObs.size() == 1) {
-            return centre.getJD();
+            return new ParabolaExtremum(centre.getJD(), mag(centre));
         }
 
         ValidObservation left = imin > 0 ? cycleObs.get(imin - 1) : centre;
@@ -1295,12 +1423,11 @@ public class OCAnalysisLib {
                 ? cycleObs.get(imin + 1) : centre;
 
         if (left == centre && right == centre) {
-            return centre.getJD();
+            return new ParabolaExtremum(centre.getJD(), mag(centre));
         }
 
         if (left == centre || right == centre) {
-            // Two distinct points: linear crossing at the discrete extremum time.
-            return centre.getJD();
+            return new ParabolaExtremum(centre.getJD(), mag(centre));
         }
 
         double t0 = left.getJD();
@@ -1310,7 +1437,9 @@ public class OCAnalysisLib {
         double t2 = right.getJD();
         double m2 = mag(right);
 
-        return parabolicExtremumTime(t0, m0, t1, m1, t2, m2, eventType);
+        double tExt = parabolicExtremumTime(t0, m0, t1, m1, t2, m2, eventType);
+        double mExt = parabolicExtremumMagnitude(t0, m0, t1, m1, t2, m2, tExt);
+        return new ParabolaExtremum(tExt, mExt);
     }
 
     /**
@@ -1320,14 +1449,12 @@ public class OCAnalysisLib {
      */
     static double parabolicExtremumTime(double t0, double m0, double t1,
             double m1, double t2, double m2, EventType eventType) {
-        double det = (t0 - t1) * (t0 - t2) * (t1 - t2);
-        if (Math.abs(det) < 1e-18) {
+        double[] abc = parabolaCoefficients(t0, m0, t1, m1, t2, m2);
+        if (abc == null) {
             return t1;
         }
-
-        double a = (t2 * (m1 - m0) + t1 * (m0 - m2) + t0 * (m2 - m1)) / det;
-        double b = (t2 * t2 * (m0 - m1) + t1 * t1 * (m2 - m0) + t0 * t0
-                * (m1 - m2)) / det;
+        double a = abc[0];
+        double b = abc[1];
 
         if (Math.abs(a) < 1e-18) {
             return t1;
@@ -1352,8 +1479,47 @@ public class OCAnalysisLib {
         return tExt;
     }
 
+    /**
+     * Ordinate of the fitted parabola at {@code t} through three (time, mag)
+     * points.
+     */
+    static double parabolicExtremumMagnitude(double t0, double m0, double t1,
+            double m1, double t2, double m2, double t) {
+        double[] abc = parabolaCoefficients(t0, m0, t1, m1, t2, m2);
+        if (abc == null) {
+            return m1;
+        }
+        return abc[0] * t * t + abc[1] * t + abc[2];
+    }
+
+    /** Coefficients of m = a t^2 + b t + c, or null if singular. */
+    private static double[] parabolaCoefficients(double t0, double m0,
+            double t1, double m1, double t2, double m2) {
+        double det = (t0 - t1) * (t0 - t2) * (t1 - t2);
+        if (Math.abs(det) < 1e-18) {
+            return null;
+        }
+        double a = (t2 * (m1 - m0) + t1 * (m0 - m2) + t0 * (m2 - m1)) / det;
+        double b = (t2 * t2 * (m0 - m1) + t1 * t1 * (m2 - m0) + t0 * t0
+                * (m1 - m2)) / det;
+        double c = m1 - a * t1 * t1 - b * t1;
+        return new double[] { a, b, c };
+    }
+
     static Double meanExtremeTime(List<ValidObservation> cycleObs,
             EventType eventType, int meanExtremePercent) {
+        List<ValidObservation> sorted = extremeSorted(cycleObs, eventType);
+        int count = Math.max(1,
+                (int) Math.ceil(sorted.size() * meanExtremePercent / 100.0));
+        double sum = 0;
+        for (int i = 0; i < count; i++) {
+            sum += sorted.get(i).getJD();
+        }
+        return sum / count;
+    }
+
+    private static List<ValidObservation> extremeSorted(
+            List<ValidObservation> cycleObs, final EventType eventType) {
         List<ValidObservation> sorted = new ArrayList<ValidObservation>(
                 cycleObs);
         Collections.sort(sorted, new Comparator<ValidObservation>() {
@@ -1365,13 +1531,6 @@ public class OCAnalysisLib {
                 return Double.compare(mag(b), mag(a));
             }
         });
-
-        int count = Math.max(1,
-                (int) Math.ceil(sorted.size() * meanExtremePercent / 100.0));
-        double sum = 0;
-        for (int i = 0; i < count; i++) {
-            sum += sorted.get(i).getJD();
-        }
-        return sum / count;
+        return sorted;
     }
 }
