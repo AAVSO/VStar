@@ -43,6 +43,7 @@ public class AllTests {
 		suite.addTestSuite(OCAnalysisLibTest.class);
 		suite.addTestSuite(OCAnalysisToolTest.class);
 		suite.addTestSuite(HipparcosLoadTest.class);
+		suite.addTestSuite(org.aavso.tools.vstar.external.lib.KweeVanWoerdenLibTest.class);
 		// $JUnit-END$
 		
 		return suite;
