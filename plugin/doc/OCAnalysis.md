@@ -168,7 +168,7 @@ After O-C is computed, a modeless results window opens with three tabs:
 | Tab | Contents |
 |-----|------------|
 | **O-C diagram** | O-C points (optional error bars); **X axis** and **Fit on plot** controls |
-| **Data table** | Cycle, observed time, computed time, O-C, uncertainty |
+| **Data table** | Cycle, observed time, computed time, O-C, uncertainty, obs count, QC |
 | **Fit summary** | Pattern interpretation for the selected fit, plus fit details |
 
 **Fit on plot** — radio buttons choose which fit is drawn:
@@ -183,12 +183,16 @@ After O-C is computed, a modeless results window opens with three tabs:
 currently selected on the diagram (VSA / Foster ch. 13 patterns). Fit coefficients
 and the LPV period-scatter caution follow below.
 
-**Light-curve check (from observations)** — measured extrema are also added as a
-synthetic **O-C extrema** series on the main light curve (and phase plot, if
-open). Markers at each measured (O, mag) make it clear whether timings sit on
-real peaks or troughs. Toggle or hide the series with the usual **Series** UI.
-Re-running O-C replaces the series. Imported timings alone do not create
-markers (no magnitudes from the file).
+**Light-curve check (from observations)** — solid vertical **O** markers
+(observed timing) and lighter dashed **C** markers (ephemeris prediction) are
+drawn on the raw-data light curve so you can see where each timing was placed
+relative to the data. Re-running O-C replaces previous O-C markers; loading a
+new star clears them. Labels (cycle numbers) appear only when there are ≤ 30
+markers. Imported timings alone do not add light-curve markers.
+
+For **Kwee–van Woerden**, the summary also reports how many cycles were timed
+versus skipped; per-point **σ(O-C)** is σ from Deeg (2020) when available,
+and the **QC** column records fold count, window size, and resample warnings.
 
 **Export CSV…** on the results dialog saves O-C points and fit metadata to a
 file.
@@ -322,12 +326,22 @@ columns are `O_time` and `C_time` (not a specific JD flavour).
 
 ### Timing methods (From observations)
 
-Observations only (with **Extreme N%** and **Minimum observations per cycle**
-as applicable):
+Observations only (with **Extreme N%**, **KvW folds**, and **Minimum
+observations per cycle** as applicable):
 
-- **Parabolic interpolation** — parabolic refinement at discrete extremum.
-- **Mean JD of extreme N%** — mean time of brightest N% in each cycle.
+- **Parabolic interpolation** — parabolic refinement at discrete extremum
+  (default; good for smooth peaks such as the Foster demos).
+- **Mean JD of extreme N%** — mean time of brightest (or faintest) N% in each
+  cycle.
 - **From current model function** — analytic extrema from a JD-based model.
+- **Kwee–van Woerden** — single-eclipse time-of-minimum/maximum (Deeg 2020),
+  via the same library as **Tools → Kwee–van Woerden…**. After cycle bucketing,
+  O-C trims an eclipse-like window around the discrete extremum (half-width
+  capped at ~0.2 *P*), requires at least **7** points in that window, then
+  runs KvW. Failed or undersampled cycles are **skipped** (no silent fall-back
+  to parabolic). Use **Minimum** for eclipsing binaries, a good trial period /
+  epoch so one eclipse sits per cycle bin, and inspect the vertical markers.
+  Recommended min observations per cycle: **≥ 7**.
 
 ### Event type
 
@@ -380,9 +394,18 @@ Period ≈ **1.20 d** (VSX). **Suggested JD range:** **2452700 – 2461000**
   (same clock material; book form)
 - [VStar plug-in library](https://www.aavso.org/vstar-plugin-library)
 - [VStar issue #93](https://github.com/AAVSO/VStar/issues/93)
+- Deeg, H. J. (2020). The Kwee–van Woerden method revisited. *Research Notes of
+  the AAS* / arXiv:2011.09231 — used by the KvW plug-in and O-C KvW path
+- [Kwee–van Woerden plug-in](https://github.com/AAVSO/VStar/issues/617) (standalone
+  tool; S(T) / mirror QC remains there)
 
 ## Version history
 
+- **1.12** — **Kwee–van Woerden** timing method for from-observations O-C
+  (eclipse windowing; σ_Deeg; skip undersampled cycles; packaging depends on
+  KweeVanWoerdenLib). Light-curve check uses vertical **O**/**C** domain markers
+  instead of the synthetic **O-C extrema** series. Data table **QC** column and
+  KvW timed/skipped summary.
 - **1.11** — From-observations runs add an **O-C extrema** series on the light
   curve (markers at measured O, mag) for checking timings; re-run replaces the
   series. Imported timings do not.

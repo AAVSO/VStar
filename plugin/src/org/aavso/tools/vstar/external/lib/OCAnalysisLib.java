@@ -70,6 +70,15 @@ public class OCAnalysisLib {
     /** Short name for the synthetic O-C extrema series. */
     public static final String EXTREMA_SERIES_SHORT = "OC-X";
 
+    /** Domain-marker label prefix used when decorating the light curve. */
+    public static final String LC_MARKER_LABEL_PREFIX = "OC-TIMING:";
+
+    /** Minimum points required for Kwee–van Woerden (library floor). */
+    public static final int KVW_MIN_POINTS = 7;
+
+    /** Half-width of eclipse window as a fraction of period. */
+    public static final double KVW_MAX_WINDOW_FRACTION = 0.2;
+
     /**
      * Which extremum to time in each cycle.
      */
@@ -99,7 +108,8 @@ public class OCAnalysisLib {
     public enum TimingMethod {
         PARABOLIC("Parabolic interpolation"),
         MEAN_OF_EXTREME("Mean JD of extreme N% of observations per cycle"),
-        FROM_MODEL("From current model function");
+        FROM_MODEL("From current model function"),
+        KWEE_VAN_WOERDEN("Kwee–van Woerden (eclipse / transit ToM)");
 
         private final String label;
 
@@ -126,17 +136,29 @@ public class OCAnalysisLib {
         public final int minObsPerCycle;
         /** Required when {@link TimingMethod#FROM_MODEL} is selected. */
         public final IModel model;
+        /**
+         * Number of KvW folds (3, 5, or 7). Used only for
+         * {@link TimingMethod#KWEE_VAN_WOERDEN}.
+         */
+        public final int kvwNfold;
 
         public Parameters(double period, double epoch, EventType eventType,
                 TimingMethod timingMethod, int meanExtremePercent,
                 int minObsPerCycle) {
             this(period, epoch, eventType, timingMethod, meanExtremePercent,
-                    minObsPerCycle, null);
+                    minObsPerCycle, null, 5);
         }
 
         public Parameters(double period, double epoch, EventType eventType,
                 TimingMethod timingMethod, int meanExtremePercent,
                 int minObsPerCycle, IModel model) {
+            this(period, epoch, eventType, timingMethod, meanExtremePercent,
+                    minObsPerCycle, model, 5);
+        }
+
+        public Parameters(double period, double epoch, EventType eventType,
+                TimingMethod timingMethod, int meanExtremePercent,
+                int minObsPerCycle, IModel model, int kvwNfold) {
             if (period <= 0) {
                 throw new IllegalArgumentException("Period must be positive");
             }
@@ -154,6 +176,10 @@ public class OCAnalysisLib {
                 throw new IllegalArgumentException(
                         "A function-based model is required for model timing");
             }
+            if (kvwNfold != 3 && kvwNfold != 5 && kvwNfold != 7) {
+                throw new IllegalArgumentException(
+                        "KvW fold count must be 3, 5, or 7");
+            }
             this.period = period;
             this.epoch = epoch;
             this.eventType = eventType;
@@ -161,10 +187,67 @@ public class OCAnalysisLib {
             this.meanExtremePercent = meanExtremePercent;
             this.minObsPerCycle = minObsPerCycle;
             this.model = model;
+            this.kvwNfold = kvwNfold;
         }
 
         public double computedTime(int cycle) {
             return epoch + cycle * period;
+        }
+    }
+
+    /**
+     * Optional QC metadata for a timed extremum.
+     */
+    public static class TimingQc {
+        public final boolean wasResampled;
+        public final boolean equidistanceWarning;
+        public final int nfoldUsed;
+        public final int windowObsCount;
+        public final String note;
+
+        public TimingQc(boolean wasResampled, boolean equidistanceWarning,
+                int nfoldUsed, int windowObsCount, String note) {
+            this.wasResampled = wasResampled;
+            this.equidistanceWarning = equidistanceWarning;
+            this.nfoldUsed = nfoldUsed;
+            this.windowObsCount = windowObsCount;
+            this.note = note != null ? note : "";
+        }
+
+        public static TimingQc empty(int windowObsCount) {
+            return new TimingQc(false, false, -1, windowObsCount, "");
+        }
+
+        public String summaryText() {
+            StringBuilder buf = new StringBuilder();
+            if (note != null && !note.isEmpty()) {
+                buf.append(note);
+            }
+            if (wasResampled) {
+                if (buf.length() > 0) {
+                    buf.append("; ");
+                }
+                buf.append("resampled");
+            }
+            if (equidistanceWarning) {
+                if (buf.length() > 0) {
+                    buf.append("; ");
+                }
+                buf.append("uneven spacing");
+            }
+            if (nfoldUsed >= 0) {
+                if (buf.length() > 0) {
+                    buf.append("; ");
+                }
+                buf.append("folds=").append(nfoldUsed);
+            }
+            if (windowObsCount > 0) {
+                if (buf.length() > 0) {
+                    buf.append("; ");
+                }
+                buf.append("n=").append(windowObsCount);
+            }
+            return buf.toString();
         }
     }
 
@@ -186,16 +269,25 @@ public class OCAnalysisLib {
          * {@link Double#NaN} if unknown (e.g. imported timings).
          */
         public final double observedMagnitude;
+        /** Optional timing QC (null if none). */
+        public final TimingQc qc;
 
         Point(int cycle, double observedTime, double computedTime,
                 double ocUncertainty, int obsInCycle, EventType extremumType) {
             this(cycle, observedTime, computedTime, ocUncertainty, obsInCycle,
-                    extremumType, Double.NaN);
+                    extremumType, Double.NaN, null);
         }
 
         Point(int cycle, double observedTime, double computedTime,
                 double ocUncertainty, int obsInCycle, EventType extremumType,
                 double observedMagnitude) {
+            this(cycle, observedTime, computedTime, ocUncertainty, obsInCycle,
+                    extremumType, observedMagnitude, null);
+        }
+
+        Point(int cycle, double observedTime, double computedTime,
+                double ocUncertainty, int obsInCycle, EventType extremumType,
+                double observedMagnitude, TimingQc qc) {
             this.cycle = cycle;
             this.observedTime = observedTime;
             this.computedTime = computedTime;
@@ -204,6 +296,7 @@ public class OCAnalysisLib {
             this.obsInCycle = obsInCycle;
             this.extremumType = extremumType;
             this.observedMagnitude = observedMagnitude;
+            this.qc = qc;
         }
     }
 
@@ -266,10 +359,26 @@ public class OCAnalysisLib {
     public static class Result {
         public final Parameters parameters;
         public final List<Point> points;
+        /** Cycles that passed the minimum-observations gate. */
+        public final int cyclesExamined;
+        /** Cycles that produced a successful timing. */
+        public final int cyclesTimed;
 
         Result(Parameters parameters, List<Point> points) {
+            this(parameters, points, points != null ? points.size() : 0,
+                    points != null ? points.size() : 0);
+        }
+
+        Result(Parameters parameters, List<Point> points, int cyclesExamined,
+                int cyclesTimed) {
             this.parameters = parameters;
             this.points = Collections.unmodifiableList(points);
+            this.cyclesExamined = cyclesExamined;
+            this.cyclesTimed = cyclesTimed;
+        }
+
+        public int cyclesSkipped() {
+            return Math.max(0, cyclesExamined - cyclesTimed);
         }
     }
 
@@ -285,11 +394,13 @@ public class OCAnalysisLib {
     public static Result analyze(List<ValidObservation> observations,
             Parameters params) {
         if (params.eventType.isBoth()) {
+            Result maxResult = analyzeObservations(observations,
+                    withEventType(params, EventType.MAXIMUM));
+            Result minResult = analyzeObservations(observations,
+                    withEventType(params, EventType.MINIMUM));
             List<Point> combined = new ArrayList<Point>();
-            combined.addAll(analyzeObservations(observations,
-                    withEventType(params, EventType.MAXIMUM)).points);
-            combined.addAll(analyzeObservations(observations,
-                    withEventType(params, EventType.MINIMUM)).points);
+            combined.addAll(maxResult.points);
+            combined.addAll(minResult.points);
             Collections.sort(combined, new Comparator<Point>() {
                 @Override
                 public int compare(Point a, Point b) {
@@ -300,7 +411,9 @@ public class OCAnalysisLib {
                     return a.extremumType.compareTo(b.extremumType);
                 }
             });
-            return new Result(params, combined);
+            return new Result(params, combined,
+                    maxResult.cyclesExamined + minResult.cyclesExamined,
+                    maxResult.cyclesTimed + minResult.cyclesTimed);
         }
         return analyzeObservations(observations, params);
     }
@@ -583,7 +696,7 @@ public class OCAnalysisLib {
                     + ", quadratic_quadratic=" + quadraticFit.quadratic);
         }
         writer.println(
-                "Event,Cycle,O_time,C_time,OC_days,OC_sigma,ObsInCycle");
+                "Event,Cycle,O_time,C_time,OC_days,OC_sigma,ObsInCycle,QC");
         for (Point p : result.points) {
             writer.print(p.extremumType.name());
             writer.print(',');
@@ -599,7 +712,19 @@ public class OCAnalysisLib {
                 writer.print(p.ocUncertainty);
             }
             writer.print(',');
-            writer.println(p.obsInCycle);
+            writer.print(p.obsInCycle);
+            writer.print(',');
+            if (p.qc != null) {
+                String qc = p.qc.summaryText();
+                if (qc.indexOf(',') >= 0 || qc.indexOf('"') >= 0) {
+                    writer.print('"');
+                    writer.print(qc.replace("\"", "\"\""));
+                    writer.print('"');
+                } else {
+                    writer.print(qc);
+                }
+            }
+            writer.println();
         }
     }
 
@@ -638,11 +763,13 @@ public class OCAnalysisLib {
         Collections.sort(cycles);
 
         List<Point> points = new ArrayList<Point>();
+        int examined = 0;
         for (int cycle : cycles) {
             List<ValidObservation> cycleObs = byCycle.get(cycle);
             if (cycleObs.size() < params.minObsPerCycle) {
                 continue;
             }
+            examined++;
             Collections.sort(cycleObs, new Comparator<ValidObservation>() {
                 @Override
                 public int compare(ValidObservation a, ValidObservation b) {
@@ -658,19 +785,21 @@ public class OCAnalysisLib {
             }
 
             double computed = params.computedTime(cycle);
+            TimingQc qc = estimate.qc != null ? estimate.qc
+                    : TimingQc.empty(cycleObs.size());
             points.add(new Point(cycle, estimate.time, computed,
                     estimate.uncertaintyDays, cycleObs.size(),
-                    params.eventType, estimate.magnitude));
+                    params.eventType, estimate.magnitude, qc));
         }
 
-        return new Result(params, points);
+        return new Result(params, points, examined, points.size());
     }
 
     private static Parameters withEventType(Parameters params,
             EventType eventType) {
         return new Parameters(params.period, params.epoch, eventType,
                 params.timingMethod, params.meanExtremePercent,
-                params.minObsPerCycle, params.model);
+                params.minObsPerCycle, params.model, params.kvwNfold);
     }
 
     private static boolean looksLikeInteger(String token) {
@@ -1124,11 +1253,18 @@ public class OCAnalysisLib {
         final Double time;
         final double uncertaintyDays;
         final double magnitude;
+        final TimingQc qc;
 
         TimingEstimate(Double time, double uncertaintyDays, double magnitude) {
+            this(time, uncertaintyDays, magnitude, null);
+        }
+
+        TimingEstimate(Double time, double uncertaintyDays, double magnitude,
+                TimingQc qc) {
             this.time = time;
             this.uncertaintyDays = uncertaintyDays;
             this.magnitude = magnitude;
+            this.qc = qc;
         }
     }
 
@@ -1150,9 +1286,159 @@ public class OCAnalysisLib {
         case FROM_MODEL:
             return modelExtremumEstimate(cycleObs, params.model,
                     params.eventType);
+        case KWEE_VAN_WOERDEN:
+            return kweeVanWoerdenEstimate(cycleObs, params);
         default:
             return null;
         }
+    }
+
+    /**
+     * Trim a cycle bucket to an eclipse-like window and run KvW.
+     */
+    private static TimingEstimate kweeVanWoerdenEstimate(
+            List<ValidObservation> cycleObs, Parameters params) {
+        List<ValidObservation> window = trimEclipseWindow(cycleObs,
+                params.eventType, params.period);
+        if (window == null || window.size() < KVW_MIN_POINTS) {
+            return null;
+        }
+        double[] times = new double[window.size()];
+        double[] values = new double[window.size()];
+        boolean minimum = params.eventType == EventType.MINIMUM;
+        double muSum = 0;
+        int muN = 0;
+        for (int i = 0; i < window.size(); i++) {
+            ValidObservation ob = window.get(i);
+            times[i] = ob.getJD();
+            double m = mag(ob);
+            // Values lower at the event of interest.
+            values[i] = minimum ? -m : m;
+            double sigma = magUncertainty(ob);
+            if (!Double.isNaN(sigma) && sigma > 0) {
+                muSum += sigma;
+                muN++;
+            }
+        }
+        KweeVanWoerdenLib.Params kvw = new KweeVanWoerdenLib.Params();
+        kvw.nfold = params.kvwNfold;
+        kvw.t1Mode = KweeVanWoerdenLib.T1Mode.EXTREMUM;
+        kvw.resampleIfNeeded = true;
+        kvw.eventType = KweeVanWoerdenLib.EventType.MINIMUM;
+        if (muN > 0) {
+            kvw.mu = muSum / muN;
+        }
+        try {
+            KweeVanWoerdenLib.Result kvwResult = KweeVanWoerdenLib.analyze(
+                    times, values, kvw);
+            double magAtT0 = interpolateMagAtTime(window, kvwResult.t0);
+            String note = "KvW";
+            TimingQc qc = new TimingQc(kvwResult.wasResampled,
+                    kvwResult.equidistanceWarning, kvwResult.nfoldUsed,
+                    window.size(), note);
+            return new TimingEstimate(kvwResult.t0, kvwResult.sigmaDeeg,
+                    magAtT0, qc);
+        } catch (AlgorithmError e) {
+            return null;
+        }
+    }
+
+    /**
+     * Keep points around the discrete extremum that still look in-eclipse.
+     */
+    static List<ValidObservation> trimEclipseWindow(
+            List<ValidObservation> cycleObs, EventType eventType,
+            double period) {
+        if (cycleObs == null || cycleObs.isEmpty()) {
+            return null;
+        }
+        int seed = extremumIndex(cycleObs, eventType);
+        double seedMag = mag(cycleObs.get(seed));
+        double seedT = cycleObs.get(seed).getJD();
+        double median = medianMag(cycleObs);
+        double depth = Math.abs(seedMag - median);
+        if (depth < 1e-4) {
+            return null;
+        }
+        double threshold = (seedMag + median) / 2.0;
+        double maxHalf = KVW_MAX_WINDOW_FRACTION * period;
+
+        int lo = seed;
+        while (lo > 0) {
+            ValidObservation prev = cycleObs.get(lo - 1);
+            if (seedT - prev.getJD() > maxHalf) {
+                break;
+            }
+            if (!inEclipse(mag(prev), threshold, eventType)) {
+                break;
+            }
+            lo--;
+        }
+        int hi = seed;
+        while (hi < cycleObs.size() - 1) {
+            ValidObservation next = cycleObs.get(hi + 1);
+            if (next.getJD() - seedT > maxHalf) {
+                break;
+            }
+            if (!inEclipse(mag(next), threshold, eventType)) {
+                break;
+            }
+            hi++;
+        }
+        return new ArrayList<ValidObservation>(cycleObs.subList(lo, hi + 1));
+    }
+
+    private static boolean inEclipse(double m, double threshold,
+            EventType eventType) {
+        if (eventType == EventType.MINIMUM) {
+            // Fainter than threshold (larger mag).
+            return m >= threshold;
+        }
+        // Maximum light: brighter than threshold (smaller mag).
+        return m <= threshold;
+    }
+
+    private static double medianMag(List<ValidObservation> obs) {
+        List<Double> mags = new ArrayList<Double>();
+        for (ValidObservation ob : obs) {
+            mags.add(mag(ob));
+        }
+        Collections.sort(mags);
+        int n = mags.size();
+        if (n % 2 == 1) {
+            return mags.get(n / 2);
+        }
+        return 0.5 * (mags.get(n / 2 - 1) + mags.get(n / 2));
+    }
+
+    private static double interpolateMagAtTime(List<ValidObservation> window,
+            double t0) {
+        if (window.isEmpty()) {
+            return Double.NaN;
+        }
+        ValidObservation nearest = window.get(0);
+        double best = Math.abs(nearest.getJD() - t0);
+        for (int i = 1; i < window.size(); i++) {
+            double d = Math.abs(window.get(i).getJD() - t0);
+            if (d < best) {
+                best = d;
+                nearest = window.get(i);
+            }
+        }
+        // Linear interpolate between bracketing points when possible.
+        for (int i = 0; i < window.size() - 1; i++) {
+            double tA = window.get(i).getJD();
+            double tB = window.get(i + 1).getJD();
+            if ((t0 >= tA && t0 <= tB) || (t0 >= tB && t0 <= tA)) {
+                if (Math.abs(tB - tA) < 1e-12) {
+                    return mag(window.get(i));
+                }
+                double f = (t0 - tA) / (tB - tA);
+                return mag(window.get(i))
+                        + f * (mag(window.get(i + 1)) - mag(window.get(i)));
+            }
+        }
+        return mag(nearest);
     }
 
     private static TimingEstimate parabolicEstimate(
@@ -1164,7 +1450,7 @@ public class OCAnalysisLib {
         double magnitude = parabolicMagnitude(cycleObs, eventType);
         return new TimingEstimate(time,
                 estimateParabolicUncertainty(cycleObs, eventType, time),
-                magnitude);
+                magnitude, TimingQc.empty(cycleObs.size()));
     }
 
     private static TimingEstimate meanExtremeEstimate(

@@ -511,6 +511,65 @@ public class OCAnalysisLibTest extends TestCase {
         }
     }
 
+    public void testKweeVanWoerdenRecoversGaussianMinima() {
+        double period = 1.0;
+        double epoch = 2450000.0;
+        List<ValidObservation> obs = new ArrayList<ValidObservation>();
+        // Three well-sampled eclipses (minima fainter in mag).
+        for (int cycle = 0; cycle < 3; cycle++) {
+            double tMin = epoch + cycle * period + 0.01 * cycle; // slight O-C
+            for (int i = -15; i <= 15; i++) {
+                double t = tMin + i * 0.005;
+                double mag = 12.0
+                        + 0.4 * Math.exp(-0.5 * Math.pow(i * 0.005 / 0.04, 2));
+                addObs(obs, t, mag);
+            }
+        }
+        Parameters params = new Parameters(period, epoch, EventType.MINIMUM,
+                TimingMethod.KWEE_VAN_WOERDEN, 10, 7, null, 5);
+        Result result = OCAnalysisLib.analyze(obs, params);
+        assertEquals(3, result.cyclesTimed);
+        assertEquals(0, result.cyclesSkipped());
+        assertEquals(3, result.points.size());
+        for (int i = 0; i < 3; i++) {
+            Point p = result.points.get(i);
+            double expectedO = epoch + i * period + 0.01 * i;
+            assertEquals("cycle " + p.cycle, expectedO, p.observedTime, 0.01);
+            assertTrue("sigma", !Double.isNaN(p.ocUncertainty)
+                    && p.ocUncertainty > 0);
+            assertNotNull(p.qc);
+            assertTrue(p.qc.summaryText().contains("KvW"));
+            assertTrue(p.qc.windowObsCount >= OCAnalysisLib.KVW_MIN_POINTS);
+        }
+    }
+
+    public void testKweeVanWoerdenSkipsSparseFlatCycle() {
+        double period = 1.0;
+        double epoch = 2450000.0;
+        List<ValidObservation> obs = new ArrayList<ValidObservation>();
+        // Flat, few points — window depth fails or n < 7.
+        for (int i = 0; i < 5; i++) {
+            addObs(obs, epoch + 0.1 * i, 12.0);
+        }
+        Parameters params = new Parameters(period, epoch, EventType.MINIMUM,
+                TimingMethod.KWEE_VAN_WOERDEN, 10, 3, null, 5);
+        Result result = OCAnalysisLib.analyze(obs, params);
+        assertEquals(0, result.points.size());
+        assertTrue(result.cyclesExamined >= 1 || result.cyclesTimed == 0);
+        // Examined may be 1 if minObs=3 gate passed with 5 points, but no timing.
+        if (result.cyclesExamined >= 1) {
+            assertEquals(result.cyclesExamined, result.cyclesSkipped());
+        }
+    }
+
+    public void testTrimEclipseWindowRequiresDepth() {
+        List<ValidObservation> obs = new ArrayList<ValidObservation>();
+        for (int i = 0; i < 10; i++) {
+            addObs(obs, 2450000.0 + 0.01 * i, 12.0);
+        }
+        assertNull(OCAnalysisLib.trimEclipseWindow(obs, EventType.MINIMUM, 1.0));
+    }
+
     public void testToExtremumObservationsSkipsImportedNaNMags()
             throws IOException {
         List<ImportedTiming> timings = Arrays.asList(

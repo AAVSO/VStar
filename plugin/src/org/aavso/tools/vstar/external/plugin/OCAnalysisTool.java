@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -103,23 +104,27 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
-import org.aavso.tools.vstar.ui.mediator.message.SeriesCreationMessage;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.help.Help;
+import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.ChartPropertiesPrefs;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
+import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.YIntervalRenderer;
+import org.jfree.chart.ui.Layer;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -137,6 +142,14 @@ import org.jfree.data.xy.YIntervalSeriesCollection;
 public class OCAnalysisTool extends GeneralToolPluginBase {
 
     private static final String DOC_NAME = "OCAnalysis.md";
+
+    /**
+     * Domain markers currently decorating the raw light curve for O-C timings.
+     * Tracked so a re-run or load-new-star can remove them without clearing
+     * unrelated plot decorations.
+     */
+    private static final List<Marker> ocTimingMarkers = new ArrayList<Marker>();
+    private static boolean newStarClearListenerRegistered = false;
 
     private static final String EPHEMERIS_PHASE = "Phase plot";
     private static final String EPHEMERIS_PHASE_TOOLTIP =
@@ -202,30 +215,48 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         SelectableTextField timingField = new SelectableTextField(
                 "Timing method", timingLabels,
                 TimingMethod.PARABOLIC.getLabel());
+        timingField.getUIComponent().setToolTipText(
+                "Parabolic suits smooth peaks. Kwee–van Woerden is a "
+                        + "single-eclipse ToM algorithm: needs well-covered "
+                        + "eclipses and period/epoch good enough that roughly "
+                        + "one event falls per cycle bin; Recommended min obs "
+                        + "per cycle for KvW is ≥ "
+                        + OCAnalysisLib.KVW_MIN_POINTS + ".");
 
         IntegerField meanPercentField = new IntegerField(
                 "Extreme N% (mean timing method)", 1, 100, 10);
         IntegerField minObsField = new IntegerField(
                 "Minimum observations per cycle", 1, null, 3);
+        minObsField.getUIComponent().setToolTipText(
+                "Cycles with fewer observations are skipped. For "
+                        + "Kwee–van Woerden use at least "
+                        + OCAnalysisLib.KVW_MIN_POINTS
+                        + " (library floor after eclipse windowing).");
+        IntegerField kvwNfoldField = new IntegerField(
+                "KvW folds (3, 5, or 7)", 3, 7, 5);
+        kvwNfoldField.getUIComponent().setToolTipText(
+                "Kwee–van Woerden only: more folds (5–7) improve precision on "
+                        + "well-sampled eclipses.");
 
         dataSourceField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 applyDataSourceFields(dataSourceField.getValue(),
                         ephemerisSourceField, timingField, meanPercentField,
-                        minObsField, periodField, epochField, eventField);
+                        minObsField, kvwNfoldField, periodField, epochField,
+                        eventField);
             }
         });
         timingField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                applyMeanPercentFieldEnabled(dataSourceField.getValue(),
-                        timingField, meanPercentField);
+                applyTimingMethodFields(dataSourceField.getValue(),
+                        timingField, meanPercentField, kvwNfoldField);
             }
         });
         applyDataSourceFields(dataSourceField.getValue(), ephemerisSourceField,
-                timingField, meanPercentField, minObsField, periodField,
-                epochField, eventField);
+                timingField, meanPercentField, minObsField, kvwNfoldField,
+                periodField, epochField, eventField);
 
         List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
         fields.add(dataSourceField);
@@ -235,6 +266,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         fields.add(eventField);
         fields.add(timingField);
         fields.add(meanPercentField);
+        fields.add(kvwNfoldField);
         fields.add(minObsField);
 
         ParameterDialog paramDlg = new ParameterDialog(getDisplayName(), fields,
@@ -265,6 +297,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         TimingMethod timingMethod;
         Integer meanPercent;
         Integer minObs;
+        Integer kvwNfold;
 
         if (fromImportedTimings) {
             period = periodField.getValue();
@@ -273,6 +306,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             timingMethod = TimingMethod.PARABOLIC;
             meanPercent = 10;
             minObs = 1;
+            kvwNfold = 5;
             if (importLines != null) {
                 ImportFileMetadata meta = OCAnalysisLib
                         .parseImportFileMetadata(importLines);
@@ -293,6 +327,14 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             timingMethod = timingMethodFromLabel(timingField.getValue());
             meanPercent = meanPercentField.getValue();
             minObs = minObsField.getValue();
+            kvwNfold = kvwNfoldField.getValue();
+            if (kvwNfold == null) {
+                kvwNfold = 5;
+            }
+            if (kvwNfold != 3 && kvwNfold != 5 && kvwNfold != 7) {
+                // Snap to recommended default if the integer field is off.
+                kvwNfold = 5;
+            }
         }
 
         if (period == null || period <= 0 || epoch == null) {
@@ -352,7 +394,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                         .parseImportedTimings(importLines, epoch, period);
                 IModel model = null;
                 params = new Parameters(period, epoch, eventType,
-                        TimingMethod.PARABOLIC, meanPercent, 1, model);
+                        TimingMethod.PARABOLIC, meanPercent, 1, model, 5);
                 result = OCAnalysisLib.analyzeImported(timings, params);
                 if (lastImportFile != null) {
                     resultLabel = resultLabel + " (" + lastImportFile.getName()
@@ -362,7 +404,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 IModel model = timingMethod == TimingMethod.FROM_MODEL
                         ? selectedModel : null;
                 params = new Parameters(period, epoch, eventType, timingMethod,
-                        meanPercent, minObs, model);
+                        meanPercent, minObs, model, kvwNfold);
                 result = OCAnalysisLib.analyze(obs, params);
             }
         } catch (IllegalArgumentException ex) {
@@ -378,6 +420,13 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             if (fromImportedTimings) {
                 message = "No O-C points could be computed from the imported "
                         + "timings file. Check the file format and ephemeris.";
+            } else if (timingMethod == TimingMethod.KWEE_VAN_WOERDEN) {
+                message = "No O-C points from Kwee–van Woerden. Need ≥"
+                        + OCAnalysisLib.KVW_MIN_POINTS
+                        + " in-eclipse points per cycle, a sensible "
+                        + "period/epoch, and Event = Minimum for eclipsing "
+                        + "binaries. Check the light-curve vertical markers "
+                        + "from the previous successful run, or try Parabolic.";
             } else {
                 message = "No O-C points could be computed. Try lowering the minimum "
                         + "observations per cycle, then check the ephemeris.";
@@ -389,61 +438,136 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         LinearFit linearFit = OCAnalysisLib.fitLinear(result.points);
         QuadraticFit quadraticFit = OCAnalysisLib.fitQuadratic(result.points);
 
-        boolean publishedExtrema = false;
+        boolean markersShown = false;
         if (!fromImportedTimings) {
-            publishedExtrema = publishExtremaSeries(result);
+            markersShown = publishTimingDomainMarkers(result);
         }
 
         Color seriesColor = selectedSeries != null
                 ? SeriesType.getColorFromSeries(selectedSeries)
                 : Color.BLUE;
         new OCAnalysisResultDialog(resultLabel, result, linearFit,
-                quadraticFit, seriesColor, publishedExtrema);
+                quadraticFit, seriesColor, markersShown);
     }
 
     /**
-     * Add or replace the synthetic "O-C extrema" series on the light curve so
-     * measured times of max/min can be checked against the data.
+     * Draw full-height vertical domain markers for O (and lighter dashed
+     * markers for C) on the raw-data light curve. Replaces prior O-C markers.
      *
-     * @return true if markers were published
+     * @return true if at least one plot was decorated
      */
-    private static boolean publishExtremaSeries(Result result) {
-        List<ValidObservation> markers = OCAnalysisLib
-                .toExtremumObservations(result);
-        if (markers.isEmpty()) {
+    private static boolean publishTimingDomainMarkers(Result result) {
+        ensureOcTimingNewStarClearListener();
+        ObservationAndMeanPlotPane pane = Mediator.getInstance()
+                .getPlotPane(AnalysisType.RAW_DATA);
+        if (pane == null || pane.getChartPanel() == null
+                || pane.getChartPanel().getChart() == null) {
             return false;
         }
-        SeriesCreationMessage msg = new SeriesCreationMessage(
-                OCAnalysisTool.class, OCAnalysisLib.extremaSeriesType(),
-                markers);
-        Mediator.getInstance().getSeriesCreationNotifier()
-                .notifyListeners(msg);
-        return true;
+        XYPlot plot = pane.getChartPanel().getChart().getXYPlot();
+        clearOcTimingMarkers(plot);
+
+        Color oColor = new Color(255, 100, 0, 200);
+        Color cColor = new Color(80, 80, 180, 140);
+        BasicStroke oStroke = new BasicStroke(1.4f);
+        BasicStroke cStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT,
+                BasicStroke.JOIN_MITER, 10f, new float[] { 4f, 4f }, 0f);
+        boolean labelCycles = result.points.size() <= 30;
+
+        for (Point p : result.points) {
+            ValueMarker oMark = new ValueMarker(p.observedTime);
+            oMark.setPaint(oColor);
+            oMark.setStroke(oStroke);
+            if (labelCycles) {
+                oMark.setLabel("O" + p.cycle);
+            }
+            plot.addDomainMarker(oMark, Layer.FOREGROUND);
+            ocTimingMarkers.add(oMark);
+
+            ValueMarker cMark = new ValueMarker(p.computedTime);
+            cMark.setPaint(cColor);
+            cMark.setStroke(cStroke);
+            if (labelCycles) {
+                cMark.setLabel("C" + p.cycle);
+            }
+            plot.addDomainMarker(cMark, Layer.BACKGROUND);
+            ocTimingMarkers.add(cMark);
+        }
+        return !result.points.isEmpty();
+    }
+
+    private static void clearOcTimingMarkers(XYPlot plot) {
+        if (plot == null) {
+            ocTimingMarkers.clear();
+            return;
+        }
+        for (Marker m : ocTimingMarkers) {
+            plot.removeDomainMarker(m, Layer.FOREGROUND);
+            plot.removeDomainMarker(m, Layer.BACKGROUND);
+        }
+        ocTimingMarkers.clear();
+    }
+
+    private static void clearOcTimingMarkersFromRawPlot() {
+        ObservationAndMeanPlotPane pane = Mediator.getInstance()
+                .getPlotPane(AnalysisType.RAW_DATA);
+        if (pane != null && pane.getChartPanel() != null
+                && pane.getChartPanel().getChart() != null) {
+            clearOcTimingMarkers(
+                    pane.getChartPanel().getChart().getXYPlot());
+        } else {
+            ocTimingMarkers.clear();
+        }
+    }
+
+    private static void ensureOcTimingNewStarClearListener() {
+        if (newStarClearListenerRegistered) {
+            return;
+        }
+        newStarClearListenerRegistered = true;
+        Mediator.getInstance().getNewStarNotifier()
+                .addListener(new Listener<NewStarMessage>() {
+                    @Override
+                    public void update(NewStarMessage info) {
+                        clearOcTimingMarkersFromRawPlot();
+                    }
+
+                    @Override
+                    public boolean canBeRemoved() {
+                        return false;
+                    }
+                });
     }
 
     private static void applyDataSourceFields(String dataSource,
             SelectableTextField ephemerisSourceField,
             SelectableTextField timingField, IntegerField meanPercentField,
-            IntegerField minObsField, DoubleField periodField,
-            DoubleField epochField, SelectableTextField eventField) {
+            IntegerField minObsField, IntegerField kvwNfoldField,
+            DoubleField periodField, DoubleField epochField,
+            SelectableTextField eventField) {
         boolean fromObs = DATA_OBSERVATIONS.equals(dataSource);
         boolean fromImport = DATA_IMPORTED.equals(dataSource);
 
         setFieldEnabled(ephemerisSourceField, fromObs);
         setFieldEnabled(timingField, fromObs);
-        applyMeanPercentFieldEnabled(dataSource, timingField, meanPercentField);
+        applyTimingMethodFields(dataSource, timingField, meanPercentField,
+                kvwNfoldField);
         setFieldEnabled(minObsField, fromObs);
         setFieldEnabled(eventField, fromObs || fromImport);
         setFieldEnabled(periodField, fromObs || fromImport);
         setFieldEnabled(epochField, fromObs || fromImport);
     }
 
-    private static void applyMeanPercentFieldEnabled(String dataSource,
-            SelectableTextField timingField, IntegerField meanPercentField) {
+    private static void applyTimingMethodFields(String dataSource,
+            SelectableTextField timingField, IntegerField meanPercentField,
+            IntegerField kvwNfoldField) {
         boolean fromObs = DATA_OBSERVATIONS.equals(dataSource);
         boolean meanExtreme = TimingMethod.MEAN_OF_EXTREME.getLabel()
                 .equals(timingField.getValue());
+        boolean kvw = TimingMethod.KWEE_VAN_WOERDEN.getLabel()
+                .equals(timingField.getValue());
         setFieldEnabled(meanPercentField, fromObs && meanExtreme);
+        setFieldEnabled(kvwNfoldField, fromObs && kvw);
     }
 
     private static void setFieldEnabled(ITextComponent<?> field,
@@ -892,7 +1016,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         private TwoSegmentFit twoSegmentFit;
         private final QuadraticFit quadraticFit;
         private final Color seriesColor;
-        private final boolean extremaPublished;
+        private final boolean timingMarkersShown;
         private final YIntervalSeries ocSeries = new YIntervalSeries("O-C");
         private final YIntervalRenderer ocRenderer;
         private final XYLineAndShapeRenderer fitRenderer = createFitRenderer();
@@ -909,7 +1033,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         OCAnalysisResultDialog(String seriesName, Result result,
                 LinearFit linearFit, QuadraticFit quadraticFit,
-                Color seriesColor, boolean extremaPublished) {
+                Color seriesColor, boolean timingMarkersShown) {
             super(org.aavso.tools.vstar.ui.mediator.DocumentManager
                     .findActiveWindow(), "O-C: " + seriesName,
                     ModalityType.MODELESS);
@@ -918,7 +1042,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             this.twoSegmentFit = null;
             this.quadraticFit = quadraticFit;
             this.seriesColor = seriesColor;
-            this.extremaPublished = extremaPublished;
+            this.timingMarkersShown = timingMarkersShown;
             this.ocRenderer = createOcRenderer(seriesColor);
             breakCycleField = new JTextField(4);
             tightenFieldHeight(breakCycleField);
@@ -1404,10 +1528,24 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 }
                 break;
             }
-            if (extremaPublished) {
+            if (result.parameters.timingMethod == TimingMethod.KWEE_VAN_WOERDEN) {
+                appendSummaryRow(buf, "KvW",
+                        result.cyclesTimed + " timed, "
+                                + result.cyclesSkipped()
+                                + " skipped (of " + result.cyclesExamined
+                                + " cycles examined)");
+            } else if (result.cyclesExamined > result.cyclesTimed
+                    && result.cyclesExamined > 0) {
+                appendSummaryRow(buf, "Timing",
+                        result.cyclesTimed + " timed, "
+                                + result.cyclesSkipped() + " skipped (of "
+                                + result.cyclesExamined
+                                + " cycles examined)");
+            }
+            if (timingMarkersShown) {
                 appendSummaryRow(buf, "Light curve",
-                        OCAnalysisLib.EXTREMA_SERIES_DESCRIPTION
-                                + " series added (toggle via Series)");
+                        "Vertical markers: solid O (observed), dashed C "
+                                + "(ephemeris) — re-run replaces them");
             }
             buf.append("</table>");
             appendHtmlBodyEnd(buf);
@@ -1673,7 +1811,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
     private static class OCTableModel extends AbstractTableModel {
 
         private static final String[] COLUMNS = { "Cycle", "O (time)",
-                "C (time)", "O-C (days)", "σ(O-C)", "Obs in cycle" };
+                "C (time)", "O-C (days)", "σ(O-C)", "Obs in cycle", "QC" };
 
         private final List<Point> points;
 
@@ -1714,6 +1852,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                         : NumericPrecisionPrefs.formatOther(p.ocUncertainty);
             case 5:
                 return p.obsInCycle;
+            case 6:
+                return p.qc != null ? p.qc.summaryText() : "";
             default:
                 return null;
             }
