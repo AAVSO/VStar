@@ -307,13 +307,154 @@ public class OCAnalysisLib {
         public final Integer cycle;
         public final double observedTime;
         public final double uncertaintyDays;
+        /** Optional QC note (e.g. "manual", "snap", "auto"); may be null. */
+        public final String sourceNote;
 
         public ImportedTiming(Integer cycle, double observedTime,
                 double uncertaintyDays) {
+            this(cycle, observedTime, uncertaintyDays, null);
+        }
+
+        public ImportedTiming(Integer cycle, double observedTime,
+                double uncertaintyDays, String sourceNote) {
             this.cycle = cycle;
             this.observedTime = observedTime;
             this.uncertaintyDays = uncertaintyDays;
+            this.sourceNote = sourceNote;
         }
+    }
+
+    /** QC note for auto-derived timings when re-edited as fixed O list. */
+    public static final String TIMING_SOURCE_AUTO = "auto";
+    /** QC note for free-JD placement under the cursor. */
+    public static final String TIMING_SOURCE_MANUAL = "manual";
+    /** QC note when free placement snapped to a nearby observation. */
+    public static final String TIMING_SOURCE_SNAP = "snap";
+
+    /**
+     * Mutable list of observed times used by the interactive O-C editor.
+     * Rebuild C / O-C via {@link #toResult(Parameters)}.
+     */
+    public static class EditableTimingsModel {
+        private final List<ImportedTiming> timings =
+                new ArrayList<ImportedTiming>();
+
+        public int size() {
+            return timings.size();
+        }
+
+        public boolean isEmpty() {
+            return timings.isEmpty();
+        }
+
+        public ImportedTiming get(int index) {
+            return timings.get(index);
+        }
+
+        public List<ImportedTiming> asList() {
+            return Collections.unmodifiableList(
+                    new ArrayList<ImportedTiming>(timings));
+        }
+
+        public void clear() {
+            timings.clear();
+        }
+
+        public void add(double observedTime, String sourceNote) {
+            timings.add(new ImportedTiming(null, observedTime, Double.NaN,
+                    sourceNote != null ? sourceNote : TIMING_SOURCE_MANUAL));
+        }
+
+        public void insert(int index, double observedTime, String sourceNote) {
+            timings.add(index, new ImportedTiming(null, observedTime, Double.NaN,
+                    sourceNote != null ? sourceNote : TIMING_SOURCE_MANUAL));
+        }
+
+        public void remove(int index) {
+            timings.remove(index);
+        }
+
+        public void setObservedTime(int index, double observedTime,
+                String sourceNote) {
+            ImportedTiming old = timings.get(index);
+            String note = sourceNote != null ? sourceNote
+                    : (old.sourceNote != null ? old.sourceNote
+                            : TIMING_SOURCE_MANUAL);
+            timings.set(index, new ImportedTiming(old.cycle, observedTime,
+                    old.uncertaintyDays, note));
+        }
+
+        /**
+         * Seed from an analysis result, preserving measured O times and
+         * attaching source notes from QC when present.
+         */
+        public static EditableTimingsModel fromResult(Result result) {
+            EditableTimingsModel model = new EditableTimingsModel();
+            if (result == null) {
+                return model;
+            }
+            for (Point p : result.points) {
+                String note = TIMING_SOURCE_AUTO;
+                if (p.qc != null && p.qc.note != null
+                        && !p.qc.note.isEmpty()) {
+                    note = p.qc.note;
+                }
+                model.timings.add(new ImportedTiming(p.cycle, p.observedTime,
+                        p.ocUncertainty, note));
+            }
+            return model;
+        }
+
+        public Result toResult(Parameters params) {
+            return analyzeImported(timings, params);
+        }
+    }
+
+    /**
+     * Nearest observation JD to {@code targetJd} among non-discrepant points,
+     * or null if none within {@code maxAbsDelta} days.
+     */
+    public static Double nearestObservationJd(
+            List<ValidObservation> observations, double targetJd,
+            double maxAbsDelta) {
+        if (observations == null || observations.isEmpty()
+                || maxAbsDelta < 0) {
+            return null;
+        }
+        Double best = null;
+        double bestDelta = Double.MAX_VALUE;
+        for (ValidObservation ob : observations) {
+            if (ob.isDiscrepant()) {
+                continue;
+            }
+            double d = Math.abs(ob.getJD() - targetJd);
+            if (d <= maxAbsDelta && d < bestDelta) {
+                bestDelta = d;
+                best = ob.getJD();
+            }
+        }
+        return best;
+    }
+
+    /**
+     * Index of the O time closest to {@code targetJd} within
+     * {@code maxAbsDelta} days, or -1 if none.
+     */
+    public static int nearestTimingIndex(List<ImportedTiming> timings,
+            double targetJd, double maxAbsDelta) {
+        if (timings == null || timings.isEmpty() || maxAbsDelta < 0) {
+            return -1;
+        }
+        int best = -1;
+        double bestDelta = Double.MAX_VALUE;
+        for (int i = 0; i < timings.size(); i++) {
+            double d = Math.abs(timings.get(i).observedTime - targetJd);
+            if (d <= maxAbsDelta && d < bestDelta) {
+                bestDelta = d;
+                best = i;
+            }
+        }
+        return best;
     }
 
     /**
@@ -433,15 +574,15 @@ public class OCAnalysisLib {
             int cycle = timing.cycle != null ? timing.cycle : cycleNumber(
                     timing.observedTime, params.epoch, params.period);
             double computed = params.computedTime(cycle);
-            points.add(new Point(cycle, timing.observedTime, computed,
-                    timing.uncertaintyDays, 0, pointType, Double.NaN));
-        }
-        Collections.sort(points, new Comparator<Point>() {
-            @Override
-            public int compare(Point a, Point b) {
-                return Integer.compare(a.cycle, b.cycle);
+            TimingQc qc = null;
+            if (timing.sourceNote != null && !timing.sourceNote.isEmpty()) {
+                qc = new TimingQc(false, false, -1, 0, timing.sourceNote);
             }
-        });
+            points.add(new Point(cycle, timing.observedTime, computed,
+                    timing.uncertaintyDays, 0, pointType, Double.NaN, qc));
+        }
+        // Keep input order for the editor (table and markers stay aligned);
+        // cycle order is only needed for fit math that does not require sort.
         return new Result(params, points);
     }
 

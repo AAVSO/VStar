@@ -1,0 +1,99 @@
+# Z Tau (Mira) times of maximum light
+# Source: AAVSO Maxima and Minima of Long Period Variables (Waagen et al.)
+# https://www.aavso.org/cgi-bin/maxmin_current.pl?name=Z+TAU
+# Citation: Waagen, E.O. et al., 2018, AAVSO Maxima and Minima of Long
+# Period Variables, 1900–present (1900–2008 published; later preliminary).
+# Only MAX rows retained (O–C of maxima is standard for Miras / LPVs).
+# Cycle numbers are those of the AAVSO maxmin table (gaps = unobserved cycles).
+# Trial linear ephemeris (fixed P — historically Z Tau period evolves ~500→~450 d):
+# period=466.2, epoch=2415246.2
+# (GCVS later-era mean period; epoch chosen so C_n = t0 + n·P with table cycle n.
+# VSX often quotes ~446 d; early 20th century means near ~500 d.
+# Expect a curved / multi-segment O–C, not a flat diagram.)
+# O-C tool: Imported timings; Event = Maximum light.
+# Optional AID load (context light curve): JD ≈ 2417000 – 2458100
+# Format: cycle O_time
+4 2417111
+5 2417612
+7 2418618
+9 2419602
+11 2420602
+12 2421110
+13 2421618
+14 2422103
+15 2422604
+16 2423114
+17 2423612
+18 2424113
+19 2424614
+20 2425111
+21 2425632
+22 2426130
+23 2426609
+24 2427100
+25 2427580
+26 2428064
+27 2428560
+28 2429050
+29 2429531
+30 2430020
+31 2430500
+32 2430975
+33 2431472
+34 2431950
+35 2432394
+36 2432934
+37 2433413
+38 2433916
+39 2434398
+40 2434879
+41 2435378
+42 2435870
+43 2436337
+44 2436834
+45 2437300
+46 2437789
+47 2438274
+48 2438758
+49 2439209
+50 2439691
+51 2440180
+52 2440629
+53 2441102
+54 2441540
+55 2442032
+56 2442500
+57 2442971
+58 2443440
+59 2443863
+60 2444339
+61 2444820
+62 2445263
+63 2445717
+64 2446193
+65 2446670
+66 2447127
+67 2447583
+68 2448069
+69 2448527
+70 2448966
+71 2449439
+72 2449907
+73 2450353
+74 2450811
+75 2451280
+76 2451701
+77 2452164
+78 2452610
+79 2453058
+80 2453509
+81 2453940
+82 2454395
+83 2454822
+84 2455272
+85 2455719
+86 2456173
+87 2456627
+88 2457069
+89 2457516
+90 2457970

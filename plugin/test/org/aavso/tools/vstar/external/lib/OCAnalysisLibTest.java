@@ -17,9 +17,13 @@
  */
 package org.aavso.tools.vstar.external.lib;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +34,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData;
 import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData.DemoDataset;
 import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData.DemoScenario;
+import org.aavso.tools.vstar.external.lib.OCAnalysisLib.EditableTimingsModel;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.EventType;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.ImportedTiming;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.LinearFit;
@@ -583,6 +588,152 @@ public class OCAnalysisLibTest extends TestCase {
         List<ValidObservation> markers = OCAnalysisLib
                 .toExtremumObservations(result);
         assertTrue(markers.isEmpty());
+    }
+
+    public void testEditableTimingsModelRebuildAndRemove() {
+        Parameters params = new Parameters(1.0, 2450000.0, EventType.MAXIMUM,
+                TimingMethod.PARABOLIC, 10, 1);
+        EditableTimingsModel model = new EditableTimingsModel();
+        model.add(2450000.01, OCAnalysisLib.TIMING_SOURCE_MANUAL);
+        model.add(2450001.02, OCAnalysisLib.TIMING_SOURCE_SNAP);
+        Result result = model.toResult(params);
+        assertEquals(2, result.points.size());
+        assertEquals(0.01, result.points.get(0).oc, TOL);
+        assertEquals(0.02, result.points.get(1).oc, TOL);
+        assertNotNull(result.points.get(0).qc);
+        assertTrue(result.points.get(0).qc.summaryText().contains("manual"));
+        assertTrue(result.points.get(1).qc.summaryText().contains("snap"));
+
+        model.remove(0);
+        result = model.toResult(params);
+        assertEquals(1, result.points.size());
+        assertEquals(0.02, result.points.get(0).oc, TOL);
+
+        model.setObservedTime(0, 2450001.05, OCAnalysisLib.TIMING_SOURCE_MANUAL);
+        result = model.toResult(params);
+        assertEquals(0.05, result.points.get(0).oc, TOL);
+    }
+
+    public void testEditableTimingsModelFromResultSeedsAutos() {
+        DemoDataset dataset = OCAnalysisDemoData
+                .generate(DemoScenario.CORRECT_EPHEMERIS);
+        Parameters params = new Parameters(dataset.modelPeriod,
+                dataset.modelEpoch, EventType.MAXIMUM, TimingMethod.PARABOLIC,
+                10, 3);
+        Result auto = OCAnalysisLib.analyze(dataset.observations, params);
+        assertTrue(auto.points.size() >= 2);
+        EditableTimingsModel model = EditableTimingsModel.fromResult(auto);
+        assertEquals(auto.points.size(), model.size());
+        Result rebuilt = model.toResult(params);
+        assertEquals(auto.points.size(), rebuilt.points.size());
+        for (int i = 0; i < auto.points.size(); i++) {
+            assertEquals(auto.points.get(i).observedTime,
+                    rebuilt.points.get(i).observedTime, TOL);
+        }
+    }
+
+    public void testNearestObservationJdWithinDelta() {
+        List<ValidObservation> obs = new ArrayList<ValidObservation>();
+        addObs(obs, 2450000.10, 11.0);
+        addObs(obs, 2450000.20, 11.5);
+        addObs(obs, 2450000.50, 12.0);
+        Double near = OCAnalysisLib.nearestObservationJd(obs, 2450000.21,
+                0.05);
+        assertEquals(2450000.20, near, TOL);
+        assertNull(OCAnalysisLib.nearestObservationJd(obs, 2450000.40, 0.05));
+    }
+
+    public void testNearestTimingIndex() {
+        List<ImportedTiming> times = Arrays.asList(
+                new ImportedTiming(null, 2450000.0, Double.NaN, "manual"),
+                new ImportedTiming(null, 2450001.0, Double.NaN, "manual"));
+        assertEquals(1, OCAnalysisLib.nearestTimingIndex(times, 2450001.01,
+                0.05));
+        assertEquals(-1, OCAnalysisLib.nearestTimingIndex(times, 2450002.5,
+                0.05));
+    }
+
+    public void testXTriTable139ImportFixture() throws IOException {
+        List<String> lines = readClasspathResourceLines(
+                "data/oc/xtri_table_13_9.txt");
+        assertTrue(lines.size() > 100);
+        OCAnalysisLib.ImportFileMetadata meta = OCAnalysisLib
+                .parseImportFileMetadata(lines);
+        assertEquals(0.975352, meta.period, TOL);
+        assertEquals(2442502.721, meta.epoch, TOL);
+
+        List<ImportedTiming> timings = OCAnalysisLib.parseImportedTimings(lines,
+                meta.epoch, meta.period);
+        assertEquals(122, timings.size());
+        assertEquals(Integer.valueOf(230), timings.get(0).cycle);
+        assertEquals(2442726.175, timings.get(0).observedTime, TOL);
+
+        Parameters params = new Parameters(meta.period, meta.epoch,
+                EventType.MINIMUM, TimingMethod.PARABOLIC, 10, 1);
+        Result result = OCAnalysisLib.analyzeImported(timings, params);
+        assertEquals(122, result.points.size());
+        // Cycle 230 with teaching ephemeris: O−C slightly negative (~−0.88 d).
+        Point p0 = result.points.get(0);
+        assertEquals(230, p0.cycle);
+        assertEquals(-0.877, p0.oc, 0.002);
+        // Long baseline: strong secular drift vs fixed linear ephemeris
+        // (Activity 13.6: period/epoch not fully adequate; period evolution).
+        LinearFit fit = OCAnalysisLib.fitLinear(result.points);
+        assertNotNull(fit);
+        assertTrue("expected large |slope| from teaching ephemeris, got "
+                + fit.slope, Math.abs(fit.slope) > 0.001);
+    }
+
+    public void testZTauMaximaImportFixture() throws IOException {
+        List<String> lines = readClasspathResourceLines(
+                "data/oc/ztau_maxima.txt");
+        assertTrue(lines.size() > 80);
+        OCAnalysisLib.ImportFileMetadata meta = OCAnalysisLib
+                .parseImportFileMetadata(lines);
+        assertEquals(466.2, meta.period, TOL);
+        assertEquals(2415246.2, meta.epoch, TOL);
+
+        List<ImportedTiming> timings = OCAnalysisLib.parseImportedTimings(lines,
+                meta.epoch, meta.period);
+        assertEquals(84, timings.size());
+        assertEquals(Integer.valueOf(4), timings.get(0).cycle);
+        assertEquals(2417111.0, timings.get(0).observedTime, TOL);
+        assertEquals(Integer.valueOf(90),
+                timings.get(timings.size() - 1).cycle);
+        assertEquals(2457970.0, timings.get(timings.size() - 1).observedTime,
+                TOL);
+
+        Parameters params = new Parameters(meta.period, meta.epoch,
+                EventType.MAXIMUM, TimingMethod.PARABOLIC, 10, 1);
+        Result result = OCAnalysisLib.analyzeImported(timings, params);
+        assertEquals(84, result.points.size());
+        // First table maximum: O−C ~ 0 with epoch tied to cycle numbering.
+        assertEquals(0.0, result.points.get(0).oc, 0.01);
+        // Mira period evolution vs fixed 466.2 d: large late O−C excursion.
+        assertTrue("expected large late O-C, got "
+                + result.points.get(result.points.size() - 1).oc,
+                Math.abs(result.points.get(result.points.size() - 1).oc) > 100);
+        LinearFit fit = OCAnalysisLib.fitLinear(result.points);
+        assertNotNull(fit);
+    }
+
+    private static List<String> readClasspathResourceLines(String resource)
+            throws IOException {
+        InputStream in = OCAnalysisLibTest.class.getClassLoader()
+                .getResourceAsStream(resource);
+        assertNotNull("missing " + resource, in);
+        List<String> lines = new ArrayList<String>();
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(in, StandardCharsets.UTF_8));
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+        } finally {
+            reader.close();
+        }
+        return lines;
     }
 
     public void testMeanExtremeObservedMagnitude() {

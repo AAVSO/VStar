@@ -41,7 +41,27 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+
+import javax.swing.JCheckBox;
+import javax.swing.JOptionPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.PlotRenderingInfo;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -79,6 +99,7 @@ import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData;
 import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData.DemoDataset;
 import org.aavso.tools.vstar.external.lib.OCAnalysisDemoData.DemoScenario;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib;
+import org.aavso.tools.vstar.external.lib.OCAnalysisLib.EditableTimingsModel;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.EventType;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.ImportedTiming;
 import org.aavso.tools.vstar.external.lib.OCAnalysisLib.ImportFileMetadata;
@@ -118,7 +139,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
-import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
@@ -146,10 +166,14 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
     /**
      * Domain markers currently decorating the raw light curve for O-C timings.
      * Tracked so a re-run or load-new-star can remove them without clearing
-     * unrelated plot decorations.
+     * unrelated plot decorations. O markers are index-aligned with the
+     * editable timings list.
      */
-    private static final List<Marker> ocTimingMarkers = new ArrayList<Marker>();
+    private static final List<ValueMarker> ocOMarkers = new ArrayList<ValueMarker>();
+    private static final List<ValueMarker> ocCMarkers = new ArrayList<ValueMarker>();
     private static boolean newStarClearListenerRegistered = false;
+    /** Active editor dialog (at most one) so new-star can shut down place mode. */
+    private static OCAnalysisResultDialog activeResultDialog;
 
     private static final String EPHEMERIS_PHASE = "Phase plot";
     private static final String EPHEMERIS_PHASE_TOOLTIP =
@@ -165,6 +189,12 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
     private static final String DATA_OBSERVATIONS = "From observations";
     private static final String DATA_IMPORTED = "Imported timings file";
+    private static final String DATA_EDIT_TIMINGS = "Edit timings on light curve";
+
+    /** Pixel radius for O-marker hit-testing. */
+    private static final int MARKER_HIT_PIXELS = 8;
+    /** Default max |ΔJD| for snap-to-observation (days). */
+    private static final double DEFAULT_SNAP_MAX_DAYS = 0.05;
 
     private File lastImportFile;
 
@@ -174,7 +204,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         IModel selectedModel = currentModel();
 
         List<String> dataSources = Arrays.asList(DATA_OBSERVATIONS,
-                DATA_IMPORTED);
+                DATA_IMPORTED, DATA_EDIT_TIMINGS);
         SelectableTextField dataSourceField = new SelectableTextField(
                 "Data source", dataSources, DATA_OBSERVATIONS);
 
@@ -277,6 +307,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         boolean fromImportedTimings = DATA_IMPORTED
                 .equals(dataSourceField.getValue());
+        boolean editTimingsOnly = DATA_EDIT_TIMINGS
+                .equals(dataSourceField.getValue());
 
         List<String> importLines = null;
         if (fromImportedTimings) {
@@ -299,7 +331,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         Integer minObs;
         Integer kvwNfold;
 
-        if (fromImportedTimings) {
+        if (fromImportedTimings || editTimingsOnly) {
             period = periodField.getValue();
             epoch = epochField.getValue();
             eventType = eventTypeFromLabel(eventField.getValue());
@@ -307,7 +339,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             meanPercent = 10;
             minObs = 1;
             kvwNfold = 5;
-            if (importLines != null) {
+            if (fromImportedTimings && importLines != null) {
                 ImportFileMetadata meta = OCAnalysisLib
                         .parseImportFileMetadata(importLines);
                 if (meta.period != null && meta.period > 0) {
@@ -332,7 +364,6 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 kvwNfold = 5;
             }
             if (kvwNfold != 3 && kvwNfold != 5 && kvwNfold != 7) {
-                // Snap to recommended default if the integer field is off.
                 kvwNfold = 5;
             }
         }
@@ -347,25 +378,38 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             return;
         }
 
-        if (eventType == null || meanPercent == null
-                || (!fromImportedTimings && (timingMethod == null
-                        || minObs == null))) {
+        if (eventType == null) {
+            MessageBox.showErrorDialog(getDisplayName(),
+                    "One or more parameters are invalid.");
+            return;
+        }
+        if (!fromImportedTimings && !editTimingsOnly
+                && (timingMethod == null || meanPercent == null
+                        || minObs == null)) {
             MessageBox.showErrorDialog(getDisplayName(),
                     "One or more parameters are invalid.");
             return;
         }
 
         String resultLabel;
-        List<ValidObservation> obs = null;
+        List<ValidObservation> obsForSnap = Collections.emptyList();
         SeriesType selectedSeries = null;
         if (fromImportedTimings) {
             resultLabel = resolveStarLabel();
+            // Snaps work if user later loads data; no series prompt on import.
+        } else if (editTimingsOnly) {
+            resultLabel = resolveStarLabel() + " (edit timings)";
+            List<ValidObservation> picked = tryPickSeriesForSnap();
+            if (picked != null && !picked.isEmpty()) {
+                obsForSnap = picked;
+                resultLabel = resolveStarLabel();
+            }
         } else {
             ISeriesInfoProvider seriesInfo = currentSeriesInfo();
             if (seriesInfo == null) {
                 MessageBox.showErrorDialog(getDisplayName(),
-                        "No observations are loaded. Choose imported timings "
-                                + "or load a light curve first.");
+                        "No observations are loaded. Choose imported timings, "
+                                + "edit timings, or load a light curve first.");
                 return;
             }
             ObservationAndMeanPlotModel plotModel = Mediator.getInstance()
@@ -377,8 +421,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             }
             SeriesType series = seriesDlg.getSeries();
             selectedSeries = series;
-            obs = seriesInfo.getObservations(series);
-            if (obs == null || obs.isEmpty()) {
+            obsForSnap = seriesInfo.getObservations(series);
+            if (obsForSnap == null || obsForSnap.isEmpty()) {
                 MessageBox.showErrorDialog(getDisplayName(),
                         "The selected series has no observations.");
                 return;
@@ -389,12 +433,16 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         Result result;
         Parameters params;
         try {
-            if (fromImportedTimings) {
+            if (editTimingsOnly) {
+                params = new Parameters(period, epoch, eventType,
+                        TimingMethod.PARABOLIC, 10, 1, null, 5);
+                result = OCAnalysisLib.analyzeImported(
+                        Collections.<ImportedTiming>emptyList(), params);
+            } else if (fromImportedTimings) {
                 List<ImportedTiming> timings = OCAnalysisLib
                         .parseImportedTimings(importLines, epoch, period);
-                IModel model = null;
                 params = new Parameters(period, epoch, eventType,
-                        TimingMethod.PARABOLIC, meanPercent, 1, model, 5);
+                        TimingMethod.PARABOLIC, meanPercent, 1, null, 5);
                 result = OCAnalysisLib.analyzeImported(timings, params);
                 if (lastImportFile != null) {
                     resultLabel = resultLabel + " (" + lastImportFile.getName()
@@ -405,7 +453,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                         ? selectedModel : null;
                 params = new Parameters(period, epoch, eventType, timingMethod,
                         meanPercent, minObs, model, kvwNfold);
-                result = OCAnalysisLib.analyze(obs, params);
+                result = OCAnalysisLib.analyze(obsForSnap, params);
             }
         } catch (IllegalArgumentException ex) {
             MessageBox.showErrorDialog(getDisplayName(), ex.getMessage());
@@ -415,7 +463,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             return;
         }
 
-        if (result.points.isEmpty()) {
+        if (result.points.isEmpty() && !editTimingsOnly) {
             String message;
             if (fromImportedTimings) {
                 message = "No O-C points could be computed from the imported "
@@ -425,29 +473,56 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                         + OCAnalysisLib.KVW_MIN_POINTS
                         + " in-eclipse points per cycle, a sensible "
                         + "period/epoch, and Event = Minimum for eclipsing "
-                        + "binaries. Check the light-curve vertical markers "
-                        + "from the previous successful run, or try Parabolic.";
+                        + "binaries. Place timings manually via "
+                        + DATA_EDIT_TIMINGS + " or try Parabolic.";
             } else {
                 message = "No O-C points could be computed. Try lowering the minimum "
-                        + "observations per cycle, then check the ephemeris.";
+                        + "observations per cycle, check the ephemeris, or use "
+                        + DATA_EDIT_TIMINGS + ".";
             }
             MessageBox.showErrorDialog(getDisplayName(), message);
             return;
         }
 
+        EditableTimingsModel timingsModel = EditableTimingsModel
+                .fromResult(result);
         LinearFit linearFit = OCAnalysisLib.fitLinear(result.points);
         QuadraticFit quadraticFit = OCAnalysisLib.fitQuadratic(result.points);
 
-        boolean markersShown = false;
-        if (!fromImportedTimings) {
-            markersShown = publishTimingDomainMarkers(result);
-        }
+        boolean markersShown = publishTimingDomainMarkers(result);
 
         Color seriesColor = selectedSeries != null
                 ? SeriesType.getColorFromSeries(selectedSeries)
                 : Color.BLUE;
-        new OCAnalysisResultDialog(resultLabel, result, linearFit,
-                quadraticFit, seriesColor, markersShown);
+        new OCAnalysisResultDialog(resultLabel, result, timingsModel, linearFit,
+                quadraticFit, seriesColor, markersShown, obsForSnap,
+                editTimingsOnly);
+    }
+
+    /**
+     * Optional series for snap-to-observation. Empty if cancel or no data.
+     */
+    private static List<ValidObservation> tryPickSeriesForSnap() {
+        ISeriesInfoProvider seriesInfo = currentSeriesInfo();
+        if (seriesInfo == null) {
+            return Collections.emptyList();
+        }
+        ObservationAndMeanPlotModel plotModel = Mediator.getInstance()
+                .getObservationPlotModel(AnalysisType.RAW_DATA);
+        if (plotModel == null) {
+            return Collections.emptyList();
+        }
+        SingleSeriesSelectionDialog seriesDlg = new SingleSeriesSelectionDialog(
+                plotModel);
+        if (seriesDlg.isCancelled()) {
+            return Collections.emptyList();
+        }
+        List<ValidObservation> obs = seriesInfo
+                .getObservations(seriesDlg.getSeries());
+        if (obs == null) {
+            return Collections.emptyList();
+        }
+        return obs;
     }
 
     /**
@@ -458,8 +533,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
      */
     private static boolean publishTimingDomainMarkers(Result result) {
         ensureOcTimingNewStarClearListener();
-        ObservationAndMeanPlotPane pane = Mediator.getInstance()
-                .getPlotPane(AnalysisType.RAW_DATA);
+        ObservationAndMeanPlotPane pane = rawPlotPane();
         if (pane == null || pane.getChartPanel() == null
                 || pane.getChartPanel().getChart() == null) {
             return false;
@@ -469,20 +543,26 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
         Color oColor = new Color(255, 100, 0, 200);
         Color cColor = new Color(80, 80, 180, 140);
+        Color oSelected = new Color(255, 0, 0, 230);
         BasicStroke oStroke = new BasicStroke(1.4f);
+        BasicStroke oSelectedStroke = new BasicStroke(2.2f);
         BasicStroke cStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT,
                 BasicStroke.JOIN_MITER, 10f, new float[] { 4f, 4f }, 0f);
         boolean labelCycles = result.points.size() <= 30;
+        int selected = activeResultDialog != null
+                ? activeResultDialog.getSelectedTimingIndex() : -1;
 
-        for (Point p : result.points) {
+        for (int i = 0; i < result.points.size(); i++) {
+            Point p = result.points.get(i);
             ValueMarker oMark = new ValueMarker(p.observedTime);
-            oMark.setPaint(oColor);
-            oMark.setStroke(oStroke);
+            boolean isSel = i == selected;
+            oMark.setPaint(isSel ? oSelected : oColor);
+            oMark.setStroke(isSel ? oSelectedStroke : oStroke);
             if (labelCycles) {
                 oMark.setLabel("O" + p.cycle);
             }
             plot.addDomainMarker(oMark, Layer.FOREGROUND);
-            ocTimingMarkers.add(oMark);
+            ocOMarkers.add(oMark);
 
             ValueMarker cMark = new ValueMarker(p.computedTime);
             cMark.setPaint(cColor);
@@ -491,32 +571,42 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 cMark.setLabel("C" + p.cycle);
             }
             plot.addDomainMarker(cMark, Layer.BACKGROUND);
-            ocTimingMarkers.add(cMark);
+            ocCMarkers.add(cMark);
         }
         return !result.points.isEmpty();
     }
 
+    private static ObservationAndMeanPlotPane rawPlotPane() {
+        return Mediator.getInstance().getPlotPane(AnalysisType.RAW_DATA);
+    }
+
+    private static ChartPanel rawChartPanel() {
+        ObservationAndMeanPlotPane pane = rawPlotPane();
+        return pane != null ? pane.getChartPanel() : null;
+    }
+
     private static void clearOcTimingMarkers(XYPlot plot) {
-        if (plot == null) {
-            ocTimingMarkers.clear();
-            return;
+        if (plot != null) {
+            for (ValueMarker m : ocOMarkers) {
+                plot.removeDomainMarker(m, Layer.FOREGROUND);
+            }
+            for (ValueMarker m : ocCMarkers) {
+                plot.removeDomainMarker(m, Layer.BACKGROUND);
+            }
         }
-        for (Marker m : ocTimingMarkers) {
-            plot.removeDomainMarker(m, Layer.FOREGROUND);
-            plot.removeDomainMarker(m, Layer.BACKGROUND);
-        }
-        ocTimingMarkers.clear();
+        ocOMarkers.clear();
+        ocCMarkers.clear();
     }
 
     private static void clearOcTimingMarkersFromRawPlot() {
-        ObservationAndMeanPlotPane pane = Mediator.getInstance()
-                .getPlotPane(AnalysisType.RAW_DATA);
+        ObservationAndMeanPlotPane pane = rawPlotPane();
         if (pane != null && pane.getChartPanel() != null
                 && pane.getChartPanel().getChart() != null) {
             clearOcTimingMarkers(
                     pane.getChartPanel().getChart().getXYPlot());
         } else {
-            ocTimingMarkers.clear();
+            ocOMarkers.clear();
+            ocCMarkers.clear();
         }
     }
 
@@ -529,6 +619,9 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 .addListener(new Listener<NewStarMessage>() {
                     @Override
                     public void update(NewStarMessage info) {
+                        if (activeResultDialog != null) {
+                            activeResultDialog.onNewStar();
+                        }
                         clearOcTimingMarkersFromRawPlot();
                     }
 
@@ -539,6 +632,75 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 });
     }
 
+    /**
+     * Convert a ChartPanel screen location to domain (JD) value, or null.
+     */
+    static Double domainValueAtScreenX(ChartPanel chartPanel, int screenX,
+            int screenY) {
+        if (chartPanel == null || chartPanel.getChart() == null) {
+            return null;
+        }
+        XYPlot plot = chartPanel.getChart().getXYPlot();
+        PlotRenderingInfo plotInfo = chartPanel.getChartRenderingInfo()
+                .getPlotInfo();
+        if (plotInfo == null) {
+            return null;
+        }
+        Rectangle2D dataArea = plotInfo.getDataArea();
+        if (dataArea == null) {
+            return null;
+        }
+        Point2D p = chartPanel.translateScreenToJava2D(
+                new java.awt.Point(screenX, screenY));
+        if (!dataArea.contains(p)) {
+            // Still resolve domain from x if inside horizontal span of area.
+            if (p.getX() < dataArea.getMinX() || p.getX() > dataArea.getMaxX()) {
+                return null;
+            }
+        }
+        ValueAxis domainAxis = plot.getDomainAxis();
+        return domainAxis.java2DToValue(p.getX(), dataArea,
+                plot.getDomainAxisEdge());
+    }
+
+    /**
+     * Pixel distance of screen x to a domain marker value.
+     */
+    static double pixelDistanceToDomainValue(ChartPanel chartPanel,
+            double domainValue, int screenX, int screenY) {
+        if (chartPanel == null || chartPanel.getChart() == null) {
+            return Double.MAX_VALUE;
+        }
+        XYPlot plot = chartPanel.getChart().getXYPlot();
+        PlotRenderingInfo plotInfo = chartPanel.getChartRenderingInfo()
+                .getPlotInfo();
+        if (plotInfo == null) {
+            return Double.MAX_VALUE;
+        }
+        Rectangle2D dataArea = plotInfo.getDataArea();
+        ValueAxis domainAxis = plot.getDomainAxis();
+        double java2DX = domainAxis.valueToJava2D(domainValue, dataArea,
+                plot.getDomainAxisEdge());
+        Point2D screenOfMarker = chartPanel.translateJava2DToScreen(
+                new Point2D.Double(java2DX, dataArea.getCenterY()));
+        return Math.abs(screenOfMarker.getX() - screenX);
+    }
+
+    static int hitTestOMarkerIndex(ChartPanel chartPanel, int screenX,
+            int screenY) {
+        int best = -1;
+        double bestDist = MARKER_HIT_PIXELS + 0.5;
+        for (int i = 0; i < ocOMarkers.size(); i++) {
+            double d = pixelDistanceToDomainValue(chartPanel,
+                    ocOMarkers.get(i).getValue(), screenX, screenY);
+            if (d <= MARKER_HIT_PIXELS && d < bestDist) {
+                bestDist = d;
+                best = i;
+            }
+        }
+        return best;
+    }
+
     private static void applyDataSourceFields(String dataSource,
             SelectableTextField ephemerisSourceField,
             SelectableTextField timingField, IntegerField meanPercentField,
@@ -547,15 +709,16 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             SelectableTextField eventField) {
         boolean fromObs = DATA_OBSERVATIONS.equals(dataSource);
         boolean fromImport = DATA_IMPORTED.equals(dataSource);
+        boolean editTimings = DATA_EDIT_TIMINGS.equals(dataSource);
 
-        setFieldEnabled(ephemerisSourceField, fromObs);
+        setFieldEnabled(ephemerisSourceField, fromObs || editTimings);
         setFieldEnabled(timingField, fromObs);
         applyTimingMethodFields(dataSource, timingField, meanPercentField,
                 kvwNfoldField);
         setFieldEnabled(minObsField, fromObs);
-        setFieldEnabled(eventField, fromObs || fromImport);
-        setFieldEnabled(periodField, fromObs || fromImport);
-        setFieldEnabled(epochField, fromObs || fromImport);
+        setFieldEnabled(eventField, fromObs || fromImport || editTimings);
+        setFieldEnabled(periodField, fromObs || fromImport || editTimings);
+        setFieldEnabled(epochField, fromObs || fromImport || editTimings);
     }
 
     private static void applyTimingMethodFields(String dataSource,
@@ -692,8 +855,13 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         @Override
         protected void okAction() {
             boolean imported = DATA_IMPORTED.equals(dataSourceField.getValue());
+            boolean editTimings = DATA_EDIT_TIMINGS
+                    .equals(dataSourceField.getValue());
             for (ITextComponent<?> field : fields) {
                 if (imported && isOptionalForImportFile(field.getName())) {
+                    continue;
+                }
+                if (editTimings && isDisabledForEditTimings(field.getName())) {
                     continue;
                 }
                 if (field.getValue() == null || !field.canBeEmpty()
@@ -727,6 +895,13 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             return "Period (days)".equals(fieldName)
                     || "Epoch".equals(fieldName)
                     || "Event".equals(fieldName);
+        }
+
+        private static boolean isDisabledForEditTimings(String fieldName) {
+            return "Timing method".equals(fieldName)
+                    || "Extreme N% (mean timing method)".equals(fieldName)
+                    || "KvW folds (3, 5, or 7)".equals(fieldName)
+                    || "Minimum observations per cycle".equals(fieldName);
         }
     }
 
@@ -1011,12 +1186,16 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             }
         }
 
-        private final Result result;
-        private final LinearFit linearFit;
+        private Result result;
+        private LinearFit linearFit;
         private TwoSegmentFit twoSegmentFit;
-        private final QuadraticFit quadraticFit;
+        private QuadraticFit quadraticFit;
+        private final EditableTimingsModel timingsModel;
         private final Color seriesColor;
-        private final boolean timingMarkersShown;
+        private boolean timingMarkersShown;
+        private final List<ValidObservation> obsForSnap;
+        private final boolean startInPlaceMode;
+
         private final YIntervalSeries ocSeries = new YIntervalSeries("O-C");
         private final YIntervalRenderer ocRenderer;
         private final XYLineAndShapeRenderer fitRenderer = createFitRenderer();
@@ -1030,50 +1209,120 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         private final JLabel dialogSummaryLabel;
         private final JTextField breakCycleField;
         private final JButton applyTwoSegmentButton;
+        private final JCheckBox placeModeCheck;
+        private final JCheckBox snapCheck;
+        private final JTable dataTable;
+        private final OCTableModel tableModel;
+        private int selectedTimingIndex = -1;
+
+        private MouseAdapter plotMouseAdapter;
+        private boolean placeModeActive = false;
+        private boolean panZoomSaved = false;
+        private boolean savedDomainZoomable;
+        private boolean savedRangeZoomable;
+        private boolean savedDomainPannable;
+        private boolean savedRangePannable;
+        private int dragIndex = -1;
+        private boolean didDrag = false;
+        private boolean rebuilding = false;
 
         OCAnalysisResultDialog(String seriesName, Result result,
-                LinearFit linearFit, QuadraticFit quadraticFit,
-                Color seriesColor, boolean timingMarkersShown) {
-            super(org.aavso.tools.vstar.ui.mediator.DocumentManager
-                    .findActiveWindow(), "O-C: " + seriesName,
+                EditableTimingsModel timingsModel, LinearFit linearFit,
+                QuadraticFit quadraticFit, Color seriesColor,
+                boolean timingMarkersShown, List<ValidObservation> obsForSnap,
+                boolean startInPlaceMode) {
+            super(DocumentManager.findActiveWindow(), "O-C: " + seriesName,
                     ModalityType.MODELESS);
             this.result = result;
+            this.timingsModel = timingsModel;
             this.linearFit = linearFit;
             this.twoSegmentFit = null;
             this.quadraticFit = quadraticFit;
             this.seriesColor = seriesColor;
             this.timingMarkersShown = timingMarkersShown;
+            this.obsForSnap = obsForSnap != null ? obsForSnap
+                    : Collections.<ValidObservation>emptyList();
+            this.startInPlaceMode = startInPlaceMode;
             this.ocRenderer = createOcRenderer(seriesColor);
+            this.tableModel = new OCTableModel();
+            this.dataTable = new JTable(tableModel);
+            dataTable.setColumnSelectionAllowed(false);
+            dataTable.setRowSelectionAllowed(true);
+            dataTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            dataTable.getSelectionModel()
+                    .addListSelectionListener(new ListSelectionListener() {
+                        @Override
+                        public void valueChanged(ListSelectionEvent e) {
+                            if (e.getValueIsAdjusting() || rebuilding) {
+                                return;
+                            }
+                            selectedTimingIndex = dataTable.getSelectedRow();
+                            publishTimingDomainMarkers(OCAnalysisResultDialog.this.result);
+                        }
+                    });
+            tableModel.addTableModelListener(new TableModelListener() {
+                @Override
+                public void tableChanged(TableModelEvent e) {
+                    // no-op; edits handled in setValueAt
+                }
+            });
+
             breakCycleField = new JTextField(4);
             tightenFieldHeight(breakCycleField);
             breakCycleField.setToolTipText(
                     "Cycle number where the O-C trend appears to change "
                             + "(" + OCAnalysisLib.VSA_CHAPTER13_CITE + ").");
-            int minCycle = minCycle(result.points);
-            int maxCycle = maxCycle(result.points);
             applyTwoSegmentButton = new JButton("Apply");
-            applyTwoSegmentButton.setToolTipText(String.format(
-                    "Fit separate lines before and after the break cycle. "
-                            + "Cycles %d–%d; need ≥2 points each side of break.",
-                    minCycle, maxCycle));
             applyTwoSegmentButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     applyTwoSegmentFit();
                 }
             });
+            updateBreakCycleTooltip();
+
+            placeModeCheck = new JCheckBox("Place O on light curve");
+            placeModeCheck.setToolTipText(
+                    "When checked, click the raw light curve to place a free "
+                            + "JD timing. Drag an O marker to move it. "
+                            + "Pan/zoom drag is disabled while this is on.");
+            placeModeCheck.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    setPlaceMode(placeModeCheck.isSelected());
+                }
+            });
+            snapCheck = new JCheckBox("Snap to nearest observation");
+            snapCheck.setSelected(!this.obsForSnap.isEmpty());
+            snapCheck.setEnabled(!this.obsForSnap.isEmpty());
+            snapCheck.setToolTipText(
+                    "When placing or dragging, snap O to a nearby observation "
+                            + "JD (within about " + DEFAULT_SNAP_MAX_DAYS
+                            + " d).");
 
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
             ActionListener dismissListener = new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    setVisible(false);
-                    dispose();
+                    disposeEditor();
                 }
             };
             getRootPane().registerKeyboardAction(dismissListener,
                     KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                    JComponent.WHEN_IN_FOCUSED_WINDOW);
+            getRootPane().registerKeyboardAction(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    removeSelectedTiming();
+                }
+            }, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0),
+                    JComponent.WHEN_IN_FOCUSED_WINDOW);
+            getRootPane().registerKeyboardAction(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    removeSelectedTiming();
+                }
+            }, KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0),
                     JComponent.WHEN_IN_FOCUSED_WINDOW);
 
             cycleAxisButton = new JRadioButton(XAxisMode.CYCLE.label, true);
@@ -1081,7 +1330,6 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             ButtonGroup axisGroup = new ButtonGroup();
             axisGroup.add(cycleAxisButton);
             axisGroup.add(timeAxisButton);
-
             ItemListener axisListener = new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
@@ -1134,7 +1382,6 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             restoreChartRendererStyles(plot);
             chartPanel = new ChartPanel(chart);
             chartPanel.setPreferredSize(new Dimension(640, 360));
-
             refreshChart();
 
             JTabbedPane tabs = new JTabbedPane();
@@ -1146,14 +1393,304 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             JPanel topPane = new JPanel();
             topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
             topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            topPane.add(createEditTimingsPane());
             topPane.add(tabs);
             topPane.add(createSummaryPane());
             topPane.add(createButtonPane(dismissListener));
             contentPane.add(topPane);
 
+            addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    cleanupPlotInteraction();
+                    if (activeResultDialog == OCAnalysisResultDialog.this) {
+                        activeResultDialog = null;
+                    }
+                }
+            });
+
+            if (activeResultDialog != null
+                    && activeResultDialog != this) {
+                activeResultDialog.disposeEditor();
+            }
+            activeResultDialog = this;
+            installPlotMouseHandlers();
+            if (startInPlaceMode) {
+                placeModeCheck.setSelected(true);
+            }
+
             pack();
             setLocationRelativeTo(Mediator.getUI().getContentPane());
             setVisible(true);
+        }
+
+        int getSelectedTimingIndex() {
+            return selectedTimingIndex;
+        }
+
+        void onNewStar() {
+            setPlaceMode(false);
+            placeModeCheck.setSelected(false);
+            cleanupPlotInteraction();
+        }
+
+        private void disposeEditor() {
+            setPlaceMode(false);
+            cleanupPlotInteraction();
+            setVisible(false);
+            dispose();
+        }
+
+        private JPanel createEditTimingsPane() {
+            JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+            panel.setBorder(BorderFactory.createTitledBorder("Edit timings"));
+            panel.add(placeModeCheck);
+            panel.add(snapCheck);
+            JButton removeButton = new JButton("Remove selected");
+            removeButton.setToolTipText(
+                    "Remove the selected row / O marker (Delete key).");
+            removeButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    removeSelectedTiming();
+                }
+            });
+            panel.add(removeButton);
+            JButton clearButton = new JButton("Clear all");
+            clearButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (timingsModel.isEmpty()) {
+                        return;
+                    }
+                    int ok = JOptionPane.showConfirmDialog(
+                            OCAnalysisResultDialog.this,
+                            "Remove all observed timings?", "O-C",
+                            JOptionPane.OK_CANCEL_OPTION);
+                    if (ok == JOptionPane.OK_OPTION) {
+                        timingsModel.clear();
+                        selectedTimingIndex = -1;
+                        rebuildFromModel();
+                    }
+                }
+            });
+            panel.add(clearButton);
+            return panel;
+        }
+
+        private void installPlotMouseHandlers() {
+            ChartPanel panel = rawChartPanel();
+            if (panel == null) {
+                return;
+            }
+            plotMouseAdapter = new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    if (!SwingUtilities.isLeftMouseButton(e)) {
+                        return;
+                    }
+                    int hit = hitTestOMarkerIndex(panel, e.getX(), e.getY());
+                    if (hit >= 0) {
+                        dragIndex = hit;
+                        didDrag = false;
+                        selectedTimingIndex = hit;
+                        if (hit < dataTable.getRowCount()) {
+                            dataTable.setRowSelectionInterval(hit, hit);
+                        }
+                        publishTimingDomainMarkers(result);
+                        e.consume();
+                    } else {
+                        dragIndex = -1;
+                    }
+                }
+
+                @Override
+                public void mouseDragged(MouseEvent e) {
+                    if (dragIndex < 0 || !SwingUtilities.isLeftMouseButton(e)) {
+                        return;
+                    }
+                    Double jd = domainValueAtScreenX(panel, e.getX(), e.getY());
+                    if (jd == null) {
+                        return;
+                    }
+                    jd = maybeSnap(jd);
+                    didDrag = true;
+                    // Live marker move without full rebuild.
+                    if (dragIndex < ocOMarkers.size()) {
+                        ocOMarkers.get(dragIndex).setValue(jd);
+                    }
+                    // C marker moves with recomputed ephemeris cycle.
+                    int cycle = OCAnalysisLib.cycleNumber(jd,
+                            result.parameters.epoch, result.parameters.period);
+                    double c = result.parameters.computedTime(cycle);
+                    if (dragIndex < ocCMarkers.size()) {
+                        ocCMarkers.get(dragIndex).setValue(c);
+                    }
+                    e.consume();
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    if (dragIndex >= 0 && didDrag) {
+                        Double jd = domainValueAtScreenX(panel, e.getX(),
+                                e.getY());
+                        if (jd != null) {
+                            jd = maybeSnap(jd);
+                            String source = snapCheck.isSelected()
+                                    && obsForSnap != null
+                                            ? OCAnalysisLib.TIMING_SOURCE_SNAP
+                                            : OCAnalysisLib.TIMING_SOURCE_MANUAL;
+                            // Prefer snap source only if JD actually matches snap.
+                            if (snapCheck.isSelected()) {
+                                Double snapped = OCAnalysisLib
+                                        .nearestObservationJd(obsForSnap, jd,
+                                                DEFAULT_SNAP_MAX_DAYS);
+                                source = snapped != null
+                                        ? OCAnalysisLib.TIMING_SOURCE_SNAP
+                                        : OCAnalysisLib.TIMING_SOURCE_MANUAL;
+                            }
+                            timingsModel.setObservedTime(dragIndex, jd, source);
+                            selectedTimingIndex = dragIndex;
+                            rebuildFromModel();
+                        }
+                    } else if (placeModeActive && dragIndex < 0
+                            && SwingUtilities.isLeftMouseButton(e)
+                            && !didDrag) {
+                        Double jd = domainValueAtScreenX(panel, e.getX(),
+                                e.getY());
+                        if (jd != null) {
+                            String source = OCAnalysisLib.TIMING_SOURCE_MANUAL;
+                            if (snapCheck.isSelected()) {
+                                Double snapped = OCAnalysisLib
+                                        .nearestObservationJd(obsForSnap, jd,
+                                                DEFAULT_SNAP_MAX_DAYS);
+                                if (snapped != null) {
+                                    jd = snapped;
+                                    source = OCAnalysisLib.TIMING_SOURCE_SNAP;
+                                }
+                            }
+                            timingsModel.add(jd, source);
+                            selectedTimingIndex = timingsModel.size() - 1;
+                            rebuildFromModel();
+                        }
+                    }
+                    dragIndex = -1;
+                    didDrag = false;
+                }
+            };
+            panel.addMouseListener(plotMouseAdapter);
+            panel.addMouseMotionListener(plotMouseAdapter);
+        }
+
+        private Double maybeSnap(double jd) {
+            if (!snapCheck.isSelected() || obsForSnap == null
+                    || obsForSnap.isEmpty()) {
+                return jd;
+            }
+            Double snapped = OCAnalysisLib.nearestObservationJd(obsForSnap, jd,
+                    DEFAULT_SNAP_MAX_DAYS);
+            return snapped != null ? snapped : jd;
+        }
+
+        private void setPlaceMode(boolean on) {
+            placeModeActive = on;
+            ChartPanel panel = rawChartPanel();
+            ObservationAndMeanPlotPane pane = rawPlotPane();
+            if (panel == null || pane == null) {
+                return;
+            }
+            XYPlot plot = panel.getChart().getXYPlot();
+            if (on) {
+                if (!panZoomSaved) {
+                    savedDomainZoomable = panel.isDomainZoomable();
+                    savedRangeZoomable = panel.isRangeZoomable();
+                    savedDomainPannable = plot.isDomainPannable();
+                    savedRangePannable = plot.isRangePannable();
+                    panZoomSaved = true;
+                }
+                panel.setDomainZoomable(false);
+                panel.setRangeZoomable(false);
+                plot.setDomainPannable(false);
+                plot.setRangePannable(false);
+            } else {
+                restorePanZoom();
+            }
+        }
+
+        private void restorePanZoom() {
+            ChartPanel panel = rawChartPanel();
+            if (panel == null || !panZoomSaved) {
+                return;
+            }
+            XYPlot plot = panel.getChart().getXYPlot();
+            panel.setDomainZoomable(savedDomainZoomable);
+            panel.setRangeZoomable(savedRangeZoomable);
+            plot.setDomainPannable(savedDomainPannable);
+            plot.setRangePannable(savedRangePannable);
+            panZoomSaved = false;
+        }
+
+        private void cleanupPlotInteraction() {
+            setPlaceMode(false);
+            ChartPanel panel = rawChartPanel();
+            if (panel != null && plotMouseAdapter != null) {
+                panel.removeMouseListener(plotMouseAdapter);
+                panel.removeMouseMotionListener(plotMouseAdapter);
+            }
+            plotMouseAdapter = null;
+            restorePanZoom();
+        }
+
+        private void removeSelectedTiming() {
+            int row = dataTable.getSelectedRow();
+            if (row < 0) {
+                row = selectedTimingIndex;
+            }
+            if (row < 0 || row >= timingsModel.size()) {
+                return;
+            }
+            timingsModel.remove(row);
+            selectedTimingIndex = -1;
+            rebuildFromModel();
+        }
+
+        private void rebuildFromModel() {
+            rebuilding = true;
+            try {
+                result = timingsModel.toResult(result.parameters);
+                linearFit = OCAnalysisLib.fitLinear(result.points);
+                quadraticFit = OCAnalysisLib.fitQuadratic(result.points);
+                twoSegmentFit = null;
+                timingMarkersShown = publishTimingDomainMarkers(result);
+                tableModel.fireTableDataChanged();
+                if (selectedTimingIndex >= 0
+                        && selectedTimingIndex < tableModel.getRowCount()) {
+                    dataTable.setRowSelectionInterval(selectedTimingIndex,
+                            selectedTimingIndex);
+                } else {
+                    dataTable.clearSelection();
+                }
+                updateBreakCycleTooltip();
+                updateFitControls();
+                refreshFitSummary();
+                refreshChart();
+            } finally {
+                rebuilding = false;
+            }
+        }
+
+        private void updateBreakCycleTooltip() {
+            if (result.points.isEmpty()) {
+                applyTwoSegmentButton.setToolTipText(
+                        "Need ≥4 O-C points for a two-segment fit.");
+                return;
+            }
+            int minCycle = minCycle(result.points);
+            int maxCycle = maxCycle(result.points);
+            applyTwoSegmentButton.setToolTipText(String.format(
+                    "Fit separate lines before and after the break cycle. "
+                            + "Cycles %d–%d; need ≥2 points each side of break.",
+                    minCycle, maxCycle));
         }
 
         private JPanel createChartPane() {
@@ -1213,10 +1750,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         }
 
         private JScrollPane createTablePane() {
-            JTable table = new JTable(new OCTableModel(result.points));
-            table.setColumnSelectionAllowed(false);
-            table.setRowSelectionAllowed(true);
-            JScrollPane pane = new JScrollPane(table);
+            JScrollPane pane = new JScrollPane(dataTable);
             pane.setPreferredSize(new Dimension(640, 240));
             return pane;
         }
@@ -1311,7 +1845,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                     min = p.cycle;
                 }
             }
-            return min;
+            return min == Integer.MAX_VALUE ? 0 : min;
         }
 
         private static int maxCycle(List<Point> points) {
@@ -1321,17 +1855,24 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                     max = p.cycle;
                 }
             }
-            return max;
+            return max == Integer.MIN_VALUE ? 0 : max;
         }
 
         private String buildFitSummaryHtml() {
             StringBuilder buf = new StringBuilder();
             appendHtmlBodyStart(buf);
             appendHtmlSection(buf, "Interpretation");
-            appendHtmlParagraph(buf, OCAnalysisLib.interpretOcDiagram(linearFit,
-                    quadraticFit, twoSegmentFit, result.points,
-                    toLibFitMode(selectedFitDisplayMode()),
-                    result.parameters.period));
+            if (result.points.isEmpty()) {
+                appendHtmlParagraph(buf,
+                        "No O-C points yet. Enable Place O on light curve and "
+                                + "click free JD (optional snap), or enter "
+                                + "times in the Data table.");
+            } else {
+                appendHtmlParagraph(buf, OCAnalysisLib.interpretOcDiagram(
+                        linearFit, quadraticFit, twoSegmentFit, result.points,
+                        toLibFitMode(selectedFitDisplayMode()),
+                        result.parameters.period));
+            }
             if (linearFit != null) {
                 appendHtmlSection(buf, "Linear fit (O-C vs cycle)");
                 appendLinearFitDetails(buf, linearFit, result.parameters.period);
@@ -1347,19 +1888,6 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 appendHtmlSubsection(buf, "Second segment");
                 appendLinearFitDetails(buf, twoSegmentFit.secondSegment,
                         result.parameters.period);
-                if (Math.abs(twoSegmentFit.firstSegment.slope
-                        - twoSegmentFit.secondSegment.slope) > 0) {
-                    appendHtmlParagraph(buf,
-                            "Different slopes suggest a period change near "
-                                    + "cycle " + twoSegmentFit.breakCycle
-                                    + " (" + OCAnalysisLib.VSA_CHAPTER13_CITE
-                                    + ").");
-                } else {
-                    appendHtmlParagraph(buf,
-                            "Parallel segments suggest an epoch jump with "
-                                    + "unchanged period ("
-                                    + OCAnalysisLib.VSA_CHAPTER13_CITE + ").");
-                }
             }
             if (quadraticFit != null) {
                 appendHtmlSection(buf, "Quadratic fit (O-C vs cycle)");
@@ -1409,10 +1937,6 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                     .append(escapeHtml(linkText)).append("</a></p>");
         }
 
-        /**
-         * Escape text for HTML, then turn known/absolute http(s) URLs into
-         * anchors so the Fit summary pane can open them.
-         */
         private static String htmlWithLinks(String text) {
             String escaped = escapeHtml(text);
             String url = OCAnalysisLib.VSA_CHAPTER13_PDF_URL;
@@ -1427,47 +1951,36 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         private static void appendHtmlDetail(StringBuilder buf, String label,
                 String value) {
             buf.append("<p style='margin-top:1px;margin-bottom:1px;"
-                    + "margin-left:24px'>")
-                    .append("<b>").append(escapeHtml(label)).append(":</b> ")
+                    + "margin-left:24px'><span style='color:#444'>")
+                    .append(escapeHtml(label)).append(":</span> ")
                     .append(escapeHtml(value)).append("</p>");
         }
 
         private static void appendLinearFitDetails(StringBuilder buf,
-                LinearFit fit, double modelPeriod) {
-            String slope = formatDays(fit.slope);
-            if (Math.abs(fit.slope) > 0) {
-                appendHtmlDetail(buf, "Slope", slope + " d/cycle");
-                appendHtmlDetail(buf, "Corrected period",
-                        formatDays(modelPeriod + fit.slope) + " d (ΔP ≈ "
-                                + slope + " d)");
-            } else {
-                appendHtmlDetail(buf, "Slope",
-                        slope + " d/cycle (period matches the ephemeris)");
-            }
-            appendHtmlDetail(buf, "Intercept / epoch correction",
-                    formatDays(fit.intercept) + " d");
+                LinearFit fit, double period) {
+            appendHtmlDetail(buf, "Points", String.valueOf(fit.pointCount));
+            appendHtmlDetail(buf, "Intercept", formatDays(fit.intercept) + " d");
+            appendHtmlDetail(buf, "Slope", formatDays(fit.slope) + " d/cycle");
             appendHtmlDetail(buf, "RMS", formatDays(fit.rms) + " d");
+            appendHtmlDetail(buf, "Period correction (≈ slope)",
+                    formatDays(fit.slope) + " d  (model P = "
+                            + formatDays(period) + " d)");
         }
 
         private static void appendQuadraticFitDetails(StringBuilder buf,
                 QuadraticFit fit) {
-            double deltaPPerCycle = 2.0 * fit.quadratic;
-            appendHtmlDetail(buf, "Epoch correction",
-                    formatDays(fit.constant) + " d");
-            appendHtmlDetail(buf, "Linear coefficient",
-                    formatDays(fit.linear) + " d/cycle");
-            appendHtmlDetail(buf, "Starting period correction",
-                    formatDays(fit.linear - fit.quadratic) + " d");
-            appendHtmlDetail(buf, "Quadratic coefficient",
+            appendHtmlDetail(buf, "Points", String.valueOf(fit.pointCount));
+            appendHtmlDetail(buf, "Constant", formatDays(fit.constant) + " d");
+            appendHtmlDetail(buf, "Linear", formatDays(fit.linear) + " d/cycle");
+            appendHtmlDetail(buf, "Quadratic",
                     formatDays(fit.quadratic) + " d/cycle²");
-            appendHtmlDetail(buf, "ΔP per cycle",
-                    formatDays(deltaPPerCycle) + " d (evolving period, "
-                            + OCAnalysisLib.VSA_CHAPTER13_CITE + ")");
+            appendHtmlDetail(buf, "ΔP/cycle (≈ 2·quad)",
+                    formatDays(2.0 * fit.quadratic) + " d");
             appendHtmlDetail(buf, "RMS", formatDays(fit.rms) + " d");
         }
 
-        private static String formatDays(double days) {
-            return NumericPrecisionPrefs.formatOther(days);
+        private static String formatDays(double value) {
+            return NumericPrecisionPrefs.formatOther(value);
         }
 
         private static String escapeHtml(String text) {
@@ -1475,7 +1988,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 return "";
             }
             return text.replace("&", "&amp;").replace("<", "&lt;")
-                    .replace(">", "&gt;");
+                    .replace(">", "&gt;").replace("\"", "&quot;");
         }
 
         private String buildSummaryHtml() {
@@ -1489,7 +2002,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                             + NumericPrecisionPrefs.formatTime(
                                     result.parameters.epoch));
             appendSummaryRow(buf, "Data",
-                    result.points.size() + " O-C points");
+                    result.points.size() + " O-C points (editable)");
             FitDisplayMode mode = selectedFitDisplayMode();
             switch (mode) {
             case QUADRATIC:
@@ -1529,23 +2042,16 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 break;
             }
             if (result.parameters.timingMethod == TimingMethod.KWEE_VAN_WOERDEN) {
-                appendSummaryRow(buf, "KvW",
+                appendSummaryRow(buf, "KvW (initial)",
                         result.cyclesTimed + " timed, "
                                 + result.cyclesSkipped()
                                 + " skipped (of " + result.cyclesExamined
                                 + " cycles examined)");
-            } else if (result.cyclesExamined > result.cyclesTimed
-                    && result.cyclesExamined > 0) {
-                appendSummaryRow(buf, "Timing",
-                        result.cyclesTimed + " timed, "
-                                + result.cyclesSkipped() + " skipped (of "
-                                + result.cyclesExamined
-                                + " cycles examined)");
             }
-            if (timingMarkersShown) {
+            if (timingMarkersShown || !result.points.isEmpty()) {
                 appendSummaryRow(buf, "Light curve",
-                        "Vertical markers: solid O (observed), dashed C "
-                                + "(ephemeris) — re-run replaces them");
+                        "Vertical O (solid) and C (dashed); place/drag when "
+                                + "Place mode is on");
             }
             buf.append("</table>");
             appendHtmlBodyEnd(buf);
@@ -1710,13 +2216,13 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             if (points.isEmpty()) {
                 return series;
             }
-            int minCycle = minCycle(points);
-            int maxCycle = maxCycle(points);
-            int range = maxCycle - minCycle;
+            int minC = minCycle(points);
+            int maxC = maxCycle(points);
+            int range = maxC - minC;
             int steps = Math.min(Math.max(2, range + 1), 50);
             for (int i = 0; i < steps; i++) {
-                int cycle = range == 0 ? minCycle
-                        : minCycle + (int) Math.round(i * range
+                int cycle = range == 0 ? minC
+                        : minC + (int) Math.round(i * range
                                 / (double) (steps - 1));
                 addQuadraticFitPoint(series, fit, cycle, points, mode);
             }
@@ -1768,10 +2274,10 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             if (points.isEmpty()) {
                 return series;
             }
-            int minCycle = points.get(0).cycle;
-            int maxCycle = points.get(points.size() - 1).cycle;
-            addFitPoint(series, fit, minCycle, points.get(0), mode);
-            addFitPoint(series, fit, maxCycle, points.get(points.size() - 1),
+            int minC = points.get(0).cycle;
+            int maxC = points.get(points.size() - 1).cycle;
+            addFitPoint(series, fit, minC, points.get(0), mode);
+            addFitPoint(series, fit, maxC, points.get(points.size() - 1),
                     mode);
             return series;
         }
@@ -1806,62 +2312,77 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             double y = fit.evaluate(cycle);
             series.add(x, y);
         }
-    }
 
-    private static class OCTableModel extends AbstractTableModel {
+        private class OCTableModel extends AbstractTableModel {
 
-        private static final String[] COLUMNS = { "Cycle", "O (time)",
-                "C (time)", "O-C (days)", "σ(O-C)", "Obs in cycle", "QC" };
+            private final String[] COLUMNS = { "Cycle", "O (time)", "C (time)",
+                    "O-C (days)", "σ(O-C)", "Obs in cycle", "QC" };
 
-        private final List<Point> points;
-
-        OCTableModel(List<Point> points) {
-            this.points = points;
-        }
-
-        @Override
-        public int getColumnCount() {
-            return COLUMNS.length;
-        }
-
-        @Override
-        public int getRowCount() {
-            return points.size();
-        }
-
-        @Override
-        public String getColumnName(int col) {
-            return COLUMNS[col];
-        }
-
-        @Override
-        public Object getValueAt(int row, int col) {
-            Point p = points.get(row);
-            switch (col) {
-            case 0:
-                return p.cycle;
-            case 1:
-                return NumericPrecisionPrefs.formatTime(p.observedTime);
-            case 2:
-                return NumericPrecisionPrefs.formatTime(p.computedTime);
-            case 3:
-                return NumericPrecisionPrefs.formatOther(p.oc);
-            case 4:
-                return Double.isNaN(p.ocUncertainty) || p.ocUncertainty <= 0
-                        ? ""
-                        : NumericPrecisionPrefs.formatOther(p.ocUncertainty);
-            case 5:
-                return p.obsInCycle;
-            case 6:
-                return p.qc != null ? p.qc.summaryText() : "";
-            default:
-                return null;
+            @Override
+            public int getColumnCount() {
+                return COLUMNS.length;
             }
-        }
 
-        @Override
-        public boolean isCellEditable(int row, int col) {
-            return false;
+            @Override
+            public int getRowCount() {
+                return result.points.size();
+            }
+
+            @Override
+            public String getColumnName(int col) {
+                return COLUMNS[col];
+            }
+
+            @Override
+            public Object getValueAt(int row, int col) {
+                if (row < 0 || row >= result.points.size()) {
+                    return null;
+                }
+                Point p = result.points.get(row);
+                switch (col) {
+                case 0:
+                    return p.cycle;
+                case 1:
+                    return NumericPrecisionPrefs.formatTime(p.observedTime);
+                case 2:
+                    return NumericPrecisionPrefs.formatTime(p.computedTime);
+                case 3:
+                    return NumericPrecisionPrefs.formatOther(p.oc);
+                case 4:
+                    return Double.isNaN(p.ocUncertainty) || p.ocUncertainty <= 0
+                            ? ""
+                            : NumericPrecisionPrefs
+                                    .formatOther(p.ocUncertainty);
+                case 5:
+                    return p.obsInCycle;
+                case 6:
+                    return p.qc != null ? p.qc.summaryText() : "";
+                default:
+                    return null;
+                }
+            }
+
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return col == 1;
+            }
+
+            @Override
+            public void setValueAt(Object value, int row, int col) {
+                if (col != 1 || row < 0 || row >= timingsModel.size()) {
+                    return;
+                }
+                try {
+                    double jd = Double.parseDouble(value.toString().trim());
+                    timingsModel.setObservedTime(row, jd,
+                            OCAnalysisLib.TIMING_SOURCE_MANUAL);
+                    selectedTimingIndex = row;
+                    rebuildFromModel();
+                } catch (NumberFormatException ex) {
+                    MessageBox.showErrorDialog("O-C",
+                            "Enter a numeric time (JD) for O.");
+                }
+            }
         }
     }
 }

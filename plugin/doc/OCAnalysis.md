@@ -145,17 +145,55 @@ A smoothly curving O-C from an evolving period (Table 13.2, clock 6). Here
 
    ![Example 3 — Fit summary interpretation](images/oc_ex3_clock6_fit_summary.png)
 
-### Further reading — X Tri, eclipsing binaries, and other real stars
+### Further reading — X Tri, Z Tau, and other real stars
 
-The VSA chapter also discusses real variables (e.g. X Tri, SU Vir, Z Aur) with
-O-C diagrams built from published **times of maxima** over many cycles. Those
-examples need literature ephemerides and timing tables; they are not bundled
-with this plug-in. The **Examples** above use clocks 4–6 from the
-[Chapter 13 PDF](https://www.aavso.org/sites/default/files/education/vsa/Chapter13.pdf);
-use **Appendix A** for all six clocks (demo light curves or imported timings).
-For real stars, obtain timings from the literature or measure extrema from your
-own observations, then run O-C with **From observations** or **Imported
-timings** (see **Appendix C** for an AID export/re-import outline).
+The VSA chapter discusses real variables (e.g. **X Tri**, **Z Tau**, SU Vir)
+with O-C diagrams built from published **times of extremum**, not re-measured
+light curves. Bundled fixtures:
+
+| Star | Role | File |
+|------|------|------|
+| **X Tri** (EB) | VSA Table 13.9 minima | [`xtri_table_13_9.txt`](foster/xtri_table_13_9.txt) |
+| **Z Tau** (Mira) | AAVSO LPV times of **maximum** | [`ztau_maxima.txt`](foster/ztau_maxima.txt) |
+
+Downloads: [xtri_table_13_9.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/xtri_table_13_9.txt),
+[ztau_maxima.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/ztau_maxima.txt).
+
+**Reproduce Activity 13.6 (X Tri):**
+
+1. Optionally load **X Tri** from the AAVSO International Database with a JD
+   range covering Table 13.9 minima (**≈ 2442720 – 2450090**), Visual or any
+   band you prefer. The light curve is context only (e.g. for vertical markers);
+   the O-C points come from the imported timings file, not from re-timing this
+   sparse photometry.
+2. **Tools → O-C…** → **Imported timings file** → choose
+   `xtri_table_13_9.txt`.
+3. Period **0.975352** d and epoch **2442502.721** fill from the file’s
+   `# period=…, epoch=…` comment when present; set **Event** to **Minimum**.
+4. Inspect O-C vs cycle (and try **Quadratic** on Fit on plot). Expect a clear
+   long-term trend — the teaching linear ephemeris is **not** a perfect flat
+   O-C; that is the point of the exercise.
+
+**Z Tau (long-period / Mira maximum O–C):**
+
+1. Optionally load **Z Tau** from AID with **JD ≈ 2417000 – 2458100**
+   (roughly 1905–2018, spanning the bundled maxima). Visual is fine for context;
+   sparse Mira data are not meant for auto-timing this exercise.
+2. **Tools → O-C…** → **Imported timings** → `ztau_maxima.txt`
+   (source: [AAVSO Maxima & Minima of LPVs](https://www.aavso.org/cgi-bin/maxmin_current.pl?name=Z+TAU)).
+3. Period **466.2** d and epoch from the file header fill automatically;
+   set **Event** to **Maximum**.
+4. Expect a **curved / multi-segment** O–C: Z Tau’s period has evolved
+   (historical means ~500 d early, GCVS later ~466 d, VSX often ~446 d).
+   A fixed trial **P** is deliberately imperfect—the diagram is the lesson.
+
+Do **not** expect to match these diagrams by auto-timing sparse AID Visual
+photometry: they use **published times of extremum**. For other stars, use
+literature timings or measure dense photometry, then **From observations** /
+**Edit timings**.
+
+Clock demos (Tables 13.1–13.2) remain in **Examples** / **Appendix A**. For an
+AID export/re-import outline on real photometry, see **Appendix C**.
 
 For **eclipsing binaries**, decades of **eclipse timings** can reveal
 **apsidal motion** (sinusoidal O-C from general relativity and tidal distortion)
@@ -183,16 +221,28 @@ After O-C is computed, a modeless results window opens with three tabs:
 currently selected on the diagram (VSA / Foster ch. 13 patterns). Fit coefficients
 and the LPV period-scatter caution follow below.
 
-**Light-curve check (from observations)** — solid vertical **O** markers
-(observed timing) and lighter dashed **C** markers (ephemeris prediction) are
-drawn on the raw-data light curve so you can see where each timing was placed
-relative to the data. Re-running O-C replaces previous O-C markers; loading a
-new star clears them. Labels (cycle numbers) appear only when there are ≤ 30
-markers. Imported timings alone do not add light-curve markers.
+**Light-curve check** — solid vertical **O** markers (observed timing) and
+lighter dashed **C** markers (ephemeris prediction) are drawn on the raw-data
+light curve. Re-running O-C replaces previous O-C markers; loading a new star
+clears them. Labels (cycle numbers) appear only when there are ≤ 30 markers.
 
-For **Kwee–van Woerden**, the summary also reports how many cycles were timed
-versus skipped; per-point **σ(O-C)** is σ from Deeg (2020) when available,
-and the **QC** column records fold count, window size, and resample warnings.
+**Edit timings** — at the top of the results dialog:
+
+| Control | Action |
+|---------|--------|
+| **Place O on light curve** | Click the raw LC to place a free JD as an observed time. Chart pan/zoom drag is disabled while this is on. |
+| **Snap to nearest observation** | When placing or dragging, snap O to a nearby observation (when a series is available). |
+| **Remove selected** | Delete the selected table row / O marker (**Delete** key). |
+| **Clear all** | Remove every timing. |
+| Drag **O** marker | Press near an O vertical and drag to a new free JD. |
+| Data table **O (time)** | Editable; type a new JD and the O-C list rebuilds. |
+
+C markers stay ephemeris-driven (not editable). QC notes show `manual`, `snap`,
+or the automatic method (e.g. KvW). Export CSV reflects the current edited list.
+
+For **Kwee–van Woerden** seeds, the summary still reports how many cycles were
+timed versus skipped before editing; per-point **σ(O-C)** / **QC** may change
+when you replace automations with free JDs.
 
 **Export CSV…** on the results dialog saves O-C points and fit metadata to a
 file.
@@ -204,9 +254,15 @@ file.
 Parameter dialog uses a compact two-column layout. **Ephemeris source** is a
 drop-down only (not typable); edit **Period** and **Epoch** in their fields.
 
-After **OK**, choose an observation series or a timings file depending on
-**Data source**; the results dialog opens next. Use **Export CSV…** there to
-save results.
+**Data source** options:
+
+- **From observations** — automatic timing methods on a selected series.
+- **Imported timings file** — load O times from a file.
+- **Edit timings on light curve** — open an empty editor (period/epoch required)
+  and place/remove O markers interactively. Optionally pick a series for snap.
+
+After **OK**, choose an observation series when needed; the results dialog
+opens next. Use **Export CSV…** there to save results.
 
 ### O-C demo data (observation source)
 
@@ -286,6 +342,20 @@ Epoch **2450000.0**, period **1.0** d for O-C tool entry. Download from
 | 4 | Epoch jump (try break cycle 3) | [foster_clock4.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/foster_clock4.txt) |
 | 5 | Period change (try break cycle 5) | [foster_clock5.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/foster_clock5.txt) |
 | 6 | Slowing clock (Quadratic on Fit on plot) | [foster_clock6.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/foster_clock6.txt) |
+
+### Timing files — published extrema (X Tri, Z Tau)
+
+| File | Contents | Ephemeris |
+|------|----------|-----------|
+| [xtri_table_13_9.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/xtri_table_13_9.txt) | 122 published minima (cycle + JD); repeated cycles = different observers | \(P = 0.975352\,\mathrm{d}\), \(t_0 = 2442502.721\) |
+| [ztau_maxima.txt](https://aavso.github.io/VStar/docs/vstar/release/plugin/foster/ztau_maxima.txt) | 84 AAVSO LPV times of **maximum** (cycle + JD) | \(P = 466.2\,\mathrm{d}\), \(t_0 = 2415246.2\) |
+
+| Star | Optional AID JD load (context LC) | Event |
+|------|-------------------------------------|-------|
+| X Tri | **≈ 2442720 – 2450090** | Minimum |
+| Z Tau | **≈ 2417000 – 2458100** | Maximum |
+
+See **Further reading** above.
 
 ---
 
@@ -401,6 +471,12 @@ Period ≈ **1.20 d** (VSX). **Suggested JD range:** **2452700 – 2461000**
 
 ## Version history
 
+- **1.13** — Integrated **Edit timings** on results dialog: free-JD place mode
+  (optional snap-to-obs), drag O markers, remove/clear, editable O column;
+  **Data source: Edit timings on light curve** for empty start. Model rebuilds
+  O-C / fits / markers live from the edited list. Bundled VSA **Table 13.9**
+  X Tri minima (`plugin/doc/foster/xtri_table_13_9.txt`) and AAVSO **Z Tau**
+  maxima (`plugin/doc/foster/ztau_maxima.txt`) for published-extrema exercises.
 - **1.12** — **Kwee–van Woerden** timing method for from-observations O-C
   (eclipse windowing; σ_Deeg; skip undersampled cycles; packaging depends on
   KweeVanWoerdenLib). Light-curve check uses vertical **O**/**C** domain markers
