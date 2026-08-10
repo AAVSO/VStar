@@ -471,42 +471,6 @@ Period ≈ **1.20 d** (VSX). **Suggested JD range:** **2452700 – 2461000**
 
 ## Version history
 
-- **1.13** — Integrated **Edit timings** on results dialog: free-JD place mode
-  (optional snap-to-obs), drag O markers, remove/clear, editable O column;
-  **Data source: Edit timings on light curve** for empty start. Model rebuilds
-  O-C / fits / markers live from the edited list. Bundled VSA **Table 13.9**
-  X Tri minima (`plugin/doc/foster/xtri_table_13_9.txt`) and AAVSO **Z Tau**
-  maxima (`plugin/doc/foster/ztau_maxima.txt`) for published-extrema exercises.
-- **1.12** — **Kwee–van Woerden** timing method for from-observations O-C
-  (eclipse windowing; σ_Deeg; skip undersampled cycles; packaging depends on
-  KweeVanWoerdenLib). Light-curve check uses vertical **O**/**C** domain markers
-  instead of the synthetic **O-C extrema** series. Data table **QC** column and
-  KvW timed/skipped summary.
-- **1.11** — From-observations runs add an **O-C extrema** series on the light
-  curve (markers at measured O, mag) for checking timings; re-run replaces the
-  series. Imported timings do not.
-- **1.10** — Examples rewritten around VSA/Foster clocks 4–6; cite free
-  [VSA Chapter 13 PDF](https://www.aavso.org/sites/default/files/education/vsa/Chapter13.pdf)
-  as primary reference for Tables 13.1–13.2; AID export/re-import moved to
-  Appendix C; Results dialog docs updated for **Fit on plot** and
-  interpretation.
-- **1.9** — `OCAnalysisTool.test()` smoke check (Foster clock 2) for plug-in
-  harness coverage.
-- **1.8** — Neutral time labels (`O_time` / `C_time`, Epoch, Observed time);
-  docs stress a consistent time system (JD/HJD/BJD/…) rather than assuming HJD.
-  Removed unused O-C CSV observation-sink plug-in (export is results-dialog only).
-- **1.7** — Added screenshots for parameter dialog, results diagram, Fit
-  summary, and two-segment fit.
-- **1.6** — User-facing rename: **O-C** (Tools menu) and **O-C demo
-  data** (File menu); plug-in group **Timing**.
-- **1.5** — Example 2 uses O-C demo data (Foster clock 2); Foster
-  `.txt` downloads remain in Appendix A Method A only.
-- **1.4** — User-facing doc restructure: Plug-in Manager install, examples,
-  appendices, Foster timings on aavso.github.io (absolute URLs), screenshot
-  placeholders.
-- **1.3** — Foster Table 13.1 demo timings; six clocks only; compact dialog;
-  general tool; break cycle on Fit summary.
-- **1.2** — Imported timings, CSV export, quadratic fit, BOTH event type, demo
-  observation source.
-- **1.1** — Model timing, linear/two-segment fits, error bars.
-- **1.0** — Initial observation-based O-C plot and table.
+Pre-release development is tracked in [issue #93](https://github.com/AAVSO/VStar/issues/93)
+and git commits on branch `93-implement-o-c-analysis-plugin`. A numbered release
+changelog will start with the **first published plug-in version**.
