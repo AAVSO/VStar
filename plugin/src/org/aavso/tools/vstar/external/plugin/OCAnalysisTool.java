@@ -21,6 +21,7 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -43,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -145,7 +147,9 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.YIntervalRenderer;
 import org.jfree.chart.ui.Layer;
+import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleInsets;
+import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.data.xy.YIntervalSeries;
@@ -396,13 +400,19 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         SeriesType selectedSeries = null;
         if (fromImportedTimings) {
             resultLabel = resolveStarLabel();
-            // Snaps work if user later loads data; no series prompt on import.
+            // Prefer visible photometry on the raw LC so Place/drag can snap;
+            // no extra series dialog (import already required a file pick).
+            obsForSnap = collectLoadedObsForSnap();
         } else if (editTimingsOnly) {
             resultLabel = resolveStarLabel() + " (edit timings)";
             List<ValidObservation> picked = tryPickSeriesForSnap();
             if (picked != null && !picked.isEmpty()) {
                 obsForSnap = picked;
                 resultLabel = resolveStarLabel();
+            } else {
+                // Dialog cancelled or bare: still allow snap if a light curve is
+                // already loaded (same rule as import).
+                obsForSnap = collectLoadedObsForSnap();
             }
         } else {
             ISeriesInfoProvider seriesInfo = currentSeriesInfo();
@@ -526,6 +536,56 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
     }
 
     /**
+     * Gather photometry from the current star for snap-to-observation JD
+     * (no series dialog). Uses visible plot series first; if none qualify,
+     * all non-synthetic bands with observations. Empty when no star is loaded.
+     */
+    private static List<ValidObservation> collectLoadedObsForSnap() {
+        ISeriesInfoProvider seriesInfo = currentSeriesInfo();
+        if (seriesInfo == null) {
+            return Collections.emptyList();
+        }
+        List<ValidObservation> collected = new ArrayList<ValidObservation>();
+        Set<SeriesType> candidates = seriesInfo.getVisibleSeries();
+        if (candidates == null || candidates.isEmpty()) {
+            candidates = seriesInfo.getSeriesKeys();
+        }
+        if (candidates == null) {
+            return Collections.emptyList();
+        }
+        for (SeriesType type : candidates) {
+            if (type == null || type.isSynthetic()
+                    || type == SeriesType.Excluded
+                    || type == SeriesType.DISCREPANT) {
+                continue;
+            }
+            List<ValidObservation> obs = seriesInfo.getObservations(type);
+            if (obs != null && !obs.isEmpty()) {
+                collected.addAll(obs);
+            }
+        }
+        if (!collected.isEmpty()) {
+            return collected;
+        }
+        // Visible set may be only means/filtered — try all series keys.
+        Set<SeriesType> allKeys = seriesInfo.getSeriesKeys();
+        if (allKeys != null && allKeys != candidates) {
+            for (SeriesType type : allKeys) {
+                if (type == null || type.isSynthetic()
+                        || type == SeriesType.Excluded
+                        || type == SeriesType.DISCREPANT) {
+                    continue;
+                }
+                List<ValidObservation> obs = seriesInfo.getObservations(type);
+                if (obs != null && !obs.isEmpty()) {
+                    collected.addAll(obs);
+                }
+            }
+        }
+        return collected;
+    }
+
+    /**
      * Draw full-height vertical domain markers for O (and lighter dashed
      * markers for C) on the raw-data light curve. Replaces prior O-C markers.
      *
@@ -559,7 +619,8 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             oMark.setPaint(isSel ? oSelected : oColor);
             oMark.setStroke(isSel ? oSelectedStroke : oStroke);
             if (labelCycles) {
-                oMark.setLabel("O" + p.cycle);
+                applyDomainMarkerLabel(oMark, "O" + p.cycle, isSel ? oSelected
+                        : oColor);
             }
             plot.addDomainMarker(oMark, Layer.FOREGROUND);
             ocOMarkers.add(oMark);
@@ -568,12 +629,33 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             cMark.setPaint(cColor);
             cMark.setStroke(cStroke);
             if (labelCycles) {
-                cMark.setLabel("C" + p.cycle);
+                applyDomainMarkerLabel(cMark, "C" + p.cycle, cColor);
             }
             plot.addDomainMarker(cMark, Layer.BACKGROUND);
             ocCMarkers.add(cMark);
         }
         return !result.points.isEmpty();
+    }
+
+    /**
+     * Place O/C text just inside the plot (not flush against the top border).
+     * JFreeChart defaults to {@code TOP_LEFT} with a 3 px offset, which clips
+     * against the data-area edge on VStar light curves.
+     */
+    private static void applyDomainMarkerLabel(ValueMarker mark, String text,
+            Color paint) {
+        mark.setLabel(text);
+        mark.setLabelFont(new Font(Font.SANS_SERIF, Font.PLAIN, 11));
+        mark.setLabelPaint(paint);
+        // Light fill so labels remain readable over dense photometry.
+        mark.setLabelBackgroundColor(new Color(255, 255, 255, 200));
+        mark.setLabelAnchor(RectangleAnchor.TOP);
+        // Attach at the top of the glyphs so the whole string hangs below
+        // the anchor (into the data area rather than into the axis/margin).
+        mark.setLabelTextAnchor(TextAnchor.TOP_CENTER);
+        // Larger top inset + EXPAND (JFreeChart default for domain markers)
+        // pushes the anchor down from the range-max edge of the marker line.
+        mark.setLabelOffset(new RectangleInsets(12.0, 2.0, 2.0, 2.0));
     }
 
     private static ObservationAndMeanPlotPane rawPlotPane() {
@@ -1211,11 +1293,13 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         private final JButton applyTwoSegmentButton;
         private final JCheckBox placeModeCheck;
         private final JCheckBox snapCheck;
+        private final JLabel placeModeHintLabel;
         private final JTable dataTable;
         private final OCTableModel tableModel;
         private int selectedTimingIndex = -1;
 
         private MouseAdapter plotMouseAdapter;
+        private ChartPanel plotHandlersPanel;
         private boolean placeModeActive = false;
         private boolean panZoomSaved = false;
         private boolean savedDomainZoomable;
@@ -1283,22 +1367,34 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
 
             placeModeCheck = new JCheckBox("Place O on light curve");
             placeModeCheck.setToolTipText(
-                    "When checked, click the raw light curve to place a free "
-                            + "JD timing. Drag an O marker to move it. "
-                            + "Pan/zoom drag is disabled while this is on.");
+                    "Enable place mode, then click the Observation light curve "
+                            + "(not this O-C diagram) at the desired JD. A new "
+                            + "vertical O marker is added. Drag an O to move it.");
             placeModeCheck.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
                     setPlaceMode(placeModeCheck.isSelected());
                 }
             });
+            placeModeHintLabel = new JLabel(" ");
+            placeModeHintLabel.setForeground(new Color(0x33, 0x33, 0x99));
+            placeModeHintLabel.setFont(placeModeHintLabel.getFont()
+                    .deriveFont(Font.ITALIC));
             snapCheck = new JCheckBox("Snap to nearest observation");
             snapCheck.setSelected(!this.obsForSnap.isEmpty());
             snapCheck.setEnabled(!this.obsForSnap.isEmpty());
-            snapCheck.setToolTipText(
-                    "When placing or dragging, snap O to a nearby observation "
-                            + "JD (within about " + DEFAULT_SNAP_MAX_DAYS
-                            + " d).");
+            if (this.obsForSnap.isEmpty()) {
+                snapCheck.setToolTipText(
+                        "Load a light curve for this star (then re-run O-C) "
+                                + "to enable snap to observation JD.");
+            } else {
+                snapCheck.setToolTipText(
+                        "When placing or dragging, snap O to a nearby "
+                                + "observation JD (within about "
+                                + DEFAULT_SNAP_MAX_DAYS + " d; "
+                                + this.obsForSnap.size()
+                                + " JDs from loaded photometry).");
+            }
 
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             ActionListener dismissListener = new ActionListener() {
@@ -1442,10 +1538,12 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         }
 
         private JPanel createEditTimingsPane() {
-            JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
             panel.setBorder(BorderFactory.createTitledBorder("Edit timings"));
-            panel.add(placeModeCheck);
-            panel.add(snapCheck);
+            JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+            controls.add(placeModeCheck);
+            controls.add(snapCheck);
             JButton removeButton = new JButton("Remove selected");
             removeButton.setToolTipText(
                     "Remove the selected row / O marker (Delete key).");
@@ -1455,7 +1553,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                     removeSelectedTiming();
                 }
             });
-            panel.add(removeButton);
+            controls.add(removeButton);
             JButton clearButton = new JButton("Clear all");
             clearButton.addActionListener(new ActionListener() {
                 @Override
@@ -1474,15 +1572,22 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                     }
                 }
             });
-            panel.add(clearButton);
+            controls.add(clearButton);
+            controls.setAlignmentX(Component.LEFT_ALIGNMENT);
+            placeModeHintLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            panel.add(controls);
+            panel.add(placeModeHintLabel);
             return panel;
         }
 
         private void installPlotMouseHandlers() {
-            ChartPanel panel = rawChartPanel();
+            // Detach from any previous panel first (dialog reopen / chart rebuild).
+            detachPlotMouseHandlers();
+            final ChartPanel panel = rawChartPanel();
             if (panel == null) {
                 return;
             }
+            plotHandlersPanel = panel;
             plotMouseAdapter = new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
@@ -1498,7 +1603,6 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                             dataTable.setRowSelectionInterval(hit, hit);
                         }
                         publishTimingDomainMarkers(result);
-                        e.consume();
                     } else {
                         dragIndex = -1;
                     }
@@ -1515,18 +1619,19 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                     }
                     jd = maybeSnap(jd);
                     didDrag = true;
-                    // Live marker move without full rebuild.
                     if (dragIndex < ocOMarkers.size()) {
                         ocOMarkers.get(dragIndex).setValue(jd);
                     }
-                    // C marker moves with recomputed ephemeris cycle.
                     int cycle = OCAnalysisLib.cycleNumber(jd,
                             result.parameters.epoch, result.parameters.period);
                     double c = result.parameters.computedTime(cycle);
                     if (dragIndex < ocCMarkers.size()) {
                         ocCMarkers.get(dragIndex).setValue(c);
                     }
-                    e.consume();
+                    // Force redraw while dragging.
+                    if (panel.getChart() != null) {
+                        panel.getChart().setNotify(true);
+                    }
                 }
 
                 @Override
@@ -1536,11 +1641,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                                 e.getY());
                         if (jd != null) {
                             jd = maybeSnap(jd);
-                            String source = snapCheck.isSelected()
-                                    && obsForSnap != null
-                                            ? OCAnalysisLib.TIMING_SOURCE_SNAP
-                                            : OCAnalysisLib.TIMING_SOURCE_MANUAL;
-                            // Prefer snap source only if JD actually matches snap.
+                            String source = OCAnalysisLib.TIMING_SOURCE_MANUAL;
                             if (snapCheck.isSelected()) {
                                 Double snapped = OCAnalysisLib
                                         .nearestObservationJd(obsForSnap, jd,
@@ -1556,23 +1657,7 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                     } else if (placeModeActive && dragIndex < 0
                             && SwingUtilities.isLeftMouseButton(e)
                             && !didDrag) {
-                        Double jd = domainValueAtScreenX(panel, e.getX(),
-                                e.getY());
-                        if (jd != null) {
-                            String source = OCAnalysisLib.TIMING_SOURCE_MANUAL;
-                            if (snapCheck.isSelected()) {
-                                Double snapped = OCAnalysisLib
-                                        .nearestObservationJd(obsForSnap, jd,
-                                                DEFAULT_SNAP_MAX_DAYS);
-                                if (snapped != null) {
-                                    jd = snapped;
-                                    source = OCAnalysisLib.TIMING_SOURCE_SNAP;
-                                }
-                            }
-                            timingsModel.add(jd, source);
-                            selectedTimingIndex = timingsModel.size() - 1;
-                            rebuildFromModel();
-                        }
+                        placeObservedAtScreen(panel, e.getX(), e.getY());
                     }
                     dragIndex = -1;
                     didDrag = false;
@@ -1580,6 +1665,56 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             };
             panel.addMouseListener(plotMouseAdapter);
             panel.addMouseMotionListener(plotMouseAdapter);
+        }
+
+        private void detachPlotMouseHandlers() {
+            if (plotHandlersPanel != null) {
+                if (plotMouseAdapter != null) {
+                    plotHandlersPanel.removeMouseListener(plotMouseAdapter);
+                    plotHandlersPanel
+                            .removeMouseMotionListener(plotMouseAdapter);
+                }
+            }
+            plotMouseAdapter = null;
+            plotHandlersPanel = null;
+        }
+
+        /**
+         * Place a new O timing at the chart click. Suppresses double-place from
+         * repeated mouseReleased/mouseup deliveries for the same JD.
+         */
+        private long lastPlaceMs = 0;
+        private double lastPlaceJd = Double.NaN;
+
+        private void placeObservedAtScreen(ChartPanel panel, int screenX,
+                int screenY) {
+            Double jd = domainValueAtScreenX(panel, screenX, screenY);
+            if (jd == null) {
+                return;
+            }
+            // De-dupe dual click delivery (adapter + ChartMouseListener).
+            long now = System.currentTimeMillis();
+            if (!Double.isNaN(lastPlaceJd) && Math.abs(jd - lastPlaceJd) < 1e-6
+                    && (now - lastPlaceMs) < 400) {
+                return;
+            }
+            String source = OCAnalysisLib.TIMING_SOURCE_MANUAL;
+            if (snapCheck.isSelected()) {
+                Double snapped = OCAnalysisLib.nearestObservationJd(obsForSnap,
+                        jd, DEFAULT_SNAP_MAX_DAYS);
+                if (snapped != null) {
+                    jd = snapped;
+                    source = OCAnalysisLib.TIMING_SOURCE_SNAP;
+                }
+            }
+            timingsModel.add(jd, source);
+            selectedTimingIndex = timingsModel.size() - 1;
+            lastPlaceJd = jd;
+            lastPlaceMs = now;
+            rebuildFromModel();
+            placeModeHintLabel.setText("Placed O at JD "
+                    + NumericPrecisionPrefs.formatTime(jd)
+                    + " — click again to add another, or uncheck Place O.");
         }
 
         private Double maybeSnap(double jd) {
@@ -1596,12 +1731,33 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
             placeModeActive = on;
             ChartPanel panel = rawChartPanel();
             ObservationAndMeanPlotPane pane = rawPlotPane();
-            if (panel == null || pane == null) {
-                return;
-            }
-            XYPlot plot = panel.getChart().getXYPlot();
+
             if (on) {
+                if (panel == null || pane == null) {
+                    placeModeActive = false;
+                    placeModeCheck.setSelected(false);
+                    placeModeHintLabel.setText(
+                            "No light curve is available. Load observations "
+                                    + "first, then re-run O-C.");
+                    MessageBox.showMessageDialog(getTitle(),
+                            "Place O requires a light curve to be open.\n"
+                                    + "Load the star (e.g. from AID), then open "
+                                    + "O-C again.");
+                    return;
+                }
+                // Ensure click handlers exist on the current plot panel.
+                if (plotHandlersPanel != panel || plotMouseAdapter == null) {
+                    installPlotMouseHandlers();
+                }
+                // Show the Observation plot so the click target is visible.
+                try {
+                    Mediator.getInstance()
+                            .changeAnalysisType(AnalysisType.RAW_DATA);
+                } catch (Exception ignore) {
+                    // still allow place if map lacks RAW_DATA
+                }
                 if (!panZoomSaved) {
+                    XYPlot plot = panel.getChart().getXYPlot();
                     savedDomainZoomable = panel.isDomainZoomable();
                     savedRangeZoomable = panel.isRangeZoomable();
                     savedDomainPannable = plot.isDomainPannable();
@@ -1610,9 +1766,30 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
                 }
                 panel.setDomainZoomable(false);
                 panel.setRangeZoomable(false);
+                XYPlot plot = panel.getChart().getXYPlot();
                 plot.setDomainPannable(false);
                 plot.setRangePannable(false);
+                panel.setCursor(
+                        Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+                placeModeHintLabel.setText(
+                        "Click the Observation light curve (main window) at "
+                                + "the desired time — not the O-C chart here.");
+                Mediator.getUI().getStatusPane().setMessage(
+                        "O-C place mode: click the light curve to add O");
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        ChartPanel p = rawChartPanel();
+                        if (p != null) {
+                            p.requestFocusInWindow();
+                        }
+                    }
+                });
             } else {
+                if (panel != null) {
+                    panel.setCursor(Cursor.getDefaultCursor());
+                }
+                placeModeHintLabel.setText(" ");
                 restorePanZoom();
             }
         }
@@ -1631,13 +1808,12 @@ public class OCAnalysisTool extends GeneralToolPluginBase {
         }
 
         private void cleanupPlotInteraction() {
-            setPlaceMode(false);
+            placeModeActive = false;
             ChartPanel panel = rawChartPanel();
-            if (panel != null && plotMouseAdapter != null) {
-                panel.removeMouseListener(plotMouseAdapter);
-                panel.removeMouseMotionListener(plotMouseAdapter);
+            if (panel != null) {
+                panel.setCursor(Cursor.getDefaultCursor());
             }
-            plotMouseAdapter = null;
+            detachPlotMouseHandlers();
             restorePanZoom();
         }
 
