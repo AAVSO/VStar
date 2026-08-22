@@ -17,15 +17,19 @@
  */
 package org.aavso.tools.vstar.ui.dialog.prefs;
 
+import java.awt.Component;
 import java.awt.Container;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
 
 /**
  * Preferences Dialog.
@@ -42,7 +46,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	private LocaleSelectionPane localeSelectionPane;
 	private VeLaSettingsPane veLaSettingsPane;
 	private DirectoriesSettingsPane directoriesSettingsPane;
-	
+		
 	/**
 	 * Constructor.
 	 */
@@ -93,10 +97,23 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 
 		directoriesSettingsPane = new DirectoriesSettingsPane();
 		tabs.addTab("Directories", directoriesSettingsPane);
+
+		List<IPlugin> plugin_list = PluginLoader.getPluginList();
+		if (plugin_list != null) {
+			for (IPlugin plugin :  plugin_list) {
+				Component pane = plugin.getPreferencesPane();
+				if (pane != null) {
+					int index = tabs.indexOfComponent(pane);
+					if (index == -1) {
+						tabs.addTab(plugin.getDisplayName(), pane);
+					}
+				}
+			}
+		}
 		
 		return tabs;
 	}
-
+	
 	/**
 	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
 	 */
@@ -118,6 +135,16 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		veLaSettingsPane.update();
 		directoriesSettingsPane.update();
 		
+		List<IPlugin> plugin_list = PluginLoader.getPluginList();
+		if (plugin_list != null) {
+			for (IPlugin plugin :  plugin_list) {
+				Object pane = plugin.getPreferencesPane();
+				if (pane != null && pane instanceof IPreferenceComponent) {
+					((IPreferenceComponent)pane).update();
+				}
+			}
+		}
+		
 		this.setVisible(false);
 	}
 
@@ -134,6 +161,16 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		localeSelectionPane.reset();
 		veLaSettingsPane.reset();
 		directoriesSettingsPane.reset();
+		
+		List<IPlugin> plugin_list = PluginLoader.getPluginList();
+		if (plugin_list != null) {
+			for (IPlugin plugin :  plugin_list) {
+				Object pane = plugin.getPreferencesPane();
+				if (pane != null && pane instanceof IPreferenceComponent) {
+					((IPreferenceComponent)pane).reset();
+				}
+			}
+		}
 	}
 
 	/**

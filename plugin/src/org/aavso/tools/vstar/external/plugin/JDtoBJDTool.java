@@ -19,6 +19,7 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
@@ -73,6 +74,11 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 	@Override
 	public String getDisplayName() {
 		return "JD to BJD_TDB";
+	}
+	
+	@Override
+	public Component getPreferencesPane() {
+		return ConvertHelper.getPreferencesPane();
 	}
 	
 	/**

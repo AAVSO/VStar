@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.awt.Component;
+
 import org.aavso.tools.vstar.ui.resources.LoginInfo;
 
 /**
@@ -63,6 +65,8 @@ public interface IPlugin {
 	 * Get the group to which this plugin belongs (may be null).
 	 */
 	abstract public String getGroup();
+	
+	abstract public Component getPreferencesPane(); 
 
 	/**
 	 * Does this plugin require authentication?

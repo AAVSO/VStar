@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.util.ArrayList;
@@ -66,6 +67,11 @@ public class BJDConverter extends ObservationToolPluginBase {
 	@Override
 	public String getDocName() {
 		return "BJD_TDB Converter.pdf";
+	}
+	
+	@Override
+	public Component getPreferencesPane() {
+		return ConvertHelper.getPreferencesPane();
 	}
 
 	@Override
@@ -242,5 +248,5 @@ public class BJDConverter extends ObservationToolPluginBase {
 		List<Double> result = ConvertHelper.getConvertedListOfTimes(times, ra.toDegrees(), dec.toDegrees(), func);
 		return result;
 	}
-	
+
 }

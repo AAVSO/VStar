@@ -17,27 +17,21 @@
 
 package org.aavso.tools.vstar.external.lib;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
+import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -54,6 +48,7 @@ import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.IntegerField;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.NumberFieldBase;
+import org.aavso.tools.vstar.ui.dialog.prefs.IPreferenceComponent;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.Pair;
@@ -62,14 +57,17 @@ import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
 import org.aavso.tools.vstar.util.help.Help;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
 public class ConvertHelper {
 
+	private static Component preferencesPane;
+	
 	private static final String DEFAULT_TIME_SERVICE_URL = "http://localhost:5000/convert";  
 	
-	private static String timeServiceURLstring = initTimeServiceURLstring(); 
+	private static String timeServiceURLstring = DirectoriesSettingsPane.getTimeServicesURL(); 
 	
 	/**
 	 * A pane for entering RA/Dec with a button that gets coordinates from the VSX server by the VSX star name 
@@ -500,6 +498,7 @@ public class ConvertHelper {
 		return timeServiceURLstring;
 	}
 
+	// Used in a test only 
 	public static void setTimeServiceURLstring(String s) {
 		timeServiceURLstring = s;
 	}
@@ -569,29 +568,107 @@ public class ConvertHelper {
         return out_times;	        
 	}
 	
-	
-	private static String getCfgName() {
-        try {
-        	String home = System.getProperty("user.home");
-        	File configFile = new File(home, ".vstar/vstar.properties");
-    		return configFile.getPath();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-	
-	private static String initTimeServiceURLstring() {
-		Properties props = new Properties();
-		try {
-			try (FileInputStream in = new FileInputStream(getCfgName())) {
-				props.load(in);
-				String a = props.getProperty("JDconverter.url");
-				if (a == null || "".equals(a.trim()))
-					return DEFAULT_TIME_SERVICE_URL;
-				return a.trim();
-			}
-		} catch (Exception e) {
-			return DEFAULT_TIME_SERVICE_URL;
+	public static Component getPreferencesPane() {
+		if (preferencesPane == null) {
+			preferencesPane = new DirectoriesSettingsPane();
 		}
+		return preferencesPane;
 	}
+	
+	@SuppressWarnings("serial")
+	public static class DirectoriesSettingsPane extends JPanel implements
+			IPreferenceComponent {
+		
+		private JTextField jdConverterUrlField; 
+		
+		public DirectoriesSettingsPane() {
+			super();
+			
+			JPanel jdConverterUrlPane = new JPanel();
+			jdConverterUrlPane.setLayout(new BoxLayout(jdConverterUrlPane, BoxLayout.PAGE_AXIS));
+			jdConverterUrlPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			
+			JPanel urlPanel = new JPanel();
+			urlPanel.setLayout(new BoxLayout(urlPanel, BoxLayout.LINE_AXIS));
+			jdConverterUrlField = new JTextField();
+			jdConverterUrlField.setToolTipText("Set URL for the time converter service");
+			jdConverterUrlField.setBorder(BorderFactory.createTitledBorder("JD Converter Url"));
+			urlPanel.add(jdConverterUrlField);
+			jdConverterUrlPane.add(urlPanel);
+			jdConverterUrlPane.add(createButtonPane());
+			this.add(jdConverterUrlPane);
+		}
+
+		public static String getTimeServicesURL() {
+			String timeServiceUrl;
+			try {
+				Preferences prefs = Preferences.userNodeForPackage(ConvertHelper.class);
+				timeServiceUrl = prefs.get("timeServiceUrl", null);
+				if (timeServiceUrl == null || "".equals(timeServiceUrl)) {
+					timeServiceUrl = DEFAULT_TIME_SERVICE_URL;
+				}
+			} catch (Throwable t) {
+				// We need VStar to function in the absence of prefs.
+				timeServiceUrl = DEFAULT_TIME_SERVICE_URL;
+			}
+			return timeServiceUrl;
+		}
+		
+		protected JPanel createButtonPane() {
+			JPanel panel = new JPanel(new BorderLayout());
+
+			JButton setDefaultsButton = new JButton("Default");
+			setDefaultsButton.addActionListener(createDefaultUrlButtonListener());
+			panel.add(setDefaultsButton, BorderLayout.LINE_START);
+
+			JButton applyButton = new JButton(LocaleProps.get("APPLY_BUTTON"));
+			applyButton.addActionListener(createApplyButtonActionListener());
+			panel.add(applyButton, BorderLayout.LINE_END);
+
+			return panel;
+		}
+
+		private ActionListener createDefaultUrlButtonListener() {
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					jdConverterUrlField.setText(DEFAULT_TIME_SERVICE_URL);
+				}
+			};
+		}
+
+		private ActionListener createApplyButtonActionListener() {
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					update();
+				}
+			};
+		}
+		
+		/**
+		 * Updates the stored preferences from the UI.
+		 */
+		@Override
+		public void update() {
+			String timeServiceUrl = jdConverterUrlField.getText().trim();
+			if (!timeServiceURLstring.equals(timeServiceUrl)) {
+				try {
+					Preferences prefs = Preferences.userNodeForPackage(ConvertHelper.class);
+					prefs.put("timeServiceUrl", timeServiceUrl);
+				} catch (Throwable t) {
+					// We need VStar to function in the absence of prefs.
+				}
+				timeServiceURLstring = timeServiceUrl;
+			}
+		}
+
+		/**
+		 * Prepare this pane for use by resetting whatever state needs to be.
+		 */
+		@Override
+		public void reset() {
+			jdConverterUrlField.setText(getTimeServicesURL());
+		}
+	
+	}
+
 }

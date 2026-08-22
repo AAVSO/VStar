@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.plugin.ob.sink.impl;
 
+import java.awt.Component;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -58,4 +59,11 @@ public abstract class CommonTextFormatSinkPluginBase extends ObservationSinkPlug
 		return Help.getAAVSOtextFormatSinkHelpPage();
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getPreferencesPane()
+	 */
+	@Override
+	public Component getPreferencesPane() {
+		return null;
+	}
 }

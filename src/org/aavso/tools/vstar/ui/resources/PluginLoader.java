@@ -213,6 +213,13 @@ public class PluginLoader {
 
 		return obSinkPlugins;
 	}
+
+	/**
+	 * Return a list of all plugins
+	 */
+	public static List<IPlugin> getPluginList() {
+		return plugins;
+	}	
 	
 	/**
 	 * Load all VStar plugins and create an instance of each.
