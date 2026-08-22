@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui.dialog.prefs;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -46,6 +47,8 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	private LocaleSelectionPane localeSelectionPane;
 	private VeLaSettingsPane veLaSettingsPane;
 	private DirectoriesSettingsPane directoriesSettingsPane;
+	
+	private List<Object> pluginPrefs = null;
 		
 	/**
 	 * Constructor.
@@ -106,6 +109,8 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 					int index = tabs.indexOfComponent(pane);
 					if (index == -1) {
 						tabs.addTab(plugin.getDisplayName(), pane);
+						if (pluginPrefs == null) pluginPrefs = new ArrayList<Object>();						
+						pluginPrefs.add(pane);
 					}
 				}
 			}
@@ -135,10 +140,8 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		veLaSettingsPane.update();
 		directoriesSettingsPane.update();
 		
-		List<IPlugin> plugin_list = PluginLoader.getPluginList();
-		if (plugin_list != null) {
-			for (IPlugin plugin :  plugin_list) {
-				Object pane = plugin.getPreferencesPane();
+		if (pluginPrefs != null) {
+			for (Object pane : pluginPrefs) {
 				if (pane != null && pane instanceof IPreferenceComponent) {
 					((IPreferenceComponent)pane).update();
 				}
@@ -162,10 +165,8 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		veLaSettingsPane.reset();
 		directoriesSettingsPane.reset();
 		
-		List<IPlugin> plugin_list = PluginLoader.getPluginList();
-		if (plugin_list != null) {
-			for (IPlugin plugin :  plugin_list) {
-				Object pane = plugin.getPreferencesPane();
+		if (pluginPrefs != null) {
+			for (Object pane : pluginPrefs) {
 				if (pane != null && pane instanceof IPreferenceComponent) {
 					((IPreferenceComponent)pane).reset();
 				}
