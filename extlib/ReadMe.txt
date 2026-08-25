@@ -25,6 +25,24 @@ code.
   o nico-camargo-toolbar-icons-4.0.jar
     Toolbar icons created by Citizen Sky participant, Nico Camargo.
   
+  o nashorn-core-15.7.jar
+    Standalone OpenJDK Nashorn JavaScript engine. Required for
+    Tool -> Run Script... on Java 15+, where Nashorn is no longer
+    bundled with the JDK.
+    GPL-2 with Classpath exception (same family as OpenJDK). VStar
+    remains AGPL-3; the Classpath exception is what permits linking.
+    Do not copy Nashorn sources into VStar files. Corresponding source:
+    https://github.com/openjdk/nashorn
+
+  o asm-7.3.1.jar
+  o asm-commons-7.3.1.jar
+  o asm-tree-7.3.1.jar
+  o asm-util-7.3.1.jar
+  o asm-analysis-7.3.1.jar
+    ASM bytecode library, a dependency of Nashorn.
+    BSD 3-Clause. Copyright (c) 2000-2011 INRIA, France Telecom.
+    https://asm.ow2.io/
+
   o vstaricon.png
     This image was also created by Nico Camargo and is used for the
     splash screen and desktop icon.
@@ -62,6 +80,22 @@ See the URL for the web page of each project for more information.
     http://www.antlr.org/license.html
     
     * ANTLR4 http://www.antlr.org
+       
+  o GNU General Public License, version 2 with Classpath exception
+    gpl-2.0.txt (GPL-2 text)
+    gpl-2.0-classpath-exception.txt (Classpath exception addendum)
+    Full Nashorn LICENSE (GPL-2 + exception):
+    https://github.com/openjdk/nashorn/blob/main/LICENSE
+    GPL-2 without the Classpath exception is not compatible with
+    AGPL-3; the exception is required for shipping Nashorn with VStar.
+
+    * OpenJDK Nashorn  https://github.com/openjdk/nashorn
+
+  o BSD 3-Clause License
+    asm-bsd-3-clause.txt
+    https://asm.ow2.io/license.html
+
+    * ASM  https://asm.ow2.io/
        
 If you are a developer who wishes to contribute toward coding or 
 testing VStar, the following libraries are required for unit testing
