@@ -63,6 +63,13 @@ import org.json.JSONArray;
 
 public class ConvertHelper {
 
+	/**
+	 * Shared Preferences tab id for plugins that use this helper
+	 * (BJDConverter, JDtoBJDTool). Must match across plugin classloaders.
+	 */
+	public static final String PREFERENCES_ID =
+			"org.aavso.tools.vstar.external.lib.ConvertHelper";
+
 	private static Component preferencesPane;
 	
 	private static final String DEFAULT_TIME_SERVICE_URL = "http://localhost:5000/convert";  
@@ -571,6 +578,7 @@ public class ConvertHelper {
 	public static Component getPreferencesPane() {
 		if (preferencesPane == null) {
 			preferencesPane = new DirectoriesSettingsPane();
+			preferencesPane.setName(PREFERENCES_ID);
 		}
 		return preferencesPane;
 	}

@@ -80,6 +80,11 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 	public Component getPreferencesPane() {
 		return ConvertHelper.getPreferencesPane();
 	}
+
+	@Override
+	public String getPreferencesId() {
+		return ConvertHelper.PREFERENCES_ID;
+	}
 	
 	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()

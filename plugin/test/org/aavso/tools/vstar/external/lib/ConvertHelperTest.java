@@ -86,4 +86,9 @@ public class ConvertHelperTest extends TestCase {
 			server.stop(0);
 		}
 	}
+
+	public void testPreferencesPaneHasSharedId() {
+		assertEquals(ConvertHelper.PREFERENCES_ID,
+				ConvertHelper.getPreferencesPane().getName());
+	}
 }

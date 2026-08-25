@@ -66,7 +66,21 @@ public interface IPlugin {
 	 */
 	abstract public String getGroup();
 	
-	abstract public Component getPreferencesPane(); 
+	abstract public Component getPreferencesPane();
+
+	/**
+	 * Identity of this plugin's preferences pane for de-duplication.
+	 * <p>
+	 * Each plugin jar is loaded with its own classloader, so a shared helper
+	 * pane (for example ConvertHelper used by BJDConverter and JDtoBJDTool)
+	 * is a different instance per plugin even when it is one logical panel.
+	 * Plugins that share a pane should return the same non-null id.
+	 *
+	 * @return a shared id, or {@code null} if the pane is not shared
+	 */
+	default String getPreferencesId() {
+		return null;
+	}
 
 	/**
 	 * Does this plugin require authentication?

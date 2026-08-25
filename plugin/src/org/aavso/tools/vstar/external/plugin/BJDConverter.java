@@ -75,6 +75,11 @@ public class BJDConverter extends ObservationToolPluginBase {
 	}
 
 	@Override
+	public String getPreferencesId() {
+		return ConvertHelper.PREFERENCES_ID;
+	}
+
+	@Override
 	public void invoke(ISeriesInfoProvider seriesInfo) {
 		NewStarMessage msg = Mediator.getInstance().getLatestNewStarMessage();
 		if (msg != null) {

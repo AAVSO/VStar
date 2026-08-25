@@ -20,7 +20,9 @@ package org.aavso.tools.vstar.ui.dialog.prefs;
 import java.awt.Component;
 import java.awt.Container;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -103,22 +105,26 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 
 		List<IPlugin> plugin_list = PluginLoader.getPluginList();
 		if (plugin_list != null) {
-			for (IPlugin plugin :  plugin_list) {
+			Set<String> seenPreferenceIds = new HashSet<String>();
+			List<Component> addedPanes = new ArrayList<Component>();
+			for (IPlugin plugin : plugin_list) {
 				Component pane = plugin.getPreferencesPane();
-				if (pane != null) {
-					int index = tabs.indexOfComponent(pane);
-					if (index == -1) {
-						tabs.addTab(plugin.getDisplayName(), pane);
-						if (pluginPrefs == null) pluginPrefs = new ArrayList<Object>();						
-						pluginPrefs.add(pane);
-					}
+				if (PreferenceTabDeduper.shouldAddPreferenceTab(pane,
+						plugin.getPreferencesId(), addedPanes,
+						seenPreferenceIds)) {
+					tabs.addTab(plugin.getDisplayName(), pane);
+					if (pluginPrefs == null) pluginPrefs = new ArrayList<Object>();
+					pluginPrefs.add(pane);
+					addedPanes.add(pane);
+					PreferenceTabDeduper.recordPreferenceTab(pane,
+							plugin.getPreferencesId(), seenPreferenceIds);
 				}
 			}
 		}
 		
 		return tabs;
 	}
-	
+
 	/**
 	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
 	 */
