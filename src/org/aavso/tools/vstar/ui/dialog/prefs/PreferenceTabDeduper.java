@@ -39,9 +39,12 @@ final class PreferenceTabDeduper {
 		if (pane == null) {
 			return false;
 		}
-		for (Component added : addedPanes) {
-			if (added == pane) {
-				return false;
+		
+		if (addedPanes != null) {
+			for (Component added : addedPanes) {
+				if (added == pane) {
+					return false;
+				}
 			}
 		}
 		if (isSeenPreferenceId(prefsId, seenIds)) {

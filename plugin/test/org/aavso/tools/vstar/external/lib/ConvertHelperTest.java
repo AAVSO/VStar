@@ -36,7 +36,7 @@ import junit.framework.TestCase;
  */
 public class ConvertHelperTest extends TestCase {
 
-	private String savedTimeServiceUrl;
+	//private String savedTimeServiceUrl;
 
 	public ConvertHelperTest(String name) {
 		super(name);
@@ -44,12 +44,12 @@ public class ConvertHelperTest extends TestCase {
 
 	@Override
 	protected void setUp() {
-		savedTimeServiceUrl = ConvertHelper.getTimeServiceURLstring();
+		//savedTimeServiceUrl = ConvertHelper.getTimeServiceURLstring();
 	}
 
 	@Override
 	protected void tearDown() {
-		ConvertHelper.setTimeServiceURLstring(savedTimeServiceUrl);
+		//ConvertHelper.setTimeServiceURLstring(savedTimeServiceUrl);
 	}
 
 	public void testGetCoordinatesWhenPresent() {
@@ -76,9 +76,8 @@ public class ConvertHelperTest extends TestCase {
 		});
 		server.start();
 		try {
-			ConvertHelper.setTimeServiceURLstring("http://127.0.0.1:" + port + "/convert");
 			List<Double> times = Arrays.asList(2458000.0, 2458001.0);
-			List<Double> out = ConvertHelper.getConvertedListOfTimes(times, 45.0, 30.0, "utc2bjd");
+			List<Double> out = ConvertHelper.getConvertedListOfTimes(times, 45.0, 30.0, "utc2bjd", "http://127.0.0.1:" + port + "/convert");
 			assertEquals(2, out.size());
 			assertEquals(2458001.5, out.get(0), 1e-9);
 			assertEquals(2458002.5, out.get(1), 1e-9);

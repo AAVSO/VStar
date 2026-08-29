@@ -104,6 +104,7 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 		private JButton bUTCtoBJD;
 		private JButton bHJDtoBJD;
 		private JButton bUTCtoHJD;
+		private String timeServiceURLstring;
 		
 		protected boolean closed = false;
 		
@@ -114,6 +115,8 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 			super(DocumentManager.findActiveWindow());
 			setTitle("BJD Converter");
 			setModalityType(Dialog.ModalityType.MODELESS);
+			
+			timeServiceURLstring = ConvertHelper.getTimeServiceURLstringFromPrefs();
 			
 			ActionListener cancelListener = createCancelButtonListener();
 		    getRootPane().registerKeyboardAction(cancelListener, 
@@ -131,8 +134,7 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 			topPane.add(coordPane);
 			topPane.add(createMainPane());
 			topPane.add(createButtonPane2(cancelListener));
-			String temp_str = ConvertHelper.getTimeServiceURLstring();
-			topPane.add(createInfoPane("Time service: " + (temp_str != null ? temp_str : "not defined")));
+			topPane.add(createInfoPane("Time service: " + (timeServiceURLstring != null ? timeServiceURLstring : "not defined")));
 			
 			contentPane.add(topPane);
 			
@@ -166,12 +168,12 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 			JPanel panel = new JPanel();
 			
 			bUTCtoBJD = new JButton("UTC->BJD");
-			bUTCtoBJD.setToolTipText("Via " + ConvertHelper.getTimeServiceURLstring() + " service");
+			bUTCtoBJD.setToolTipText("Via '" + timeServiceURLstring + "' service");
 			bUTCtoBJD.addActionListener(createUTCtoBJDButtonListener());
 			panel.add(bUTCtoBJD, BorderLayout.NORTH);
 			
 			bHJDtoBJD = new JButton("HJD->BJD");
-			bHJDtoBJD.setToolTipText("Via " + ConvertHelper.getTimeServiceURLstring() + " service");
+			bHJDtoBJD.setToolTipText("Via '" + timeServiceURLstring + "' service");
 			bHJDtoBJD.addActionListener(createHJDtoBJDButtonListener());
 			panel.add(bHJDtoBJD, BorderLayout.CENTER);
 
@@ -210,7 +212,7 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 		private ActionListener createUTCtoBJDButtonListener() {
 			return new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					ConvertUTCtoBJD();
+					ConvertUTCtoBJD(timeServiceURLstring);
 				}
 			};
 		}
@@ -219,7 +221,7 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 		private ActionListener createHJDtoBJDButtonListener() {
 			return new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					ConvertHJDtoBJD();
+					ConvertHJDtoBJD(timeServiceURLstring);
 				}
 			};
 		}
@@ -228,7 +230,7 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 		private ActionListener createUTCtoHJDButtonListener() {
 			return new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					ConvertUTCtoHJD();
+					ConvertUTCtoHJD(timeServiceURLstring);
 				}
 			};
 		}
@@ -253,19 +255,19 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 			};
 		}
 	
-		private void ConvertUTCtoBJD() {
-			ConvertProc("utc2bjd");
+		private void ConvertUTCtoBJD(String timeServiceURLstring) {
+			ConvertProc("utc2bjd", timeServiceURLstring);
 		}
 		
-		private void ConvertHJDtoBJD() {
-			ConvertProc("hjd2bjd");
+		private void ConvertHJDtoBJD(String timeServiceURLstring) {
+			ConvertProc("hjd2bjd", timeServiceURLstring);
 		}
 		
-		private void ConvertUTCtoHJD() {
-			ConvertProc("utc2hjd");
+		private void ConvertUTCtoHJD(String timeServiceURLstring) {
+			ConvertProc("utc2hjd", timeServiceURLstring);
 		}
 		
-		private void ConvertProc(String func) {
+		private void ConvertProc(String func, String timeServiceURLstring) {
 			
 			Pair<RAInfo, DecInfo> coord = coordPane.getCoordinates();
 			
@@ -310,7 +312,7 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 			if ("utc2hjd".equals(func)) {
 				performLocalConvertUTC2HJD(times, ra, dec);
 			} else {
-				performConvert(times, ra, dec, func);
+				performConvert(times, ra, dec, func, timeServiceURLstring);
 			}
 		}
 	
@@ -324,13 +326,13 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 			displayOutput(result);
 		}
 		
-		private void performConvert(List<Double>times, double ra, double dec, String func) {
+		private void performConvert(List<Double>times, double ra, double dec, String func, String timeServiceURLstring) {
 			//System.out.println(urlString);
 			textArea2.setText("Please wait...");
 			bUTCtoBJD.setEnabled(false);
 			bHJDtoBJD.setEnabled(false);
 			bUTCtoHJD.setEnabled(false);
-			SwingWorker<ConvertResult, Object> worker = new JDtoBJDToolSwingWorker(this, times, ra, dec, func);
+			SwingWorker<ConvertResult, Object> worker = new JDtoBJDToolSwingWorker(this, times, ra, dec, func, timeServiceURLstring);
 			worker.execute();
 		}
 		
@@ -360,14 +362,16 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 		private double ra;
 		private double dec;
 		private String func;
+		private String timeServiceURLstring;
 
-		public JDtoBJDToolSwingWorker(JDtoBJDTool.JDtoBJDToolDialog dialog, List<Double>times, double ra, double dec, String func)
+		public JDtoBJDToolSwingWorker(JDtoBJDTool.JDtoBJDToolDialog dialog, List<Double>times, double ra, double dec, String func, String timeServiceURLstring)
 		{
 			this.dialog = dialog;
 			this.times = times;
 			this.ra = ra;
 			this.dec = dec;
 			this.func = func;
+			this.timeServiceURLstring = timeServiceURLstring;
 		}
 		
 		@Override
@@ -375,7 +379,7 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 			ConvertResult result = new ConvertResult();
 			result.error = null;			
 			try {
-				result.out_times = ConvertHelper.getConvertedListOfTimes(times, ra, dec, func);
+				result.out_times = ConvertHelper.getConvertedListOfTimes(times, ra, dec, func, timeServiceURLstring);
 			} catch (Exception ex) {
 				result.out_times = null;
 				result.error = ex.getMessage();

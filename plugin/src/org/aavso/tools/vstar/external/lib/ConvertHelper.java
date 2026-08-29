@@ -74,8 +74,6 @@ public class ConvertHelper {
 	
 	private static final String DEFAULT_TIME_SERVICE_URL = "http://localhost:5000/convert";  
 	
-	private static String timeServiceURLstring = DirectoriesSettingsPane.getTimeServicesURL(); 
-	
 	/**
 	 * A pane for entering RA/Dec with a button that gets coordinates from the VSX server by the VSX star name 
 	 */
@@ -428,12 +426,17 @@ public class ConvertHelper {
 		
 		String helpTopic;
 
-		public ConfirmDialogWithHelp(String title, String msg, String helpTopic) {
+		public ConfirmDialogWithHelp(String title, String msg, String helpTopic, String infoString) {
 			super(title);
-			initDialog(title, msg, helpTopic);
+			initDialog(title, msg, helpTopic, infoString);
 		}
 		
-		private void initDialog(String title, String msg, String helpTopic) {	
+		public ConfirmDialogWithHelp(String title, String msg, String helpTopic) {
+			super(title);
+			initDialog(title, msg, helpTopic, null);
+		}
+		
+		private void initDialog(String title, String msg, String helpTopic, String infoString) {	
 			this.helpTopic = helpTopic;
 			
 			Container contentPane = this.getContentPane();
@@ -449,7 +452,9 @@ public class ConvertHelper {
 			topPane.add(buttonPane);
 			this.helpTopic = helpTopic;
 
-			topPane.add(createInfoPane("Time service: " + (timeServiceURLstring != null ? timeServiceURLstring : "not defined")));
+			if (infoString != null && !"".equals(infoString))
+				topPane.add(createInfoPane(infoString));
+			//"Time service: " + (timeServiceURLstring != null ? timeServiceURLstring : "not defined"))
 			
 			contentPane.add(topPane);
 			
@@ -500,18 +505,21 @@ public class ConvertHelper {
 			dispose();
 		}
 	}
-	
-	public static String getTimeServiceURLstring() {
-		return timeServiceURLstring;
-	}
 
-	// Used in a test only 
-	public static void setTimeServiceURLstring(String s) {
-		timeServiceURLstring = s;
+	/**
+	 * 
+	 * This method returns timeServiceURLstring from Preferences.
+	 * The returned string is supposed to be passed to the getConvertedListOfTimes method.
+	 * 
+	 * @return
+	 * 					timeServiceURLstring
+	 */
+	public static String getTimeServiceURLstringFromPrefs() {
+		return DirectoriesSettingsPane.getTimeServicesURL();
 	}
+	
 	
 	/**
-	 * Uses the https://astroutils.astronomy.osu.edu service for conversion
 	 * 
 	 * @param times
 	 *                   a list of JD or HJD epochs
@@ -526,10 +534,9 @@ public class ConvertHelper {
 	 *                  a list of BJD_TBD epochs
 	 * @throws Exception
 	 */
-	public static List<Double> getConvertedListOfTimes(List<Double> times, double ra, double dec, String func)
+	public static List<Double> getConvertedListOfTimes(List<Double> times, double ra, double dec, String func, String timeServiceURLstring)
 			throws Exception {
-
-		if (timeServiceURLstring != null) {
+		if (timeServiceURLstring != null && !"".equals(timeServiceURLstring)) {
 			List<Double>out_times = convertTime(timeServiceURLstring, times, ra, dec, func);
 			return out_times;
 		} else
@@ -658,14 +665,11 @@ public class ConvertHelper {
 		@Override
 		public void update() {
 			String timeServiceUrl = jdConverterUrlField.getText().trim();
-			if (!timeServiceURLstring.equals(timeServiceUrl)) {
-				try {
-					Preferences prefs = Preferences.userNodeForPackage(ConvertHelper.class);
-					prefs.put("timeServiceUrl", timeServiceUrl);
-				} catch (Throwable t) {
-					// We need VStar to function in the absence of prefs.
-				}
-				timeServiceURLstring = timeServiceUrl;
+			try {
+				Preferences prefs = Preferences.userNodeForPackage(ConvertHelper.class);
+				prefs.put("timeServiceUrl", timeServiceUrl);
+			} catch (Throwable t) {
+				// We need VStar to function in the absence of prefs.
 			}
 		}
 

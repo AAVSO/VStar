@@ -95,7 +95,8 @@ public class BJDConverter extends ObservationToolPluginBase {
 						"No observations with JD or HJD");
 				return;
 			}
-			if (!showConfirmDialog("BJD_TDB Converter", count + " JD or/and HJD observations found. Convert them to BJD_TDB?", getDocName()))
+			String timeServiceURLstring = ConvertHelper.getTimeServiceURLstringFromPrefs();			
+			if (!showConfirmDialog("BJD_TDB Converter", count + " JD or/and HJD observations found. Convert them to BJD_TDB?", getDocName(), timeServiceURLstring))
 				return;
 			Pair<RAInfo, DecInfo> coords = ConvertHelper.getCoordinates(msg.getStarInfo());
 			if (coords != null) {
@@ -104,7 +105,7 @@ public class BJDConverter extends ObservationToolPluginBase {
 				Cursor defaultCursor = contentPane.getCursor();
 				contentPane.setCursor(waitCursor);
 				try {
-					result = convertObsToTDB(obs, coords.first, coords.second);
+					result = convertObsToTDB(obs, coords.first, coords.second, timeServiceURLstring);
 				} finally {
 					contentPane.setCursor(defaultCursor);
 				}
@@ -135,8 +136,8 @@ public class BJDConverter extends ObservationToolPluginBase {
 		}
 	}
 
-	private boolean showConfirmDialog(String title, String msg, String helpTopic) {
-		ConvertHelper.ConfirmDialogWithHelp dlg = new ConvertHelper.ConfirmDialogWithHelp(title, msg, helpTopic);
+	private boolean showConfirmDialog(String title, String msg, String helpTopic, String timeServiceURLstring) {
+		ConvertHelper.ConfirmDialogWithHelp dlg = new ConvertHelper.ConfirmDialogWithHelp(title, msg, helpTopic, timeServiceURLstring);
 		return !dlg.isCancelled();
 	}
 	
@@ -165,7 +166,7 @@ public class BJDConverter extends ObservationToolPluginBase {
 		
 	}
 
-	Pair<Integer, Integer> convertObsToTDB(List<ValidObservation> obs, RAInfo ra, DecInfo dec) {
+	private Pair<Integer, Integer> convertObsToTDB(List<ValidObservation> obs, RAInfo ra, DecInfo dec, String timeServiceURLstring) {
 
 		// Convert times first, without touching observations.
 		// If something goes wrong, the observations remain intact. 
@@ -176,8 +177,8 @@ public class BJDConverter extends ObservationToolPluginBase {
 		List<Double> timesHJDtoBJD = null;
 
 		try {
-			timesUTCtoBJD = getConvertedTimes(obsJD, ra, dec, JDflavour.JD);		
-			timesHJDtoBJD = getConvertedTimes(obsHJD, ra, dec, JDflavour.HJD);
+			timesUTCtoBJD = getConvertedTimes(obsJD, ra, dec, JDflavour.JD, timeServiceURLstring);		
+			timesHJDtoBJD = getConvertedTimes(obsHJD, ra, dec, JDflavour.HJD, timeServiceURLstring);
 		} catch (Exception ex) {
 			MessageBox.showErrorDialog("Error", ex.getMessage());
 			return null;
@@ -207,7 +208,7 @@ public class BJDConverter extends ObservationToolPluginBase {
 		return result;
 	}
 
-	private List<Double> getConvertedTimes(List<ValidObservation> obs, RAInfo ra, DecInfo dec, JDflavour f) throws Exception {
+	private List<Double> getConvertedTimes(List<ValidObservation> obs, RAInfo ra, DecInfo dec, JDflavour f, String timeServiceURLstring) throws Exception {
 		
 		String func = null;
 		
@@ -231,13 +232,13 @@ public class BJDConverter extends ObservationToolPluginBase {
 			obs_chunk.add(ob);
 			counter++;
 			if (counter == CHUNK_SIZE) {
-				result.addAll(convertChunk(obs_chunk, ra, dec, func));
+				result.addAll(convertChunk(obs_chunk, ra, dec, func, timeServiceURLstring));
 				obs_chunk = null;
 				counter = 0;
 			}
 		}
 		if (obs_chunk != null) {
-			result.addAll(convertChunk(obs_chunk, ra, dec, func));
+			result.addAll(convertChunk(obs_chunk, ra, dec, func, timeServiceURLstring));
 			obs_chunk = null;
 			counter = 0;
 		}
@@ -245,12 +246,12 @@ public class BJDConverter extends ObservationToolPluginBase {
 		return result;
 	}
 	
-	private List<Double> convertChunk(List<ValidObservation> obs_chunk, RAInfo ra, DecInfo dec, String func) throws Exception {
+	private List<Double> convertChunk(List<ValidObservation> obs_chunk, RAInfo ra, DecInfo dec, String func, String timeServiceURLstring) throws Exception {
 		List<Double> times = new ArrayList<Double>();
 		for (ValidObservation ob : obs_chunk) {
 			times.add(ob.getJD());
 		}
-		List<Double> result = ConvertHelper.getConvertedListOfTimes(times, ra.toDegrees(), dec.toDegrees(), func);
+		List<Double> result = ConvertHelper.getConvertedListOfTimes(times, ra.toDegrees(), dec.toDegrees(), func, timeServiceURLstring);
 		return result;
 	}
 

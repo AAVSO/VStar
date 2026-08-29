@@ -50,7 +50,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	private VeLaSettingsPane veLaSettingsPane;
 	private DirectoriesSettingsPane directoriesSettingsPane;
 	
-	private List<Object> pluginPrefs = null;
+	private List<Component> pluginPrefs = null;
 		
 	/**
 	 * Constructor.
@@ -106,16 +106,14 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		List<IPlugin> plugin_list = PluginLoader.getPluginList();
 		if (plugin_list != null) {
 			Set<String> seenPreferenceIds = new HashSet<String>();
-			List<Component> addedPanes = new ArrayList<Component>();
 			for (IPlugin plugin : plugin_list) {
 				Component pane = plugin.getPreferencesPane();
 				if (PreferenceTabDeduper.shouldAddPreferenceTab(pane,
-						plugin.getPreferencesId(), addedPanes,
+						plugin.getPreferencesId(), pluginPrefs,
 						seenPreferenceIds)) {
 					tabs.addTab(plugin.getDisplayName(), pane);
-					if (pluginPrefs == null) pluginPrefs = new ArrayList<Object>();
+					if (pluginPrefs == null) pluginPrefs = new ArrayList<Component>();
 					pluginPrefs.add(pane);
-					addedPanes.add(pane);
 					PreferenceTabDeduper.recordPreferenceTab(pane,
 							plugin.getPreferencesId(), seenPreferenceIds);
 				}
