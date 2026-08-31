@@ -103,6 +103,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		directoriesSettingsPane = new DirectoriesSettingsPane();
 		tabs.addTab("Directories", directoriesSettingsPane);
 
+		JTabbedPane pluginSettingsTabbedPane = null;
 		List<IPlugin> plugin_list = PluginLoader.getPluginList();
 		if (plugin_list != null) {
 			Set<String> seenPreferenceIds = new HashSet<String>();
@@ -111,11 +112,15 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 				if (PreferenceTabDeduper.shouldAddPreferenceTab(pane,
 						plugin.getPreferencesId(), pluginPrefs,
 						seenPreferenceIds)) {
-					tabs.addTab(plugin.getDisplayName(), pane);
-					if (pluginPrefs == null) pluginPrefs = new ArrayList<Component>();
+					if (pluginPrefs == null) {
+						pluginSettingsTabbedPane = new JTabbedPane();
+						tabs.addTab("Plug-ins Preferences", pluginSettingsTabbedPane);
+						pluginPrefs = new ArrayList<Component>();
+					}
 					pluginPrefs.add(pane);
 					PreferenceTabDeduper.recordPreferenceTab(pane,
 							plugin.getPreferencesId(), seenPreferenceIds);
+					pluginSettingsTabbedPane.addTab(plugin.getDisplayName(), pane);
 				}
 			}
 		}
@@ -186,4 +191,5 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	public static PreferencesDialog getInstance() {
 		return instance;
 	}
+	
 }
