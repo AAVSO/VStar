@@ -213,6 +213,13 @@ public class PluginLoader {
 
 		return obSinkPlugins;
 	}
+
+	/**
+	 * Return a list of all plugins
+	 */
+	public static List<IPlugin> getPluginList() {
+		return plugins;
+	}	
 	
 	/**
 	 * Load all VStar plugins and create an instance of each.
@@ -330,6 +337,9 @@ public class PluginLoader {
 		urlList.add(url);
 		urlList.addAll(depLibs);
 		URL[] urls = urlList.toArray(new URL[0]);
+		// Each plugin jar gets its own classloader (plugin jar + shared
+		// vstar_plugin_libs). Shared helper classes such as ConvertHelper
+		// are therefore loaded once per plugin, not once globally.
 		URLClassLoader cl = new URLClassLoader(urls, VStar.class.getClassLoader());
 		Class<?> clazz = cl.loadClass(qualifiedClassName);
 		Object plugin = clazz.newInstance();

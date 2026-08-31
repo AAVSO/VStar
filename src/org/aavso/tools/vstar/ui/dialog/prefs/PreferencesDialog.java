@@ -17,15 +17,22 @@
  */
 package org.aavso.tools.vstar.ui.dialog.prefs;
 
+import java.awt.Component;
 import java.awt.Container;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
 
 /**
  * Preferences Dialog.
@@ -43,6 +50,8 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	private VeLaSettingsPane veLaSettingsPane;
 	private DirectoriesSettingsPane directoriesSettingsPane;
 	
+	private List<Component> pluginPrefs = null;
+		
 	/**
 	 * Constructor.
 	 */
@@ -93,6 +102,28 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 
 		directoriesSettingsPane = new DirectoriesSettingsPane();
 		tabs.addTab("Directories", directoriesSettingsPane);
+
+		JTabbedPane pluginSettingsTabbedPane = null;
+		List<IPlugin> plugin_list = PluginLoader.getPluginList();
+		if (plugin_list != null) {
+			Set<String> seenPreferenceIds = new HashSet<String>();
+			for (IPlugin plugin : plugin_list) {
+				Component pane = plugin.getPreferencesPane();
+				if (PreferenceTabDeduper.shouldAddPreferenceTab(pane,
+						plugin.getPreferencesId(), pluginPrefs,
+						seenPreferenceIds)) {
+					if (pluginPrefs == null) {
+						pluginSettingsTabbedPane = new JTabbedPane();
+						tabs.addTab("Plug-ins Preferences", pluginSettingsTabbedPane);
+						pluginPrefs = new ArrayList<Component>();
+					}
+					pluginPrefs.add(pane);
+					PreferenceTabDeduper.recordPreferenceTab(pane,
+							plugin.getPreferencesId(), seenPreferenceIds);
+					pluginSettingsTabbedPane.addTab(plugin.getDisplayName(), pane);
+				}
+			}
+		}
 		
 		return tabs;
 	}
@@ -118,6 +149,14 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		veLaSettingsPane.update();
 		directoriesSettingsPane.update();
 		
+		if (pluginPrefs != null) {
+			for (Object pane : pluginPrefs) {
+				if (pane != null && pane instanceof IPreferenceComponent) {
+					((IPreferenceComponent)pane).update();
+				}
+			}
+		}
+		
 		this.setVisible(false);
 	}
 
@@ -134,6 +173,14 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		localeSelectionPane.reset();
 		veLaSettingsPane.reset();
 		directoriesSettingsPane.reset();
+		
+		if (pluginPrefs != null) {
+			for (Object pane : pluginPrefs) {
+				if (pane != null && pane instanceof IPreferenceComponent) {
+					((IPreferenceComponent)pane).reset();
+				}
+			}
+		}
 	}
 
 	/**
@@ -144,4 +191,5 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	public static PreferencesDialog getInstance() {
 		return instance;
 	}
+	
 }
