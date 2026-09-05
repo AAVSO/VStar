@@ -25,12 +25,12 @@ for (i=0;i<objs.length;i++) {
         //for (j=0;j<results.length;j++) {
         for (j=0;j<2;j++) {
     	    t = results[j][0]
-	    p = results[j][1]
+	        p = results[j][1]
             epoch = info.getEpoch()
             if (epoch == null) {
                 epoch = (startJD + endJD)/2
             }
-	    print(t + "," + p)
+	        print(t + "," + p)
             vstar.phasePlot(p, epoch)
             vstar.phasePlotMode()
             path = root + obj.replace(" ", "_") + t+":"+p + "-phase_plot.png"
@@ -38,5 +38,3 @@ for (i=0;i<objs.length;i++) {
         }
     }
 }
-
-
