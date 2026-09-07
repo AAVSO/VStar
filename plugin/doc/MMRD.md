@@ -60,9 +60,15 @@ extinction is known to be negligible.
    - **Directly from observations** only for clean or already-smoothed data.
 5. Review or edit $m_V$, $t_2$, $t_3$, optional $\sigma t_2$ and
    $\sigma t_3$, and extinction.
-6. Choose an MMRD relation.
-7. Read the resulting absolute magnitude, distance, and lower/upper distance
-   bounds.
+6. Choose an MMRD relation. The equation and error source update as you change
+   the drop-down.
+7. Click **OK**. The results dialog shows the selected relation in detail and a
+   summary table of **every** MMRD relation applied to the same $m_V$, $t_2$,
+   $t_3$, and $A_V$.
+8. Dismiss the results dialog to return to the input dialog. You can then
+   choose a different relation, adjust extinction or decline times, and
+   compare again. Series selection and the exponential fit are **not**
+   repeated. Click **Cancel** on the input dialog to leave the plug-in.
 
 ![MMRD inputs dialog](images/mmrd_inputs_dialog.png)
 
@@ -133,6 +139,10 @@ The plug-in also includes historical relations and two aggregate options:
   disagree.
 
 Individual historical relations are also available for comparison and study.
+After the exponential fit (or direct extraction) has supplied $t_2$ and $t_3$,
+you can switch among these relations from the drop-down without starting the
+plug-in again. The results dialog also lists every relation in one table, so a
+single **OK** is enough to see how the calibrations differ.
 
 ### Table 4 in Kok (2010)
 
@@ -186,6 +196,15 @@ example from a published table.
 Distance bounds are shown in kpc as lower and upper bounds rather than a single
 symmetric error, because distance depends exponentially on magnitude. A
 symmetric $\sigma M_V$ usually becomes an asymmetric distance interval.
+
+The results dialog repeats those bounds for the relation selected in the
+drop-down, and the summary table reports $M_V$, $\sigma M_V$, and the
+corresponding distance interval for every relation, rounded to two decimal
+places. The table opens sorted by increasing distance; click any column header
+to sort by that column (numeric columns sort by value, not as text). Click a
+row to highlight it; the relation chosen in the drop-down is selected
+initially. Relations that cannot be evaluated (for example a $t_3$
+calibration when $t_3$ is missing) appear as `n/a` and sort last.
 
 ## Comparison with Kok (2010)
 

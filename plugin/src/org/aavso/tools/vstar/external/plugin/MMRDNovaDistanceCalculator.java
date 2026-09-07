@@ -17,12 +17,35 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
+import javax.swing.SwingConstants;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -35,14 +58,15 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.dialog.SelectableTextField;
 import org.aavso.tools.vstar.ui.dialog.TextArea;
-import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.Tolerance;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -74,6 +98,13 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * against the summary in section 2.3 of [1] and reproducing Table 3 of [2])
  * are used here: brighter (more negative peak absolute magnitude) novae are
  * the faster decliners.
+ * </p>
+ *
+ * <p>
+ * After t2 and t3 have been obtained (by exponential fit or from the
+ * observations), the input dialog can be used repeatedly to try different
+ * MMRD relations without repeating the fit. The results dialog includes a
+ * summary table of every relation applied to the same inputs.
  * </p>
  */
 public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
@@ -466,6 +497,20 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
     }
 
     /**
+     * Distance result for a single MMRD relation.
+     */
+    public static class MMRDResult {
+        public MMRDRelation relation;
+        public Double absMag;
+        public Double absMagError;
+        public Double distancePc;
+        public Double lowerDistancePc;
+        public Double upperDistancePc;
+        public Double lowerErrorPc;
+        public Double upperErrorPc;
+    }
+
+    /**
      * Extract the peak magnitude, time of peak, and the t2 and t3 decline
      * times from the supplied time-ordered observation list. The peak is the
      * brightest observation; the decline times are obtained from the first
@@ -565,6 +610,79 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
                 distance - lowerDistance, upperDistance - distance };
     }
 
+    /**
+     * Combine an explicit visual extinction with optional reddening. A non-zero
+     * Av takes precedence; otherwise Av = 3.1 E(B-V).
+     */
+    public static double effectiveExtinction(Double extinction, Double reddening) {
+        if (extinction != null && extinction != 0) {
+            return extinction;
+        }
+        return reddening != null ? 3.1 * reddening : 0;
+    }
+
+    /**
+     * Compute the distance result for one MMRD relation.
+     */
+    public static MMRDResult resultFor(MMRDRelation relation, double peakMag,
+            Double t2, Double t3, Double sigmaT2, Double sigmaT3,
+            double extinction) {
+        MMRDResult result = new MMRDResult();
+        result.relation = relation;
+        result.absMag = relation.absMag(t2, t3);
+
+        if (result.absMag == null) {
+            return result;
+        }
+
+        result.absMagError = relation.absMagError(t2, t3, sigmaT2, sigmaT3);
+        result.distancePc = calcDistance(peakMag, result.absMag, extinction);
+
+        if (result.absMagError != null) {
+            double[] bounds = calcDistanceBounds(peakMag, result.absMag,
+                    extinction, result.absMagError);
+            result.lowerDistancePc = bounds[0];
+            result.upperDistancePc = bounds[2];
+            result.lowerErrorPc = bounds[3];
+            result.upperErrorPc = bounds[4];
+        }
+
+        return result;
+    }
+
+    /**
+     * Compute distance results for every supported MMRD relation, in enum order.
+     */
+    public static List<MMRDResult> resultsForAllRelations(double peakMag,
+            Double t2, Double t3, Double sigmaT2, Double sigmaT3,
+            double extinction) {
+        List<MMRDResult> results = new ArrayList<MMRDResult>();
+
+        for (MMRDRelation relation : MMRDRelation.values()) {
+            results.add(resultFor(relation, peakMag, t2, t3, sigmaT2, sigmaT3,
+                    extinction));
+        }
+
+        return results;
+    }
+
+    /**
+     * Return a copy of the results sorted by increasing distance (nearest
+     * first). Relations with no distance are placed last.
+     */
+    public static List<MMRDResult> sortedByDistance(List<MMRDResult> results) {
+        List<MMRDResult> sorted = new ArrayList<MMRDResult>(results);
+
+        Collections.sort(sorted, new Comparator<MMRDResult>() {
+            @Override
+            public int compare(MMRDResult a, MMRDResult b) {
+                return NULLS_LAST_DOUBLE.compare(a.distancePc, b.distancePc);
+            }
+        });
+
+        return sorted;
+    }
+
     @Override
     public void invoke(ISeriesInfoProvider seriesInfo) {
         // Request the series to be used.
@@ -599,99 +717,132 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
             params = extractLightCurveParams(obs);
         }
 
-        // Request the relation and permit the parameters to be overridden.
-        List<String> relationNames = new ArrayList<String>();
-        for (MMRDRelation relation : MMRDRelation.values()) {
-            relationNames.add(relation.getDisplayName());
-        }
+        // Compare MMRD relations without repeating series selection or the fit.
+        compareRelations(params);
+    }
 
-        final TextArea equationField = new TextArea(
-                "MMRD Relation Equation and Error Source",
-                relationEquationDisplay(MMRDRelation.KANTHARIA_2017), 2, 40,
-                true, true);
-        JTextArea equationTextArea = (JTextArea) equationField.getUIComponent();
-        equationTextArea.setLineWrap(true);
-        equationTextArea.setWrapStyleWord(true);
+    // Present the MMRD input dialog repeatedly until the user cancels. Each
+    // OK computes the selected relation in detail and a summary table of every
+    // supported relation.
+    private void compareRelations(LightCurveParams params) {
+        String selectedRelationName = MMRDRelation.KANTHARIA_2017.getDisplayName();
+        Double peakMag = params.peakMag;
+        Double t2 = params.t2;
+        Double t3 = params.t3;
+        Double sigmaT2 = params.sigmaT2;
+        Double sigmaT3 = params.sigmaT3;
+        Double extinction = 0.0;
+        Double reddening = 0.0;
 
-        final SelectableTextField relationField = new SelectableTextField(
-                "MMRD Relation", relationNames,
-                MMRDRelation.KANTHARIA_2017.getDisplayName());
-        relationField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                MMRDRelation relation = MMRDRelation
-                        .fromDisplayName(relationField.getValue());
-                if (relation != null) {
-                    equationField.setValue(relationEquationDisplay(relation));
-                }
+        while (true) {
+            List<String> relationNames = new ArrayList<String>();
+            for (MMRDRelation relation : MMRDRelation.values()) {
+                relationNames.add(relation.getDisplayName());
             }
-        });
 
-        DoubleField peakMagField = new DoubleField("Peak Apparent Mag (mv)",
-                null, null, params.peakMag);
-        DoubleField t2Field = new DoubleField("t2 (days)", 0.0, null, params.t2);
-        DoubleField t3Field = new DoubleField("t3 (days)", 0.0, null, params.t3);
-        DoubleField sigmaT2Field = new DoubleField("sigma t2 (days)",
-                0.0, null, params.sigmaT2);
-        DoubleField sigmaT3Field = new DoubleField("sigma t3 (days)",
-                0.0, null, params.sigmaT3);
-        DoubleField extinctionField = new DoubleField("Extinction (Av)",
-                null, null, 0.0);
-        DoubleField reddeningField = new DoubleField(
-                "or Reddening E(B-V); Av = 3.1 E(B-V)", null, null, 0.0);
+            MMRDRelation initialRelation = MMRDRelation
+                    .fromDisplayName(selectedRelationName);
+            if (initialRelation == null) {
+                initialRelation = MMRDRelation.KANTHARIA_2017;
+                selectedRelationName = initialRelation.getDisplayName();
+            }
 
-        List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
-        fields.add(relationField);
-        fields.add(equationField);
-        fields.add(peakMagField);
-        fields.add(t2Field);
-        fields.add(t3Field);
-        fields.add(sigmaT2Field);
-        fields.add(sigmaT3Field);
-        fields.add(extinctionField);
-        fields.add(reddeningField);
+            final TextArea equationField = new TextArea(
+                    "MMRD Relation Equation and Error Source",
+                    relationEquationDisplay(initialRelation), 2, 40, true, true);
+            JTextArea equationTextArea = (JTextArea) equationField.getUIComponent();
+            equationTextArea.setLineWrap(true);
+            equationTextArea.setWrapStyleWord(true);
 
-        MultiEntryComponentDialog inputDlg = new MultiEntryComponentDialog(
-                "MMRD Inputs", fields);
+            final SelectableTextField relationField = new SelectableTextField(
+                    "MMRD Relation", relationNames, selectedRelationName);
+            relationField.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    MMRDRelation relation = MMRDRelation
+                            .fromDisplayName(relationField.getValue());
+                    if (relation != null) {
+                        equationField.setValue(relationEquationDisplay(relation));
+                    }
+                }
+            });
 
-        if (inputDlg.isCancelled()) return;
+            DoubleField peakMagField = new DoubleField("Peak Apparent Mag (mv)",
+                    null, null, peakMag);
+            DoubleField t2Field = new DoubleField("t2 (days)", 0.0, null, t2);
+            DoubleField t3Field = new DoubleField("t3 (days)", 0.0, null, t3);
+            DoubleField sigmaT2Field = new DoubleField("sigma t2 (days)",
+                    0.0, null, sigmaT2);
+            DoubleField sigmaT3Field = new DoubleField("sigma t3 (days)",
+                    0.0, null, sigmaT3);
+            DoubleField extinctionField = new DoubleField("Extinction (Av)",
+                    null, null, extinction);
+            DoubleField reddeningField = new DoubleField(
+                    "or Reddening E(B-V); Av = 3.1 E(B-V)", null, null,
+                    reddening);
 
-        MMRDRelation relation = MMRDRelation
-                .fromDisplayName(relationField.getValue());
-        Double peakMag = peakMagField.getValue();
-        Double t2 = t2Field.getValue();
-        Double t3 = t3Field.getValue();
-        Double sigmaT2 = sigmaT2Field.getValue();
-        Double sigmaT3 = sigmaT3Field.getValue();
-        Double extinction = extinctionField.getValue();
-        Double reddening = reddeningField.getValue();
+            List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
+            fields.add(relationField);
+            fields.add(equationField);
+            fields.add(peakMagField);
+            fields.add(t2Field);
+            fields.add(t3Field);
+            fields.add(sigmaT2Field);
+            fields.add(sigmaT3Field);
+            fields.add(extinctionField);
+            fields.add(reddeningField);
 
-        if (relation == null || peakMag == null) {
-            MessageBox.showErrorDialog("MMRD Nova Distance",
-                    "A relation and peak apparent magnitude are required.");
-            return;
+            MultiEntryComponentDialog inputDlg = new MultiEntryComponentDialog(
+                    "MMRD Inputs", fields);
+
+            if (inputDlg.isCancelled()) {
+                return;
+            }
+
+            selectedRelationName = relationField.getValue();
+            peakMag = peakMagField.getValue();
+            t2 = t2Field.getValue();
+            t3 = t3Field.getValue();
+            sigmaT2 = sigmaT2Field.getValue();
+            sigmaT3 = sigmaT3Field.getValue();
+            extinction = extinctionField.getValue();
+            reddening = reddeningField.getValue();
+
+            MMRDRelation relation = MMRDRelation
+                    .fromDisplayName(selectedRelationName);
+
+            if (relation == null || peakMag == null) {
+                MessageBox.showErrorDialog("MMRD Nova Distance",
+                        "A relation and peak apparent magnitude are required.");
+                continue;
+            }
+
+            double av = effectiveExtinction(extinction, reddening);
+            List<MMRDResult> allResults = resultsForAllRelations(peakMag, t2, t3,
+                    sigmaT2, sigmaT3, av);
+            MMRDResult selected = resultFor(relation, peakMag, t2, t3, sigmaT2,
+                    sigmaT3, av);
+
+            if (!anyResultAvailable(allResults)) {
+                MessageBox.showErrorDialog("MMRD Nova Distance",
+                        "The selected relation requires a decline time (t2 and/or t3) "
+                                + "that is not available. The light curve may not "
+                                + "decline far enough below maximum; the value can "
+                                + "also be entered manually.");
+                continue;
+            }
+
+            showResults(selected, allResults, peakMag, av);
         }
+    }
 
-        double effectiveExtinction = extinction != null && extinction != 0
-                ? extinction
-                : (reddening != null ? 3.1 * reddening : 0);
-
-        Double absMag = relation.absMag(t2, t3);
-
-        if (absMag == null) {
-            MessageBox.showErrorDialog("MMRD Nova Distance",
-                    "The selected relation requires a decline time (t2 and/or t3) "
-                            + "that is not available. The light curve may not "
-                            + "decline far enough below maximum; the value can "
-                            + "also be entered manually.");
-            return;
+    private static boolean anyResultAvailable(List<MMRDResult> results) {
+        for (MMRDResult result : results) {
+            if (result.absMag != null) {
+                return true;
+            }
         }
-
-        Double absMagError = relation.absMagError(t2, t3, sigmaT2, sigmaT3);
-        double distance = calcDistance(peakMag, absMag, effectiveExtinction);
-
-        showResults(relation, absMag, absMagError, peakMag, effectiveExtinction,
-                distance);
+        return false;
     }
 
     // Fit the exponential decline model, submitting a copy of it to the
@@ -740,56 +891,305 @@ public class MMRDNovaDistanceCalculator extends ObservationToolPluginBase {
         return firstLine + "\nError source: " + relation.getErrorSource();
     }
 
-    // Show the absolute magnitude and distance results in a dialog.
-    private void showResults(MMRDRelation relation, double absMag,
-            Double absMagError, double peakMag, double extinction,
-            double distance) {
+    // Show the selected-relation details together with a summary table of
+    // every MMRD relation. Dismissing the dialog returns to the input dialog.
+    private void showResults(MMRDResult selected, List<MMRDResult> allResults,
+            double peakMag, double extinction) {
         List<ITextComponent<String>> resultFields = new ArrayList<ITextComponent<String>>();
 
         resultFields.add(new TextField("MMRD Relation",
-                relation.getDisplayName(), true, false));
+                selected.relation.getDisplayName(), true, false));
 
-        String absMagStr = NumericPrecisionPrefs.formatMag(absMag);
-        if (absMagError != null) {
-            absMagStr += " \u00B1 " + NumericPrecisionPrefs.formatMag(absMagError);
-        }
-        resultFields.add(new TextField("Peak Absolute Magnitude (Mv)",
-                absMagStr, true, false));
+        if (selected.absMag != null) {
+            String absMagStr = NumericPrecisionPrefs.formatMag(selected.absMag);
+            if (selected.absMagError != null) {
+                absMagStr += " \u00B1 "
+                        + NumericPrecisionPrefs.formatMag(selected.absMagError);
+            }
+            resultFields.add(new TextField("Peak Absolute Magnitude (Mv)",
+                    absMagStr, true, false));
 
-        double distanceModulus = peakMag - extinction - absMag;
-        resultFields.add(new TextField("Distance Modulus (mv - Av - Mv)",
-                NumericPrecisionPrefs.formatMag(distanceModulus), true, false));
+            double distanceModulus = peakMag - extinction - selected.absMag;
+            resultFields.add(new TextField("Distance Modulus (mv - Av - Mv)",
+                    NumericPrecisionPrefs.formatMag(distanceModulus), true,
+                    false));
 
-        resultFields.add(new TextField("Distance (kpc)",
-                NumericPrecisionPrefs.formatOther(distance / 1000), true, false));
-        resultFields.add(new TextField("Distance (light years)",
-                NumericPrecisionPrefs.formatOther(distance * 3.26), true, false));
+            resultFields.add(new TextField("Distance (kpc)",
+                    NumericPrecisionPrefs.formatOther(selected.distancePc / 1000),
+                    true, false));
+            resultFields.add(new TextField("Distance (light years)",
+                    NumericPrecisionPrefs.formatOther(selected.distancePc * 3.26),
+                    true, false));
 
-        if (absMagError != null) {
-            double[] bounds = calcDistanceBounds(peakMag, absMag, extinction,
-                    absMagError);
-            double lowerDistance = bounds[0];
-            double upperDistance = bounds[2];
-            double lowerError = bounds[3];
-            double upperError = bounds[4];
-
-            resultFields.add(new TextField("Distance Lower Bound (kpc)",
-                    NumericPrecisionPrefs.formatOther(lowerDistance / 1000), true, false));
-            resultFields.add(new TextField("Distance Upper Bound (kpc)",
-                    NumericPrecisionPrefs.formatOther(upperDistance / 1000), true, false));
-            resultFields.add(new TextField("Distance Error (kpc)",
-                    "-" + NumericPrecisionPrefs.formatOther(lowerError / 1000) + " / +"
-                            + NumericPrecisionPrefs.formatOther(upperError / 1000),
+            if (selected.absMagError != null) {
+                resultFields.add(new TextField("Distance Lower Bound (kpc)",
+                        NumericPrecisionPrefs.formatOther(
+                                selected.lowerDistancePc / 1000),
+                        true, false));
+                resultFields.add(new TextField("Distance Upper Bound (kpc)",
+                        NumericPrecisionPrefs.formatOther(
+                                selected.upperDistancePc / 1000),
+                        true, false));
+                resultFields.add(new TextField("Distance Error (kpc)",
+                        "-" + NumericPrecisionPrefs.formatOther(
+                                selected.lowerErrorPc / 1000)
+                                + " / +"
+                                + NumericPrecisionPrefs.formatOther(
+                                        selected.upperErrorPc / 1000),
+                        true, false));
+            }
+        } else {
+            resultFields.add(new TextField("Peak Absolute Magnitude (Mv)",
+                    "n/a", true, false));
+            resultFields.add(new TextField("Note",
+                    "The selected relation needs a decline time that is not "
+                            + "available; other relations are shown in the table.",
                     true, false));
         }
 
         if (extinction == 0) {
             resultFields.add(new TextField("Note",
-                    "No extinction was applied (Av = 0), so the distance is "
-                            + "an upper limit.", true, false));
+                    "No extinction was applied (Av = 0), so the distances are "
+                            + "upper limits.",
+                    true, false));
         }
 
-        new TextDialog("MMRD Nova Distance", resultFields);
+        new MMRDResultsDialog(resultFields, allResults, selected.relation);
+    }
+
+    @SuppressWarnings("serial")
+    private class MMRDResultsDialog extends JDialog {
+
+        public MMRDResultsDialog(List<ITextComponent<String>> resultFields,
+                List<MMRDResult> allResults, MMRDRelation selectedRelation) {
+            super(DocumentManager.findActiveWindow(), "MMRD Nova Distance",
+                    ModalityType.APPLICATION_MODAL);
+            setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+            ActionListener dismissListener = new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    setVisible(false);
+                    dispose();
+                }
+            };
+            getRootPane().registerKeyboardAction(dismissListener,
+                    KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                    JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+            JPanel topPane = new JPanel();
+            topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+            topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+            for (ITextComponent<String> field : resultFields) {
+                field.setEditable(false);
+                topPane.add(field.getUIComponent());
+            }
+
+            topPane.add(createTablePane(allResults, selectedRelation));
+            topPane.add(createButtonPane(dismissListener));
+
+            getContentPane().add(topPane);
+            pack();
+            setLocationRelativeTo(Mediator.getUI().getContentPane());
+            setVisible(true);
+        }
+
+        private JScrollPane createTablePane(List<MMRDResult> allResults,
+                MMRDRelation selectedRelation) {
+            MMRDSummaryTableModel tableModel = new MMRDSummaryTableModel(
+                    allResults);
+            JTable table = new JTable(tableModel);
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            table.getColumnModel().getColumn(0).setPreferredWidth(340);
+            table.getColumnModel().getColumn(1).setPreferredWidth(70);
+            table.getColumnModel().getColumn(2).setPreferredWidth(70);
+            table.getColumnModel().getColumn(3).setPreferredWidth(80);
+            table.getColumnModel().getColumn(4).setPreferredWidth(100);
+            table.getColumnModel().getColumn(5).setPreferredWidth(100);
+            // Whole-row selection. Do not call setCellSelectionEnabled(false):
+            // that method also turns off row selection.
+            table.setColumnSelectionAllowed(false);
+            table.setRowSelectionAllowed(true);
+            table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            table.setFocusable(true);
+
+            TableNumberRenderer numberRenderer = new TableNumberRenderer();
+            for (int column = 1; column < tableModel.getColumnCount(); column++) {
+                table.getColumnModel().getColumn(column)
+                        .setCellRenderer(numberRenderer);
+            }
+
+            TableRowSorter<MMRDSummaryTableModel> sorter =
+                    new TableRowSorter<MMRDSummaryTableModel>(tableModel);
+            for (int column = 1; column < tableModel.getColumnCount(); column++) {
+                sorter.setComparator(column, NULLS_LAST_DOUBLE);
+            }
+            sorter.setSortKeys(Collections.singletonList(
+                    new RowSorter.SortKey(MMRDSummaryTableModel.COL_D_KPC,
+                            SortOrder.ASCENDING)));
+            table.setRowSorter(sorter);
+
+            int modelRow = indexOfRelation(allResults, selectedRelation);
+            if (modelRow >= 0) {
+                int viewRow = table.convertRowIndexToView(modelRow);
+                if (viewRow >= 0) {
+                    table.setRowSelectionInterval(viewRow, viewRow);
+                    table.scrollRectToVisible(
+                            table.getCellRect(viewRow, 0, true));
+                }
+            }
+
+            JScrollPane pane = new JScrollPane(table);
+            pane.setBorder(BorderFactory.createTitledBorder("All MMRD relations"));
+            pane.setPreferredSize(new Dimension(780, 220));
+            return pane;
+        }
+
+        private JPanel createButtonPane(ActionListener dismissListener) {
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+            panel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+
+            JButton dismissButton = new JButton(LocaleProps.get("DISMISS_BUTTON"));
+            dismissButton.addActionListener(dismissListener);
+            panel.add(dismissButton);
+            getRootPane().setDefaultButton(dismissButton);
+
+            return panel;
+        }
+    }
+
+    private static int indexOfRelation(List<MMRDResult> results,
+            MMRDRelation relation) {
+        for (int i = 0; i < results.size(); i++) {
+            if (results.get(i).relation == relation) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static class MMRDSummaryTableModel extends AbstractTableModel {
+
+        static final int COL_RELATION = 0;
+        static final int COL_MV = 1;
+        static final int COL_SIGMA_MV = 2;
+        static final int COL_D_KPC = 3;
+        static final int COL_D_LOWER = 4;
+        static final int COL_D_UPPER = 5;
+
+        private static final String[] COLUMN_NAMES = { "Relation", "Mv",
+                "sigma Mv", "D (kpc)", "D lower (kpc)", "D upper (kpc)" };
+
+        private final List<MMRDResult> results;
+
+        public MMRDSummaryTableModel(List<MMRDResult> results) {
+            this.results = results;
+        }
+
+        @Override
+        public int getColumnCount() {
+            return COLUMN_NAMES.length;
+        }
+
+        @Override
+        public int getRowCount() {
+            return results.size();
+        }
+
+        @Override
+        public String getColumnName(int column) {
+            return COLUMN_NAMES[column];
+        }
+
+        @Override
+        public Class<?> getColumnClass(int column) {
+            return column == COL_RELATION ? String.class : Double.class;
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+
+        @Override
+        public Object getValueAt(int row, int column) {
+            MMRDResult result = results.get(row);
+
+            switch (column) {
+            case COL_RELATION:
+                return result.relation.getDisplayName();
+            case COL_MV:
+                return result.absMag;
+            case COL_SIGMA_MV:
+                return result.absMagError;
+            case COL_D_KPC:
+                return toKpc(result.distancePc);
+            case COL_D_LOWER:
+                return toKpc(result.lowerDistancePc);
+            case COL_D_UPPER:
+                return toKpc(result.upperDistancePc);
+            default:
+                return null;
+            }
+        }
+    }
+
+    @SuppressWarnings("serial")
+    private static class TableNumberRenderer extends DefaultTableCellRenderer {
+
+        public TableNumberRenderer() {
+            setHorizontalAlignment(SwingConstants.RIGHT);
+        }
+
+        @Override
+        protected void setValue(Object value) {
+            if (value == null) {
+                setText("n/a");
+            } else if (value instanceof Double) {
+                setText(formatTableNumber((Double) value));
+            } else {
+                super.setValue(value);
+            }
+        }
+    }
+
+    // Null distances/magnitudes sort after numeric values so n/a rows stay last
+    // on an ascending sort.
+    static final Comparator<Double> NULLS_LAST_DOUBLE = new Comparator<Double>() {
+        @Override
+        public int compare(Double a, Double b) {
+            if (a == null && b == null) {
+                return 0;
+            }
+            if (a == null) {
+                return 1;
+            }
+            if (b == null) {
+                return -1;
+            }
+            return Double.compare(a, b);
+        }
+    };
+
+    // Comparison-table precision: two decimal places, independent of the
+    // numeric-precision preferences (which default to 6 mag / 12 other).
+    private static final int TABLE_DECIMAL_PLACES = 2;
+
+    private static Double toKpc(Double distancePc) {
+        return distancePc == null ? null : distancePc / 1000;
+    }
+
+    private static String formatTableNumber(double value) {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(
+                Locale.getDefault());
+        symbols.setMinusSign('-');
+        DecimalFormat format = new DecimalFormat("0.00", symbols);
+        format.setMinimumFractionDigits(TABLE_DECIMAL_PLACES);
+        format.setMaximumFractionDigits(TABLE_DECIMAL_PLACES);
+        format.setGroupingUsed(false);
+        return format.format(value);
     }
 
     @Override
