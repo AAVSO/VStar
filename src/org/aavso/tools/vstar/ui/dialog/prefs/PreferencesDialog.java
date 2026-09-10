@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui.dialog.prefs;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -114,7 +115,11 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 						seenPreferenceIds)) {
 					if (pluginPrefs == null) {
 						pluginSettingsTabbedPane = new JTabbedPane();
-						tabs.addTab("Plug-ins Preferences", pluginSettingsTabbedPane);
+						//tabs.addTab("Plug-ins Preferences", pluginSettingsTabbedPane);
+						pluginSettingsPane.setLayout(new GridLayout(0, 1));
+						pluginSettingsPane.add(pluginSettingsTabbedPane);
+						// third pane: without it, buttons in the top 'preferences' pane looks ugly  
+						pluginSettingsPane.add(new JPanel());						
 						pluginPrefs = new ArrayList<Component>();
 					}
 					pluginPrefs.add(pane);
