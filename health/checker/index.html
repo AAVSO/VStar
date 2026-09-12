@@ -46,12 +46,12 @@
 </header>
 <main>
   <div class="summary">
-    <div class="stat"><div class="num">1603</div><div class="label">Total warnings</div></div>
-    <div class="stat"><div class="num">939</div><div class="label">Nullness</div></div>
+    <div class="stat"><div class="num">1614</div><div class="label">Total warnings</div></div>
+    <div class="stat"><div class="num">950</div><div class="label">Nullness</div></div>
     <div class="stat"><div class="num">119</div><div class="label">Initialization</div></div>
   </div>
   <div class="toolbar"><a href="checker-report.txt">Download raw report (.txt)</a></div>
-  <pre>    [javac] Compiling 409 source files to /home/runner/work/VStar/VStar/test_report/checkerframework/classes
+  <pre>    [javac] Compiling 410 source files to /home/runner/work/VStar/VStar/test_report/checkerframework/classes
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/auth/AAVSOPostUserPassXMLAuthenticationSource.java:55: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: userID
     [javac] 	public AAVSOPostUserPassXMLAuthenticationSource(String endPoint) {
     [javac] 	       ^
@@ -1075,45 +1075,65 @@
     [javac] 								                                      ^
     [javac]   found   : @Initialized @Nullable String
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java:51: warning: [initialization.field.uninitialized] the default constructor does not initialize field filteredObs
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java:52: warning: [initialization.field.uninitialized] the default constructor does not initialize field filteredObs
     [javac] 	protected Set&lt;ValidObservation&gt; filteredObs;
     [javac] 	                                ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java:71: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java:72: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java:79: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java:80: warning: [return] incompatible types in return.
+    [javac] 		return null;
+    [javac] 		       ^
+    [javac]   type of expression: null (NullType)
+    [javac]   method return type: @Initialized @NonNull Component
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java:88: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java:164: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java:173: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull Boolean
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java:50: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/IPlugin.java:82: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java:58: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java:52: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java:79: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java:60: warning: [return] incompatible types in return.
+    [javac] 		return null;
+    [javac] 		       ^
+    [javac]   type of expression: null (NullType)
+    [javac]   method return type: @Initialized @NonNull Component
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java:68: warning: [return] incompatible types in return.
+    [javac] 		return null;
+    [javac] 		       ^
+    [javac]   type of expression: null (NullType)
+    [javac]   method return type: @Initialized @NonNull String
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java:89: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull Boolean
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java:69: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java:70: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java:106: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java:78: warning: [return] incompatible types in return.
+    [javac] 		return null;
+    [javac] 		       ^
+    [javac]   type of expression: null (NullType)
+    [javac]   method return type: @Initialized @NonNull Component
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java:115: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
@@ -1325,90 +1345,105 @@
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull Boolean
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:69: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: inputStreams, inputName
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:70: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: inputStreams, inputName
     [javac] 	protected ObservationSourcePluginBase(String username, String password) {
     [javac] 	          ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:81: warning: [argument] incompatible argument for parameter username of ObservationSourcePluginBase constructor.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:82: warning: [argument] incompatible argument for parameter username of ObservationSourcePluginBase constructor.
     [javac] 		this(null, null);
     [javac] 		     ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:81: warning: [argument] incompatible argument for parameter password of ObservationSourcePluginBase constructor.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:82: warning: [argument] incompatible argument for parameter password of ObservationSourcePluginBase constructor.
     [javac] 		this(null, null);
     [javac] 		           ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:109: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:110: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:125: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:126: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:133: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:134: warning: [return] incompatible types in return.
+    [javac] 		return null;
+    [javac] 		       ^
+    [javac]   type of expression: null (NullType)
+    [javac]   method return type: @Initialized @NonNull Component
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:142: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:176: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:185: warning: [return] incompatible types in return.
     [javac] 	    return streamNameMap.get(stream);
     [javac] 	                            ^
     [javac]   type of expression: @Initialized @Nullable String
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:187: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:196: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull List&lt;@Initialized @NonNull String&gt;
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:214: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:223: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull List&lt;@Initialized @NonNull File&gt;
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:233: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:242: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull List&lt;@Initialized @NonNull URL&gt;
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:265: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:274: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull Set&lt;@Initialized @NonNull SeriesType&gt;
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:341: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java:350: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull Boolean
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java:56: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java:58: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java:64: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java:66: warning: [return] incompatible types in return.
+    [javac] 		return null;
+    [javac] 		       ^
+    [javac]   type of expression: null (NullType)
+    [javac]   method return type: @Initialized @NonNull Component
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java:74: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java:85: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java:95: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull Boolean
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java:54: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java:55: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java:62: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java:63: warning: [return] incompatible types in return.
+    [javac] 		return null;
+    [javac] 		       ^
+    [javac]   type of expression: null (NullType)
+    [javac]   method return type: @Initialized @NonNull Component
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java:71: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java:83: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java:92: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
@@ -1619,6 +1654,11 @@
     [javac]                                                                             ^
     [javac]   found   : @Initialized @Nullable String
     [javac]   required: @Initialized @NonNull String
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java:67: warning: [return] incompatible types in return.
+    [javac] 		return null;
+    [javac] 		       ^
+    [javac]   type of expression: null (NullType)
+    [javac]   method return type: @Initialized @NonNull Component
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/ob/sink/impl/SimpleFormatObservationSinkPlugin.java:115: warning: [dereference.of.nullable] dereference of possibly-null reference strWriter
     [javac]             StringBuffer actual = strWriter.getBuffer();
     [javac]                                   ^
@@ -2630,12 +2670,17 @@
     [javac] 		             ^
     [javac]   found   : @UnderInitialization(javax.swing.JDialog.class) @NonNull PeriodAnalysisDialogBase
     [javac]   required: @Initialized @NonNull Dialog
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java:86: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java:87: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java:192: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java:95: warning: [return] incompatible types in return.
+    [javac] 		return null;
+    [javac] 		       ^
+    [javac]   type of expression: null (NullType)
+    [javac]   method return type: @Initialized @NonNull Component
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java:201: warning: [return] incompatible types in return.
     [javac] 		return null;
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
@@ -6505,34 +6550,42 @@
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PluginSettingsPane.java:181: warning: [dereference.of.nullable] dereference of possibly-null reference file
     [javac] 					if (file.isDirectory()) {
     [javac] 					    ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:49: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: seriesColorPane, seriesSizePane, chartPropertiesPane, numericPrecisionPane, starGroupManagementPane, pluginSettingsPane, localeSelectionPane, veLaSettingsPane, directoriesSettingsPane
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:54: warning: [assignment] incompatible types in assignment.
+    [javac] 	private List&lt;Component&gt; pluginPrefs = null;
+    [javac] 	                                      ^
+    [javac]   found   : null (NullType)
+    [javac]   required: @Initialized @NonNull List&lt;@Initialized @NonNull Component&gt;
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:59: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: seriesColorPane, seriesSizePane, chartPropertiesPane, numericPrecisionPane, starGroupManagementPane, pluginSettingsPane, localeSelectionPane, veLaSettingsPane, directoriesSettingsPane
     [javac] 	private PreferencesDialog() {
     [javac] 	        ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:52: warning: [method.invocation] call to getContentPane() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:62: warning: [method.invocation] call to getContentPane() not allowed on the given receiver.
     [javac] 		Container contentPane = this.getContentPane();
     [javac] 		                                           ^
     [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog.class) @NonNull PreferencesDialog
     [javac]   required: @Initialized @NonNull JDialog
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:58: warning: [method.invocation] call to createTabs() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:68: warning: [method.invocation] call to createTabs() not allowed on the given receiver.
     [javac] 		topPane.add(createTabs());
     [javac] 		                      ^
     [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog.class) @NonNull PreferencesDialog
     [javac]   required: @Initialized @NonNull PreferencesDialog
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:59: warning: [method.invocation] call to createButtonPane() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:69: warning: [method.invocation] call to createButtonPane() not allowed on the given receiver.
     [javac] 		topPane.add(createButtonPane());
     [javac] 		                            ^
     [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog.class) @NonNull PreferencesDialog
     [javac]   required: @Initialized @NonNull AbstractOkCancelDialog
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:63: warning: [method.invocation] call to pack() not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:73: warning: [method.invocation] call to pack() not allowed on the given receiver.
     [javac] 		this.pack();
     [javac] 		         ^
     [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog.class) @NonNull PreferencesDialog
     [javac]   required: @Initialized @NonNull Window
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:64: warning: [method.invocation] call to setLocationRelativeTo(java.awt.Component) not allowed on the given receiver.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:74: warning: [method.invocation] call to setLocationRelativeTo(java.awt.Component) not allowed on the given receiver.
     [javac] 		this.setLocationRelativeTo(Mediator.getUI().getContentPane());
     [javac] 		                          ^
     [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog.class) @NonNull PreferencesDialog
     [javac]   required: @Initialized @NonNull Window
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java:128: warning: [dereference.of.nullable] dereference of possibly-null reference pluginSettingsTabbedPane
+    [javac] 					pluginSettingsTabbedPane.addTab(plugin.getDisplayName(), pane);
+    [javac] 					^
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/dialog/prefs/SeriesColorSelectionPane.java:77: warning: [method.invocation] call to createSeriesSelectorActionListener() not allowed on the given receiver.
     [javac] 		seriesSelector.addActionListener(createSeriesSelectorActionListener());
     [javac] 		                                                                   ^
@@ -6920,35 +6973,25 @@
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/StandardPhaseCoordSource.java:117: warning: [dereference.of.nullable] dereference of possibly-null reference seriesNumToObSrcListMap.get(series)
     [javac] 		return seriesNumToObSrcListMap.get(series).get(item);
     [javac] 		                                  ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:236: warning: [iterating.over.nullable] iterating over possibly-null reference pluginLibPath.listFiles(jarFilter)
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:243: warning: [iterating.over.nullable] iterating over possibly-null reference pluginLibPath.listFiles(jarFilter)
     [javac] 			for (File file : pluginLibPath.listFiles(jarFilter)) {
     [javac] 			                                        ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:241: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:248: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
     [javac] 							null,
     [javac] 							^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Component
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:246: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:253: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
     [javac] 					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,
     [javac] 					                           ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Component
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:259: warning: [iterating.over.nullable] iterating over possibly-null reference pluginPath.listFiles(jarFilter)
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:266: warning: [iterating.over.nullable] iterating over possibly-null reference pluginPath.listFiles(jarFilter)
     [javac] 			for (File file : pluginPath.listFiles(jarFilter)) {
     [javac] 			                                     ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:269: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:276: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
     [javac] 							null,
     [javac] 							^
-    [javac]   found   : null (NullType)
-    [javac]   required: @Initialized @NonNull Component
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:274: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
-    [javac] 					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,
-    [javac] 					                           ^
-    [javac]   found   : null (NullType)
-    [javac]   required: @Initialized @NonNull Component
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:277: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
-    [javac] 					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,
-    [javac] 					                           ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Component
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:281: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
@@ -6956,14 +6999,19 @@
     [javac] 					                           ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Component
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:285: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:284: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
     [javac] 					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,
     [javac] 					                           ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Component
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:290: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
-    [javac] 							null,
-    [javac] 							^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:288: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
+    [javac] 					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,
+    [javac] 					                           ^
+    [javac]   found   : null (NullType)
+    [javac]   required: @Initialized @NonNull Component
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:292: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
+    [javac] 					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,
+    [javac] 					                           ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Component
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:297: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
@@ -6971,7 +7019,12 @@
     [javac] 							^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Component
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:354: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:304: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
+    [javac] 							null,
+    [javac] 							^
+    [javac]   found   : null (NullType)
+    [javac]   required: @Initialized @NonNull Component
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/PluginLoader.java:364: warning: [argument] incompatible argument for parameter parent of MessageBox.showErrorDialog.
     [javac] 			MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,
     [javac] 			                           ^
     [javac]   found   : null (NullType)
@@ -7495,7 +7548,7 @@
     [javac] Note: Recompile with -Xlint:deprecation for details.
     [javac] Note: Some input files use unchecked or unsafe operations.
     [javac] Note: Recompile with -Xlint:unchecked for details.
-    [javac] 1603 warnings
+    [javac] 1614 warnings
 </pre>
 </main>
 <footer><p><a href="https://github.com/AAVSO/VStar">AAVSO/VStar</a> &mdash;
