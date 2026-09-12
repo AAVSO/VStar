@@ -418,6 +418,114 @@ public class MMRDNovaDistanceCalculatorTest extends TestCase {
         assertNull(params.t3);
     }
 
+    // Comparison table: every relation is evaluated from the same inputs.
+
+    public void testResultsForAllRelationsCoversEveryRelation() {
+        // V4633 Sgr, Kok (2010) Table 1 / Table 4 D(2).
+        List<MMRDNovaDistanceCalculator.MMRDResult> results =
+                MMRDNovaDistanceCalculator.resultsForAllRelations(
+                        7.6, 19.5, 42.9, 4.7, 11.2, 0.71);
+
+        assertEquals(MMRDRelation.values().length, results.size());
+
+        for (int i = 0; i < results.size(); i++) {
+            MMRDNovaDistanceCalculator.MMRDResult result = results.get(i);
+            assertEquals(MMRDRelation.values()[i], result.relation);
+            assertNotNull(result.relation.getDisplayName(), result.absMag);
+            assertNotNull(result.relation.getDisplayName(), result.distancePc);
+            assertEquals(MMRDNovaDistanceCalculator.calcDistance(
+                    7.6, result.absMag, 0.71), result.distancePc, 1e-9);
+        }
+    }
+
+    public void testResultsForAllRelationsUnweightedMeanMatchesKok() {
+        MMRDNovaDistanceCalculator.MMRDResult unweighted =
+                MMRDNovaDistanceCalculator.resultFor(
+                        MMRDRelation.UNWEIGHTED_MEAN, 7.6, 19.5, 42.9,
+                        4.7, 11.2, 0.71);
+
+        assertEquals(KOK_UNWEIGHTED_RESULTS[1][0], unweighted.absMag, 1e-9);
+        assertEquals(KOK_UNWEIGHTED_RESULTS[1][1], unweighted.absMagError, 1e-9);
+        assertEquals(KOK_UNWEIGHTED_RESULTS[1][2],
+                unweighted.distancePc / 1000, 1e-9);
+        assertNotNull(unweighted.lowerDistancePc);
+        assertNotNull(unweighted.upperDistancePc);
+        assertTrue(unweighted.lowerDistancePc < unweighted.distancePc);
+        assertTrue(unweighted.upperDistancePc > unweighted.distancePc);
+    }
+
+    public void testResultsForAllRelationsOmitUnavailableDeclineTimes() {
+        List<MMRDNovaDistanceCalculator.MMRDResult> results =
+                MMRDNovaDistanceCalculator.resultsForAllRelations(
+                        7.6, 19.5, null, 4.7, null, 0.71);
+
+        MMRDNovaDistanceCalculator.MMRDResult kantharia = results.get(
+                MMRDRelation.KANTHARIA_2017.ordinal());
+        MMRDNovaDistanceCalculator.MMRDResult schmidt = results.get(
+                MMRDRelation.SCHMIDT_1957.ordinal());
+        MMRDNovaDistanceCalculator.MMRDResult unweighted = results.get(
+                MMRDRelation.UNWEIGHTED_MEAN.ordinal());
+
+        assertNotNull(kantharia.absMag);
+        assertNull(schmidt.absMag);
+        assertNull(schmidt.distancePc);
+        // The aggregate still uses the t2-based historical relations.
+        assertNotNull(unweighted.absMag);
+    }
+
+    public void testResultsSortedByIncreasingDistance() {
+        List<MMRDNovaDistanceCalculator.MMRDResult> results =
+                MMRDNovaDistanceCalculator.resultsForAllRelations(
+                        7.6, 19.5, 42.9, 4.7, 11.2, 0.71);
+        List<MMRDNovaDistanceCalculator.MMRDResult> sorted =
+                MMRDNovaDistanceCalculator.sortedByDistance(results);
+
+        assertEquals(results.size(), sorted.size());
+
+        Double previous = null;
+        for (MMRDNovaDistanceCalculator.MMRDResult result : sorted) {
+            if (previous == null) {
+                assertNotNull(result.distancePc);
+            } else {
+                assertNotNull(result.distancePc);
+                assertTrue(result.distancePc >= previous);
+            }
+            previous = result.distancePc;
+        }
+    }
+
+    public void testResultsSortedByDistancePlaceUnavailableLast() {
+        List<MMRDNovaDistanceCalculator.MMRDResult> sorted =
+                MMRDNovaDistanceCalculator.sortedByDistance(
+                        MMRDNovaDistanceCalculator.resultsForAllRelations(
+                                7.6, 19.5, null, 4.7, null, 0.71));
+
+        boolean seenUnavailable = false;
+        for (MMRDNovaDistanceCalculator.MMRDResult result : sorted) {
+            if (result.distancePc == null) {
+                seenUnavailable = true;
+            } else {
+                assertFalse("Available distances should precede n/a rows",
+                        seenUnavailable);
+            }
+        }
+        assertTrue(seenUnavailable);
+    }
+
+    public void testNullableDoubleComparatorPutsMissingLast() {
+        assertTrue(MMRDNovaDistanceCalculator.NULLS_LAST_DOUBLE.compare(null, 1.0) > 0);
+        assertTrue(MMRDNovaDistanceCalculator.NULLS_LAST_DOUBLE.compare(1.0, null) < 0);
+        assertEquals(0, MMRDNovaDistanceCalculator.NULLS_LAST_DOUBLE.compare(null, null));
+        assertTrue(MMRDNovaDistanceCalculator.NULLS_LAST_DOUBLE.compare(1.0, 2.0) < 0);
+        assertTrue(MMRDNovaDistanceCalculator.NULLS_LAST_DOUBLE.compare(8.3, 10.0) < 0);
+    }
+
+    public void testEffectiveExtinctionPrefersAvOverReddening() {
+        assertEquals(0.71, MMRDNovaDistanceCalculator.effectiveExtinction(0.71, 0.2), 1e-9);
+        assertEquals(3.1 * 0.2, MMRDNovaDistanceCalculator.effectiveExtinction(0.0, 0.2), 1e-9);
+        assertEquals(0.0, MMRDNovaDistanceCalculator.effectiveExtinction(null, null), 1e-9);
+    }
+
     // Helpers
 
     private List<ValidObservation> exponentialObs(double p1, double p2,
