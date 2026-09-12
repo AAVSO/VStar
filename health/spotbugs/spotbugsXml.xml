@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<BugCollection version="4.9.3" sequence="0" timestamp="1789185695785" analysisTimestamp="1789185695850" release="">
+<BugCollection version="4.9.3" sequence="0" timestamp="1789186069988" analysisTimestamp="1789186070039" release="">
   <Project projectName="">
     <Jar>/home/runner/work/VStar/VStar/dist/vstar.jar</Jar>
     <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/XMLLib.jar</AuxClasspathEntry>
@@ -1217,51 +1217,51 @@
     <ShortMessage>Method with Boolean return type returns explicit null</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.plugin.CustomFilterPluginBase.test() has Boolean return type and returns explicit null</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.CustomFilterPluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.CustomFilterPluginBase" start="44" end="175" sourcefile="CustomFilterPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java">
-        <Message>At CustomFilterPluginBase.java:[lines 44-175]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.CustomFilterPluginBase" start="45" end="184" sourcefile="CustomFilterPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java">
+        <Message>At CustomFilterPluginBase.java:[lines 45-184]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.CustomFilterPluginBase</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.plugin.CustomFilterPluginBase" name="test" signature="()Ljava/lang/Boolean;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.CustomFilterPluginBase" start="164" end="164" startBytecode="0" endBytecode="43" sourcefile="CustomFilterPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.CustomFilterPluginBase" start="173" end="173" startBytecode="0" endBytecode="43" sourcefile="CustomFilterPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java"/>
       <Message>In method org.aavso.tools.vstar.plugin.CustomFilterPluginBase.test()</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.CustomFilterPluginBase" primary="true" start="164" end="164" startBytecode="1" endBytecode="1" sourcefile="CustomFilterPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java">
-      <Message>At CustomFilterPluginBase.java:[line 164]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.CustomFilterPluginBase" primary="true" start="173" end="173" startBytecode="1" endBytecode="1" sourcefile="CustomFilterPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java">
+      <Message>At CustomFilterPluginBase.java:[line 173]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="NP_BOOLEAN_RETURN_NULL" priority="2" rank="14" abbrev="NP" category="BAD_PRACTICE" instanceHash="122e41d3954ee3b5f3739d41e765180c" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="476">
     <ShortMessage>Method with Boolean return type returns explicit null</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.plugin.GeneralToolPluginBase.test() has Boolean return type and returns explicit null</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.GeneralToolPluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.GeneralToolPluginBase" start="36" end="90" sourcefile="GeneralToolPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java">
-        <Message>At GeneralToolPluginBase.java:[lines 36-90]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.GeneralToolPluginBase" start="38" end="100" sourcefile="GeneralToolPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java">
+        <Message>At GeneralToolPluginBase.java:[lines 38-100]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.GeneralToolPluginBase</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.plugin.GeneralToolPluginBase" name="test" signature="()Ljava/lang/Boolean;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.GeneralToolPluginBase" start="79" end="79" startBytecode="0" endBytecode="43" sourcefile="GeneralToolPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.GeneralToolPluginBase" start="89" end="89" startBytecode="0" endBytecode="43" sourcefile="GeneralToolPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java"/>
       <Message>In method org.aavso.tools.vstar.plugin.GeneralToolPluginBase.test()</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.GeneralToolPluginBase" primary="true" start="79" end="79" startBytecode="1" endBytecode="1" sourcefile="GeneralToolPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java">
-      <Message>At GeneralToolPluginBase.java:[line 79]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.GeneralToolPluginBase" primary="true" start="89" end="89" startBytecode="1" endBytecode="1" sourcefile="GeneralToolPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java">
+      <Message>At GeneralToolPluginBase.java:[line 89]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="NP_BOOLEAN_RETURN_NULL" priority="2" rank="14" abbrev="NP" category="BAD_PRACTICE" instanceHash="dbad8833e45ee605b7955274babaea2c" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="476">
     <ShortMessage>Method with Boolean return type returns explicit null</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.plugin.ModelCreatorPluginBase.test() has Boolean return type and returns explicit null</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.ModelCreatorPluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ModelCreatorPluginBase" start="38" end="117" sourcefile="ModelCreatorPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java">
-        <Message>At ModelCreatorPluginBase.java:[lines 38-117]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ModelCreatorPluginBase" start="39" end="126" sourcefile="ModelCreatorPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java">
+        <Message>At ModelCreatorPluginBase.java:[lines 39-126]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.ModelCreatorPluginBase</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.plugin.ModelCreatorPluginBase" name="test" signature="()Ljava/lang/Boolean;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ModelCreatorPluginBase" start="106" end="106" startBytecode="0" endBytecode="43" sourcefile="ModelCreatorPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ModelCreatorPluginBase" start="115" end="115" startBytecode="0" endBytecode="43" sourcefile="ModelCreatorPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java"/>
       <Message>In method org.aavso.tools.vstar.plugin.ModelCreatorPluginBase.test()</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.ModelCreatorPluginBase" primary="true" start="106" end="106" startBytecode="1" endBytecode="1" sourcefile="ModelCreatorPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java">
-      <Message>At ModelCreatorPluginBase.java:[line 106]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.ModelCreatorPluginBase" primary="true" start="115" end="115" startBytecode="1" endBytecode="1" sourcefile="ModelCreatorPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java">
+      <Message>At ModelCreatorPluginBase.java:[line 115]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="NP_BOOLEAN_RETURN_NULL" priority="2" rank="14" abbrev="NP" category="BAD_PRACTICE" instanceHash="b7fac909978a6b1fb4ced47d88699fb1" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="476">
@@ -1285,34 +1285,34 @@
     <ShortMessage>Reliance on default encoding</ShortMessage>
     <LongMessage>Found reliance on default encoding in org.aavso.tools.vstar.plugin.ObservationSourcePluginBase.getTestRetriever(String[], String): String.getBytes()</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="49" end="381" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
-        <Message>At ObservationSourcePluginBase.java:[lines 49-381]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="50" end="390" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
+        <Message>At ObservationSourcePluginBase.java:[lines 50-390]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.ObservationSourcePluginBase</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" name="getTestRetriever" signature="([Ljava/lang/String;Ljava/lang/String;)Lorg/aavso/tools/vstar/input/AbstractObservationRetriever;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="368" end="381" startBytecode="0" endBytecode="306" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="377" end="390" startBytecode="0" endBytecode="306" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java"/>
       <Message>In method org.aavso.tools.vstar.plugin.ObservationSourcePluginBase.getTestRetriever(String[], String)</Message>
     </Method>
     <Method classname="java.lang.String" name="getBytes" signature="()[B" isStatic="false" role="METHOD_CALLED">
       <SourceLine classname="java.lang.String" start="1805" end="1805" startBytecode="0" endBytecode="56" sourcefile="String.java" sourcepath="java/lang/String.java"/>
       <Message>Called method String.getBytes()</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" primary="true" start="373" end="373" startBytecode="54" endBytecode="54" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
-      <Message>At ObservationSourcePluginBase.java:[line 373]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" primary="true" start="382" end="382" startBytecode="54" endBytecode="54" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
+      <Message>At ObservationSourcePluginBase.java:[line 382]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP" priority="2" rank="18" abbrev="EI" category="MALICIOUS_CODE" instanceHash="b1deffed5bd662e13475804842da7f43" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
     <ShortMessage>May expose internal representation by returning reference to mutable object</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.plugin.ObservationSourcePluginBase.getInputStreams() may expose internal representation by returning ObservationSourcePluginBase.inputStreams</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="49" end="381" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
-        <Message>At ObservationSourcePluginBase.java:[lines 49-381]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="50" end="390" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
+        <Message>At ObservationSourcePluginBase.java:[lines 50-390]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.ObservationSourcePluginBase</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" name="getInputStreams" signature="()Ljava/util/List;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="194" end="194" startBytecode="0" endBytecode="46" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="203" end="203" startBytecode="0" endBytecode="46" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java"/>
       <Message>In method org.aavso.tools.vstar.plugin.ObservationSourcePluginBase.getInputStreams()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" name="inputStreams" signature="Ljava/util/List;" isStatic="false" primary="true">
@@ -1321,21 +1321,21 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.plugin.ObservationSourcePluginBase.inputStreams</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" primary="true" start="194" end="194" startBytecode="4" endBytecode="4" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
-      <Message>At ObservationSourcePluginBase.java:[line 194]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" primary="true" start="203" end="203" startBytecode="4" endBytecode="4" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
+      <Message>At ObservationSourcePluginBase.java:[line 203]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP2" priority="2" rank="18" abbrev="EI2" category="MALICIOUS_CODE" instanceHash="f277d78c04239199fda6c453f880c893" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
     <ShortMessage>May expose internal representation by incorporating reference to mutable object</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.plugin.ObservationSourcePluginBase.setInputInfo(List, String) may expose internal representation by storing an externally mutable object into ObservationSourcePluginBase.inputStreams</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="49" end="381" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
-        <Message>At ObservationSourcePluginBase.java:[lines 49-381]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="50" end="390" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
+        <Message>At ObservationSourcePluginBase.java:[lines 50-390]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.ObservationSourcePluginBase</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" name="setInputInfo" signature="(Ljava/util/List;Ljava/lang/String;)V" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="147" end="149" startBytecode="0" endBytecode="98" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="156" end="158" startBytecode="0" endBytecode="98" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java"/>
       <Message>In method org.aavso.tools.vstar.plugin.ObservationSourcePluginBase.setInputInfo(List, String)</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" name="inputStreams" signature="Ljava/util/List;" isStatic="false" primary="true">
@@ -1347,72 +1347,72 @@
     <LocalVariable name="inputStreams" register="1" pc="2" role="LOCAL_VARIABLE_NAMED">
       <Message>Local variable named inputStreams</Message>
     </LocalVariable>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" primary="true" start="147" end="147" startBytecode="2" endBytecode="2" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
-      <Message>At ObservationSourcePluginBase.java:[line 147]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" primary="true" start="156" end="156" startBytecode="2" endBytecode="2" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
+      <Message>At ObservationSourcePluginBase.java:[line 156]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="NP_BOOLEAN_RETURN_NULL" priority="2" rank="14" abbrev="NP" category="BAD_PRACTICE" instanceHash="fa83b5d5a2a9d482f3e0d631262f1307" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="476">
     <ShortMessage>Method with Boolean return type returns explicit null</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.plugin.ObservationSourcePluginBase.test() has Boolean return type and returns explicit null</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="49" end="381" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
-        <Message>At ObservationSourcePluginBase.java:[lines 49-381]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="50" end="390" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
+        <Message>At ObservationSourcePluginBase.java:[lines 50-390]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.ObservationSourcePluginBase</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" name="test" signature="()Ljava/lang/Boolean;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="341" end="341" startBytecode="0" endBytecode="43" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" start="350" end="350" startBytecode="0" endBytecode="43" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java"/>
       <Message>In method org.aavso.tools.vstar.plugin.ObservationSourcePluginBase.test()</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" primary="true" start="341" end="341" startBytecode="1" endBytecode="1" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
-      <Message>At ObservationSourcePluginBase.java:[line 341]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" primary="true" start="350" end="350" startBytecode="1" endBytecode="1" sourcefile="ObservationSourcePluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java">
+      <Message>At ObservationSourcePluginBase.java:[line 350]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="NP_BOOLEAN_RETURN_NULL" priority="2" rank="14" abbrev="NP" category="BAD_PRACTICE" instanceHash="7d15f8e852ce23fa13f4d6296094e6ff" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="476">
     <ShortMessage>Method with Boolean return type returns explicit null</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.plugin.ObservationToolPluginBase.test() has Boolean return type and returns explicit null</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.ObservationToolPluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationToolPluginBase" start="37" end="96" sourcefile="ObservationToolPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java">
-        <Message>At ObservationToolPluginBase.java:[lines 37-96]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationToolPluginBase" start="39" end="106" sourcefile="ObservationToolPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java">
+        <Message>At ObservationToolPluginBase.java:[lines 39-106]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.ObservationToolPluginBase</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.plugin.ObservationToolPluginBase" name="test" signature="()Ljava/lang/Boolean;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationToolPluginBase" start="85" end="85" startBytecode="0" endBytecode="43" sourcefile="ObservationToolPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationToolPluginBase" start="95" end="95" startBytecode="0" endBytecode="43" sourcefile="ObservationToolPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java"/>
       <Message>In method org.aavso.tools.vstar.plugin.ObservationToolPluginBase.test()</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationToolPluginBase" primary="true" start="85" end="85" startBytecode="1" endBytecode="1" sourcefile="ObservationToolPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java">
-      <Message>At ObservationToolPluginBase.java:[line 85]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationToolPluginBase" primary="true" start="95" end="95" startBytecode="1" endBytecode="1" sourcefile="ObservationToolPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java">
+      <Message>At ObservationToolPluginBase.java:[line 95]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="NP_BOOLEAN_RETURN_NULL" priority="2" rank="14" abbrev="NP" category="BAD_PRACTICE" instanceHash="45f6e5b35c062ad681788d87ea770ea4" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="476">
     <ShortMessage>Method with Boolean return type returns explicit null</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase.test() has Boolean return type and returns explicit null</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase" start="32" end="94" sourcefile="ObservationTransformerPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java">
-        <Message>At ObservationTransformerPluginBase.java:[lines 32-94]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase" start="33" end="103" sourcefile="ObservationTransformerPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java">
+        <Message>At ObservationTransformerPluginBase.java:[lines 33-103]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase" name="test" signature="()Ljava/lang/Boolean;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase" start="83" end="83" startBytecode="0" endBytecode="43" sourcefile="ObservationTransformerPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase" start="92" end="92" startBytecode="0" endBytecode="43" sourcefile="ObservationTransformerPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java"/>
       <Message>In method org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase.test()</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase" primary="true" start="83" end="83" startBytecode="1" endBytecode="1" sourcefile="ObservationTransformerPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java">
-      <Message>At ObservationTransformerPluginBase.java:[line 83]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase" primary="true" start="92" end="92" startBytecode="1" endBytecode="1" sourcefile="ObservationTransformerPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java">
+      <Message>At ObservationTransformerPluginBase.java:[line 92]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP" priority="2" rank="18" abbrev="EI" category="MALICIOUS_CODE" instanceHash="36411640421fd86eca3e1b7a9e3493f1" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
     <ShortMessage>May expose internal representation by returning reference to mutable object</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase.getDelimiterNameValuePairs() may expose internal representation by returning CommonTextFormatSinkPluginBase.DELIMS</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" start="29" end="58" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
-        <Message>At CommonTextFormatSinkPluginBase.java:[lines 29-58]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" start="30" end="67" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
+        <Message>At CommonTextFormatSinkPluginBase.java:[lines 30-67]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" name="getDelimiterNameValuePairs" signature="()Ljava/util/Map;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" start="48" end="48" startBytecode="0" endBytecode="45" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" start="49" end="49" startBytecode="0" endBytecode="45" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java"/>
       <Message>In method org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase.getDelimiterNameValuePairs()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" name="DELIMS" signature="Ljava/util/Map;" isStatic="true" primary="true">
@@ -1421,21 +1421,21 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase.DELIMS</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" primary="true" start="48" end="48" startBytecode="3" endBytecode="3" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
-      <Message>At CommonTextFormatSinkPluginBase.java:[line 48]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" primary="true" start="49" end="49" startBytecode="3" endBytecode="3" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
+      <Message>At CommonTextFormatSinkPluginBase.java:[line 49]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP" priority="2" rank="18" abbrev="EI" category="MALICIOUS_CODE" instanceHash="46c76e680966dabce4e6cb685974f986" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
     <ShortMessage>May expose internal representation by returning reference to mutable object</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase.getDelimiterSuffixValuePairs() may expose internal representation by returning CommonTextFormatSinkPluginBase.SUFFIXES</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" start="29" end="58" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
-        <Message>At CommonTextFormatSinkPluginBase.java:[lines 29-58]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" start="30" end="67" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
+        <Message>At CommonTextFormatSinkPluginBase.java:[lines 30-67]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" name="getDelimiterSuffixValuePairs" signature="()Ljava/util/Map;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" start="53" end="53" startBytecode="0" endBytecode="45" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" start="54" end="54" startBytecode="0" endBytecode="45" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java"/>
       <Message>In method org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase.getDelimiterSuffixValuePairs()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" name="SUFFIXES" signature="Ljava/util/Map;" isStatic="true" primary="true">
@@ -1444,16 +1444,16 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase.SUFFIXES</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" primary="true" start="53" end="53" startBytecode="3" endBytecode="3" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
-      <Message>At CommonTextFormatSinkPluginBase.java:[line 53]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" primary="true" start="54" end="54" startBytecode="3" endBytecode="3" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
+      <Message>At CommonTextFormatSinkPluginBase.java:[line 54]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="MS_MUTABLE_COLLECTION_PKGPROTECT" priority="2" rank="18" abbrev="MS" category="MALICIOUS_CODE" instanceHash="c473ebe5e52387bbff3ca26ed252c4ef" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="493">
     <ShortMessage>Field is a mutable collection which should be package protected</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase.DELIMS is a mutable collection which should be package protected</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" start="29" end="58" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
-        <Message>At CommonTextFormatSinkPluginBase.java:[lines 29-58]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" start="30" end="67" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
+        <Message>At CommonTextFormatSinkPluginBase.java:[lines 30-67]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase</Message>
     </Class>
@@ -1463,16 +1463,16 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase.DELIMS</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" primary="true" start="34" end="34" startBytecode="7" endBytecode="7" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
-      <Message>At CommonTextFormatSinkPluginBase.java:[line 34]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" primary="true" start="35" end="35" startBytecode="7" endBytecode="7" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
+      <Message>At CommonTextFormatSinkPluginBase.java:[line 35]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="MS_MUTABLE_COLLECTION_PKGPROTECT" priority="2" rank="18" abbrev="MS" category="MALICIOUS_CODE" instanceHash="f637a889edc475ce797739aa77daf404" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="493">
     <ShortMessage>Field is a mutable collection which should be package protected</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase.SUFFIXES is a mutable collection which should be package protected</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" start="29" end="58" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
-        <Message>At CommonTextFormatSinkPluginBase.java:[lines 29-58]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" start="30" end="67" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
+        <Message>At CommonTextFormatSinkPluginBase.java:[lines 30-67]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase</Message>
     </Class>
@@ -1482,8 +1482,8 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase.SUFFIXES</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" primary="true" start="39" end="39" startBytecode="56" endBytecode="56" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
-      <Message>At CommonTextFormatSinkPluginBase.java:[line 39]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" primary="true" start="40" end="40" startBytecode="56" endBytecode="56" sourcefile="CommonTextFormatSinkPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java">
+      <Message>At CommonTextFormatSinkPluginBase.java:[line 40]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EC_UNRELATED_TYPES" priority="1" rank="1" abbrev="EC" category="CORRECTNESS" instanceHash="74fc9152cb35f70dc04b822929ca20be" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
@@ -1983,17 +1983,17 @@
     <ShortMessage>Method with Boolean return type returns explicit null</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase.test() has Boolean return type and returns explicit null</LongMessage>
     <Class classname="org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase" start="50" end="203" sourcefile="PeriodAnalysisPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java">
-        <Message>At PeriodAnalysisPluginBase.java:[lines 50-203]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase" start="51" end="212" sourcefile="PeriodAnalysisPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java">
+        <Message>At PeriodAnalysisPluginBase.java:[lines 51-212]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase" name="test" signature="()Ljava/lang/Boolean;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase" start="192" end="192" startBytecode="0" endBytecode="43" sourcefile="PeriodAnalysisPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase" start="201" end="201" startBytecode="0" endBytecode="43" sourcefile="PeriodAnalysisPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java"/>
       <Message>In method org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase.test()</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase" primary="true" start="192" end="192" startBytecode="1" endBytecode="1" sourcefile="PeriodAnalysisPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java">
-      <Message>At PeriodAnalysisPluginBase.java:[line 192]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase" primary="true" start="201" end="201" startBytecode="1" endBytecode="1" sourcefile="PeriodAnalysisPluginBase.java" sourcepath="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java" relSourcepath="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java">
+      <Message>At PeriodAnalysisPluginBase.java:[line 201]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="DM_DEFAULT_ENCODING" priority="1" rank="19" abbrev="Dm" category="I18N" instanceHash="5544668eebf7e32f92a0609ae6039994" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
@@ -4138,13 +4138,13 @@
     <ShortMessage>Public static method may expose internal representation by returning a mutable object or array</ShortMessage>
     <LongMessage>Public static org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog.getInstance() may expose internal representation by returning PreferencesDialog.instance</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="50" end="145" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java">
-        <Message>At PreferencesDialog.java:[lines 50-145]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="54" end="197" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java">
+        <Message>At PreferencesDialog.java:[lines 54-197]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" name="getInstance" signature="()Lorg/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog;" isStatic="true" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="145" end="145" startBytecode="0" endBytecode="27" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="197" end="197" startBytecode="0" endBytecode="27" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java"/>
       <Message>In method org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog.getInstance()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" name="instance" signature="Lorg/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog;" isStatic="true" primary="true">
@@ -4153,21 +4153,21 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog.instance</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" primary="true" start="145" end="145" startBytecode="3" endBytecode="3" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java">
-      <Message>At PreferencesDialog.java:[line 145]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" primary="true" start="197" end="197" startBytecode="3" endBytecode="3" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java">
+      <Message>At PreferencesDialog.java:[line 197]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="SING_SINGLETON_IMPLEMENTS_SERIALIZABLE" priority="2" rank="7" abbrev="SING" category="CORRECTNESS" instanceHash="5a76751309184ecb81da88840f5757b4" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
     <ShortMessage>Class using singleton design pattern directly or indirectly implements Serializable interface.</ShortMessage>
     <LongMessage>Class (org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog) using singleton design pattern directly or indirectly implements Serializable interface.</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="50" end="145" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java">
-        <Message>At PreferencesDialog.java:[lines 50-145]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="54" end="197" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java">
+        <Message>At PreferencesDialog.java:[lines 54-197]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog</Message>
     </Class>
-    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="50" end="145" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" synthetic="true">
-      <Message>At PreferencesDialog.java:[lines 50-145]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" start="54" end="197" sourcefile="PreferencesDialog.java" sourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" relSourcepath="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" synthetic="true">
+      <Message>At PreferencesDialog.java:[lines 54-197]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP" priority="2" rank="18" abbrev="EI" category="MALICIOUS_CODE" instanceHash="cb286133b0dcd75cb31af5fa109208e3" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
@@ -9175,50 +9175,73 @@
     </SourceLine>
     <Property name="edu.umd.cs.findbugs.detect.NullDerefProperty.ALWAYS_ON_EXCEPTION_PATH" value="true"/>
   </BugInstance>
+  <BugInstance type="MS_EXPOSE_REP" priority="2" rank="18" abbrev="MS" category="MALICIOUS_CODE" instanceHash="836ff8e4cbfe19d0442ef05d1ca9fb38" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="493">
+    <ShortMessage>Public static method may expose internal representation by returning a mutable object or array</ShortMessage>
+    <LongMessage>Public static org.aavso.tools.vstar.ui.resources.PluginLoader.getPluginList() may expose internal representation by returning PluginLoader.plugins</LongMessage>
+    <Class classname="org.aavso.tools.vstar.ui.resources.PluginLoader" primary="true">
+      <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="55" end="367" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java">
+        <Message>At PluginLoader.java:[lines 55-367]</Message>
+      </SourceLine>
+      <Message>In class org.aavso.tools.vstar.ui.resources.PluginLoader</Message>
+    </Class>
+    <Method classname="org.aavso.tools.vstar.ui.resources.PluginLoader" name="getPluginList" signature="()Ljava/util/List;" isStatic="true" primary="true">
+      <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="221" end="221" startBytecode="0" endBytecode="27" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java"/>
+      <Message>In method org.aavso.tools.vstar.ui.resources.PluginLoader.getPluginList()</Message>
+    </Method>
+    <Field classname="org.aavso.tools.vstar.ui.resources.PluginLoader" name="plugins" signature="Ljava/util/List;" isStatic="true" primary="true">
+      <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java">
+        <Message>In PluginLoader.java</Message>
+      </SourceLine>
+      <Message>Field org.aavso.tools.vstar.ui.resources.PluginLoader.plugins</Message>
+    </Field>
+    <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" primary="true" start="221" end="221" startBytecode="3" endBytecode="3" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java">
+      <Message>At PluginLoader.java:[line 221]</Message>
+    </SourceLine>
+  </BugInstance>
   <BugInstance type="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" priority="2" rank="13" abbrev="NP" category="STYLE" instanceHash="bac57dcc75c56a12464f7269e5e915b9" instanceOccurrenceNum="0" instanceOccurrenceMax="1" cweid="476">
     <ShortMessage>Possible null pointer dereference due to return value of called method</ShortMessage>
     <LongMessage>Possible null pointer dereference in org.aavso.tools.vstar.ui.resources.PluginLoader.loadPlugins() due to return value of called method</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.resources.PluginLoader" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="55" end="357" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java">
-        <Message>At PluginLoader.java:[lines 55-357]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="55" end="367" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java">
+        <Message>At PluginLoader.java:[lines 55-367]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.resources.PluginLoader</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.resources.PluginLoader" name="loadPlugins" signature="()V" isStatic="true" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="222" end="304" startBytecode="0" endBytecode="1004" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="229" end="311" startBytecode="0" endBytecode="1004" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java"/>
       <Message>In method org.aavso.tools.vstar.ui.resources.PluginLoader.loadPlugins()</Message>
     </Method>
     <LocalVariable name="?" register="3" pc="58" role="LOCAL_VARIABLE_VALUE_OF">
       <Message>Value loaded from ?</Message>
     </LocalVariable>
-    <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" primary="true" start="236" end="236" startBytecode="58" endBytecode="58" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" role="SOURCE_LINE_DEREF">
-      <Message>Dereferenced at PluginLoader.java:[line 236]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" primary="true" start="243" end="243" startBytecode="58" endBytecode="58" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" role="SOURCE_LINE_DEREF">
+      <Message>Dereferenced at PluginLoader.java:[line 243]</Message>
     </SourceLine>
-    <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="236" end="236" startBytecode="53" endBytecode="53" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" role="SOURCE_LINE_KNOWN_NULL">
-      <Message>Known null at PluginLoader.java:[line 236]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="243" end="243" startBytecode="53" endBytecode="53" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" role="SOURCE_LINE_KNOWN_NULL">
+      <Message>Known null at PluginLoader.java:[line 243]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" priority="2" rank="13" abbrev="NP" category="STYLE" instanceHash="bac57dcc75c56a12464f7269e5e915b9" instanceOccurrenceNum="1" instanceOccurrenceMax="1" cweid="476">
     <ShortMessage>Possible null pointer dereference due to return value of called method</ShortMessage>
     <LongMessage>Possible null pointer dereference in org.aavso.tools.vstar.ui.resources.PluginLoader.loadPlugins() due to return value of called method</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.resources.PluginLoader" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="55" end="357" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java">
-        <Message>At PluginLoader.java:[lines 55-357]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="55" end="367" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java">
+        <Message>At PluginLoader.java:[lines 55-367]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.resources.PluginLoader</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.resources.PluginLoader" name="loadPlugins" signature="()V" isStatic="true" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="222" end="304" startBytecode="0" endBytecode="1004" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="229" end="311" startBytecode="0" endBytecode="1004" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java"/>
       <Message>In method org.aavso.tools.vstar.ui.resources.PluginLoader.loadPlugins()</Message>
     </Method>
     <LocalVariable name="?" register="4" pc="184" role="LOCAL_VARIABLE_VALUE_OF">
       <Message>Value loaded from ?</Message>
     </LocalVariable>
-    <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" primary="true" start="259" end="259" startBytecode="184" endBytecode="184" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" role="SOURCE_LINE_DEREF">
-      <Message>Dereferenced at PluginLoader.java:[line 259]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" primary="true" start="266" end="266" startBytecode="184" endBytecode="184" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" role="SOURCE_LINE_DEREF">
+      <Message>Dereferenced at PluginLoader.java:[line 266]</Message>
     </SourceLine>
-    <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="259" end="259" startBytecode="177" endBytecode="177" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" role="SOURCE_LINE_KNOWN_NULL">
-      <Message>Known null at PluginLoader.java:[line 259]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.resources.PluginLoader" start="266" end="266" startBytecode="177" endBytecode="177" sourcefile="PluginLoader.java" sourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" relSourcepath="org/aavso/tools/vstar/ui/resources/PluginLoader.java" role="SOURCE_LINE_KNOWN_NULL">
+      <Message>Known null at PluginLoader.java:[line 266]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="MS_EXPOSE_REP" priority="2" rank="18" abbrev="MS" category="MALICIOUS_CODE" instanceHash="56ac0d52b4d8f16a3716bbd031f1102c" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="493">
@@ -15097,7 +15120,7 @@ signals unexpected behavior by returning an atypical return value.
     <Description>Test for floating point equality</Description>
   </BugCode>
   <Errors errors="0" missingClasses="0"></Errors>
-  <FindBugsSummary timestamp="Sat, 12 Sep 2026 04:01:35 +0000" total_classes="809" referenced_classes="1651" total_bugs="622" total_size="32974" num_packages="55" java_version="17.0.20.1" vm_version="17.0.20.1+1" cpu_seconds="71.12" clock_seconds="22.01" peak_mbytes="497.31" alloc_mbytes="1024.00" gc_seconds="0.50" priority_2="564" priority_1="58">
+  <FindBugsSummary timestamp="Sat, 12 Sep 2026 04:07:49 +0000" total_classes="810" referenced_classes="1652" total_bugs="623" total_size="33052" num_packages="55" java_version="17.0.20.1" vm_version="17.0.20.1+1" cpu_seconds="63.36" clock_seconds="19.36" peak_mbytes="504.45" alloc_mbytes="1024.00" gc_seconds="0.48" priority_2="565" priority_1="58">
     <FileStats path="org/aavso/tools/vstar/auth/AAVSOPostUserPassXMLAuthenticationSource.java" bugCount="1" size="68" bugHash="2b226ca312f5cbba10d35a00f50e21a4"/>
     <FileStats path="org/aavso/tools/vstar/auth/Auth0JSONAutheticationSource.java" bugCount="1" size="65" bugHash="03945e91cf6c274300ecb17b6aa07d37"/>
     <FileStats path="org/aavso/tools/vstar/auth/VSXWebServiceMemberInfo.java" bugCount="0" size="18"/>
@@ -15175,20 +15198,20 @@ signals unexpected behavior by returning an atypical return value.
     <FileStats path="org/aavso/tools/vstar/input/text/ObservationFieldSplitter.java" bugCount="1" size="35" bugHash="7a1d3bbd3be4a5d8baef092db1452fb7"/>
     <FileStats path="org/aavso/tools/vstar/input/text/ObservationSourceAnalyser.java" bugCount="1" size="72" bugHash="b081421dc024875516e3c8c931ca3ba3"/>
     <FileStats path="org/aavso/tools/vstar/input/text/TextFormatObservationReader.java" bugCount="1" size="66" bugHash="8e6f64898d0d3d6d11ccb2c9bb932f7e"/>
-    <FileStats path="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java" bugCount="1" size="50" bugHash="2679fb56daf42d640096b506c960172d"/>
-    <FileStats path="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java" bugCount="1" size="21" bugHash="0d9706b5c87f800f6b2b0904ae3f5dc9"/>
-    <FileStats path="org/aavso/tools/vstar/plugin/IPlugin.java" bugCount="0" size="10"/>
+    <FileStats path="org/aavso/tools/vstar/plugin/CustomFilterPluginBase.java" bugCount="1" size="52" bugHash="2f1eb69167fbd6473da339e110be2df4"/>
+    <FileStats path="org/aavso/tools/vstar/plugin/GeneralToolPluginBase.java" bugCount="1" size="23" bugHash="183a9deae697a85507482f25762b8a8c"/>
+    <FileStats path="org/aavso/tools/vstar/plugin/IPlugin.java" bugCount="0" size="13"/>
     <FileStats path="org/aavso/tools/vstar/plugin/InputType.java" bugCount="0" size="16"/>
-    <FileStats path="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java" bugCount="1" size="25" bugHash="759c0da55727f5386c42cf196ff714ea"/>
+    <FileStats path="org/aavso/tools/vstar/plugin/ModelCreatorPluginBase.java" bugCount="1" size="27" bugHash="457257e54f564c032591d8fbac288ff8"/>
     <FileStats path="org/aavso/tools/vstar/plugin/ObservationSinkPluginBase.java" bugCount="1" size="25" bugHash="08eaa4e70b90fbeb53859b5119b45693"/>
-    <FileStats path="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" bugCount="4" size="95" bugHash="6d4c8d58054e82d37221f92987b38af5"/>
-    <FileStats path="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java" bugCount="1" size="21" bugHash="dd0131b0f57f734d38e979685f04650a"/>
-    <FileStats path="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java" bugCount="1" size="21" bugHash="b221d9b5344c87e47e62971eebcf2a73"/>
+    <FileStats path="org/aavso/tools/vstar/plugin/ObservationSourcePluginBase.java" bugCount="4" size="97" bugHash="486a008e878d7603a504313c650fb951"/>
+    <FileStats path="org/aavso/tools/vstar/plugin/ObservationToolPluginBase.java" bugCount="1" size="23" bugHash="584161a608df36cb236197ff879c6998"/>
+    <FileStats path="org/aavso/tools/vstar/plugin/ObservationTransformerPluginBase.java" bugCount="1" size="23" bugHash="9273811df4a9d6bd8ea231a82343a67d"/>
     <FileStats path="org/aavso/tools/vstar/plugin/PluginComponentFactory.java" bugCount="0" size="51"/>
     <FileStats path="org/aavso/tools/vstar/plugin/filter/impl/VeLaFilterPlugin.java" bugCount="0" size="50"/>
     <FileStats path="org/aavso/tools/vstar/plugin/filter/impl/VeLaObservationFilterDialog.java" bugCount="0" size="119"/>
     <FileStats path="org/aavso/tools/vstar/plugin/model/impl/ApacheCommonsPolynomialFitCreatorPlugin.java" bugCount="0" size="185"/>
-    <FileStats path="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" bugCount="4" size="21" bugHash="0fbf3643773078f880228c3b486c2789"/>
+    <FileStats path="org/aavso/tools/vstar/plugin/ob/sink/impl/CommonTextFormatSinkPluginBase.java" bugCount="4" size="23" bugHash="51fc6beed19a7b037ae2dec6aa120269"/>
     <FileStats path="org/aavso/tools/vstar/plugin/ob/sink/impl/DownloadFormatObservationSinkPlugin.java" bugCount="0" size="19"/>
     <FileStats path="org/aavso/tools/vstar/plugin/ob/sink/impl/SimpleFormatObservationSinkPlugin.java" bugCount="0" size="50"/>
     <FileStats path="org/aavso/tools/vstar/plugin/ob/src/impl/AAVSOPhotometrySource.java" bugCount="0" size="47"/>
@@ -15204,7 +15227,7 @@ signals unexpected behavior by returning an atypical return value.
     <FileStats path="org/aavso/tools/vstar/plugin/ob/src/impl/UTF8FilteringInputStream.java" bugCount="0" size="13"/>
     <FileStats path="org/aavso/tools/vstar/plugin/period/PeriodAnalysisComponentFactory.java" bugCount="0" size="49"/>
     <FileStats path="org/aavso/tools/vstar/plugin/period/PeriodAnalysisDialogBase.java" bugCount="0" size="125"/>
-    <FileStats path="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java" bugCount="1" size="46" bugHash="8c5a7808220c586974a1ef02eb68e99a"/>
+    <FileStats path="org/aavso/tools/vstar/plugin/period/PeriodAnalysisPluginBase.java" bugCount="1" size="48" bugHash="9446f3e5973aac4ed3a7c7f034f67ec7"/>
     <FileStats path="org/aavso/tools/vstar/plugin/period/impl/DcDftFrequencyRangePeriodAnalysisPlugin.java" bugCount="0" size="56"/>
     <FileStats path="org/aavso/tools/vstar/plugin/period/impl/DcDftPeriodAnalysisPluginBase.java" bugCount="0" size="32"/>
     <FileStats path="org/aavso/tools/vstar/plugin/period/impl/DcDftPeriodRangePeriodAnalysisPlugin.java" bugCount="0" size="52"/>
@@ -15290,7 +15313,8 @@ signals unexpected behavior by returning an atypical return value.
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/NewStarDialog.java" bugCount="0" size="37"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/NumericPrecisionSelectionPane.java" bugCount="0" size="133"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/PluginSettingsPane.java" bugCount="0" size="136"/>
-    <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" bugCount="2" size="73" bugHash="6fcc045b04ddcb9e15b2d012180b2172"/>
+    <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/PreferenceTabDeduper.java" bugCount="0" size="26"/>
+    <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/PreferencesDialog.java" bugCount="2" size="104" bugHash="82d8efabee9e70337300b107c378536d"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/SeriesColorSelectionPane.java" bugCount="1" size="109" bugHash="ffb8a6fd8053f28d6b469511283d2552"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/SeriesSizeSelectionPane.java" bugCount="2" size="150" bugHash="5541c0399ad6e94b222fe6c202d2643e"/>
     <FileStats path="org/aavso/tools/vstar/ui/dialog/prefs/StarGroupManagementPane.java" bugCount="0" size="190"/>
@@ -15386,7 +15410,7 @@ signals unexpected behavior by returning an atypical return value.
     <FileStats path="org/aavso/tools/vstar/ui/pane/plot/VStarPlotDataRenderer.java" bugCount="1" size="12" bugHash="28b2399c49a963c914a5d07a25d5db87"/>
     <FileStats path="org/aavso/tools/vstar/ui/resources/LoginInfo.java" bugCount="0" size="39"/>
     <FileStats path="org/aavso/tools/vstar/ui/resources/LoginType.java" bugCount="1" size="22" bugHash="a388abbbca6237bdd55a3f62b81018ef"/>
-    <FileStats path="org/aavso/tools/vstar/ui/resources/PluginLoader.java" bugCount="2" size="148" bugHash="ce68c00c1f4f625cac063b89250568a0"/>
+    <FileStats path="org/aavso/tools/vstar/ui/resources/PluginLoader.java" bugCount="3" size="150" bugHash="0b46818377980e44dea065b0d454cd9f"/>
     <FileStats path="org/aavso/tools/vstar/ui/resources/PropertiesAccessor.java" bugCount="0" size="37"/>
     <FileStats path="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java" bugCount="1" size="46" bugHash="21d745696e7c4a73146578a1dc0ebfc2"/>
     <FileStats path="org/aavso/tools/vstar/ui/resources/RevisionAccessor.java" bugCount="0" size="12"/>
@@ -15613,17 +15637,17 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.input.text.ObservationSourceAnalyser" sourceFile="ObservationSourceAnalyser.java" interface="false" size="72" bugs="1" priority_2="1"/>
       <ClassStats class="org.aavso.tools.vstar.input.text.TextFormatObservationReader" sourceFile="TextFormatObservationReader.java" interface="false" size="66" bugs="1" priority_2="1"/>
     </PackageStats>
-    <PackageStats package="org.aavso.tools.vstar.plugin" total_bugs="10" total_types="11" total_size="335" priority_2="9" priority_1="1">
-      <ClassStats class="org.aavso.tools.vstar.plugin.CustomFilterPluginBase" sourceFile="CustomFilterPluginBase.java" interface="false" size="39" bugs="1" priority_2="1"/>
+    <PackageStats package="org.aavso.tools.vstar.plugin" total_bugs="10" total_types="11" total_size="350" priority_2="9" priority_1="1">
+      <ClassStats class="org.aavso.tools.vstar.plugin.CustomFilterPluginBase" sourceFile="CustomFilterPluginBase.java" interface="false" size="41" bugs="1" priority_2="1"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.CustomFilterPluginBase$1" sourceFile="CustomFilterPluginBase.java" interface="false" size="11" bugs="0"/>
-      <ClassStats class="org.aavso.tools.vstar.plugin.GeneralToolPluginBase" sourceFile="GeneralToolPluginBase.java" interface="false" size="21" bugs="1" priority_2="1"/>
-      <ClassStats class="org.aavso.tools.vstar.plugin.IPlugin" sourceFile="IPlugin.java" interface="true" size="10" bugs="0"/>
+      <ClassStats class="org.aavso.tools.vstar.plugin.GeneralToolPluginBase" sourceFile="GeneralToolPluginBase.java" interface="false" size="23" bugs="1" priority_2="1"/>
+      <ClassStats class="org.aavso.tools.vstar.plugin.IPlugin" sourceFile="IPlugin.java" interface="true" size="13" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.InputType" sourceFile="InputType.java" interface="false" size="16" bugs="0"/>
-      <ClassStats class="org.aavso.tools.vstar.plugin.ModelCreatorPluginBase" sourceFile="ModelCreatorPluginBase.java" interface="false" size="25" bugs="1" priority_2="1"/>
+      <ClassStats class="org.aavso.tools.vstar.plugin.ModelCreatorPluginBase" sourceFile="ModelCreatorPluginBase.java" interface="false" size="27" bugs="1" priority_2="1"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.ObservationSinkPluginBase" sourceFile="ObservationSinkPluginBase.java" interface="false" size="25" bugs="1" priority_2="1"/>
-      <ClassStats class="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" sourceFile="ObservationSourcePluginBase.java" interface="false" size="95" bugs="4" priority_2="3" priority_1="1"/>
-      <ClassStats class="org.aavso.tools.vstar.plugin.ObservationToolPluginBase" sourceFile="ObservationToolPluginBase.java" interface="false" size="21" bugs="1" priority_2="1"/>
-      <ClassStats class="org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase" sourceFile="ObservationTransformerPluginBase.java" interface="false" size="21" bugs="1" priority_2="1"/>
+      <ClassStats class="org.aavso.tools.vstar.plugin.ObservationSourcePluginBase" sourceFile="ObservationSourcePluginBase.java" interface="false" size="97" bugs="4" priority_2="3" priority_1="1"/>
+      <ClassStats class="org.aavso.tools.vstar.plugin.ObservationToolPluginBase" sourceFile="ObservationToolPluginBase.java" interface="false" size="23" bugs="1" priority_2="1"/>
+      <ClassStats class="org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase" sourceFile="ObservationTransformerPluginBase.java" interface="false" size="23" bugs="1" priority_2="1"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.PluginComponentFactory" sourceFile="PluginComponentFactory.java" interface="false" size="51" bugs="0"/>
     </PackageStats>
     <PackageStats package="org.aavso.tools.vstar.plugin.filter.impl" total_bugs="0" total_types="4" total_size="169">
@@ -15637,8 +15661,8 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.plugin.model.impl.ApacheCommonsPolynomialFitCreatorPlugin$PolynomialFitModel" sourceFile="ApacheCommonsPolynomialFitCreatorPlugin.java" interface="false" size="104" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.model.impl.ApacheCommonsPolynomialFitCreatorPlugin$PolynomialFitModel$1" sourceFile="ApacheCommonsPolynomialFitCreatorPlugin.java" interface="false" size="10" bugs="0"/>
     </PackageStats>
-    <PackageStats package="org.aavso.tools.vstar.plugin.ob.sink.impl" total_bugs="4" total_types="3" total_size="90" priority_2="4">
-      <ClassStats class="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" sourceFile="CommonTextFormatSinkPluginBase.java" interface="false" size="21" bugs="4" priority_2="4"/>
+    <PackageStats package="org.aavso.tools.vstar.plugin.ob.sink.impl" total_bugs="4" total_types="3" total_size="92" priority_2="4">
+      <ClassStats class="org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase" sourceFile="CommonTextFormatSinkPluginBase.java" interface="false" size="23" bugs="4" priority_2="4"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.ob.sink.impl.DownloadFormatObservationSinkPlugin" sourceFile="DownloadFormatObservationSinkPlugin.java" interface="false" size="19" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.ob.sink.impl.SimpleFormatObservationSinkPlugin" sourceFile="SimpleFormatObservationSinkPlugin.java" interface="false" size="50" bugs="0"/>
     </PackageStats>
@@ -15662,14 +15686,14 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.plugin.ob.src.impl.TextFormatObservationSourcePlugin" sourceFile="TextFormatObservationSourcePlugin.java" interface="false" size="41" bugs="3" priority_2="1" priority_1="2"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.ob.src.impl.UTF8FilteringInputStream" sourceFile="UTF8FilteringInputStream.java" interface="false" size="13" bugs="0"/>
     </PackageStats>
-    <PackageStats package="org.aavso.tools.vstar.plugin.period" total_bugs="1" total_types="8" total_size="220" priority_2="1">
+    <PackageStats package="org.aavso.tools.vstar.plugin.period" total_bugs="1" total_types="8" total_size="222" priority_2="1">
       <ClassStats class="org.aavso.tools.vstar.plugin.period.PeriodAnalysisComponentFactory" sourceFile="PeriodAnalysisComponentFactory.java" interface="false" size="49" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase" sourceFile="PeriodAnalysisDialogBase.java" interface="false" size="93" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase$1" sourceFile="PeriodAnalysisDialogBase.java" interface="false" size="9" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase$2" sourceFile="PeriodAnalysisDialogBase.java" interface="false" size="9" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase$3" sourceFile="PeriodAnalysisDialogBase.java" interface="false" size="7" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase$4" sourceFile="PeriodAnalysisDialogBase.java" interface="false" size="7" bugs="0"/>
-      <ClassStats class="org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase" sourceFile="PeriodAnalysisPluginBase.java" interface="false" size="36" bugs="1" priority_2="1"/>
+      <ClassStats class="org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase" sourceFile="PeriodAnalysisPluginBase.java" interface="false" size="38" bugs="1" priority_2="1"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase$1" sourceFile="PeriodAnalysisPluginBase.java" interface="false" size="10" bugs="0"/>
     </PackageStats>
     <PackageStats package="org.aavso.tools.vstar.plugin.period.impl" total_bugs="0" total_types="7" total_size="315">
@@ -15949,7 +15973,7 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager$Operation" sourceFile="PluginManager.java" interface="false" size="11" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagerException" sourceFile="PluginManagerException.java" interface="false" size="13" bugs="0"/>
     </PackageStats>
-    <PackageStats package="org.aavso.tools.vstar.ui.dialog.prefs" total_bugs="11" total_types="59" total_size="1511" priority_2="10" priority_1="1">
+    <PackageStats package="org.aavso.tools.vstar.ui.dialog.prefs" total_bugs="11" total_types="60" total_size="1568" priority_2="10" priority_1="1">
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.ChartPropertiesSelectionPane" sourceFile="ChartPropertiesSelectionPane.java" interface="false" size="165" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.ChartPropertiesSelectionPane$1" sourceFile="ChartPropertiesSelectionPane.java" interface="false" size="8" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.ChartPropertiesSelectionPane$2" sourceFile="ChartPropertiesSelectionPane.java" interface="false" size="10" bugs="0"/>
@@ -15986,7 +16010,8 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.PluginSettingsPane$2" sourceFile="PluginSettingsPane.java" interface="false" size="9" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.PluginSettingsPane$3" sourceFile="PluginSettingsPane.java" interface="false" size="21" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.PluginSettingsPane$4" sourceFile="PluginSettingsPane.java" interface="false" size="7" bugs="0"/>
-      <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" sourceFile="PreferencesDialog.java" interface="false" size="73" bugs="2" priority_2="2"/>
+      <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.PreferenceTabDeduper" sourceFile="PreferenceTabDeduper.java" interface="false" size="26" bugs="0"/>
+      <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog" sourceFile="PreferencesDialog.java" interface="false" size="104" bugs="2" priority_2="2"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.SeriesColorSelectionPane" sourceFile="SeriesColorSelectionPane.java" interface="false" size="74" bugs="1" priority_2="1"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.SeriesColorSelectionPane$1" sourceFile="SeriesColorSelectionPane.java" interface="false" size="11" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.dialog.prefs.SeriesColorSelectionPane$2" sourceFile="SeriesColorSelectionPane.java" interface="false" size="8" bugs="0"/>
@@ -16172,11 +16197,11 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane$2" sourceFile="TimeElementsInBinSettingPane.java" interface="false" size="14" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.pane.plot.VStarPlotDataRenderer" sourceFile="VStarPlotDataRenderer.java" interface="false" size="12" bugs="1" priority_2="1"/>
     </PackageStats>
-    <PackageStats package="org.aavso.tools.vstar.ui.resources" total_bugs="10" total_types="10" total_size="433" priority_2="10">
+    <PackageStats package="org.aavso.tools.vstar.ui.resources" total_bugs="11" total_types="10" total_size="435" priority_2="11">
       <ClassStats class="org.aavso.tools.vstar.ui.resources.LoginInfo" sourceFile="LoginInfo.java" interface="false" size="39" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.resources.LoginType" sourceFile="LoginType.java" interface="false" size="18" bugs="1" priority_2="1"/>
       <ClassStats class="org.aavso.tools.vstar.ui.resources.LoginType$1" sourceFile="LoginType.java" interface="false" size="4" bugs="0"/>
-      <ClassStats class="org.aavso.tools.vstar.ui.resources.PluginLoader" sourceFile="PluginLoader.java" interface="false" size="143" bugs="2" priority_2="2"/>
+      <ClassStats class="org.aavso.tools.vstar.ui.resources.PluginLoader" sourceFile="PluginLoader.java" interface="false" size="145" bugs="3" priority_2="3"/>
       <ClassStats class="org.aavso.tools.vstar.ui.resources.PluginLoader$1" sourceFile="PluginLoader.java" interface="false" size="5" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.resources.PropertiesAccessor" sourceFile="PropertiesAccessor.java" interface="false" size="37" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.resources.ResourceAccessor" sourceFile="ResourceAccessor.java" interface="false" size="46" bugs="1" priority_2="1"/>
@@ -16427,56 +16452,53 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.vela.VeLaVisitor" sourceFile="VeLaVisitor.java" interface="true" size="32" bugs="0"/>
     </PackageStats>
     <FindBugsProfile>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine" totalMilliseconds="1125" invocations="4171" avgMicrosecondsPerInvocation="269" maxMicrosecondsPerInvocation="55860" standardDeviationMicrosecondsPerInvocation="2194"/>
-      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.NullDerefAndRedundantComparisonFinder" totalMilliseconds="1010" invocations="4799" avgMicrosecondsPerInvocation="210" maxMicrosecondsPerInvocation="23501" standardDeviationMicrosecondsPerInvocation="706"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="960" invocations="4161" avgMicrosecondsPerInvocation="230" maxMicrosecondsPerInvocation="15637" standardDeviationMicrosecondsPerInvocation="662"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNoSideEffectMethods" totalMilliseconds="944" invocations="1651" avgMicrosecondsPerInvocation="572" maxMicrosecondsPerInvocation="29473" standardDeviationMicrosecondsPerInvocation="1624"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueNumberDataflowFactory" totalMilliseconds="913" invocations="5207" avgMicrosecondsPerInvocation="175" maxMicrosecondsPerInvocation="51743" standardDeviationMicrosecondsPerInvocation="918"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.IsNullValueDataflowFactory" totalMilliseconds="882" invocations="4983" avgMicrosecondsPerInvocation="177" maxMicrosecondsPerInvocation="16857" standardDeviationMicrosecondsPerInvocation="609"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.TypeDataflowFactory" totalMilliseconds="820" invocations="5128" avgMicrosecondsPerInvocation="159" maxMicrosecondsPerInvocation="22944" standardDeviationMicrosecondsPerInvocation="551"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.UnconditionalValueDerefDataflowFactory" totalMilliseconds="771" invocations="4959" avgMicrosecondsPerInvocation="155" maxMicrosecondsPerInvocation="43864" standardDeviationMicrosecondsPerInvocation="828"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="741" invocations="1651" avgMicrosecondsPerInvocation="448" maxMicrosecondsPerInvocation="11053" standardDeviationMicrosecondsPerInvocation="1007"/>
-      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="585" invocations="6933" avgMicrosecondsPerInvocation="84" maxMicrosecondsPerInvocation="7127" standardDeviationMicrosecondsPerInvocation="246"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison$SpecialTypeAnalysis" totalMilliseconds="565" invocations="3851" avgMicrosecondsPerInvocation="146" maxMicrosecondsPerInvocation="19616" standardDeviationMicrosecondsPerInvocation="537"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.CFGFactory" totalMilliseconds="494" invocations="5233" avgMicrosecondsPerInvocation="94" maxMicrosecondsPerInvocation="8134" standardDeviationMicrosecondsPerInvocation="231"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindReturnRef" totalMilliseconds="342" invocations="809" avgMicrosecondsPerInvocation="423" maxMicrosecondsPerInvocation="23255" standardDeviationMicrosecondsPerInvocation="1269"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ConstructorThrow" totalMilliseconds="339" invocations="809" avgMicrosecondsPerInvocation="419" maxMicrosecondsPerInvocation="25853" standardDeviationMicrosecondsPerInvocation="1322"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers" totalMilliseconds="256" invocations="1651" avgMicrosecondsPerInvocation="155" maxMicrosecondsPerInvocation="14140" standardDeviationMicrosecondsPerInvocation="469"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ResourceInMultipleThreadsDetector" totalMilliseconds="232" invocations="809" avgMicrosecondsPerInvocation="287" maxMicrosecondsPerInvocation="9359" standardDeviationMicrosecondsPerInvocation="626"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ConstantDataflowFactory" totalMilliseconds="212" invocations="4983" avgMicrosecondsPerInvocation="42" maxMicrosecondsPerInvocation="12747" standardDeviationMicrosecondsPerInvocation="233"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine" totalMilliseconds="208" invocations="1989" avgMicrosecondsPerInvocation="105" maxMicrosecondsPerInvocation="13081" standardDeviationMicrosecondsPerInvocation="339"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.UnreadFields" totalMilliseconds="207" invocations="809" avgMicrosecondsPerInvocation="256" maxMicrosecondsPerInvocation="20848" standardDeviationMicrosecondsPerInvocation="845"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.SharedVariableAtomicityDetector" totalMilliseconds="196" invocations="809" avgMicrosecondsPerInvocation="242" maxMicrosecondsPerInvocation="65821" standardDeviationMicrosecondsPerInvocation="2648"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.LoadOfKnownNullValue" totalMilliseconds="184" invocations="809" avgMicrosecondsPerInvocation="227" maxMicrosecondsPerInvocation="11123" standardDeviationMicrosecondsPerInvocation="661"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.MethodGenFactory" totalMilliseconds="179" invocations="5233" avgMicrosecondsPerInvocation="34" maxMicrosecondsPerInvocation="21978" standardDeviationMicrosecondsPerInvocation="309"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.CalledMethods" totalMilliseconds="177" invocations="1651" avgMicrosecondsPerInvocation="107" maxMicrosecondsPerInvocation="3334" standardDeviationMicrosecondsPerInvocation="241"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildObligationPolicyDatabase" totalMilliseconds="176" invocations="1651" avgMicrosecondsPerInvocation="106" maxMicrosecondsPerInvocation="9572" standardDeviationMicrosecondsPerInvocation="300"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUncalledPrivateMethods" totalMilliseconds="169" invocations="809" avgMicrosecondsPerInvocation="210" maxMicrosecondsPerInvocation="1454" standardDeviationMicrosecondsPerInvocation="201"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindInconsistentSync2" totalMilliseconds="164" invocations="809" avgMicrosecondsPerInvocation="203" maxMicrosecondsPerInvocation="10363" standardDeviationMicrosecondsPerInvocation="512"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" totalMilliseconds="146" invocations="1651" avgMicrosecondsPerInvocation="88" maxMicrosecondsPerInvocation="5058" standardDeviationMicrosecondsPerInvocation="232"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.DumbMethods" totalMilliseconds="145" invocations="809" avgMicrosecondsPerInvocation="179" maxMicrosecondsPerInvocation="4838" standardDeviationMicrosecondsPerInvocation="337"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.SerializableIdiom" totalMilliseconds="144" invocations="809" avgMicrosecondsPerInvocation="178" maxMicrosecondsPerInvocation="18477" standardDeviationMicrosecondsPerInvocation="833"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical" totalMilliseconds="142" invocations="1651" avgMicrosecondsPerInvocation="86" maxMicrosecondsPerInvocation="8578" standardDeviationMicrosecondsPerInvocation="266"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNullDeref$CheckCallSitesAndReturnInstructions" totalMilliseconds="139" invocations="4799" avgMicrosecondsPerInvocation="29" maxMicrosecondsPerInvocation="8091" standardDeviationMicrosecondsPerInvocation="147"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison" totalMilliseconds="138" invocations="809" avgMicrosecondsPerInvocation="171" maxMicrosecondsPerInvocation="7506" standardDeviationMicrosecondsPerInvocation="487"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindDeadLocalStores" totalMilliseconds="138" invocations="809" avgMicrosecondsPerInvocation="171" maxMicrosecondsPerInvocation="12202" standardDeviationMicrosecondsPerInvocation="555"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.MethodReturnCheck" totalMilliseconds="127" invocations="809" avgMicrosecondsPerInvocation="157" maxMicrosecondsPerInvocation="4485" standardDeviationMicrosecondsPerInvocation="348"/>
-      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.TypeQualifierNullnessAnnotationDatabase" totalMilliseconds="126" invocations="122729" avgMicrosecondsPerInvocation="1" maxMicrosecondsPerInvocation="1995" standardDeviationMicrosecondsPerInvocation="7"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindPublicAttributes" totalMilliseconds="124" invocations="809" avgMicrosecondsPerInvocation="154" maxMicrosecondsPerInvocation="8957" standardDeviationMicrosecondsPerInvocation="444"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis" totalMilliseconds="123" invocations="1651" avgMicrosecondsPerInvocation="74" maxMicrosecondsPerInvocation="23747" standardDeviationMicrosecondsPerInvocation="598"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildStringPassthruGraph" totalMilliseconds="121" invocations="1651" avgMicrosecondsPerInvocation="73" maxMicrosecondsPerInvocation="3196" standardDeviationMicrosecondsPerInvocation="206"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ReflectiveClasses" totalMilliseconds="119" invocations="1651" avgMicrosecondsPerInvocation="72" maxMicrosecondsPerInvocation="2525" standardDeviationMicrosecondsPerInvocation="178"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueRangeAnalysisFactory" totalMilliseconds="115" invocations="5233" avgMicrosecondsPerInvocation="22" maxMicrosecondsPerInvocation="18288" standardDeviationMicrosecondsPerInvocation="299"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUselessObjects" totalMilliseconds="113" invocations="809" avgMicrosecondsPerInvocation="140" maxMicrosecondsPerInvocation="22233" standardDeviationMicrosecondsPerInvocation="868"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.MultipleInstantiationsOfSingletons" totalMilliseconds="113" invocations="809" avgMicrosecondsPerInvocation="140" maxMicrosecondsPerInvocation="4091" standardDeviationMicrosecondsPerInvocation="268"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindPuzzlers" totalMilliseconds="112" invocations="809" avgMicrosecondsPerInvocation="139" maxMicrosecondsPerInvocation="5338" standardDeviationMicrosecondsPerInvocation="322"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindOverridableMethodCall" totalMilliseconds="109" invocations="809" avgMicrosecondsPerInvocation="135" maxMicrosecondsPerInvocation="5915" standardDeviationMicrosecondsPerInvocation="329"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindHEmismatch" totalMilliseconds="109" invocations="809" avgMicrosecondsPerInvocation="134" maxMicrosecondsPerInvocation="3383" standardDeviationMicrosecondsPerInvocation="252"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.CheckRelaxingNullnessAnnotation" totalMilliseconds="108" invocations="809" avgMicrosecondsPerInvocation="134" maxMicrosecondsPerInvocation="8403" standardDeviationMicrosecondsPerInvocation="402"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.LiveLocalStoreDataflowFactory" totalMilliseconds="106" invocations="4727" avgMicrosecondsPerInvocation="22" maxMicrosecondsPerInvocation="5270" standardDeviationMicrosecondsPerInvocation="100"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.SwitchFallthrough" totalMilliseconds="104" invocations="809" avgMicrosecondsPerInvocation="128" maxMicrosecondsPerInvocation="3348" standardDeviationMicrosecondsPerInvocation="270"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.RuntimeExceptionCapture" totalMilliseconds="103" invocations="809" avgMicrosecondsPerInvocation="127" maxMicrosecondsPerInvocation="3950" standardDeviationMicrosecondsPerInvocation="269"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.StringConcatenation" totalMilliseconds="103" invocations="809" avgMicrosecondsPerInvocation="127" maxMicrosecondsPerInvocation="9448" standardDeviationMicrosecondsPerInvocation="514"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine" totalMilliseconds="983" invocations="4172" avgMicrosecondsPerInvocation="235" maxMicrosecondsPerInvocation="48769" standardDeviationMicrosecondsPerInvocation="1722"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNoSideEffectMethods" totalMilliseconds="978" invocations="1652" avgMicrosecondsPerInvocation="592" maxMicrosecondsPerInvocation="27116" standardDeviationMicrosecondsPerInvocation="1648"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="974" invocations="4162" avgMicrosecondsPerInvocation="234" maxMicrosecondsPerInvocation="15227" standardDeviationMicrosecondsPerInvocation="686"/>
+      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.NullDerefAndRedundantComparisonFinder" totalMilliseconds="828" invocations="4814" avgMicrosecondsPerInvocation="172" maxMicrosecondsPerInvocation="26819" standardDeviationMicrosecondsPerInvocation="725"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="810" invocations="1652" avgMicrosecondsPerInvocation="490" maxMicrosecondsPerInvocation="17652" standardDeviationMicrosecondsPerInvocation="1186"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueNumberDataflowFactory" totalMilliseconds="720" invocations="5224" avgMicrosecondsPerInvocation="137" maxMicrosecondsPerInvocation="46949" standardDeviationMicrosecondsPerInvocation="783"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.IsNullValueDataflowFactory" totalMilliseconds="712" invocations="4998" avgMicrosecondsPerInvocation="142" maxMicrosecondsPerInvocation="15945" standardDeviationMicrosecondsPerInvocation="467"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.TypeDataflowFactory" totalMilliseconds="673" invocations="5143" avgMicrosecondsPerInvocation="130" maxMicrosecondsPerInvocation="26426" standardDeviationMicrosecondsPerInvocation="492"/>
+      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="616" invocations="6952" avgMicrosecondsPerInvocation="88" maxMicrosecondsPerInvocation="6724" standardDeviationMicrosecondsPerInvocation="261"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.UnconditionalValueDerefDataflowFactory" totalMilliseconds="591" invocations="4974" avgMicrosecondsPerInvocation="118" maxMicrosecondsPerInvocation="17207" standardDeviationMicrosecondsPerInvocation="480"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison$SpecialTypeAnalysis" totalMilliseconds="450" invocations="3856" avgMicrosecondsPerInvocation="116" maxMicrosecondsPerInvocation="13108" standardDeviationMicrosecondsPerInvocation="382"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.CFGFactory" totalMilliseconds="404" invocations="5249" avgMicrosecondsPerInvocation="77" maxMicrosecondsPerInvocation="7200" standardDeviationMicrosecondsPerInvocation="175"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindReturnRef" totalMilliseconds="287" invocations="810" avgMicrosecondsPerInvocation="354" maxMicrosecondsPerInvocation="24685" standardDeviationMicrosecondsPerInvocation="1185"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers" totalMilliseconds="269" invocations="1652" avgMicrosecondsPerInvocation="163" maxMicrosecondsPerInvocation="14625" standardDeviationMicrosecondsPerInvocation="523"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ConstructorThrow" totalMilliseconds="265" invocations="810" avgMicrosecondsPerInvocation="327" maxMicrosecondsPerInvocation="10342" standardDeviationMicrosecondsPerInvocation="705"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine" totalMilliseconds="247" invocations="1990" avgMicrosecondsPerInvocation="124" maxMicrosecondsPerInvocation="17154" standardDeviationMicrosecondsPerInvocation="606"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ResourceInMultipleThreadsDetector" totalMilliseconds="197" invocations="810" avgMicrosecondsPerInvocation="244" maxMicrosecondsPerInvocation="8998" standardDeviationMicrosecondsPerInvocation="577"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.CalledMethods" totalMilliseconds="185" invocations="1652" avgMicrosecondsPerInvocation="112" maxMicrosecondsPerInvocation="5222" standardDeviationMicrosecondsPerInvocation="301"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ConstantDataflowFactory" totalMilliseconds="179" invocations="4998" avgMicrosecondsPerInvocation="35" maxMicrosecondsPerInvocation="9225" standardDeviationMicrosecondsPerInvocation="187"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildObligationPolicyDatabase" totalMilliseconds="168" invocations="1652" avgMicrosecondsPerInvocation="102" maxMicrosecondsPerInvocation="2541" standardDeviationMicrosecondsPerInvocation="201"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" totalMilliseconds="153" invocations="1652" avgMicrosecondsPerInvocation="93" maxMicrosecondsPerInvocation="5878" standardDeviationMicrosecondsPerInvocation="276"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.UnreadFields" totalMilliseconds="153" invocations="810" avgMicrosecondsPerInvocation="189" maxMicrosecondsPerInvocation="4894" standardDeviationMicrosecondsPerInvocation="349"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUncalledPrivateMethods" totalMilliseconds="148" invocations="810" avgMicrosecondsPerInvocation="183" maxMicrosecondsPerInvocation="1532" standardDeviationMicrosecondsPerInvocation="201"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.MethodGenFactory" totalMilliseconds="148" invocations="5249" avgMicrosecondsPerInvocation="28" maxMicrosecondsPerInvocation="20399" standardDeviationMicrosecondsPerInvocation="286"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.LoadOfKnownNullValue" totalMilliseconds="145" invocations="810" avgMicrosecondsPerInvocation="179" maxMicrosecondsPerInvocation="11993" standardDeviationMicrosecondsPerInvocation="596"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical" totalMilliseconds="144" invocations="1652" avgMicrosecondsPerInvocation="87" maxMicrosecondsPerInvocation="8406" standardDeviationMicrosecondsPerInvocation="271"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindInconsistentSync2" totalMilliseconds="139" invocations="810" avgMicrosecondsPerInvocation="172" maxMicrosecondsPerInvocation="10141" standardDeviationMicrosecondsPerInvocation="548"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.DumbMethods" totalMilliseconds="135" invocations="810" avgMicrosecondsPerInvocation="167" maxMicrosecondsPerInvocation="14145" standardDeviationMicrosecondsPerInvocation="565"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildStringPassthruGraph" totalMilliseconds="134" invocations="1652" avgMicrosecondsPerInvocation="81" maxMicrosecondsPerInvocation="5831" standardDeviationMicrosecondsPerInvocation="280"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ReflectiveClasses" totalMilliseconds="132" invocations="1652" avgMicrosecondsPerInvocation="80" maxMicrosecondsPerInvocation="4939" standardDeviationMicrosecondsPerInvocation="243"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindDeadLocalStores" totalMilliseconds="131" invocations="810" avgMicrosecondsPerInvocation="162" maxMicrosecondsPerInvocation="14300" standardDeviationMicrosecondsPerInvocation="734"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis" totalMilliseconds="129" invocations="1652" avgMicrosecondsPerInvocation="78" maxMicrosecondsPerInvocation="26085" standardDeviationMicrosecondsPerInvocation="657"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.SharedVariableAtomicityDetector" totalMilliseconds="129" invocations="810" avgMicrosecondsPerInvocation="159" maxMicrosecondsPerInvocation="41572" standardDeviationMicrosecondsPerInvocation="1632"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ExplicitSerialization" totalMilliseconds="124" invocations="1652" avgMicrosecondsPerInvocation="75" maxMicrosecondsPerInvocation="26328" standardDeviationMicrosecondsPerInvocation="802"/>
+      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.TypeQualifierNullnessAnnotationDatabase" totalMilliseconds="113" invocations="123762" avgMicrosecondsPerInvocation="0" maxMicrosecondsPerInvocation="3040" standardDeviationMicrosecondsPerInvocation="12"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison" totalMilliseconds="112" invocations="810" avgMicrosecondsPerInvocation="138" maxMicrosecondsPerInvocation="8930" standardDeviationMicrosecondsPerInvocation="402"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNullDeref$CheckCallSitesAndReturnInstructions" totalMilliseconds="110" invocations="4814" avgMicrosecondsPerInvocation="22" maxMicrosecondsPerInvocation="15983" standardDeviationMicrosecondsPerInvocation="236"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.LiveLocalStoreDataflowFactory" totalMilliseconds="105" invocations="4742" avgMicrosecondsPerInvocation="22" maxMicrosecondsPerInvocation="4230" standardDeviationMicrosecondsPerInvocation="111"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.MethodReturnCheck" totalMilliseconds="104" invocations="810" avgMicrosecondsPerInvocation="128" maxMicrosecondsPerInvocation="4225" standardDeviationMicrosecondsPerInvocation="316"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindBadCast2" totalMilliseconds="104" invocations="810" avgMicrosecondsPerInvocation="128" maxMicrosecondsPerInvocation="32158" standardDeviationMicrosecondsPerInvocation="1148"/>
+      <ClassProfile name="edu.umd.cs.findbugs.util.TopologicalSort" totalMilliseconds="100" invocations="4054" avgMicrosecondsPerInvocation="24" maxMicrosecondsPerInvocation="5764" standardDeviationMicrosecondsPerInvocation="102"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindHEmismatch" totalMilliseconds="95" invocations="810" avgMicrosecondsPerInvocation="118" maxMicrosecondsPerInvocation="2242" standardDeviationMicrosecondsPerInvocation="212"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindPublicAttributes" totalMilliseconds="95" invocations="810" avgMicrosecondsPerInvocation="117" maxMicrosecondsPerInvocation="3523" standardDeviationMicrosecondsPerInvocation="250"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.CheckRelaxingNullnessAnnotation" totalMilliseconds="94" invocations="810" avgMicrosecondsPerInvocation="116" maxMicrosecondsPerInvocation="11769" standardDeviationMicrosecondsPerInvocation="443"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.SerializableIdiom" totalMilliseconds="93" invocations="810" avgMicrosecondsPerInvocation="114" maxMicrosecondsPerInvocation="5506" standardDeviationMicrosecondsPerInvocation="365"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueRangeAnalysisFactory" totalMilliseconds="89" invocations="5249" avgMicrosecondsPerInvocation="17" maxMicrosecondsPerInvocation="9447" standardDeviationMicrosecondsPerInvocation="192"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindOverridableMethodCall" totalMilliseconds="89" invocations="810" avgMicrosecondsPerInvocation="110" maxMicrosecondsPerInvocation="8491" standardDeviationMicrosecondsPerInvocation="355"/>
     </FindBugsProfile>
   </FindBugsSummary>
   <ClassFeatures></ClassFeatures>
