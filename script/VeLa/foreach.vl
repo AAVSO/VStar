@@ -1,0 +1,68 @@
+# TODO
+# - add reduce case for string, list as return and accum; intersection types better
+# - should FOREACH be ACCUMULATE/ACCUM or FOLD (see below!)?
+
+# FOR
+for_(f:λ xs:list) {
+  index <- 0
+  while index < length(xs) {
+    f(nth(xs index))
+    index <- index + 1
+  }
+}
+
+# FOREACH
+# This is equivalent to a list comprehension.
+# Don't need accum parameter; just internally use accum <- []
+foreach(xs:list f:λ accum:list) : list {
+  index <- 0
+  while index < length(xs) {
+    accum <- append(accum f(nth(xs index)))
+    index <- index + 1
+  }
+  accum
+}
+
+# FILTER
+filter_(xs:list predicate:λ) : list {
+  accum <- []
+  index <- 0
+  while index < length(xs) {
+    elt <- nth(xs index)
+    if predicate(elt) then {
+      accum <- append(accum elt)
+    }
+    index <- index + 1
+  }
+  accum
+}
+
+# REDUCE
+reduce_(xs:list f:λ accum:ℤ) : ℤ {
+  index <- 0
+  while index < length(xs) {
+    accum <- f(accum nth(xs index))
+    index <- index + 1
+  }
+  accum
+}
+
+# REDUCE
+reduce_(xs:list f:λ accum:ℝ) : ℝ {
+  index <- 0
+  while index < length(xs) {
+    accum <- f(accum nth(xs index))
+    index <- index + 1
+  }
+  accum
+}
+
+# REDUCE
+reduce_(xs:list f:λ accum:𝔹) : 𝔹 {
+  index <- 0
+  while index < length(xs) {
+    accum <- f(accum nth(xs index))
+    index <- index + 1
+  }
+  accum
+}

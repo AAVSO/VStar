@@ -10,7 +10,7 @@ for (i=0;i<objs.length;i++) {
 
   path = root + obj.replace(" ", "_") + "_2454852_2455852.tsv"
   println("Saving " + path)
-  vstar.saveCurrentData(path, "\t")
+  vstar.saveObsList(path, "\t")
 }
 
 vstar.exit()

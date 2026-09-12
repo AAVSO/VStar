@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.scripting;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.logging.Level;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -30,6 +31,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.JFileChooser;
 
+import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -146,6 +148,9 @@ public class ScriptRunner {
 			jsEngine.put(ScriptEngine.FILENAME, scriptFile.toString());
 			CompiledScript script = compilable.compile(reader);
 			script.eval();
+			if (getError() != null) {
+			    VStar.LOGGER.log(Level.SEVERE, getError());
+			}
 		} catch (ScriptException ex) {
 			Mediator.getUI().setScriptingStatus(false);
 			MessageBox
