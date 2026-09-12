@@ -33,7 +33,7 @@ public class PluginManagerTest extends TestCase {
 
 	private PluginManager pluginManager;
 
-	private final String BASE_URL = "https://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-2.24.0";
+	private final String BASE_URL = "https://aavso.github.io/VStar/plugins/2.25.0";
 
 	public PluginManagerTest(String name) {
 		super(name);
