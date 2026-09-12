@@ -52,7 +52,7 @@ Package                                             Lines  Line% Branch  Brch% M
 ...ui.task                                            454   0.0%    119   0.0%     49   0.0%
 ...ui.resources                                       317   9.5%     97   1.0%     71  22.5%
 ...ui.mediator                                       1135  13.0%    377   1.9%    213  20.2%
-...plugin                                             181  18.2%     22   0.0%     96  12.5%
+...plugin                                             181  18.8%     22   0.0%     96  13.5%
 ...ui.dialog.series                                   584   0.0%    142   0.0%     72   0.0%
 ...util.discrepant                                     60   0.0%      2   0.0%     12   0.0%
 ...ui.pane.plot                                       430   0.0%    160   0.0%     92   0.0%
