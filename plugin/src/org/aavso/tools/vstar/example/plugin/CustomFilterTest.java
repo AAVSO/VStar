@@ -1,5 +1,6 @@
 package org.aavso.tools.vstar.example.plugin;
 
+import java.awt.Component;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.SeriesType;
@@ -53,5 +54,13 @@ public class CustomFilterTest extends CustomFilterPluginBase {
 	@Override
 	public String getDisplayName() {
 		return "Previous Observation Condition";
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getPreferencesPane()
+	 */
+	@Override
+	public Component getPreferencesPane() {
+		return null;
 	}
 }

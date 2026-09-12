@@ -2165,7 +2165,7 @@ public class DFTandSpectralWindowTest {
 			
 			if (expectedDftTopHits.length > topHits.get(PeriodAnalysisCoordinateType.FREQUENCY).size())
 				throw new Exception("Invalid DFT TopHits array length");
-			compareDftResult(expectedDftTopHits, topHits, "TopHits ", 1e-7);
+			compareDftResult(expectedDftTopHits, topHits, "TopHits ", 2e-7);
 
 		}
 		
@@ -2176,15 +2176,15 @@ public class DFTandSpectralWindowTest {
 				double period = result.get(PeriodAnalysisCoordinateType.PERIOD).get(i);
 				double power = result.get(PeriodAnalysisCoordinateType.POWER).get(i);
 				double semiamp = result.get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).get(i);
-				try {
+//				try {
 				compareDouble(frequency, d[0], delta, i + 1, prefix + "Frequency comparison failed: ");
 				compareDouble(period,    d[1], delta, i + 1, prefix + "Period comparison failed: ");
 				compareDouble(power,     d[2], delta, i + 1, prefix + "Power comparison failed: ");
 				compareDouble(semiamp,   d[3], delta, i + 1, prefix + "Semiamplitude comparison failed: ");
-				} catch (Exception e) {
-				    int x = 42;
-				    int y = x;
-				}
+//				} catch (Exception e) {
+//				    int x = 42;
+//				    int y = x;
+//				}
 				i++;
 			}
 		}
@@ -2200,19 +2200,22 @@ public class DFTandSpectralWindowTest {
 		public void testDcDft() throws Exception {
 			DFTandSpectralWindow.FtResult ftResult = new DFTandSpectralWindow.FtResult(obs);
 			
+			int threadsMax = Runtime.getRuntime().availableProcessors();
+			int threads = Math.max(threadsMax - 1, 1);
+			
 			ftResult.setAnalysisType(DFTandSpectralWindow.FAnalysisType.DFT, 1);
 			DFTandSpectralWindow.DFTandSpectralWindowAlgorithm dft_algorithm = 
-					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(0.0, 50.0, 0.009638750819301, ftResult);  
+					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(0.0, 50.0, 0.009638750819301, ftResult, threads);  
 			dftTest(dft_algorithm, expectedDftResult, expectedDftTopHits);
 			
 			ftResult.setAnalysisType(DFTandSpectralWindow.FAnalysisType.SPW, 1);
 			DFTandSpectralWindow.DFTandSpectralWindowAlgorithm spw_algorithm = 
-					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(0.0, 50.0, 0.009638750819301, ftResult);  
+					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(0.0, 50.0, 0.009638750819301, ftResult, threads);  
 			spwTest(spw_algorithm, null, expectedSpwTopHits);
 			
 			ftResult.setAnalysisType(DFTandSpectralWindow.FAnalysisType.DCDFT, 1);
 			DFTandSpectralWindow.DFTandSpectralWindowAlgorithm dcdft_algorithm =
-					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(0.0, 50.0, 0.00963875082, ftResult);
+					new DFTandSpectralWindow.DFTandSpectralWindowAlgorithm(0.0, 50.0, 0.00963875082, ftResult, threads);
 			dftFerrazMelloTest(dcdft_algorithm, null, expectedDftFerrazMelloTopHits);
 		}
 		

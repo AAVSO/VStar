@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.awt.Component;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -66,6 +67,14 @@ abstract public class ModelCreatorPluginBase implements IPlugin {
 	 */
 	@Override
 	public String getDocName() {
+		return null;
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getPreferencesPane()
+	 */
+	@Override
+	public Component getPreferencesPane() {
 		return null;
 	}
 	

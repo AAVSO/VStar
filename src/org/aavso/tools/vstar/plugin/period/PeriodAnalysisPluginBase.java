@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.plugin.period;
 
+import java.awt.Component;
 import java.util.List;
 
 import javax.swing.JDialog;
@@ -83,6 +84,14 @@ abstract public class PeriodAnalysisPluginBase implements IPlugin {
 	 */
 	@Override
 	public String getDocName() {
+		return null;
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getPreferencesPane()
+	 */
+	@Override
+	public Component getPreferencesPane() {
 		return null;
 	}
 	

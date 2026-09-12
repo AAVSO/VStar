@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.example.plugin;
 
+import java.awt.Component;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -38,6 +39,14 @@ public class ObservationSink extends ObservationSinkPluginBase {
 	@Override
 	public String getDescription() {
 		return "Simple XML observation file format";
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getPreferencesPane()
+	 */
+	@Override
+	public Component getPreferencesPane() {
+		return null;
 	}
 
 	@Override

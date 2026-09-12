@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.awt.Component;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -122,6 +123,14 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 */
 	@Override
 	public String getDocName() {
+		return null;
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getPreferencesPane()
+	 */
+	@Override
+	public Component getPreferencesPane() {
 		return null;
 	}
 	

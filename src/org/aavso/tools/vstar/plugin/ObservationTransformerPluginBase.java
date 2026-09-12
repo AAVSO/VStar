@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.awt.Component;
 import java.util.Set;
 
 import org.aavso.tools.vstar.data.SeriesType;
@@ -51,6 +52,14 @@ abstract public class ObservationTransformerPluginBase implements IPlugin {
 	 */
 	@Override
 	public String getDocName() {
+		return null;
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getPreferencesPane()
+	 */
+	@Override
+	public Component getPreferencesPane() {
 		return null;
 	}
 	

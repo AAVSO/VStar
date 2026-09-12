@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -63,6 +64,7 @@ import org.aavso.tools.vstar.plugin.period.PeriodAnalysisComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.NamedComponent;
+import org.aavso.tools.vstar.ui.dialog.IntegerField;
 import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
@@ -71,6 +73,7 @@ import org.aavso.tools.vstar.ui.dialog.model.HarmonicInputDialog;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisTopHitsTablePane;
+import org.aavso.tools.vstar.ui.dialog.prefs.IPreferenceComponent;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
@@ -102,6 +105,10 @@ import org.apache.commons.math.stat.regression.OLSMultipleLinearRegression;
  */
 public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
+	public static final String PREFERENCES_ID = "org.aavso.tools.vstar.external.plugin.DFTandSpectralWindow";
+	
+	private static Component preferencesPane;
+	
 	private static final boolean USE_MULTI_THREAD_VERSION = true;
 	
 	private static final int PROGRESS_COUNTER_STEPS = 200;
@@ -143,6 +150,8 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	
 	private List<PeriodAnalysisDialog> resultDialogList;
 	
+	private int threadsToUse;
+	
 	/**
 	 * Constructor
 	 */
@@ -183,7 +192,9 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 			firstInvocation = false;
 		}
-
+		
+		threadsToUse = PluginSettingsPane.getNumberOfThreadsFromPrefs();
+		
 		// Full reset if a new dataset was loaded (reset() was called)  
 		if (ftResult == null) {
 			ftResult = new FtResult(obs);
@@ -220,7 +231,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			//}
 		}
 		
-		cancelled = !parametersDialog();
+		cancelled = !parametersDialog("Parameters [threads = " + threadsToUse + "]");
 		if (cancelled)
 			return;
 
@@ -231,7 +242,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		ftResult.setAnalysisType(analysisType, harmonicCount);		
 		
-		algorithm = new DFTandSpectralWindowAlgorithm(minFrequency, maxFrequency, resolution, ftResult);
+		algorithm = new DFTandSpectralWindowAlgorithm(minFrequency, maxFrequency, resolution, ftResult, threadsToUse);
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				new ProgressInfo(ProgressType.MAX_PROGRESS, ((DFTandSpectralWindowAlgorithm)algorithm).getNumberOfSteps()));
 		algorithmCreated = true;
@@ -693,6 +704,8 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		
 		private FtResult ftResult;
 		
+		private int threadsToUse = 1;
+		
 		//I (Max) am not sure if it is required (volatile). However, it is accessed from different threads.
 		private volatile boolean algorithm_interrupted;
 
@@ -701,7 +714,8 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 		public DFTandSpectralWindowAlgorithm(
 				double minFrequency, double maxFrequency, double resolution,
-				FtResult ftResult) {
+				FtResult ftResult,
+				int threadsToUse) {
 			this.minFrequency = minFrequency;
 			this.maxFrequency = maxFrequency;
 			this.resolution = resolution;
@@ -710,6 +724,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			periods = new ArrayList<Double>();
 			powers = new ArrayList<Double>();
 			semiAmplitudes = new ArrayList<Double>();
+			this.threadsToUse = threadsToUse;
 		}
 
 		@Override
@@ -988,18 +1003,18 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 			
 			boolean calcFailedForSomeFreq = false;
 			
-			int cores = Runtime.getRuntime().availableProcessors();
-			int steps_per_core = n_steps / cores;
-			int remainder = n_steps - steps_per_core * cores;
+			int threads = threadsToUse;
+			int steps_per_core = n_steps / threads;
+			int remainder = n_steps - steps_per_core * threads;
 			
 			List<DftWorker>workers = new ArrayList<DftWorker>();
 			
-			doneLatch = new CountDownLatch(cores);
+			doneLatch = new CountDownLatch(threads);
 			startLatch = new CountDownLatch(1);
-			for (int n = 0; n < cores; n++) {
+			for (int n = 0; n < threads; n++) {
 				int start_n = steps_per_core * n;
 				int steps_to_do = steps_per_core;
-				if (n == cores - 1)
+				if (n == threads - 1)
 					steps_to_do += remainder;
 				DftWorker worker = new DftWorker(n, minFrequency, resolution, start_n, steps_to_do, ftResult, startLatch, doneLatch);
 				workers.add(worker);
@@ -1175,11 +1190,12 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 	}
 
 	// Ask user for frequency min, max, and resolution.
-	private boolean parametersDialog() throws AlgorithmError {
+	private boolean parametersDialog(String title) throws AlgorithmError {
 
 		// We should invoke Swing dialogs in EDT.
 		RunParametersDialog runParametersDialog = 
 				new RunParametersDialog(
+					title,
 					minFrequency, 
 					maxFrequency, 
 					resolution,
@@ -1208,6 +1224,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 
 	private class RunParametersDialog implements Runnable {
 
+		private String title;
 		private double minFrequency; 
 		private double maxFrequency; 
 		private double resolution;
@@ -1217,12 +1234,14 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 		private boolean dialogCancelled;
 	
 		public RunParametersDialog(
+				String title,
 				double minFrequency, 
 				double maxFrequency, 
 				double resolution,
 				double timeSpan,
 				FAnalysisType analysisType,
 				int harmonicCount) {
+			this.title = title;
 			this.minFrequency = minFrequency;
 			this.maxFrequency = maxFrequency;
 			this.resolution = resolution;
@@ -1331,7 +1350,7 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
 				
 				MultiEntryComponentDialog dlg = 
 						new MultiEntryComponentDialog(
-								"Parameters",
+								title,
 								getDocName(),						
 								fields, 
 								Optional.of(addPanel));
@@ -1702,6 +1721,122 @@ public class DFTandSpectralWindow extends PeriodAnalysisPluginBase {
             });
     	}
     }
+
+    
+    // Preferences pane
+	@SuppressWarnings("serial")
+	public static class PluginSettingsPane extends JPanel implements
+			IPreferenceComponent {
+		
+		//Runtime.getRuntime().availableProcessors();
+		//= new IntegerField("Number of threads (-1 = default)", 0.0, null, minFrequency);
+		
+		IntegerField numberOfTheadsField;
+		
+		public PluginSettingsPane() {
+			super();
+
+			JPanel pluginSettingsPane = new JPanel();
+			pluginSettingsPane.setLayout(new BoxLayout(pluginSettingsPane, BoxLayout.PAGE_AXIS));
+			pluginSettingsPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			
+			JPanel controlPanel = new JPanel();
+			controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.LINE_AXIS));
+			int threadsMax = Runtime.getRuntime().availableProcessors();
+			numberOfTheadsField = new IntegerField("Number of threads to use", 1, threadsMax, -1);
+			controlPanel.add(numberOfTheadsField.getUIComponent());
+			pluginSettingsPane.add(controlPanel);
+			pluginSettingsPane.add(createButtonPane());
+			this.add(pluginSettingsPane);
+		}
+		
+		protected JPanel createButtonPane() {
+			JPanel panel = new JPanel(new BorderLayout());
+
+			JButton setDefaultsButton = new JButton("Default");
+			setDefaultsButton.addActionListener(createDefaultButtonActionListener());
+			panel.add(setDefaultsButton, BorderLayout.LINE_START);
+
+			JButton applyButton = new JButton(LocaleProps.get("APPLY_BUTTON"));
+			applyButton.addActionListener(createApplyButtonActionListener());
+			panel.add(applyButton, BorderLayout.LINE_END);
+
+			return panel;
+		}
+
+		private ActionListener createDefaultButtonActionListener() {
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					numberOfTheadsField.setValue(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
+				}
+			};
+		}
+		
+		private ActionListener createApplyButtonActionListener() {
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					update();
+				}
+			};
+		}
+		
+		public static int getNumberOfThreadsFromPrefs() {
+			int threads = -1;
+			try {
+				Preferences prefs = Preferences.userNodeForPackage(DFTandSpectralWindow.class);
+				threads = prefs.getInt("threads", -1);
+			} catch (Throwable t) {
+				// We need VStar to function in the absence of prefs.
+			}
+			int threadsMax = Runtime.getRuntime().availableProcessors();
+			if (threads < 1 || threads > threadsMax) {
+				threads = Math.max(threadsMax - 1, 1);
+			}
+			return threads;
+		}
+		
+		/**
+		 * Updates the stored preferences from the UI.
+		 */
+		@Override
+		public void update() {
+			Integer threads = -1;
+			threads = numberOfTheadsField.getValue();
+			if (threads == null) {
+				MessageBox.showErrorDialog("Error in DFT and Spectral Window Plug-in Preferences", "Invalid number of threads!");
+				return;
+			}
+			try {
+				Preferences prefs = Preferences.userNodeForPackage(DFTandSpectralWindow.class);
+				prefs.putInt("threads", threads);
+			} catch (Throwable t) {
+				// We need VStar to function in the absence of prefs.
+			}
+		}
+
+		/**
+		 * Prepare this pane for use by resetting whatever state needs to be.
+		 */
+		@Override
+		public void reset() {
+			numberOfTheadsField.setValue(getNumberOfThreadsFromPrefs());
+		}
+	
+	}
+    
+	@Override
+	public String getPreferencesId() {
+		return PREFERENCES_ID;
+	}
+
+	@Override
+	public Component getPreferencesPane() {
+		if (preferencesPane == null) {
+			preferencesPane = new PluginSettingsPane();
+			preferencesPane.setName(PREFERENCES_ID);
+		}
+		return preferencesPane;
+	}
     
 //////////////////////////////////////////////////////////////////////////////
 // Unit test

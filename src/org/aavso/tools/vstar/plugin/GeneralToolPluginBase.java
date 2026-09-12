@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.awt.Component;
+
 import org.aavso.tools.vstar.ui.resources.LoginInfo;
 
 /**
@@ -47,6 +49,14 @@ abstract public class GeneralToolPluginBase implements IPlugin {
 	 */
 	@Override
 	public String getDocName() {
+		return null;
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getPreferencesPane()
+	 */
+	@Override
+	public Component getPreferencesPane() {
 		return null;
 	}
 	
