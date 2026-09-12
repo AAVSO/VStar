@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.awt.Component;
+
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.resources.LoginInfo;
 
@@ -34,9 +36,9 @@ import org.aavso.tools.vstar.ui.resources.LoginInfo;
  * @see org.aavso.tools.vstar.plugin.IPlugin
  * @see org.aavso.tools.vstar.ui.mediator.Mediator#invokeTool(org.aavso.tools.vstar.plugin.ObservationToolPluginBase)
  */
-<span class="fc" id="L37">abstract public class ObservationToolPluginBase implements IPlugin {</span>
+<span class="fc" id="L39">abstract public class ObservationToolPluginBase implements IPlugin {</span>
 
-<span class="fc" id="L39">	protected boolean testMode = false;</span>
+<span class="fc" id="L41">	protected boolean testMode = false;</span>
 
 	/**
 	 * Given information about observations per series, perform some arbitrary
@@ -53,7 +55,15 @@ import org.aavso.tools.vstar.ui.resources.LoginInfo;
 	 */
 	@Override
 	public String getDocName() {
-<span class="nc" id="L56">		return null;</span>
+<span class="nc" id="L58">		return null;</span>
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getPreferencesPane()
+	 */
+	@Override
+	public Component getPreferencesPane() {
+<span class="nc" id="L66">		return null;</span>
 	}
 	
 	/**
@@ -61,7 +71,7 @@ import org.aavso.tools.vstar.ui.resources.LoginInfo;
 	 */
 	@Override
 	public String getGroup() {
-<span class="nc" id="L64">		return null;</span>
+<span class="nc" id="L74">		return null;</span>
 	}
 
 	/**
@@ -69,7 +79,7 @@ import org.aavso.tools.vstar.ui.resources.LoginInfo;
 	 */
 	@Override
 	public boolean requiresAuthentication() {
-<span class="nc" id="L72">		return false;</span>
+<span class="nc" id="L82">		return false;</span>
 	}
 
 	/**
@@ -77,22 +87,22 @@ import org.aavso.tools.vstar.ui.resources.LoginInfo;
 	 */
 	@Override
 	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
-<span class="nc" id="L80">		return true;</span>
+<span class="nc" id="L90">		return true;</span>
 	}
 	
 	@Override
 	public Boolean test() {
-<span class="nc" id="L85">		return null;</span>
+<span class="nc" id="L95">		return null;</span>
 	}
 
 	@Override
 	public boolean inTestMode() {
-<span class="nc" id="L90">		return testMode;</span>
+<span class="nc" id="L100">		return testMode;</span>
 	}
 
 	@Override
 	public void setTestMode(boolean mode) {
-<span class="nc" id="L95">		testMode = mode;</span>
-<span class="nc" id="L96">	}</span>
+<span class="nc" id="L105">		testMode = mode;</span>
+<span class="nc" id="L106">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

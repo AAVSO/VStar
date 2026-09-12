@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.plugin.period;
 
+import java.awt.Component;
 import java.util.List;
 
 import javax.swing.JDialog;
@@ -47,9 +48,9 @@ import org.aavso.tools.vstar.util.notification.Notifier;
  * @see org.aavso.tools.vstar.plugin.IPlugin
  */
 
-<span class="fc" id="L50">abstract public class PeriodAnalysisPluginBase implements IPlugin {</span>
+<span class="fc" id="L51">abstract public class PeriodAnalysisPluginBase implements IPlugin {</span>
 	
-<span class="fc" id="L52">	protected boolean testMode = false;</span>
+<span class="fc" id="L53">	protected boolean testMode = false;</span>
 
 	/**
 	 * Send a period change message.
@@ -60,9 +61,9 @@ import org.aavso.tools.vstar.util.notification.Notifier;
 	 *            the new period (and epoch) before creating a new phase plot.
 	 */
 	public void sendPeriodChangeMessage(double period) {
-<span class="nc" id="L63">		Mediator.getInstance().getPeriodChangeNotifier().notifyListeners(</span>
+<span class="nc" id="L64">		Mediator.getInstance().getPeriodChangeNotifier().notifyListeners(</span>
 				new PeriodChangeMessage(this, period));
-<span class="nc" id="L65">	}</span>
+<span class="nc" id="L66">	}</span>
 
 	// ** Methods that must be implemented by concrete plugin subclasses. **
 
@@ -83,7 +84,15 @@ import org.aavso.tools.vstar.util.notification.Notifier;
 	 */
 	@Override
 	public String getDocName() {
-<span class="nc" id="L86">		return null;</span>
+<span class="nc" id="L87">		return null;</span>
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getPreferencesPane()
+	 */
+	@Override
+	public Component getPreferencesPane() {
+<span class="nc" id="L95">		return null;</span>
 	}
 	
 	/**
@@ -91,7 +100,7 @@ import org.aavso.tools.vstar.util.notification.Notifier;
 	 */
 	@Override
 	public String getGroup() {
-<span class="nc" id="L94">		return &quot;Period Analysis&quot;;</span>
+<span class="nc" id="L103">		return &quot;Period Analysis&quot;;</span>
 	}
 
 	/**
@@ -144,14 +153,14 @@ import org.aavso.tools.vstar.util.notification.Notifier;
 	 * @return the periodChangeNotifier
 	 */
 	protected Notifier&lt;PeriodChangeMessage&gt; getPeriodChangeNotifier() {
-<span class="nc" id="L147">		return Mediator.getInstance().getPeriodChangeNotifier();</span>
+<span class="nc" id="L156">		return Mediator.getInstance().getPeriodChangeNotifier();</span>
 	}
 
 	/**
 	 * @return the periodAnalysisSelectionNotifier
 	 */
 	protected Notifier&lt;PeriodAnalysisSelectionMessage&gt; getPeriodAnalysisSelectionNotifier() {
-<span class="nc" id="L154">		return Mediator.getInstance().getPeriodAnalysisSelectionNotifier();</span>
+<span class="nc" id="L163">		return Mediator.getInstance().getPeriodAnalysisSelectionNotifier();</span>
 	}
 	
 	// ** Internal helper methods. **
@@ -160,13 +169,13 @@ import org.aavso.tools.vstar.util.notification.Notifier;
 	 * Get the new star listener for this plugin.
 	 */
 	protected Listener&lt;NewStarMessage&gt; getNewStarListener() {
-<span class="nc" id="L163">		return new Listener&lt;NewStarMessage&gt;() {</span>
+<span class="nc" id="L172">		return new Listener&lt;NewStarMessage&gt;() {</span>
 			public void update(NewStarMessage info) {
-<span class="nc" id="L165">				newStarAction(info);</span>
-<span class="nc" id="L166">			}</span>
+<span class="nc" id="L174">				newStarAction(info);</span>
+<span class="nc" id="L175">			}</span>
 
 			public boolean canBeRemoved() {
-<span class="nc" id="L169">				return false;</span>
+<span class="nc" id="L178">				return false;</span>
 			}
 		};
 	}
@@ -176,7 +185,7 @@ import org.aavso.tools.vstar.util.notification.Notifier;
 	 */
 	@Override
 	public boolean requiresAuthentication() {
-<span class="nc" id="L179">		return false;</span>
+<span class="nc" id="L188">		return false;</span>
 	}
 
 	/**
@@ -184,22 +193,22 @@ import org.aavso.tools.vstar.util.notification.Notifier;
 	 */
 	@Override
 	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
-<span class="nc" id="L187">		return true;</span>
+<span class="nc" id="L196">		return true;</span>
 	}
 	
 	@Override
 	public Boolean test() {
-<span class="nc" id="L192">		return null;</span>
+<span class="nc" id="L201">		return null;</span>
 	}
 
 	@Override
 	public boolean inTestMode() {
-<span class="nc" id="L197">		return testMode;</span>
+<span class="nc" id="L206">		return testMode;</span>
 	}
 
 	@Override
 	public void setTestMode(boolean mode) {
-<span class="nc" id="L202">		testMode = mode;</span>
-<span class="nc" id="L203">	}</span>
+<span class="nc" id="L211">		testMode = mode;</span>
+<span class="nc" id="L212">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

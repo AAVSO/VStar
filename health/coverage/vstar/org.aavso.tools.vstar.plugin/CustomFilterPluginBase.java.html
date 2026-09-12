@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.awt.Component;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,9 +42,9 @@ import org.aavso.tools.vstar.util.Pair;
  * 
  * @see org.aavso.tools.vstar.plugin.IPlugin
  */
-<span class="fc" id="L44">abstract public class CustomFilterPluginBase implements IPlugin {</span>
+<span class="fc" id="L45">abstract public class CustomFilterPluginBase implements IPlugin {</span>
 
-<span class="fc" id="L46">	protected boolean testMode = false;</span>
+<span class="fc" id="L47">	protected boolean testMode = false;</span>
 	
 	// Subset of observations.
 	// We use a LinkedHashSet to maintain addition and lookup efficiency
@@ -68,7 +69,15 @@ import org.aavso.tools.vstar.util.Pair;
 	 */
 	@Override
 	public String getDocName() {
-<span class="nc" id="L71">		return null;</span>
+<span class="nc" id="L72">		return null;</span>
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getPreferencesPane()
+	 */
+	@Override
+	public Component getPreferencesPane() {
+<span class="nc" id="L80">		return null;</span>
 	}
 	
 	/**
@@ -76,7 +85,7 @@ import org.aavso.tools.vstar.util.Pair;
 	 */
 	@Override
 	public String getGroup() {
-<span class="nc" id="L79">		return null;</span>
+<span class="nc" id="L88">		return null;</span>
 	}
 
 	/**
@@ -86,8 +95,8 @@ import org.aavso.tools.vstar.util.Pair;
 	 *            The observation to be added.
 	 */
 	final protected void addToSubset(ValidObservation ob) {
-<span class="nc" id="L89">		filteredObs.add(ob);</span>
-<span class="nc" id="L90">	}</span>
+<span class="nc" id="L98">		filteredObs.add(ob);</span>
+<span class="nc" id="L99">	}</span>
 
 	/**
 	 * Applies the filter to the list of observations and sends a filtered
@@ -97,41 +106,41 @@ import org.aavso.tools.vstar.util.Pair;
 	 *            A list of currently loaded observations.
 	 */
 	final public void apply(List&lt;ValidObservation&gt; obs) {
-<span class="nc" id="L100">		filteredObs = new LinkedHashSet&lt;ValidObservation&gt;();</span>
+<span class="nc" id="L109">		filteredObs = new LinkedHashSet&lt;ValidObservation&gt;();</span>
 
-<span class="nc" id="L102">		final Pair&lt;String, String&gt; rep = filter(obs);</span>
+<span class="nc" id="L111">		final Pair&lt;String, String&gt; rep = filter(obs);</span>
 
-<span class="nc bnc" id="L104" title="All 2 branches missed.">		if (filteredObs.size() != 0) {</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">		if (filteredObs.size() != 0) {</span>
 
-<span class="nc" id="L106">			IFilterDescription desc = new IFilterDescription() {</span>
+<span class="nc" id="L115">			IFilterDescription desc = new IFilterDescription() {</span>
 
 				@Override
 				public boolean isParsable() {
-<span class="nc" id="L110">					return filtersAreParsable();</span>
+<span class="nc" id="L119">					return filtersAreParsable();</span>
 				}
 
 				@Override
 				public String getFilterName() {
-<span class="nc" id="L115">					return rep.first;</span>
+<span class="nc" id="L124">					return rep.first;</span>
 				}
 
 				@Override
 				public String getFilterDescription() {
-<span class="nc" id="L120">					return rep.second;</span>
+<span class="nc" id="L129">					return rep.second;</span>
 				}
 			};
 
-<span class="nc" id="L124">			FilteredObservationMessage msg = new FilteredObservationMessage(</span>
+<span class="nc" id="L133">			FilteredObservationMessage msg = new FilteredObservationMessage(</span>
 					this, desc, filteredObs);
 
-<span class="nc" id="L127">			Mediator.getInstance().getFilteredObservationNotifier()</span>
-<span class="nc" id="L128">					.notifyListeners(msg);</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">		} else if (rep != null) {</span>
-<span class="nc" id="L130">			String errMsg = &quot;No observations matched.&quot;;</span>
-<span class="nc" id="L131">			MessageBox.showWarningDialog(Mediator.getUI().getComponent(),</span>
+<span class="nc" id="L136">			Mediator.getInstance().getFilteredObservationNotifier()</span>
+<span class="nc" id="L137">					.notifyListeners(msg);</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">		} else if (rep != null) {</span>
+<span class="nc" id="L139">			String errMsg = &quot;No observations matched.&quot;;</span>
+<span class="nc" id="L140">			MessageBox.showWarningDialog(Mediator.getUI().getComponent(),</span>
 					&quot;Observation Filter&quot;, errMsg);
 		}
-<span class="nc" id="L134">	}</span>
+<span class="nc" id="L143">	}</span>
 
 	/**
 	 * Returns whether or not the filters associated with the concrete subclass
@@ -140,7 +149,7 @@ import org.aavso.tools.vstar.util.Pair;
 	 * @return Whether parsable or not.
 	 */
 	public boolean filtersAreParsable() {
-<span class="nc" id="L143">		return false;</span>
+<span class="nc" id="L152">		return false;</span>
 	}
 
 	/**
@@ -148,7 +157,7 @@ import org.aavso.tools.vstar.util.Pair;
 	 */
 	@Override
 	public boolean requiresAuthentication() {
-<span class="nc" id="L151">		return false;</span>
+<span class="nc" id="L160">		return false;</span>
 	}
 
 	/**
@@ -156,22 +165,22 @@ import org.aavso.tools.vstar.util.Pair;
 	 */
 	@Override
 	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
-<span class="nc" id="L159">		return true;</span>
+<span class="nc" id="L168">		return true;</span>
 	}
 	
 	@Override
 	public Boolean test() {
-<span class="nc" id="L164">		return null;</span>
+<span class="nc" id="L173">		return null;</span>
 	}
 
 	@Override
 	public boolean inTestMode() {
-<span class="nc" id="L169">		return testMode;</span>
+<span class="nc" id="L178">		return testMode;</span>
 	}
 
 	@Override
 	public void setTestMode(boolean mode) {
-<span class="nc" id="L174">		testMode = mode;	</span>
-<span class="nc" id="L175">	}</span>
+<span class="nc" id="L183">		testMode = mode;	</span>
+<span class="nc" id="L184">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

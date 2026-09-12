@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.awt.Component;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +47,7 @@ import org.aavso.tools.vstar.ui.resources.LoginInfo;
  */
 public abstract class ObservationSourcePluginBase implements IPlugin {
 
-<span class="fc" id="L49">	protected boolean testMode = false;</span>
+<span class="fc" id="L50">	protected boolean testMode = false;</span>
 
 	protected String userName;
 	protected String password;
@@ -66,20 +67,20 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * @param userName The user name to pass to the authenticator.
 	 * @param password The password to pass to the authenticator.
 	 */
-<span class="fc" id="L69">	protected ObservationSourcePluginBase(String username, String password) {</span>
-<span class="fc" id="L70">		this.userName = username;</span>
-<span class="fc" id="L71">		this.password = password;</span>
-<span class="fc" id="L72">		streamNameMap = new HashMap&lt;InputStream, String&gt;();</span>
-<span class="fc" id="L73">		isAdditive = false;</span>
-<span class="fc" id="L74">		velaFilterStr = &quot;&quot;;</span>
-<span class="fc" id="L75">	}</span>
+<span class="fc" id="L70">	protected ObservationSourcePluginBase(String username, String password) {</span>
+<span class="fc" id="L71">		this.userName = username;</span>
+<span class="fc" id="L72">		this.password = password;</span>
+<span class="fc" id="L73">		streamNameMap = new HashMap&lt;InputStream, String&gt;();</span>
+<span class="fc" id="L74">		isAdditive = false;</span>
+<span class="fc" id="L75">		velaFilterStr = &quot;&quot;;</span>
+<span class="fc" id="L76">	}</span>
 
 	/**
 	 * Constructor
 	 */
 	protected ObservationSourcePluginBase() {
-<span class="fc" id="L81">		this(null, null);</span>
-<span class="fc" id="L82">	}</span>
+<span class="fc" id="L82">		this(null, null);</span>
+<span class="fc" id="L83">	}</span>
 
 	/**
 	 * &lt;p&gt;
@@ -106,7 +107,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 */
 	@Deprecated
 	public String getCurrentStarName() {
-<span class="nc" id="L109">		return null;</span>
+<span class="nc" id="L110">		return null;</span>
 	}
 
 	/**
@@ -122,7 +123,15 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 */
 	@Override
 	public String getDocName() {
-<span class="nc" id="L125">		return null;</span>
+<span class="nc" id="L126">		return null;</span>
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getPreferencesPane()
+	 */
+	@Override
+	public Component getPreferencesPane() {
+<span class="nc" id="L134">		return null;</span>
 	}
 	
 	/**
@@ -130,7 +139,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 */
 	@Override
 	public String getGroup() {
-<span class="nc" id="L133">		return null;</span>
+<span class="nc" id="L142">		return null;</span>
 	}
 
 	/**
@@ -144,16 +153,16 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * @param inputName    A name associated with the input (e.g. file, URL).
 	 */
 	public void setInputInfo(List&lt;InputStream&gt; inputStreams, String inputName) {
-<span class="nc" id="L147">		this.inputStreams = inputStreams;</span>
-<span class="nc" id="L148">		this.inputName = inputName;</span>
-<span class="nc" id="L149">	}</span>
+<span class="nc" id="L156">		this.inputStreams = inputStreams;</span>
+<span class="nc" id="L157">		this.inputName = inputName;</span>
+<span class="nc" id="L158">	}</span>
 
 	/**
 	 * Empty the stream-name map.
 	 */
 	public void clearStreamNameMap() {
-<span class="nc" id="L155">	    streamNameMap.clear();</span>
-<span class="nc" id="L156">	}</span>
+<span class="nc" id="L164">	    streamNameMap.clear();</span>
+<span class="nc" id="L165">	}</span>
 	
 	/**
 	 * Add an input-name, stream pair to the stream-name map,
@@ -163,8 +172,8 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * @param name A name associated with the input (e.g. file, URL).
 	 */
 	public void addStreamNamePair(InputStream stream, String name) {
-<span class="nc" id="L166">	    streamNameMap.put(stream, name);</span>
-<span class="nc" id="L167">	}</span>
+<span class="nc" id="L175">	    streamNameMap.put(stream, name);</span>
+<span class="nc" id="L176">	}</span>
 	
 	/**
 	 * Given an input stream, return the corresponding name.
@@ -173,7 +182,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * @return The corresponding name.
 	 */
 	public String nameFromStream(InputStream stream) {
-<span class="nc" id="L176">	    return streamNameMap.get(stream);</span>
+<span class="nc" id="L185">	    return streamNameMap.get(stream);</span>
 	}
 	
 	/**
@@ -184,14 +193,14 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * @return The list of file extension strings to be added to the file chooser.
 	 */
 	public List&lt;String&gt; getAdditionalFileExtensions() {
-<span class="nc" id="L187">		return null;</span>
+<span class="nc" id="L196">		return null;</span>
 	}
 
 	/**
 	 * @return the input streams
 	 */
 	public List&lt;InputStream&gt; getInputStreams() {
-<span class="nc" id="L194">		return inputStreams;</span>
+<span class="nc" id="L203">		return inputStreams;</span>
 	}
 
 	/**
@@ -211,7 +220,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 */
 	@Deprecated
 	public List&lt;File&gt; getFiles() throws Exception {
-<span class="nc" id="L214">		return null;</span>
+<span class="nc" id="L223">		return null;</span>
 	}
 
 	/**
@@ -230,28 +239,28 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * @throws Exception if a problem occurs during URL creation.
 	 */
 	public List&lt;URL&gt; getURLs() throws Exception {
-<span class="nc" id="L233">		return null;</span>
+<span class="nc" id="L242">		return null;</span>
 	}
 
 	/**
 	 * @return the name associated with the input (e.g. file, URL)
 	 */
 	public String getInputName() {
-<span class="nc" id="L240">		return inputName;</span>
+<span class="nc" id="L249">		return inputName;</span>
 	}
 
 	/**
 	 * @return the userName, e.g. for a URL based source; may be null
 	 */
 	public String getUsername() {
-<span class="nc" id="L247">		return userName;</span>
+<span class="nc" id="L256">		return userName;</span>
 	}
 
 	/**
 	 * @return the password, e.g. for a URL based source; may be null
 	 */
 	public String getPassword() {
-<span class="nc" id="L254">		return password;</span>
+<span class="nc" id="L263">		return password;</span>
 	}
 
 	/**
@@ -262,7 +271,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * @return The set of visible series or null.
 	 */
 	public Set&lt;SeriesType&gt; getVisibleSeriesTypes() {
-<span class="nc" id="L265">		return null;</span>
+<span class="nc" id="L274">		return null;</span>
 	}
 
 	/**
@@ -270,7 +279,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 */
 	@Override
 	public boolean requiresAuthentication() {
-<span class="nc" id="L273">		return false;</span>
+<span class="nc" id="L282">		return false;</span>
 	}
 
 	/**
@@ -278,28 +287,28 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 */
 	@Override
 	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
-<span class="nc" id="L281">		return true;</span>
+<span class="nc" id="L290">		return true;</span>
 	}
 
 	/**
 	 * @return are loads currently additive?
 	 */
 	public boolean isAdditive() {
-<span class="nc" id="L288">		return isAdditive;</span>
+<span class="nc" id="L297">		return isAdditive;</span>
 	}
 
 	/**
 	 * @param isAdditive should loads be additive?
 	 */
 	public void setAdditive(boolean isAdditive) {
-<span class="nc" id="L295">		this.isAdditive = isAdditive;</span>
-<span class="nc" id="L296">	}</span>
+<span class="nc" id="L304">		this.isAdditive = isAdditive;</span>
+<span class="nc" id="L305">	}</span>
 
 	/**
 	 * @return whether multiple file selection is permitted
 	 */
 	public boolean isMultipleFileSelectionAllowed() {
-<span class="nc" id="L302">        return false;</span>
+<span class="nc" id="L311">        return false;</span>
     }
 
 	/** 
@@ -307,22 +316,22 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 */
 	public boolean isTextSource() {
 	    // this is the common case
-<span class="nc" id="L310">	    return true;</span>
+<span class="nc" id="L319">	    return true;</span>
 	}
 	
     /**
 	 * @return the velaFilterStr
 	 */
 	public String getVelaFilterStr() {
-<span class="fc" id="L317">		return velaFilterStr;</span>
+<span class="fc" id="L326">		return velaFilterStr;</span>
 	}
 
 	/**
 	 * @param velaFilterStr the velaFilterStr to set
 	 */
 	public void setVelaFilterStr(String velaFilterStr) {
-<span class="nc" id="L324">		this.velaFilterStr = velaFilterStr;</span>
-<span class="nc" id="L325">	}</span>
+<span class="nc" id="L333">		this.velaFilterStr = velaFilterStr;</span>
+<span class="nc" id="L334">	}</span>
 
 	/**
 	 * This method returns the NewStarType enumerated value. Most observation
@@ -331,25 +340,25 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * @return The NewStarType enumerated value
 	 */
 	public NewStarType getNewStarType() {
-<span class="nc" id="L334">		return NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;</span>
+<span class="nc" id="L343">		return NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;</span>
 	}
 
 	// Test methods
 
 	@Override
 	public Boolean test() {
-<span class="nc" id="L341">		return null;</span>
+<span class="nc" id="L350">		return null;</span>
 	}
 
 	@Override
 	public boolean inTestMode() {
-<span class="nc" id="L346">		return testMode;</span>
+<span class="nc" id="L355">		return testMode;</span>
 	}
 
 	@Override
 	public void setTestMode(boolean mode) {
-<span class="nc" id="L351">		testMode = mode;</span>
-<span class="nc" id="L352">	}</span>
+<span class="nc" id="L360">		testMode = mode;</span>
+<span class="nc" id="L361">	}</span>
 
 	/**
 	 * Helper method that takes an array of lines (each string ending in &quot;\n&quot;, sets
@@ -365,20 +374,20 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 */
 	protected AbstractObservationRetriever getTestRetriever(String[] lines, String inputName)
 			throws InterruptedException, ObservationReadError, IOException {
-<span class="nc" id="L368">		StringBuffer content = new StringBuffer();</span>
-<span class="nc bnc" id="L369" title="All 2 branches missed.">		for (String line : lines) {</span>
-<span class="nc" id="L370">			content.append(line);</span>
+<span class="nc" id="L377">		StringBuffer content = new StringBuffer();</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">		for (String line : lines) {</span>
+<span class="nc" id="L379">			content.append(line);</span>
 		}
 
-<span class="nc" id="L373">		InputStream in = new ByteArrayInputStream(content.toString().getBytes());</span>
-<span class="nc" id="L374">		List&lt;InputStream&gt; streams = new ArrayList&lt;InputStream&gt;();</span>
-<span class="nc" id="L375">		streams.add(in);</span>
-<span class="nc" id="L376">		setInputInfo(streams, inputName);</span>
+<span class="nc" id="L382">		InputStream in = new ByteArrayInputStream(content.toString().getBytes());</span>
+<span class="nc" id="L383">		List&lt;InputStream&gt; streams = new ArrayList&lt;InputStream&gt;();</span>
+<span class="nc" id="L384">		streams.add(in);</span>
+<span class="nc" id="L385">		setInputInfo(streams, inputName);</span>
 
-<span class="nc" id="L378">		AbstractObservationRetriever retriever = getObservationRetriever();</span>
-<span class="nc" id="L379">		retriever.retrieveObservations();</span>
+<span class="nc" id="L387">		AbstractObservationRetriever retriever = getObservationRetriever();</span>
+<span class="nc" id="L388">		retriever.retrieveObservations();</span>
 
-<span class="nc" id="L381">		return retriever;</span>
+<span class="nc" id="L390">		return retriever;</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

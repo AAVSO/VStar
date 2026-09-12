@@ -213,95 +213,102 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 
 <span class="fc" id="L214">		return obSinkPlugins;</span>
 	}
+
+	/**
+	 * Return a list of all plugins
+	 */
+	public static List&lt;IPlugin&gt; getPluginList() {
+<span class="nc" id="L221">		return plugins;</span>
+	}	
 	
 	/**
 	 * Load all VStar plugins and create an instance of each.
 	 */
 	public static void loadPlugins() {
 
-<span class="nc" id="L222">		FilenameFilter jarFilter = new FilenameFilter() {</span>
+<span class="nc" id="L229">		FilenameFilter jarFilter = new FilenameFilter() {</span>
 			public boolean accept(File dir, String name) {
-<span class="nc" id="L224">				return name.endsWith(&quot;.jar&quot;);</span>
+<span class="nc" id="L231">				return name.endsWith(&quot;.jar&quot;);</span>
 			}
 		};
 
 		// Locate additional libraries (as jars) on which plugins may be
 		// dependent.
-<span class="nc" id="L230">		List&lt;URL&gt; depLibs = new ArrayList&lt;URL&gt;();</span>
+<span class="nc" id="L237">		List&lt;URL&gt; depLibs = new ArrayList&lt;URL&gt;();</span>
 
-<span class="nc" id="L232">		File pluginLibPath = new File(System.getProperty(&quot;user.home&quot;)</span>
+<span class="nc" id="L239">		File pluginLibPath = new File(System.getProperty(&quot;user.home&quot;)</span>
 				+ File.separator + VSTAR_PLUGIN_LIBS_DIR_NAME);
 
-<span class="nc bnc" id="L235" title="All 4 branches missed.">		if (pluginLibPath.exists() &amp;&amp; pluginLibPath.isDirectory()) {</span>
-<span class="nc bnc" id="L236" title="All 2 branches missed.">			for (File file : pluginLibPath.listFiles(jarFilter)) {</span>
+<span class="nc bnc" id="L242" title="All 4 branches missed.">		if (pluginLibPath.exists() &amp;&amp; pluginLibPath.isDirectory()) {</span>
+<span class="nc bnc" id="L243" title="All 2 branches missed.">			for (File file : pluginLibPath.listFiles(jarFilter)) {</span>
 				try {
-<span class="nc" id="L238">					depLibs.add(file.toURI().toURL());</span>
-<span class="nc" id="L239">				} catch (MalformedURLException e) {</span>
-<span class="nc" id="L240">					MessageBox.showErrorDialog(</span>
+<span class="nc" id="L245">					depLibs.add(file.toURI().toURL());</span>
+<span class="nc" id="L246">				} catch (MalformedURLException e) {</span>
+<span class="nc" id="L247">					MessageBox.showErrorDialog(</span>
 							null,
 							&quot;Plugin Loader&quot;,
 							&quot;Invalid plugin library jar file: &quot;
-<span class="nc" id="L244">									+ file.getAbsolutePath());</span>
-<span class="nc" id="L245">				} catch (Throwable t) {</span>
-<span class="nc" id="L246">					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,</span>
+<span class="nc" id="L251">									+ file.getAbsolutePath());</span>
+<span class="nc" id="L252">				} catch (Throwable t) {</span>
+<span class="nc" id="L253">					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,</span>
 							&quot;An error occurred during plugin dependency loading: &quot;
-<span class="nc" id="L248">									+ t.getLocalizedMessage());</span>
-<span class="nc" id="L249">				}</span>
+<span class="nc" id="L255">									+ t.getLocalizedMessage());</span>
+<span class="nc" id="L256">				}</span>
 			}
 		}
 
 		// Locate and store plugins, if any exist.
 
-<span class="nc" id="L255">		File pluginPath = new File(System.getProperty(&quot;user.home&quot;)</span>
+<span class="nc" id="L262">		File pluginPath = new File(System.getProperty(&quot;user.home&quot;)</span>
 				+ File.separator + VSTAR_PLUGINS_DIR_NAME);
 
-<span class="nc bnc" id="L258" title="All 4 branches missed.">		if (pluginPath.exists() &amp;&amp; pluginPath.isDirectory()) {</span>
-<span class="nc bnc" id="L259" title="All 2 branches missed.">			for (File file : pluginPath.listFiles(jarFilter)) {</span>
+<span class="nc bnc" id="L265" title="All 4 branches missed.">		if (pluginPath.exists() &amp;&amp; pluginPath.isDirectory()) {</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">			for (File file : pluginPath.listFiles(jarFilter)) {</span>
 				// Note: Currently assume the jar file name is the same
 				// as the qualified class to be loaded. Instead, we could
 				// use reflection to find the class implementing one or more
 				// IPlugin methods.
-<span class="nc" id="L264">				String qualifiedClassName = file.getName().replace(&quot;.jar&quot;, &quot;&quot;);</span>
+<span class="nc" id="L271">				String qualifiedClassName = file.getName().replace(&quot;.jar&quot;, &quot;&quot;);</span>
 				try {
-<span class="nc" id="L266">					loadPluginClass(file, qualifiedClassName,	depLibs);</span>
-<span class="nc" id="L267">				} catch (MalformedURLException e) {</span>
-<span class="nc" id="L268">					MessageBox.showErrorDialog(</span>
+<span class="nc" id="L273">					loadPluginClass(file, qualifiedClassName,	depLibs);</span>
+<span class="nc" id="L274">				} catch (MalformedURLException e) {</span>
+<span class="nc" id="L275">					MessageBox.showErrorDialog(</span>
 							null,
 							&quot;Plugin Loader&quot;,
 							&quot;Invalid plugin jar file: &quot;
-<span class="nc" id="L272">									+ file.getAbsolutePath());</span>
-<span class="nc" id="L273">				} catch (ClassNotFoundException e) {</span>
-<span class="nc" id="L274">					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,</span>
+<span class="nc" id="L279">									+ file.getAbsolutePath());</span>
+<span class="nc" id="L280">				} catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L281">					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,</span>
 							&quot;Cannot load class: &quot; + qualifiedClassName);
-<span class="nc" id="L276">				} catch (IllegalAccessException e) {</span>
-<span class="nc" id="L277">					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,</span>
+<span class="nc" id="L283">				} catch (IllegalAccessException e) {</span>
+<span class="nc" id="L284">					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,</span>
 							&quot;Cannot access a parameterless constructor of: &quot;
 									+ qualifiedClassName);
-<span class="nc" id="L280">				} catch (InstantiationException e) {</span>
-<span class="nc" id="L281">					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,</span>
+<span class="nc" id="L287">				} catch (InstantiationException e) {</span>
+<span class="nc" id="L288">					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,</span>
 							&quot;Cannot create an instance of: &quot;
 									+ qualifiedClassName);
-<span class="nc" id="L284">				} catch (ClassCastException e) {</span>
-<span class="nc" id="L285">					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,</span>
+<span class="nc" id="L291">				} catch (ClassCastException e) {</span>
+<span class="nc" id="L292">					MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,</span>
 							qualifiedClassName
 									+ &quot; is not an instance of IPlugin&quot;);
-<span class="nc" id="L288">				} catch (NoClassDefFoundError e) {</span>
-<span class="nc" id="L289">					MessageBox.showErrorDialog(</span>
+<span class="nc" id="L295">				} catch (NoClassDefFoundError e) {</span>
+<span class="nc" id="L296">					MessageBox.showErrorDialog(</span>
 							null,
 							&quot;Plugin Loader&quot;,
 							&quot;A class required by &quot; + qualifiedClassName
 									+ &quot; was not found: &quot;
-<span class="nc" id="L294">									+ e.getLocalizedMessage());</span>
-<span class="nc" id="L295">				} catch (Throwable t) {</span>
-<span class="nc" id="L296">					MessageBox.showErrorDialog(</span>
+<span class="nc" id="L301">									+ e.getLocalizedMessage());</span>
+<span class="nc" id="L302">				} catch (Throwable t) {</span>
+<span class="nc" id="L303">					MessageBox.showErrorDialog(</span>
 							null,
 							&quot;Plugin Loader&quot;,
 							&quot;An error occurred during plugin loading: &quot;
-<span class="nc" id="L300">									+ t.getLocalizedMessage());</span>
-<span class="nc" id="L301">				}</span>
+<span class="nc" id="L307">									+ t.getLocalizedMessage());</span>
+<span class="nc" id="L308">				}</span>
 			}
 		}
-<span class="nc" id="L304">	}</span>
+<span class="nc" id="L311">	}</span>
 
 	/**
 	 * Load a class from the specified full-path to jar file.
@@ -325,36 +332,39 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 	private static void loadPluginClass(File jarFile, String qualifiedClassName,
 			List&lt;URL&gt; depLibs) throws MalformedURLException,
 			ClassNotFoundException, InstantiationException, IllegalAccessException {
-<span class="nc" id="L328">		URL url = jarFile.toURI().toURL();</span>
-<span class="nc" id="L329">		List&lt;URL&gt; urlList = new ArrayList&lt;URL&gt;();</span>
-<span class="nc" id="L330">		urlList.add(url);</span>
-<span class="nc" id="L331">		urlList.addAll(depLibs);</span>
-<span class="nc" id="L332">		URL[] urls = urlList.toArray(new URL[0]);</span>
-<span class="nc" id="L333">		URLClassLoader cl = new URLClassLoader(urls, VStar.class.getClassLoader());</span>
-<span class="nc" id="L334">		Class&lt;?&gt; clazz = cl.loadClass(qualifiedClassName);</span>
-<span class="nc" id="L335">		Object plugin = clazz.newInstance();</span>
-<span class="nc" id="L336">		plugins.add((IPlugin) plugin);</span>
-<span class="nc" id="L337">		pluginLoaders.add(cl);</span>
-<span class="nc" id="L338">	}</span>
+<span class="nc" id="L335">		URL url = jarFile.toURI().toURL();</span>
+<span class="nc" id="L336">		List&lt;URL&gt; urlList = new ArrayList&lt;URL&gt;();</span>
+<span class="nc" id="L337">		urlList.add(url);</span>
+<span class="nc" id="L338">		urlList.addAll(depLibs);</span>
+<span class="nc" id="L339">		URL[] urls = urlList.toArray(new URL[0]);</span>
+		// Each plugin jar gets its own classloader (plugin jar + shared
+		// vstar_plugin_libs). Shared helper classes such as ConvertHelper
+		// are therefore loaded once per plugin, not once globally.
+<span class="nc" id="L343">		URLClassLoader cl = new URLClassLoader(urls, VStar.class.getClassLoader());</span>
+<span class="nc" id="L344">		Class&lt;?&gt; clazz = cl.loadClass(qualifiedClassName);</span>
+<span class="nc" id="L345">		Object plugin = clazz.newInstance();</span>
+<span class="nc" id="L346">		plugins.add((IPlugin) plugin);</span>
+<span class="nc" id="L347">		pluginLoaders.add(cl);</span>
+<span class="nc" id="L348">	}</span>
 	
 	public static void closePluginLoaders() {
 		// Max: closing ULRClassLoader:
 		// 	https://docs.oracle.com/javase/8/docs/technotes/guides/net/ClassLoader.html
-<span class="nc" id="L343">		boolean closePluginError = false;</span>
-<span class="nc bnc" id="L344" title="All 2 branches missed.">		for (int i = pluginLoaders.size() - 1; i &gt;= 0; i--) {</span>
-<span class="nc" id="L345">			URLClassLoader cl = pluginLoaders.get(i);</span>
+<span class="nc" id="L353">		boolean closePluginError = false;</span>
+<span class="nc bnc" id="L354" title="All 2 branches missed.">		for (int i = pluginLoaders.size() - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L355">			URLClassLoader cl = pluginLoaders.get(i);</span>
 			try {
-<span class="nc" id="L347">				cl.close();</span>
-<span class="nc" id="L348">				pluginLoaders.remove(i);</span>
-<span class="nc" id="L349">			} catch (IOException ex) {</span>
-<span class="nc" id="L350">				closePluginError = true;</span>
-<span class="nc" id="L351">			}</span>
+<span class="nc" id="L357">				cl.close();</span>
+<span class="nc" id="L358">				pluginLoaders.remove(i);</span>
+<span class="nc" id="L359">			} catch (IOException ex) {</span>
+<span class="nc" id="L360">				closePluginError = true;</span>
+<span class="nc" id="L361">			}</span>
 		}
-<span class="nc bnc" id="L353" title="All 2 branches missed.">		if (closePluginError) {</span>
-<span class="nc" id="L354">			MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,</span>
+<span class="nc bnc" id="L363" title="All 2 branches missed.">		if (closePluginError) {</span>
+<span class="nc" id="L364">			MessageBox.showErrorDialog(null, &quot;Plugin Loader&quot;,</span>
 					&quot;Error closing ClassLoader&quot;);
 		}
-<span class="nc" id="L357">	}</span>
+<span class="nc" id="L367">	}</span>
 	
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

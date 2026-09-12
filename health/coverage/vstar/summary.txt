@@ -21,7 +21,7 @@ Package                                             Lines  Line% Branch  Brch% M
 ...input.database                                     113  39.8%     26  23.1%     17  29.4%
 ...ui.dialog.period.wwz                               344   0.0%     60   0.0%     46   0.0%
 ...ui.dialog.period.refinement                         97   0.0%      8   0.0%     21   0.0%
-...util.period.wwz                                    478  81.2%    228  65.8%     56  66.1%
+...util.period.wwz                                    478  81.4%    228  66.2%     56  66.1%
 ...util.coords                                         36  83.3%    NaN    n/a     13  69.2%
 ...scripting                                          350   0.0%     97   0.0%     69   0.0%
 ...ui.pane.list                                       484  46.1%    104  20.2%     87  46.0%
@@ -35,7 +35,7 @@ Package                                             Lines  Line% Branch  Brch% M
 ...data.filter                                        312  45.2%    119  23.5%     97  49.5%
 ...util.comparator                                     21 100.0%    NaN    n/a     19 100.0%
 ...ui.model.plot                                      642  29.8%    216  20.8%    193  31.1%
-...plugin.period                                      139   1.4%     24   0.0%     45   2.2%
+...plugin.period                                      140   1.4%     24   0.0%     46   2.2%
 ...plugin.period.impl                                 230   0.0%     34   0.0%     46   0.0%
 ...plugin.model.impl                                  142   0.0%     38   0.0%     30   0.0%
 ...data                                              1356  55.5%    645  38.9%    219  66.7%
@@ -44,15 +44,15 @@ Package                                             Lines  Line% Branch  Brch% M
 ...util.period.dcdft                                  412  76.7%    166  63.3%     52  63.5%
 ...exception                                           39  59.0%    NaN    n/a     19  57.9%
 ...ui.dialog.plugin.manager                           636  16.0%    207  14.5%    112   8.9%
-...plugin.ob.sink.impl                                 68  22.1%     22   0.0%     16  43.8%
+...plugin.ob.sink.impl                                 69  21.7%     22   0.0%     17  41.2%
 ...util.property                                       58   0.0%     26   0.0%      6   0.0%
 ...util.date                                          235  86.4%     60  60.0%     41  97.6%
 ...plugin.filter.impl                                 129   0.0%     20   0.0%     24   0.0%
-...ui.dialog.prefs                                   1072   0.0%    132   0.0%    219   0.0%
+...ui.dialog.prefs                                   1120   1.6%    180  11.1%    223   1.8%
 ...ui.task                                            454   0.0%    119   0.0%     49   0.0%
-...ui.resources                                       317   9.5%     97   1.0%     71  22.5%
+...ui.resources                                       318   9.4%     97   1.0%     72  22.2%
 ...ui.mediator                                       1135  13.0%    377   1.9%    213  20.2%
-...plugin                                             181  18.8%     22   0.0%     96  13.5%
+...plugin                                             188  18.1%     22   0.0%    103  12.6%
 ...ui.dialog.series                                   584   0.0%    142   0.0%     72   0.0%
 ...util.discrepant                                     60   0.0%      2   0.0%     12   0.0%
 ...ui.pane.plot                                       430   0.0%    160   0.0%     92   0.0%
@@ -60,5 +60,5 @@ Package                                             Lines  Line% Branch  Brch% M
 ...ui.model.list                                      705  50.2%    305  32.8%    141  67.4%
 ...ui.dialog.filter                                   350   0.0%     74   0.0%     62   0.0%
 -------------------------------------------------- ------ ------ ------ ------ ------ ------
-TOTAL                                               23742  34.9%   7395  32.5%   4648  31.5%
+TOTAL                                               23800  34.9%   7443  32.6%   4662  31.5%
 
