@@ -70,11 +70,9 @@ extinction is known to be negligible.
    compare again. Series selection and the exponential fit are **not**
    repeated. Click **Cancel** on the input dialog to leave the plug-in.
 
-![MMRD inputs dialog](images/mmrd_inputs_dialog.png)
+## Example: V4633 Sgr
 
-![MMRD results dialog](images/mmrd_results_dialog.png)
-
-## Choosing the JD Range
+### Choosing the JD Range
 
 For comparison with Kok (2010), use the same outburst window shown in the
 paper's figures. For example, Kok's Figure 4 for V4633 Sgr has an x-axis
@@ -84,8 +82,18 @@ $$
 2450894.5 \le JD \le 2450954.5
 $$
 
-Using a substantially longer time range can change the exponential fit, the
-asymptote, and hence $t_2$ and $t_3$.
+Using a substantially longer time range can change the exponential fit, the asymptote, and hence $t_2$ and $t_3$.
+
+As per the steps above:
+
+1. Load V4633 Sgr observations from the AAVSO International Database with start and end JD: 2450894.5 and 2450954.5
+2. Choose **Tool > MMRD nova distance calculator**.
+3. Select the Visual observation series.
+4. Choose **Exponential model fit (Kok 2010, eq. 10)** for visual data (the default) and click **OK**.
+
+![MMRD inputs dialog](images/mmrd_inputs_dialog.png)
+
+![MMRD results dialog](images/mmrd_results_dialog.png)
 
 ## Light-Curve Parameter Sources
 
@@ -205,24 +213,6 @@ to sort by that column (numeric columns sort by value, not as text). Click a
 row to highlight it; the relation chosen in the drop-down is selected
 initially. Relations that cannot be evaluated (for example a $t_3$
 calibration when $t_3$ is missing) appear as `n/a` and sort last.
-
-## Comparison with Kok (2010)
-
-For each nova:
-
-1. Match the JD window shown in Kok's figure.
-2. Compare the fitted $t_2$ and $t_3$ with Table 1.
-3. Compare $M_V$ with Table 3.
-4. Enter Kok's $A_V(1)$ or $A_V(2)$ and compare distance with Table 4.
-
-For V4633 Sgr, using Kok's Table 1 values:
-
-- $m_0 = 7.6$
-- $t_2 = 19.5$
-- $t_3 = 42.9$
-
-the unweighted historical mean gives $M_V \approx -7.72$, close to Kok's
-published $M_V = -7.7 \pm 0.3$.
 
 ## Limitations
 
