@@ -3033,119 +3033,134 @@
     [javac] 		                  ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Double
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/ScriptRunner.java:56: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: error, warning, scriptFileChooser
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/ScriptRunner.java:62: warning: [initialization.fields.uninitialized] the constructor does not initialize fields: manager, compilable, bindings, error, warning, scriptFileChooser
     [javac] 	public ScriptRunner(boolean fromFileChooser) {
     [javac] 	       ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/ScriptRunner.java:84: warning: [argument] incompatible argument for parameter scriptFile of ScriptRunner.runScript.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/ScriptRunner.java:66: warning: [argument] incompatible argument for parameter loader of ScriptEngineManager constructor.
+    [javac] 			manager = new ScriptEngineManager(ScriptRunner.class.getClassLoader());
+    [javac] 			                                                                   ^
+    [javac]   found   : @Initialized @Nullable ClassLoader
+    [javac]   required: @Initialized @NonNull ClassLoader
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/ScriptRunner.java:90: warning: [assignment] incompatible types in assignment.
+    [javac] 			jsEngine = null;
+    [javac] 			           ^
+    [javac]   found   : null (NullType)
+    [javac]   required: @Initialized @NonNull ScriptEngine
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/ScriptRunner.java:91: warning: [assignment] incompatible types in assignment.
+    [javac] 			compilable = null;
+    [javac] 			             ^
+    [javac]   found   : null (NullType)
+    [javac]   required: @Initialized @NonNull Compilable
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/ScriptRunner.java:124: warning: [argument] incompatible argument for parameter scriptFile of ScriptRunner.runScript.
     [javac] 			runScript(scriptFile);
     [javac] 			          ^
     [javac]   found   : @Initialized @Nullable File
     [javac]   required: @Initialized @NonNull File
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/ScriptRunner.java:95: warning: [argument] incompatible argument for parameter error of ScriptRunner.setError.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/ScriptRunner.java:142: warning: [argument] incompatible argument for parameter error of ScriptRunner.setError.
     [javac] 			setError(null);
     [javac] 			         ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/ScriptRunner.java:96: warning: [argument] incompatible argument for parameter warning of ScriptRunner.setWarning.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/ScriptRunner.java:143: warning: [argument] incompatible argument for parameter warning of ScriptRunner.setWarning.
     [javac] 			setWarning(null);
     [javac] 			           ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/ScriptRunner.java:107: warning: [argument] incompatible argument for parameter msg of MessageBox.showErrorDialog.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/ScriptRunner.java:157: warning: [argument] incompatible argument for parameter msg of MessageBox.showErrorDialog.
     [javac] 					.showErrorDialog("Script Error", ex.getLocalizedMessage());
     [javac] 					                                                       ^
     [javac]   found   : @Initialized @Nullable String
     [javac]   required: @Initialized @NonNull String
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:77: warning: [initialization.static.field.uninitialized] static field instance not initialized
-    [javac] 	private static VStarScriptingAPI instance;
-    [javac] 	                                 ^
+    [javac]     private static VStarScriptingAPI instance;
+    [javac]                                      ^
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:86: warning: [assignment] incompatible types in assignment.
-    [javac] 		analysisTypeMsg = null;
-    [javac] 		                  ^
+    [javac] 	analysisTypeMsg = null;
+    [javac] 	                  ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull AnalysisTypeChangeMessage
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:87: warning: [method.invocation] call to createAnalysisTypeChangeListener() not allowed on the given receiver.
-    [javac] 		mediator.getAnalysisTypeChangeNotifier().addListener(createAnalysisTypeChangeListener());
-    [javac] 		                                                                                     ^
+    [javac] 	mediator.getAnalysisTypeChangeNotifier().addListener(createAnalysisTypeChangeListener());
+    [javac] 	                                                                                     ^
     [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.scripting.VStarScriptingAPI.class) @NonNull VStarScriptingAPI
     [javac]   required: @Initialized @NonNull VStarScriptingAPI
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:216: warning: [argument] incompatible argument for parameter bands of VStarScriptingAPI.commonLoadFromAID.
-    [javac] 		commonLoadFromAID(name, minJD, maxJD, null, null, false, false);
-    [javac] 		                                      ^
+    [javac] 	commonLoadFromAID(name, minJD, maxJD, null, null, false, false);
+    [javac] 	                                      ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull String
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:216: warning: [argument] incompatible argument for parameter obscodes of VStarScriptingAPI.commonLoadFromAID.
-    [javac] 		commonLoadFromAID(name, minJD, maxJD, null, null, false, false);
-    [javac] 		                                            ^
+    [javac] 	commonLoadFromAID(name, minJD, maxJD, null, null, false, false);
+    [javac] 	                                            ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull String
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:246: warning: [argument] incompatible argument for parameter bands of VStarScriptingAPI.commonLoadFromAID.
-    [javac] 		commonLoadFromAID(name, minJD, maxJD, null, null, false, true);
-    [javac] 		                                      ^
+    [javac] 	commonLoadFromAID(name, minJD, maxJD, null, null, false, true);
+    [javac] 	                                      ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull String
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:246: warning: [argument] incompatible argument for parameter obscodes of VStarScriptingAPI.commonLoadFromAID.
-    [javac] 		commonLoadFromAID(name, minJD, maxJD, null, null, false, true);
-    [javac] 		                                            ^
+    [javac] 	commonLoadFromAID(name, minJD, maxJD, null, null, false, true);
+    [javac] 	                                            ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:413: warning: [argument] incompatible argument for parameter pluginName of VStarScriptingAPI.modelCreatorCommon.
-    [javac] 		modelCreatorCommon(null, ApacheCommonsPolynomialFitCreatorPlugin.class, seriesName, new Double[] { degree });
-    [javac] 		                   ^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:425: warning: [argument] incompatible argument for parameter pluginName of VStarScriptingAPI.modelCreatorCommon.
+    [javac] 	modelCreatorCommon(null, ApacheCommonsPolynomialFitCreatorPlugin.class, seriesName, new Double[] { degree });
+    [javac] 	                   ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:425: warning: [argument] incompatible argument for parameter clazz of VStarScriptingAPI.modelCreatorCommon.
-    [javac] 		modelCreatorCommon(pluginName, null, seriesName, params);
-    [javac] 		                               ^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:437: warning: [argument] incompatible argument for parameter clazz of VStarScriptingAPI.modelCreatorCommon.
+    [javac] 	modelCreatorCommon(pluginName, null, seriesName, params);
+    [javac] 	                               ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Class<? extends @Initialized @Nullable Object>
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:653: warning: [unboxing.of.nullable] unboxing a possibly-null reference obsPlotModel.getSrcTypeToSeriesNumMap().get(series)
-    [javac] 				int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(series);
-    [javac] 				                                                           ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:838: warning: [argument] incompatible argument for parameter obsCodes of AIDWebServiceObservationSourcePluginBase.createAIDUrlForAUID.
-    [javac] 					url = aidPlugin.createAIDUrlForAUID(info.getAuid(), minJD, maxJD, bands, null, false);
-    [javac] 					                                                                         ^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:665: warning: [unboxing.of.nullable] unboxing a possibly-null reference obsPlotModel.getSrcTypeToSeriesNumMap().get(series)
+    [javac] 		int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(series);
+    [javac] 		                                                           ^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:850: warning: [argument] incompatible argument for parameter obsCodes of AIDWebServiceObservationSourcePluginBase.createAIDUrlForAUID.
+    [javac] 		    url = aidPlugin.createAIDUrlForAUID(info.getAuid(), minJD, maxJD, bands, null, false);
+    [javac] 		                                                                             ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:844: warning: [argument] incompatible argument for parameter url of Mediator.createObservationArtefactsFromObSourcePlugin.
-    [javac] 				mediator.createObservationArtefactsFromObSourcePlugin(aidPlugin, (URL) null, isAdditive);
-    [javac] 				                                                                 ^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:856: warning: [argument] incompatible argument for parameter url of Mediator.createObservationArtefactsFromObSourcePlugin.
+    [javac] 		mediator.createObservationArtefactsFromObSourcePlugin(aidPlugin, (URL) null, isAdditive);
+    [javac] 		                                                                 ^
     [javac]   found   : @FBCBottom @Nullable URL
     [javac]   required: @Initialized @NonNull URL
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:873: warning: [return] incompatible types in return.
-    [javac] 		return obSinkPlugin;
-    [javac] 		       ^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:885: warning: [return] incompatible types in return.
+    [javac] 	return obSinkPlugin;
+    [javac] 	       ^
     [javac]   type of expression: @Initialized @Nullable ObservationSinkPluginBase
     [javac]   method return type: @Initialized @NonNull ObservationSinkPluginBase
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:917: warning: [dereference.of.nullable] dereference of possibly-null reference dcdft
-    [javac] 				dcdft.execute();
-    [javac] 				^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:930: warning: [dereference.of.nullable] dereference of possibly-null reference topHits.get(coordType)
-    [javac] 				topHitPeriods = topHits.get(coordType).toArray(new Double[0]);
-    [javac] 				                           ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:933: warning: [argument] incompatible argument for parameter error of ScriptRunner.setError.
-    [javac] 				ScriptRunner.getInstance().setError(e.getMessage());
-    [javac] 				                                                ^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:929: warning: [dereference.of.nullable] dereference of possibly-null reference dcdft
+    [javac] 		dcdft.execute();
+    [javac] 		^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:942: warning: [dereference.of.nullable] dereference of possibly-null reference topHits.get(coordType)
+    [javac] 		topHitPeriods = topHits.get(coordType).toArray(new Double[0]);
+    [javac] 		                           ^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:945: warning: [argument] incompatible argument for parameter error of ScriptRunner.setError.
+    [javac] 		ScriptRunner.getInstance().setError(e.getMessage());
+    [javac] 		                                                ^
     [javac]   found   : @Initialized @Nullable String
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:939: warning: [return] incompatible types in return.
-    [javac] 		return topHitPeriods;
-    [javac] 		       ^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:951: warning: [return] incompatible types in return.
+    [javac] 	return topHitPeriods;
+    [javac] 	       ^
     [javac]   type of expression: @Initialized @NonNull Double @Initialized @Nullable []
     [javac]   method return type: @Initialized @NonNull Double @Initialized @NonNull []
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:981: warning: [argument] incompatible argument for parameter error of ScriptRunner.setError.
-    [javac] 			ScriptRunner.getInstance().setError(e.getMessage());
-    [javac] 			                                                ^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:993: warning: [argument] incompatible argument for parameter error of ScriptRunner.setError.
+    [javac] 	    ScriptRunner.getInstance().setError(e.getMessage());
+    [javac] 	                                                    ^
     [javac]   found   : @Initialized @Nullable String
     [javac]   required: @Initialized @NonNull String
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:984: warning: [return] incompatible types in return.
-    [javac] 		return maximalStats;
-    [javac] 		       ^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:996: warning: [return] incompatible types in return.
+    [javac] 	return maximalStats;
+    [javac] 	       ^
     [javac]   type of expression: @Initialized @NonNull Double @Initialized @Nullable [] @Initialized @NonNull []
     [javac]   method return type: @Initialized @NonNull Double @Initialized @NonNull [] @Initialized @NonNull []
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:1055: warning: [argument] incompatible argument for parameter error of ScriptRunner.setError.
-    [javac] 		ScriptRunner.getInstance().setError(null);
-    [javac] 		                                    ^
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/scripting/VStarScriptingAPI.java:1067: warning: [argument] incompatible argument for parameter error of ScriptRunner.setError.
+    [javac] 	ScriptRunner.getInstance().setError(null);
+    [javac] 	                                    ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull String
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/mediator/Mediator.java:180: warning: [initialization.static.field.uninitialized] static field ui not initialized
@@ -7495,4 +7510,4 @@
     [javac] Note: Recompile with -Xlint:deprecation for details.
     [javac] Note: Some input files use unchecked or unsafe operations.
     [javac] Note: Recompile with -Xlint:unchecked for details.
-    [javac] 1614 warnings
+    [javac] 1617 warnings
