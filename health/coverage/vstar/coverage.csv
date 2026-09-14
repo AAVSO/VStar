@@ -358,13 +358,13 @@ VStar,org.aavso.tools.vstar.ui.dialog.period.refinement,RefinementParameterDialo
 VStar,org.aavso.tools.vstar.util.period.wwz,WWZStatistic,173,73,25,5,23,28,19,13,5,9
 VStar,org.aavso.tools.vstar.util.period.wwz,WWZCoordinateType,36,124,11,15,17,38,12,16,2,4
 VStar,org.aavso.tools.vstar.util.period.wwz,WeightedWaveletZTransform.new Callable() {...},0,31,0,0,0,3,0,2,0,2
-VStar,org.aavso.tools.vstar.util.period.wwz,WeightedWaveletZTransform,199,1782,41,131,49,321,46,74,12,22
+VStar,org.aavso.tools.vstar.util.period.wwz,WeightedWaveletZTransform,203,1778,42,130,50,320,47,73,12,22
 VStar,org.aavso.tools.vstar.util.coords,DecInfo,19,73,0,0,3,15,2,4,2,4
 VStar,org.aavso.tools.vstar.util.coords,RAInfo,19,66,0,0,3,13,2,4,2,4
 VStar,org.aavso.tools.vstar.util.coords,EpochType,0,15,0,0,0,2,0,1,0,1
-VStar,org.aavso.tools.vstar.scripting,VStarScriptingAPI.new Listener() {...},13,0,0,0,4,0,3,0,3,0
-VStar,org.aavso.tools.vstar.scripting,ScriptRunner,144,0,6,0,48,0,13,0,10,0
-VStar,org.aavso.tools.vstar.scripting,VStarScriptingAPI,1139,0,91,0,299,0,103,0,56,0
+VStar,org.aavso.tools.vstar.scripting,VStarScriptingAPI.new Listener() {...},7,6,0,0,3,1,2,1,2,1
+VStar,org.aavso.tools.vstar.scripting,ScriptRunner,193,76,28,8,63,18,25,4,8,3
+VStar,org.aavso.tools.vstar.scripting,VStarScriptingAPI,1158,29,89,2,297,10,98,5,52,4
 VStar,org.aavso.tools.vstar.ui.pane.list,ObservationListPane.3.new IFilterDescription() {...},64,0,4,0,14,0,6,0,4,0
 VStar,org.aavso.tools.vstar.ui.pane.list,ObservationListPane.new ActionListener() {...},48,9,0,0,10,1,1,1,1,1
 VStar,org.aavso.tools.vstar.ui.pane.list,ObservationListPane.new ActionListener() {...},4,6,0,0,2,1,1,1,1,1
@@ -660,7 +660,7 @@ VStar,org.aavso.tools.vstar.ui.mediator,Mediator.new Listener() {...},57,6,4,0,1
 VStar,org.aavso.tools.vstar.ui.mediator,Mediator.new Listener() {...},48,0,2,0,10,0,4,0,3,0
 VStar,org.aavso.tools.vstar.ui.mediator,Mediator.new Listener() {...},21,6,0,0,7,1,2,1,2,1
 VStar,org.aavso.tools.vstar.ui.mediator,Mediator.new Listener() {...},40,6,4,0,9,1,4,1,2,1
-VStar,org.aavso.tools.vstar.ui.mediator,Mediator,2716,361,248,4,684,77,222,23,90,21
+VStar,org.aavso.tools.vstar.ui.mediator,Mediator,2713,364,248,4,683,78,221,24,89,22
 VStar,org.aavso.tools.vstar.ui.mediator,AnalysisType,0,15,0,0,0,2,0,1,0,1
 VStar,org.aavso.tools.vstar.ui.mediator,DocumentManager,720,14,67,1,154,6,70,2,35,2
 VStar,org.aavso.tools.vstar.ui.mediator,DocumentManager.new Listener() {...},23,0,0,0,6,0,3,0,3,0

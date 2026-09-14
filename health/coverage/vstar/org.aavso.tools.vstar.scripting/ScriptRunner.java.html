@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.scripting;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.logging.Level;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -30,16 +31,21 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.JFileChooser;
 
+import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * This class runs a VStar script.
+ *
+ * JavaScript is executed by the standalone OpenJDK Nashorn engine
+ * (nashorn-core on the classpath). Nashorn was removed from the JDK
+ * in Java 15, which caused Tool -&gt; Run Script... to fail (issue #601).
  */
 public class ScriptRunner {
 
-<span class="nc" id="L42">	private static ScriptRunner instance = new ScriptRunner(true);</span>
+<span class="fc" id="L48">	private static ScriptRunner instance = new ScriptRunner(true);</span>
 
 	private ScriptEngineManager manager;
 	private ScriptEngine jsEngine;
@@ -53,80 +59,124 @@ public class ScriptRunner {
 	/**
 	 * Constructor
 	 */
-<span class="nc" id="L56">	public ScriptRunner(boolean fromFileChooser) {</span>
-<span class="nc" id="L57">		manager = new ScriptEngineManager();</span>
-<span class="nc" id="L58">		jsEngine = manager.getEngineByName(&quot;javascript&quot;);</span>
-<span class="nc" id="L59">		compilable = (Compilable) jsEngine;</span>
-<span class="nc" id="L60">		bindings = jsEngine.getBindings(ScriptContext.GLOBAL_SCOPE);</span>
-<span class="nc" id="L61">		bindings.put(&quot;vstar&quot;, VStarScriptingAPI.getInstance());</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">		if (fromFileChooser) {</span>
-<span class="nc" id="L63">			scriptFileChooser = new JFileChooser();</span>
+<span class="fc" id="L62">	public ScriptRunner(boolean fromFileChooser) {</span>
+		try {
+			// Use this class's loader so the standalone Nashorn engine (required
+			// since the JDK removed it in Java 15) is found when running from a jar.
+<span class="fc" id="L66">			manager = new ScriptEngineManager(ScriptRunner.class.getClassLoader());</span>
+<span class="fc" id="L67">			jsEngine = manager.getEngineByName(&quot;javascript&quot;);</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">			if (jsEngine == null) {</span>
+<span class="nc" id="L69">				jsEngine = manager.getEngineByName(&quot;nashorn&quot;);</span>
+			}
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">			if (jsEngine == null) {</span>
+<span class="nc" id="L72">				error = &quot;No JavaScript engine is available. &quot;</span>
+						+ &quot;Nashorn was removed from the JDK in Java 15; &quot;
+						+ &quot;ensure nashorn-core and its ASM jars are on the classpath.&quot;;
+			} else {
+<span class="fc" id="L76">				compilable = (Compilable) jsEngine;</span>
+<span class="fc" id="L77">				bindings = jsEngine.getBindings(ScriptContext.GLOBAL_SCOPE);</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">				if (bindings == null) {</span>
+<span class="nc" id="L79">					bindings = jsEngine.getBindings(ScriptContext.ENGINE_SCOPE);</span>
+				}
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">				if (bindings == null) {</span>
+<span class="nc" id="L82">					bindings = jsEngine.createBindings();</span>
+<span class="nc" id="L83">					jsEngine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);</span>
+				}
+<span class="fc" id="L85">				bindings.put(&quot;vstar&quot;, VStarScriptingAPI.getInstance());</span>
+				// Nashorn provides print() but not println(); some sample scripts use println.
+<span class="fc" id="L87">				jsEngine.eval(&quot;if (typeof println === 'undefined') { println = print; }&quot;);</span>
+			}
+<span class="nc" id="L89">		} catch (Throwable t) {</span>
+<span class="nc" id="L90">			jsEngine = null;</span>
+<span class="nc" id="L91">			compilable = null;</span>
+<span class="nc" id="L92">			error = &quot;Failed to initialise JavaScript engine: &quot;</span>
+<span class="nc" id="L93">					+ t.getLocalizedMessage();</span>
+<span class="fc" id="L94">		}</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">		if (fromFileChooser) {</span>
+<span class="fc" id="L96">			scriptFileChooser = new JFileChooser();</span>
 		}
-<span class="nc" id="L65">	}</span>
+<span class="fc" id="L98">	}</span>
 
 	/**
 	 * Return a Singleton.
 	 */
 	public static ScriptRunner getInstance() {
-<span class="nc" id="L71">		return instance;</span>
+<span class="nc" id="L104">		return instance;</span>
 	}
 
 	/**
 	 * Run script from a chosen file.
 	 */
 	public void runScript() {
-<span class="nc" id="L78">		File scriptFile = null;</span>
-
-<span class="nc" id="L80">		int returnVal = scriptFileChooser.showOpenDialog(DocumentManager</span>
-<span class="nc" id="L81">				.findActiveWindow());</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">		if (returnVal == JFileChooser.APPROVE_OPTION) {</span>
-<span class="nc" id="L83">			scriptFile = scriptFileChooser.getSelectedFile();</span>
-<span class="nc" id="L84">			runScript(scriptFile);</span>
+<span class="nc bnc" id="L111" title="All 4 branches missed.">		if (jsEngine == null || compilable == null) {</span>
+<span class="nc" id="L112">			MessageBox.showErrorDialog(&quot;Script Error&quot;,</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">					error != null ? error</span>
+<span class="nc" id="L114">							: &quot;No JavaScript engine is available.&quot;);</span>
+<span class="nc" id="L115">			return;</span>
 		}
-<span class="nc" id="L86">	}</span>
+
+<span class="nc" id="L118">		File scriptFile = null;</span>
+
+<span class="nc" id="L120">		int returnVal = scriptFileChooser.showOpenDialog(DocumentManager</span>
+<span class="nc" id="L121">				.findActiveWindow());</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">		if (returnVal == JFileChooser.APPROVE_OPTION) {</span>
+<span class="nc" id="L123">			scriptFile = scriptFileChooser.getSelectedFile();</span>
+<span class="nc" id="L124">			runScript(scriptFile);</span>
+		}
+<span class="nc" id="L126">	}</span>
 
 	/**
 	 * Run script from the specified file.
 	 */
 	public void runScript(File scriptFile) {
-<span class="nc" id="L92">		FileReader reader = null;</span>
+<span class="nc" id="L132">		FileReader reader = null;</span>
 
 		try {
-<span class="nc" id="L95">			setError(null);</span>
-<span class="nc" id="L96">			setWarning(null);</span>
+<span class="nc bnc" id="L135" title="All 4 branches missed.">			if (jsEngine == null || compilable == null) {</span>
+<span class="nc" id="L136">				MessageBox.showErrorDialog(&quot;Script Error&quot;,</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">						error != null ? error</span>
+<span class="nc" id="L138">								: &quot;No JavaScript engine is available.&quot;);</span>
+<span class="nc" id="L139">				return;</span>
+			}
 
-<span class="nc" id="L98">			Mediator.getUI().setScriptingStatus(true);</span>
+<span class="nc" id="L142">			setError(null);</span>
+<span class="nc" id="L143">			setWarning(null);</span>
 
-<span class="nc" id="L100">			reader = new FileReader(scriptFile);</span>
-<span class="nc" id="L101">			jsEngine.put(ScriptEngine.FILENAME, scriptFile.toString());</span>
-<span class="nc" id="L102">			CompiledScript script = compilable.compile(reader);</span>
-<span class="nc" id="L103">			script.eval();</span>
-<span class="nc" id="L104">		} catch (ScriptException ex) {</span>
-<span class="nc" id="L105">			Mediator.getUI().setScriptingStatus(false);</span>
-<span class="nc" id="L106">			MessageBox</span>
-<span class="nc" id="L107">					.showErrorDialog(&quot;Script Error&quot;, ex.getLocalizedMessage());</span>
-<span class="nc" id="L108">		} catch (Throwable ex) {</span>
-<span class="nc" id="L109">			Mediator.getUI().setScriptingStatus(false);</span>
-<span class="nc" id="L110">			MessageBox.showErrorDialog(&quot;Script Error&quot;,</span>
-<span class="nc" id="L111">					String.format(&quot;Error: &quot; + ex.getLocalizedMessage()));</span>
+<span class="nc" id="L145">			Mediator.getUI().setScriptingStatus(true);</span>
+
+<span class="nc" id="L147">			reader = new FileReader(scriptFile);</span>
+<span class="nc" id="L148">			jsEngine.put(ScriptEngine.FILENAME, scriptFile.toString());</span>
+<span class="nc" id="L149">			CompiledScript script = compilable.compile(reader);</span>
+<span class="nc" id="L150">			script.eval();</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">			if (getError() != null) {</span>
+<span class="nc" id="L152">			    VStar.LOGGER.log(Level.SEVERE, getError());</span>
+			}
+<span class="nc" id="L154">		} catch (ScriptException ex) {</span>
+<span class="nc" id="L155">			Mediator.getUI().setScriptingStatus(false);</span>
+<span class="nc" id="L156">			MessageBox</span>
+<span class="nc" id="L157">					.showErrorDialog(&quot;Script Error&quot;, ex.getLocalizedMessage());</span>
+<span class="nc" id="L158">		} catch (Throwable ex) {</span>
+<span class="nc" id="L159">			Mediator.getUI().setScriptingStatus(false);</span>
+<span class="nc" id="L160">			MessageBox.showErrorDialog(&quot;Script Error&quot;,</span>
+<span class="nc" id="L161">					String.format(&quot;Error: &quot; + ex.getLocalizedMessage()));</span>
 
 		} finally {
-<span class="nc" id="L114">			Mediator.getUI().setScriptingStatus(false);</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">			if (reader != null) {</span>
+<span class="nc" id="L164">			Mediator.getUI().setScriptingStatus(false);</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">			if (reader != null) {</span>
 				try {
-<span class="nc" id="L117">					reader.close();</span>
-<span class="nc" id="L118">				} catch (IOException e) {</span>
+<span class="nc" id="L167">					reader.close();</span>
+<span class="nc" id="L168">				} catch (IOException e) {</span>
 					// Nothing to be done
-<span class="nc" id="L120">				}</span>
+<span class="nc" id="L170">				}</span>
 			}
 		}
-<span class="nc" id="L123">	}</span>
+<span class="nc" id="L173">	}</span>
 
 	/**
 	 * @return the error
 	 */
 	public String getError() {
-<span class="nc" id="L129">		return error;</span>
+<span class="nc" id="L179">		return error;</span>
 	}
 
 	/**
@@ -134,14 +184,14 @@ public class ScriptRunner {
 	 *            the error to set
 	 */
 	public void setError(String error) {
-<span class="nc" id="L137">		this.error = error;</span>
-<span class="nc" id="L138">	}</span>
+<span class="nc" id="L187">		this.error = error;</span>
+<span class="nc" id="L188">	}</span>
 
 	/**
 	 * @return the warning
 	 */
 	public String getWarning() {
-<span class="nc" id="L144">		return warning;</span>
+<span class="nc" id="L194">		return warning;</span>
 	}
 
 	/**
@@ -149,8 +199,8 @@ public class ScriptRunner {
 	 *            the warning to set
 	 */
 	public void setWarning(String warning) {
-<span class="nc" id="L152">		this.warning = warning;</span>
-<span class="nc" id="L153">	}</span>
+<span class="nc" id="L202">		this.warning = warning;</span>
+<span class="nc" id="L203">	}</span>
 
 	/**
 	 * Bind a name to a value in the scripting context.
@@ -161,7 +211,21 @@ public class ScriptRunner {
 	 *            The value to which to bind.
 	 */
 	public void bind(String name, Object value) {
-<span class="nc" id="L164">		bindings.put(name, value);</span>
-<span class="nc" id="L165">	}</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">		if (bindings != null) {</span>
+<span class="nc" id="L215">			bindings.put(name, value);</span>
+		}
+<span class="nc" id="L217">	}</span>
+
+	/**
+	 * Evaluate a JavaScript snippet in the current engine context.
+	 * Package-private for unit tests.
+	 */
+	Object eval(String script) throws ScriptException {
+<span class="pc bpc" id="L224" title="2 of 4 branches missed.">		if (jsEngine == null || compilable == null) {</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">			throw new ScriptException(error != null ? error</span>
+<span class="nc" id="L226">					: &quot;No JavaScript engine is available.&quot;);</span>
+		}
+<span class="fc" id="L228">		return compilable.compile(script).eval();</span>
+	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
