@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.scripting;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.logging.Level;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -30,12 +31,17 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.JFileChooser;
 
+import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * This class runs a VStar script.
+ *
+ * JavaScript is executed by the standalone OpenJDK Nashorn engine
+ * (nashorn-core on the classpath). Nashorn was removed from the JDK
+ * in Java 15, which caused Tool -> Run Script... to fail (issue #601).
  */
 public class ScriptRunner {
 
@@ -54,11 +60,38 @@ public class ScriptRunner {
 	 * Constructor
 	 */
 	public ScriptRunner(boolean fromFileChooser) {
-		manager = new ScriptEngineManager();
-		jsEngine = manager.getEngineByName("javascript");
-		compilable = (Compilable) jsEngine;
-		bindings = jsEngine.getBindings(ScriptContext.GLOBAL_SCOPE);
-		bindings.put("vstar", VStarScriptingAPI.getInstance());
+		try {
+			// Use this class's loader so the standalone Nashorn engine (required
+			// since the JDK removed it in Java 15) is found when running from a jar.
+			manager = new ScriptEngineManager(ScriptRunner.class.getClassLoader());
+			jsEngine = manager.getEngineByName("javascript");
+			if (jsEngine == null) {
+				jsEngine = manager.getEngineByName("nashorn");
+			}
+			if (jsEngine == null) {
+				error = "No JavaScript engine is available. "
+						+ "Nashorn was removed from the JDK in Java 15; "
+						+ "ensure nashorn-core and its ASM jars are on the classpath.";
+			} else {
+				compilable = (Compilable) jsEngine;
+				bindings = jsEngine.getBindings(ScriptContext.GLOBAL_SCOPE);
+				if (bindings == null) {
+					bindings = jsEngine.getBindings(ScriptContext.ENGINE_SCOPE);
+				}
+				if (bindings == null) {
+					bindings = jsEngine.createBindings();
+					jsEngine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
+				}
+				bindings.put("vstar", VStarScriptingAPI.getInstance());
+				// Nashorn provides print() but not println(); some sample scripts use println.
+				jsEngine.eval("if (typeof println === 'undefined') { println = print; }");
+			}
+		} catch (Throwable t) {
+			jsEngine = null;
+			compilable = null;
+			error = "Failed to initialise JavaScript engine: "
+					+ t.getLocalizedMessage();
+		}
 		if (fromFileChooser) {
 			scriptFileChooser = new JFileChooser();
 		}
@@ -75,6 +108,13 @@ public class ScriptRunner {
 	 * Run script from a chosen file.
 	 */
 	public void runScript() {
+		if (jsEngine == null || compilable == null) {
+			MessageBox.showErrorDialog("Script Error",
+					error != null ? error
+							: "No JavaScript engine is available.");
+			return;
+		}
+
 		File scriptFile = null;
 
 		int returnVal = scriptFileChooser.showOpenDialog(DocumentManager
@@ -92,6 +132,13 @@ public class ScriptRunner {
 		FileReader reader = null;
 
 		try {
+			if (jsEngine == null || compilable == null) {
+				MessageBox.showErrorDialog("Script Error",
+						error != null ? error
+								: "No JavaScript engine is available.");
+				return;
+			}
+
 			setError(null);
 			setWarning(null);
 
@@ -101,6 +148,9 @@ public class ScriptRunner {
 			jsEngine.put(ScriptEngine.FILENAME, scriptFile.toString());
 			CompiledScript script = compilable.compile(reader);
 			script.eval();
+			if (getError() != null) {
+			    VStar.LOGGER.log(Level.SEVERE, getError());
+			}
 		} catch (ScriptException ex) {
 			Mediator.getUI().setScriptingStatus(false);
 			MessageBox
@@ -161,6 +211,20 @@ public class ScriptRunner {
 	 *            The value to which to bind.
 	 */
 	public void bind(String name, Object value) {
-		bindings.put(name, value);
+		if (bindings != null) {
+			bindings.put(name, value);
+		}
+	}
+
+	/**
+	 * Evaluate a JavaScript snippet in the current engine context.
+	 * Package-private for unit tests.
+	 */
+	Object eval(String script) throws ScriptException {
+		if (jsEngine == null || compilable == null) {
+			throw new ScriptException(error != null ? error
+					: "No JavaScript engine is available.");
+		}
+		return compilable.compile(script).eval();
 	}
 }

@@ -165,6 +165,12 @@
 				<include name="jmathplot.jar" />
 				<include name="antlr-runtime-4.5.3.jar" />
 				<include name="nico-camargo-toolbar-icons-4.0.jar" />
+				<include name="nashorn-core-15.7.jar" />
+				<include name="asm-7.3.1.jar" />
+				<include name="asm-commons-7.3.1.jar" />
+				<include name="asm-tree-7.3.1.jar" />
+				<include name="asm-util-7.3.1.jar" />
+				<include name="asm-analysis-7.3.1.jar" />
 				<include name="vstaricon.png" />
 			</zipfileset>
 			<zipfileset file="VStar.sh" prefix="vstar" filemode="755" />
@@ -200,6 +206,12 @@
 				<include name="jmathplot.jar" />
 				<include name="antlr-runtime-4.5.3.jar" />
 				<include name="nico-camargo-toolbar-icons-4.0.jar" />
+				<include name="nashorn-core-15.7.jar" />
+				<include name="asm-7.3.1.jar" />
+				<include name="asm-commons-7.3.1.jar" />
+				<include name="asm-tree-7.3.1.jar" />
+				<include name="asm-util-7.3.1.jar" />
+				<include name="asm-analysis-7.3.1.jar" />
 				<include name="vstaricon.png" />
 			</zipfileset>
 			<zipfileset file="${install_files}/VStar.exe" prefix="vstar" />
