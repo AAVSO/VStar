@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<BugCollection version="4.9.3" sequence="0" timestamp="1789186069988" analysisTimestamp="1789186070039" release="">
+<BugCollection version="4.9.3" sequence="0" timestamp="1789400002121" analysisTimestamp="1789400002168" release="">
   <Project projectName="">
     <Jar>/home/runner/work/VStar/VStar/dist/vstar.jar</Jar>
     <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/XMLLib.jar</AuxClasspathEntry>
     <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/antlr-4.5.3-complete.jar</AuxClasspathEntry>
     <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/antlr-runtime-4.5.3.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/asm-7.3.1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/asm-analysis-7.3.1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/asm-commons-7.3.1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/asm-tree-7.3.1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/asm-util-7.3.1.jar</AuxClasspathEntry>
     <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/checker-qual-3.54.1.jar</AuxClasspathEntry>
     <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/commons-math-2.2.jar</AuxClasspathEntry>
     <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/javacsv.jar</AuxClasspathEntry>
     <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/jfreechart-1.5.6.jar</AuxClasspathEntry>
     <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/jmathplot.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/nashorn-core-15.7.jar</AuxClasspathEntry>
     <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/nico-camargo-toolbar-icons-4.0.jar</AuxClasspathEntry>
     <SrcDir>/home/runner/work/VStar/VStar/src</SrcDir>
   </Project>
@@ -2000,34 +2006,34 @@
     <ShortMessage>Reliance on default encoding</ShortMessage>
     <LongMessage>Found reliance on default encoding in org.aavso.tools.vstar.scripting.ScriptRunner.runScript(File): new java.io.FileReader(File)</LongMessage>
     <Class classname="org.aavso.tools.vstar.scripting.ScriptRunner" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="42" end="165" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java">
-        <Message>At ScriptRunner.java:[lines 42-165]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="48" end="228" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java">
+        <Message>At ScriptRunner.java:[lines 48-228]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.scripting.ScriptRunner</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.scripting.ScriptRunner" name="runScript" signature="(Ljava/io/File;)V" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="92" end="123" startBytecode="0" endBytecode="620" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="132" end="173" startBytecode="0" endBytecode="807" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java"/>
       <Message>In method org.aavso.tools.vstar.scripting.ScriptRunner.runScript(File)</Message>
     </Method>
     <Method classname="java.io.FileReader" name="&lt;init&gt;" signature="(Ljava/io/File;)V" isStatic="false" role="METHOD_CALLED">
       <SourceLine classname="java.io.FileReader" start="75" end="76" startBytecode="0" endBytecode="68" sourcefile="FileReader.java" sourcepath="java/io/FileReader.java"/>
       <Message>Called method new java.io.FileReader(File)</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" primary="true" start="100" end="100" startBytecode="26" endBytecode="26" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java">
-      <Message>At ScriptRunner.java:[line 100]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" primary="true" start="147" end="147" startBytecode="83" endBytecode="83" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java">
+      <Message>At ScriptRunner.java:[line 147]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="MS_EXPOSE_REP" priority="2" rank="18" abbrev="MS" category="MALICIOUS_CODE" instanceHash="1f6778777500e270eadb3691dfb0daa8" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="493">
     <ShortMessage>Public static method may expose internal representation by returning a mutable object or array</ShortMessage>
     <LongMessage>Public static org.aavso.tools.vstar.scripting.ScriptRunner.getInstance() may expose internal representation by returning ScriptRunner.instance</LongMessage>
     <Class classname="org.aavso.tools.vstar.scripting.ScriptRunner" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="42" end="165" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java">
-        <Message>At ScriptRunner.java:[lines 42-165]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="48" end="228" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java">
+        <Message>At ScriptRunner.java:[lines 48-228]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.scripting.ScriptRunner</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.scripting.ScriptRunner" name="getInstance" signature="()Lorg/aavso/tools/vstar/scripting/ScriptRunner;" isStatic="true" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="71" end="71" startBytecode="0" endBytecode="27" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="104" end="104" startBytecode="0" endBytecode="27" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java"/>
       <Message>In method org.aavso.tools.vstar.scripting.ScriptRunner.getInstance()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.scripting.ScriptRunner" name="instance" signature="Lorg/aavso/tools/vstar/scripting/ScriptRunner;" isStatic="true" primary="true">
@@ -2036,33 +2042,33 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.scripting.ScriptRunner.instance</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" primary="true" start="71" end="71" startBytecode="3" endBytecode="3" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java">
-      <Message>At ScriptRunner.java:[line 71]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" primary="true" start="104" end="104" startBytecode="3" endBytecode="3" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java">
+      <Message>At ScriptRunner.java:[line 104]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="SING_SINGLETON_HAS_NONPRIVATE_CONSTRUCTOR" priority="2" rank="7" abbrev="SING" category="CORRECTNESS" instanceHash="6cbf6b4a979a726f0aaaf250397a35df" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
     <ShortMessage>Class using singleton design pattern has non-private constructor.</ShortMessage>
     <LongMessage>Class (org.aavso.tools.vstar.scripting.ScriptRunner) using singleton design pattern has non-private constructor.</LongMessage>
     <Class classname="org.aavso.tools.vstar.scripting.ScriptRunner" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="42" end="165" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java">
-        <Message>At ScriptRunner.java:[lines 42-165]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="48" end="228" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java">
+        <Message>At ScriptRunner.java:[lines 48-228]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.scripting.ScriptRunner</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.scripting.ScriptRunner" name="&lt;init&gt;" signature="(Z)V" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="56" end="65" startBytecode="0" endBytecode="188" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="62" end="98" startBytecode="0" endBytecode="417" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java"/>
       <Message>In method new org.aavso.tools.vstar.scripting.ScriptRunner(boolean)</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="56" end="65" startBytecode="0" endBytecode="188" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" synthetic="true">
-      <Message>At ScriptRunner.java:[lines 56-65]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.scripting.ScriptRunner" start="62" end="98" startBytecode="0" endBytecode="417" sourcefile="ScriptRunner.java" sourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" relSourcepath="org/aavso/tools/vstar/scripting/ScriptRunner.java" synthetic="true">
+      <Message>At ScriptRunner.java:[lines 62-98]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="LI_LAZY_INIT_STATIC" priority="2" rank="14" abbrev="LI" category="MT_CORRECTNESS" instanceHash="72c96bbaef2ba06e385211bb96541624" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="543">
     <ShortMessage>Incorrect lazy initialization of static field</ShortMessage>
     <LongMessage>Incorrect lazy initialization of static field org.aavso.tools.vstar.scripting.VStarScriptingAPI.instance in org.aavso.tools.vstar.scripting.VStarScriptingAPI.getInstance()</LongMessage>
     <Class classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="73" end="1056" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
-        <Message>At VStarScriptingAPI.java:[lines 73-1056]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="73" end="1068" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
+        <Message>At VStarScriptingAPI.java:[lines 73-1068]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.scripting.VStarScriptingAPI</Message>
     </Class>
@@ -2084,8 +2090,8 @@
     <ShortMessage>Public static method may expose internal representation by returning a mutable object or array</ShortMessage>
     <LongMessage>Public static org.aavso.tools.vstar.scripting.VStarScriptingAPI.getInstance() may expose internal representation by returning VStarScriptingAPI.instance</LongMessage>
     <Class classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="73" end="1056" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
-        <Message>At VStarScriptingAPI.java:[lines 73-1056]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="73" end="1068" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
+        <Message>At VStarScriptingAPI.java:[lines 73-1068]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.scripting.VStarScriptingAPI</Message>
     </Class>
@@ -2107,26 +2113,26 @@
     <ShortMessage>Possible null pointer dereference in method on exception path</ShortMessage>
     <LongMessage>Possible null pointer dereference of dcdft in org.aavso.tools.vstar.scripting.VStarScriptingAPI.dcdftCommon(String, DcDftAnalysisType, double, double, double) on exception path</LongMessage>
     <Class classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="73" end="1056" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
-        <Message>At VStarScriptingAPI.java:[lines 73-1056]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="73" end="1068" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
+        <Message>At VStarScriptingAPI.java:[lines 73-1068]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.scripting.VStarScriptingAPI</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" name="dcdftCommon" signature="(Ljava/lang/String;Lorg/aavso/tools/vstar/util/period/dcdft/DcDftAnalysisType;DDD)[Ljava/lang/Double;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="890" end="939" startBytecode="0" endBytecode="582" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="902" end="951" startBytecode="0" endBytecode="582" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java"/>
       <Message>In method org.aavso.tools.vstar.scripting.VStarScriptingAPI.dcdftCommon(String, DcDftAnalysisType, double, double, double)</Message>
     </Method>
     <LocalVariable name="dcdft" register="11" pc="34" role="LOCAL_VARIABLE_VALUE_OF">
       <Message>Value loaded from dcdft</Message>
     </LocalVariable>
-    <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" primary="true" start="917" end="917" startBytecode="129" endBytecode="129" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" role="SOURCE_LINE_DEREF">
-      <Message>Dereferenced at VStarScriptingAPI.java:[line 917]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" primary="true" start="929" end="929" startBytecode="129" endBytecode="129" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" role="SOURCE_LINE_DEREF">
+      <Message>Dereferenced at VStarScriptingAPI.java:[line 929]</Message>
     </SourceLine>
-    <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="897" end="897" startBytecode="24" endBytecode="24" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" role="SOURCE_LINE_NULL_VALUE">
-      <Message>Null value at VStarScriptingAPI.java:[line 897]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="909" end="909" startBytecode="24" endBytecode="24" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" role="SOURCE_LINE_NULL_VALUE">
+      <Message>Null value at VStarScriptingAPI.java:[line 909]</Message>
     </SourceLine>
-    <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="899" end="899" startBytecode="35" endBytecode="35" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" role="SOURCE_LINE_KNOWN_NULL">
-      <Message>Known null at VStarScriptingAPI.java:[line 899]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="911" end="911" startBytecode="35" endBytecode="35" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" role="SOURCE_LINE_KNOWN_NULL">
+      <Message>Known null at VStarScriptingAPI.java:[line 911]</Message>
     </SourceLine>
     <Property name="edu.umd.cs.findbugs.detect.NullDerefProperty.ALWAYS_ON_EXCEPTION_PATH" value="true"/>
     <Property name="edu.umd.cs.findbugs.detect.NullDerefProperty.LONG_RANGE_NULL_SOURCE" value="true"/>
@@ -2135,34 +2141,34 @@
     <ShortMessage>Method concatenates strings using + in a loop</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.scripting.VStarScriptingAPI.getSeries() concatenates strings using + in a loop</LongMessage>
     <Class classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="73" end="1056" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
-        <Message>At VStarScriptingAPI.java:[lines 73-1056]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="73" end="1068" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
+        <Message>At VStarScriptingAPI.java:[lines 73-1068]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.scripting.VStarScriptingAPI</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" name="getSeries" signature="()Ljava/lang/String;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="558" end="571" startBytecode="0" endBytecode="216" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="570" end="583" startBytecode="0" endBytecode="217" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java"/>
       <Message>In method org.aavso.tools.vstar.scripting.VStarScriptingAPI.getSeries()</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" primary="true" start="564" end="564" startBytecode="54" endBytecode="54" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
-      <Message>At VStarScriptingAPI.java:[line 564]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" primary="true" start="576" end="576" startBytecode="55" endBytecode="55" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
+      <Message>At VStarScriptingAPI.java:[line 576]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="SWL_SLEEP_WITH_LOCK_HELD" priority="2" rank="14" abbrev="SWL" category="MT_CORRECTNESS" instanceHash="f5347e88ffb04b7666e11c9fe418081e" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
     <ShortMessage>Method calls Thread.sleep() with a lock held</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.scripting.VStarScriptingAPI.pause(long) calls Thread.sleep() with a lock held</LongMessage>
     <Class classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="73" end="1056" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
-        <Message>At VStarScriptingAPI.java:[lines 73-1056]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="73" end="1068" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
+        <Message>At VStarScriptingAPI.java:[lines 73-1068]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.scripting.VStarScriptingAPI</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" name="pause" signature="(J)V" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="712" end="715" startBytecode="0" endBytecode="93" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" start="724" end="727" startBytecode="0" endBytecode="93" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java"/>
       <Message>In method org.aavso.tools.vstar.scripting.VStarScriptingAPI.pause(long)</Message>
     </Method>
-    <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" primary="true" start="712" end="712" startBytecode="1" endBytecode="1" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
-      <Message>At VStarScriptingAPI.java:[line 712]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.scripting.VStarScriptingAPI" primary="true" start="724" end="724" startBytecode="1" endBytecode="1" sourcefile="VStarScriptingAPI.java" sourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" relSourcepath="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java">
+      <Message>At VStarScriptingAPI.java:[line 724]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP" priority="2" rank="18" abbrev="EI" category="MALICIOUS_CODE" instanceHash="3e05ed0ebab8a1eb3187367e9a5ee944" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
@@ -15120,7 +15126,7 @@ signals unexpected behavior by returning an atypical return value.
     <Description>Test for floating point equality</Description>
   </BugCode>
   <Errors errors="0" missingClasses="0"></Errors>
-  <FindBugsSummary timestamp="Sat, 12 Sep 2026 04:07:49 +0000" total_classes="810" referenced_classes="1652" total_bugs="623" total_size="33052" num_packages="55" java_version="17.0.20.1" vm_version="17.0.20.1+1" cpu_seconds="63.36" clock_seconds="19.36" peak_mbytes="504.45" alloc_mbytes="1024.00" gc_seconds="0.48" priority_2="565" priority_1="58">
+  <FindBugsSummary timestamp="Mon, 14 Sep 2026 15:33:22 +0000" total_classes="810" referenced_classes="1652" total_bugs="623" total_size="33094" num_packages="55" java_version="17.0.20.1" vm_version="17.0.20.1+1" cpu_seconds="63.48" clock_seconds="19.59" peak_mbytes="512.77" alloc_mbytes="1024.00" gc_seconds="0.45" priority_2="565" priority_1="58">
     <FileStats path="org/aavso/tools/vstar/auth/AAVSOPostUserPassXMLAuthenticationSource.java" bugCount="1" size="68" bugHash="2b226ca312f5cbba10d35a00f50e21a4"/>
     <FileStats path="org/aavso/tools/vstar/auth/Auth0JSONAutheticationSource.java" bugCount="1" size="65" bugHash="03945e91cf6c274300ecb17b6aa07d37"/>
     <FileStats path="org/aavso/tools/vstar/auth/VSXWebServiceMemberInfo.java" bugCount="0" size="18"/>
@@ -15235,8 +15241,8 @@ signals unexpected behavior by returning an atypical return value.
     <FileStats path="org/aavso/tools/vstar/plugin/period/impl/WeightedWaveletZTransformPluginBase.java" bugCount="0" size="41"/>
     <FileStats path="org/aavso/tools/vstar/plugin/period/impl/WeightedWaveletZTransformWithFrequencyRangePlugin.java" bugCount="0" size="58"/>
     <FileStats path="org/aavso/tools/vstar/plugin/period/impl/WeightedWaveletZTransformWithPeriodRangePlugin.java" bugCount="0" size="58"/>
-    <FileStats path="org/aavso/tools/vstar/scripting/ScriptRunner.java" bugCount="3" size="68" bugHash="65afaf98825e844179a6369420c322ae"/>
-    <FileStats path="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" bugCount="5" size="376" bugHash="66dbcc864815e87efcabdc816fe81013"/>
+    <FileStats path="org/aavso/tools/vstar/scripting/ScriptRunner.java" bugCount="3" size="102" bugHash="3db976ae65461cbf100f2c7e7592025c"/>
+    <FileStats path="org/aavso/tools/vstar/scripting/VStarScriptingAPI.java" bugCount="5" size="384" bugHash="7bbc4a194836cf53fc481032abfb8ff8"/>
     <FileStats path="org/aavso/tools/vstar/ui/IMainUI.java" bugCount="0" size="9"/>
     <FileStats path="org/aavso/tools/vstar/ui/MainFrame.java" bugCount="1" size="47" bugHash="3c74eeb7a1dfb291f2cd3c8db8a7eae9"/>
     <FileStats path="org/aavso/tools/vstar/ui/MenuBar.java" bugCount="3" size="1113" bugHash="d472e7367d12c40cbd2fd6af9f64826d"/>
@@ -15705,9 +15711,9 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.plugin.period.impl.WeightedWaveletZTransformWithFrequencyRangePlugin" sourceFile="WeightedWaveletZTransformWithFrequencyRangePlugin.java" interface="false" size="58" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.plugin.period.impl.WeightedWaveletZTransformWithPeriodRangePlugin" sourceFile="WeightedWaveletZTransformWithPeriodRangePlugin.java" interface="false" size="58" bugs="0"/>
     </PackageStats>
-    <PackageStats package="org.aavso.tools.vstar.scripting" total_bugs="8" total_types="4" total_size="444" priority_2="7" priority_1="1">
-      <ClassStats class="org.aavso.tools.vstar.scripting.ScriptRunner" sourceFile="ScriptRunner.java" interface="false" size="68" bugs="3" priority_2="2" priority_1="1"/>
-      <ClassStats class="org.aavso.tools.vstar.scripting.VStarScriptingAPI" sourceFile="VStarScriptingAPI.java" interface="false" size="360" bugs="5" priority_2="5"/>
+    <PackageStats package="org.aavso.tools.vstar.scripting" total_bugs="8" total_types="4" total_size="486" priority_2="7" priority_1="1">
+      <ClassStats class="org.aavso.tools.vstar.scripting.ScriptRunner" sourceFile="ScriptRunner.java" interface="false" size="102" bugs="3" priority_2="2" priority_1="1"/>
+      <ClassStats class="org.aavso.tools.vstar.scripting.VStarScriptingAPI" sourceFile="VStarScriptingAPI.java" interface="false" size="368" bugs="5" priority_2="5"/>
       <ClassStats class="org.aavso.tools.vstar.scripting.VStarScriptingAPI$1" sourceFile="VStarScriptingAPI.java" interface="false" size="10" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.scripting.VStarScriptingAPI$2" sourceFile="VStarScriptingAPI.java" interface="false" size="6" bugs="0"/>
     </PackageStats>
@@ -16452,53 +16458,55 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.vela.VeLaVisitor" sourceFile="VeLaVisitor.java" interface="true" size="32" bugs="0"/>
     </PackageStats>
     <FindBugsProfile>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine" totalMilliseconds="983" invocations="4172" avgMicrosecondsPerInvocation="235" maxMicrosecondsPerInvocation="48769" standardDeviationMicrosecondsPerInvocation="1722"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNoSideEffectMethods" totalMilliseconds="978" invocations="1652" avgMicrosecondsPerInvocation="592" maxMicrosecondsPerInvocation="27116" standardDeviationMicrosecondsPerInvocation="1648"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="974" invocations="4162" avgMicrosecondsPerInvocation="234" maxMicrosecondsPerInvocation="15227" standardDeviationMicrosecondsPerInvocation="686"/>
-      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.NullDerefAndRedundantComparisonFinder" totalMilliseconds="828" invocations="4814" avgMicrosecondsPerInvocation="172" maxMicrosecondsPerInvocation="26819" standardDeviationMicrosecondsPerInvocation="725"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="810" invocations="1652" avgMicrosecondsPerInvocation="490" maxMicrosecondsPerInvocation="17652" standardDeviationMicrosecondsPerInvocation="1186"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueNumberDataflowFactory" totalMilliseconds="720" invocations="5224" avgMicrosecondsPerInvocation="137" maxMicrosecondsPerInvocation="46949" standardDeviationMicrosecondsPerInvocation="783"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.IsNullValueDataflowFactory" totalMilliseconds="712" invocations="4998" avgMicrosecondsPerInvocation="142" maxMicrosecondsPerInvocation="15945" standardDeviationMicrosecondsPerInvocation="467"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.TypeDataflowFactory" totalMilliseconds="673" invocations="5143" avgMicrosecondsPerInvocation="130" maxMicrosecondsPerInvocation="26426" standardDeviationMicrosecondsPerInvocation="492"/>
-      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="616" invocations="6952" avgMicrosecondsPerInvocation="88" maxMicrosecondsPerInvocation="6724" standardDeviationMicrosecondsPerInvocation="261"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.UnconditionalValueDerefDataflowFactory" totalMilliseconds="591" invocations="4974" avgMicrosecondsPerInvocation="118" maxMicrosecondsPerInvocation="17207" standardDeviationMicrosecondsPerInvocation="480"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison$SpecialTypeAnalysis" totalMilliseconds="450" invocations="3856" avgMicrosecondsPerInvocation="116" maxMicrosecondsPerInvocation="13108" standardDeviationMicrosecondsPerInvocation="382"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.CFGFactory" totalMilliseconds="404" invocations="5249" avgMicrosecondsPerInvocation="77" maxMicrosecondsPerInvocation="7200" standardDeviationMicrosecondsPerInvocation="175"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindReturnRef" totalMilliseconds="287" invocations="810" avgMicrosecondsPerInvocation="354" maxMicrosecondsPerInvocation="24685" standardDeviationMicrosecondsPerInvocation="1185"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers" totalMilliseconds="269" invocations="1652" avgMicrosecondsPerInvocation="163" maxMicrosecondsPerInvocation="14625" standardDeviationMicrosecondsPerInvocation="523"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ConstructorThrow" totalMilliseconds="265" invocations="810" avgMicrosecondsPerInvocation="327" maxMicrosecondsPerInvocation="10342" standardDeviationMicrosecondsPerInvocation="705"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine" totalMilliseconds="247" invocations="1990" avgMicrosecondsPerInvocation="124" maxMicrosecondsPerInvocation="17154" standardDeviationMicrosecondsPerInvocation="606"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ResourceInMultipleThreadsDetector" totalMilliseconds="197" invocations="810" avgMicrosecondsPerInvocation="244" maxMicrosecondsPerInvocation="8998" standardDeviationMicrosecondsPerInvocation="577"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.CalledMethods" totalMilliseconds="185" invocations="1652" avgMicrosecondsPerInvocation="112" maxMicrosecondsPerInvocation="5222" standardDeviationMicrosecondsPerInvocation="301"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ConstantDataflowFactory" totalMilliseconds="179" invocations="4998" avgMicrosecondsPerInvocation="35" maxMicrosecondsPerInvocation="9225" standardDeviationMicrosecondsPerInvocation="187"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildObligationPolicyDatabase" totalMilliseconds="168" invocations="1652" avgMicrosecondsPerInvocation="102" maxMicrosecondsPerInvocation="2541" standardDeviationMicrosecondsPerInvocation="201"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" totalMilliseconds="153" invocations="1652" avgMicrosecondsPerInvocation="93" maxMicrosecondsPerInvocation="5878" standardDeviationMicrosecondsPerInvocation="276"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.UnreadFields" totalMilliseconds="153" invocations="810" avgMicrosecondsPerInvocation="189" maxMicrosecondsPerInvocation="4894" standardDeviationMicrosecondsPerInvocation="349"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUncalledPrivateMethods" totalMilliseconds="148" invocations="810" avgMicrosecondsPerInvocation="183" maxMicrosecondsPerInvocation="1532" standardDeviationMicrosecondsPerInvocation="201"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.MethodGenFactory" totalMilliseconds="148" invocations="5249" avgMicrosecondsPerInvocation="28" maxMicrosecondsPerInvocation="20399" standardDeviationMicrosecondsPerInvocation="286"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.LoadOfKnownNullValue" totalMilliseconds="145" invocations="810" avgMicrosecondsPerInvocation="179" maxMicrosecondsPerInvocation="11993" standardDeviationMicrosecondsPerInvocation="596"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical" totalMilliseconds="144" invocations="1652" avgMicrosecondsPerInvocation="87" maxMicrosecondsPerInvocation="8406" standardDeviationMicrosecondsPerInvocation="271"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindInconsistentSync2" totalMilliseconds="139" invocations="810" avgMicrosecondsPerInvocation="172" maxMicrosecondsPerInvocation="10141" standardDeviationMicrosecondsPerInvocation="548"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.DumbMethods" totalMilliseconds="135" invocations="810" avgMicrosecondsPerInvocation="167" maxMicrosecondsPerInvocation="14145" standardDeviationMicrosecondsPerInvocation="565"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildStringPassthruGraph" totalMilliseconds="134" invocations="1652" avgMicrosecondsPerInvocation="81" maxMicrosecondsPerInvocation="5831" standardDeviationMicrosecondsPerInvocation="280"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ReflectiveClasses" totalMilliseconds="132" invocations="1652" avgMicrosecondsPerInvocation="80" maxMicrosecondsPerInvocation="4939" standardDeviationMicrosecondsPerInvocation="243"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindDeadLocalStores" totalMilliseconds="131" invocations="810" avgMicrosecondsPerInvocation="162" maxMicrosecondsPerInvocation="14300" standardDeviationMicrosecondsPerInvocation="734"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis" totalMilliseconds="129" invocations="1652" avgMicrosecondsPerInvocation="78" maxMicrosecondsPerInvocation="26085" standardDeviationMicrosecondsPerInvocation="657"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.SharedVariableAtomicityDetector" totalMilliseconds="129" invocations="810" avgMicrosecondsPerInvocation="159" maxMicrosecondsPerInvocation="41572" standardDeviationMicrosecondsPerInvocation="1632"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ExplicitSerialization" totalMilliseconds="124" invocations="1652" avgMicrosecondsPerInvocation="75" maxMicrosecondsPerInvocation="26328" standardDeviationMicrosecondsPerInvocation="802"/>
-      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.TypeQualifierNullnessAnnotationDatabase" totalMilliseconds="113" invocations="123762" avgMicrosecondsPerInvocation="0" maxMicrosecondsPerInvocation="3040" standardDeviationMicrosecondsPerInvocation="12"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison" totalMilliseconds="112" invocations="810" avgMicrosecondsPerInvocation="138" maxMicrosecondsPerInvocation="8930" standardDeviationMicrosecondsPerInvocation="402"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNullDeref$CheckCallSitesAndReturnInstructions" totalMilliseconds="110" invocations="4814" avgMicrosecondsPerInvocation="22" maxMicrosecondsPerInvocation="15983" standardDeviationMicrosecondsPerInvocation="236"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.LiveLocalStoreDataflowFactory" totalMilliseconds="105" invocations="4742" avgMicrosecondsPerInvocation="22" maxMicrosecondsPerInvocation="4230" standardDeviationMicrosecondsPerInvocation="111"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.MethodReturnCheck" totalMilliseconds="104" invocations="810" avgMicrosecondsPerInvocation="128" maxMicrosecondsPerInvocation="4225" standardDeviationMicrosecondsPerInvocation="316"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindBadCast2" totalMilliseconds="104" invocations="810" avgMicrosecondsPerInvocation="128" maxMicrosecondsPerInvocation="32158" standardDeviationMicrosecondsPerInvocation="1148"/>
-      <ClassProfile name="edu.umd.cs.findbugs.util.TopologicalSort" totalMilliseconds="100" invocations="4054" avgMicrosecondsPerInvocation="24" maxMicrosecondsPerInvocation="5764" standardDeviationMicrosecondsPerInvocation="102"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindHEmismatch" totalMilliseconds="95" invocations="810" avgMicrosecondsPerInvocation="118" maxMicrosecondsPerInvocation="2242" standardDeviationMicrosecondsPerInvocation="212"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindPublicAttributes" totalMilliseconds="95" invocations="810" avgMicrosecondsPerInvocation="117" maxMicrosecondsPerInvocation="3523" standardDeviationMicrosecondsPerInvocation="250"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.CheckRelaxingNullnessAnnotation" totalMilliseconds="94" invocations="810" avgMicrosecondsPerInvocation="116" maxMicrosecondsPerInvocation="11769" standardDeviationMicrosecondsPerInvocation="443"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.SerializableIdiom" totalMilliseconds="93" invocations="810" avgMicrosecondsPerInvocation="114" maxMicrosecondsPerInvocation="5506" standardDeviationMicrosecondsPerInvocation="365"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueRangeAnalysisFactory" totalMilliseconds="89" invocations="5249" avgMicrosecondsPerInvocation="17" maxMicrosecondsPerInvocation="9447" standardDeviationMicrosecondsPerInvocation="192"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindOverridableMethodCall" totalMilliseconds="89" invocations="810" avgMicrosecondsPerInvocation="110" maxMicrosecondsPerInvocation="8491" standardDeviationMicrosecondsPerInvocation="355"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine" totalMilliseconds="1137" invocations="4172" avgMicrosecondsPerInvocation="272" maxMicrosecondsPerInvocation="79442" standardDeviationMicrosecondsPerInvocation="2583"/>
+      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.NullDerefAndRedundantComparisonFinder" totalMilliseconds="826" invocations="4815" avgMicrosecondsPerInvocation="171" maxMicrosecondsPerInvocation="17599" standardDeviationMicrosecondsPerInvocation="560"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="806" invocations="4162" avgMicrosecondsPerInvocation="193" maxMicrosecondsPerInvocation="22671" standardDeviationMicrosecondsPerInvocation="652"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.IsNullValueDataflowFactory" totalMilliseconds="788" invocations="4999" avgMicrosecondsPerInvocation="157" maxMicrosecondsPerInvocation="26299" standardDeviationMicrosecondsPerInvocation="613"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueNumberDataflowFactory" totalMilliseconds="780" invocations="5225" avgMicrosecondsPerInvocation="149" maxMicrosecondsPerInvocation="54289" standardDeviationMicrosecondsPerInvocation="904"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNoSideEffectMethods" totalMilliseconds="778" invocations="1652" avgMicrosecondsPerInvocation="471" maxMicrosecondsPerInvocation="17567" standardDeviationMicrosecondsPerInvocation="1129"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="718" invocations="1652" avgMicrosecondsPerInvocation="435" maxMicrosecondsPerInvocation="16561" standardDeviationMicrosecondsPerInvocation="1096"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.TypeDataflowFactory" totalMilliseconds="697" invocations="5144" avgMicrosecondsPerInvocation="135" maxMicrosecondsPerInvocation="20816" standardDeviationMicrosecondsPerInvocation="454"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.UnconditionalValueDerefDataflowFactory" totalMilliseconds="683" invocations="4975" avgMicrosecondsPerInvocation="137" maxMicrosecondsPerInvocation="20992" standardDeviationMicrosecondsPerInvocation="585"/>
+      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="526" invocations="6953" avgMicrosecondsPerInvocation="75" maxMicrosecondsPerInvocation="4900" standardDeviationMicrosecondsPerInvocation="209"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison$SpecialTypeAnalysis" totalMilliseconds="460" invocations="3857" avgMicrosecondsPerInvocation="119" maxMicrosecondsPerInvocation="9451" standardDeviationMicrosecondsPerInvocation="347"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.CFGFactory" totalMilliseconds="448" invocations="5250" avgMicrosecondsPerInvocation="85" maxMicrosecondsPerInvocation="7164" standardDeviationMicrosecondsPerInvocation="207"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindReturnRef" totalMilliseconds="298" invocations="810" avgMicrosecondsPerInvocation="368" maxMicrosecondsPerInvocation="25488" standardDeviationMicrosecondsPerInvocation="1214"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ConstructorThrow" totalMilliseconds="266" invocations="810" avgMicrosecondsPerInvocation="329" maxMicrosecondsPerInvocation="12702" standardDeviationMicrosecondsPerInvocation="763"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine" totalMilliseconds="237" invocations="1990" avgMicrosecondsPerInvocation="119" maxMicrosecondsPerInvocation="19208" standardDeviationMicrosecondsPerInvocation="640"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers" totalMilliseconds="220" invocations="1652" avgMicrosecondsPerInvocation="133" maxMicrosecondsPerInvocation="3866" standardDeviationMicrosecondsPerInvocation="295"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ResourceInMultipleThreadsDetector" totalMilliseconds="198" invocations="810" avgMicrosecondsPerInvocation="245" maxMicrosecondsPerInvocation="8574" standardDeviationMicrosecondsPerInvocation="586"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ConstantDataflowFactory" totalMilliseconds="193" invocations="4999" avgMicrosecondsPerInvocation="38" maxMicrosecondsPerInvocation="8374" standardDeviationMicrosecondsPerInvocation="195"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.MethodGenFactory" totalMilliseconds="176" invocations="5250" avgMicrosecondsPerInvocation="33" maxMicrosecondsPerInvocation="12834" standardDeviationMicrosecondsPerInvocation="261"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildObligationPolicyDatabase" totalMilliseconds="172" invocations="1652" avgMicrosecondsPerInvocation="104" maxMicrosecondsPerInvocation="16314" standardDeviationMicrosecondsPerInvocation="436"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.SharedVariableAtomicityDetector" totalMilliseconds="166" invocations="810" avgMicrosecondsPerInvocation="206" maxMicrosecondsPerInvocation="60373" standardDeviationMicrosecondsPerInvocation="2333"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.UnreadFields" totalMilliseconds="166" invocations="810" avgMicrosecondsPerInvocation="206" maxMicrosecondsPerInvocation="4543" standardDeviationMicrosecondsPerInvocation="364"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUncalledPrivateMethods" totalMilliseconds="163" invocations="810" avgMicrosecondsPerInvocation="202" maxMicrosecondsPerInvocation="3602" standardDeviationMicrosecondsPerInvocation="265"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.CalledMethods" totalMilliseconds="158" invocations="1652" avgMicrosecondsPerInvocation="95" maxMicrosecondsPerInvocation="2982" standardDeviationMicrosecondsPerInvocation="211"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.LoadOfKnownNullValue" totalMilliseconds="157" invocations="810" avgMicrosecondsPerInvocation="194" maxMicrosecondsPerInvocation="10051" standardDeviationMicrosecondsPerInvocation="576"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" totalMilliseconds="149" invocations="1652" avgMicrosecondsPerInvocation="90" maxMicrosecondsPerInvocation="14718" standardDeviationMicrosecondsPerInvocation="416"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindInconsistentSync2" totalMilliseconds="149" invocations="810" avgMicrosecondsPerInvocation="184" maxMicrosecondsPerInvocation="7823" standardDeviationMicrosecondsPerInvocation="453"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical" totalMilliseconds="134" invocations="1652" avgMicrosecondsPerInvocation="81" maxMicrosecondsPerInvocation="8124" standardDeviationMicrosecondsPerInvocation="250"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNullDeref$CheckCallSitesAndReturnInstructions" totalMilliseconds="134" invocations="4815" avgMicrosecondsPerInvocation="27" maxMicrosecondsPerInvocation="17554" standardDeviationMicrosecondsPerInvocation="307"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.DumbMethods" totalMilliseconds="125" invocations="810" avgMicrosecondsPerInvocation="154" maxMicrosecondsPerInvocation="4321" standardDeviationMicrosecondsPerInvocation="302"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis" totalMilliseconds="121" invocations="1652" avgMicrosecondsPerInvocation="73" maxMicrosecondsPerInvocation="25671" standardDeviationMicrosecondsPerInvocation="645"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindDeadLocalStores" totalMilliseconds="117" invocations="810" avgMicrosecondsPerInvocation="145" maxMicrosecondsPerInvocation="5862" standardDeviationMicrosecondsPerInvocation="371"/>
+      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.TypeQualifierNullnessAnnotationDatabase" totalMilliseconds="114" invocations="123857" avgMicrosecondsPerInvocation="0" maxMicrosecondsPerInvocation="2980" standardDeviationMicrosecondsPerInvocation="10"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildStringPassthruGraph" totalMilliseconds="111" invocations="1652" avgMicrosecondsPerInvocation="67" maxMicrosecondsPerInvocation="2783" standardDeviationMicrosecondsPerInvocation="190"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindHEmismatch" totalMilliseconds="110" invocations="810" avgMicrosecondsPerInvocation="136" maxMicrosecondsPerInvocation="7470" standardDeviationMicrosecondsPerInvocation="367"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison" totalMilliseconds="109" invocations="810" avgMicrosecondsPerInvocation="135" maxMicrosecondsPerInvocation="3156" standardDeviationMicrosecondsPerInvocation="271"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.SerializableIdiom" totalMilliseconds="107" invocations="810" avgMicrosecondsPerInvocation="132" maxMicrosecondsPerInvocation="7713" standardDeviationMicrosecondsPerInvocation="444"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ReflectiveClasses" totalMilliseconds="107" invocations="1652" avgMicrosecondsPerInvocation="64" maxMicrosecondsPerInvocation="2227" standardDeviationMicrosecondsPerInvocation="156"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.LiveLocalStoreDataflowFactory" totalMilliseconds="106" invocations="4743" avgMicrosecondsPerInvocation="22" maxMicrosecondsPerInvocation="4587" standardDeviationMicrosecondsPerInvocation="110"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.MethodReturnCheck" totalMilliseconds="101" invocations="810" avgMicrosecondsPerInvocation="125" maxMicrosecondsPerInvocation="3206" standardDeviationMicrosecondsPerInvocation="267"/>
+      <ClassProfile name="edu.umd.cs.findbugs.util.TopologicalSort" totalMilliseconds="99" invocations="4054" avgMicrosecondsPerInvocation="24" maxMicrosecondsPerInvocation="4194" standardDeviationMicrosecondsPerInvocation="84"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueRangeAnalysisFactory" totalMilliseconds="99" invocations="5250" avgMicrosecondsPerInvocation="18" maxMicrosecondsPerInvocation="16756" standardDeviationMicrosecondsPerInvocation="262"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindPublicAttributes" totalMilliseconds="98" invocations="810" avgMicrosecondsPerInvocation="121" maxMicrosecondsPerInvocation="3753" standardDeviationMicrosecondsPerInvocation="278"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUselessObjects" totalMilliseconds="93" invocations="810" avgMicrosecondsPerInvocation="115" maxMicrosecondsPerInvocation="11795" standardDeviationMicrosecondsPerInvocation="555"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindBadCast2" totalMilliseconds="93" invocations="810" avgMicrosecondsPerInvocation="115" maxMicrosecondsPerInvocation="11334" standardDeviationMicrosecondsPerInvocation="483"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.MultipleInstantiationsOfSingletons" totalMilliseconds="93" invocations="810" avgMicrosecondsPerInvocation="114" maxMicrosecondsPerInvocation="3290" standardDeviationMicrosecondsPerInvocation="227"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindOverridableMethodCall" totalMilliseconds="92" invocations="810" avgMicrosecondsPerInvocation="113" maxMicrosecondsPerInvocation="8163" standardDeviationMicrosecondsPerInvocation="356"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.CheckRelaxingNullnessAnnotation" totalMilliseconds="92" invocations="810" avgMicrosecondsPerInvocation="113" maxMicrosecondsPerInvocation="5210" standardDeviationMicrosecondsPerInvocation="279"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindSelfComparison" totalMilliseconds="87" invocations="810" avgMicrosecondsPerInvocation="107" maxMicrosecondsPerInvocation="3956" standardDeviationMicrosecondsPerInvocation="289"/>
     </FindBugsProfile>
   </FindBugsSummary>
   <ClassFeatures></ClassFeatures>
