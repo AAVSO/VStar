@@ -219,7 +219,12 @@
 			</executiondata>
 			<structure name="VStar Plugins">
 				<classfiles>
-					<fileset dir="${build.classes}" />
+					<!-- Exclude co-located pure test helpers from coverage
+					     counts. Do not blanket-exclude *Test*: example plugins
+					     such as CustomFilterTest are production code. -->
+					<fileset dir="${build.classes}">
+						<exclude name="**/DFTandSpectralWindowTest*.class" />
+					</fileset>
 				</classfiles>
 				<sourcefiles encoding="UTF-8">
 					<fileset dir="${src}" />
