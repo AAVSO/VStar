@@ -208,6 +208,10 @@ jobs:
       run: |
         DATE=$(date -u +%Y-%m-%d)
         mkdir -p _site/health/data _site/health/coverage/vstar
+        # Keep the dashboard shell in sync with master (includes PBT row).
+        if [ -f health/index.html ]; then
+          cp health/index.html _site/health/index.html
+        fi
         # Issue #579: line_coverage / branch_coverage are now the non-GUI
         # headline figures (a class is GUI when its source imports
         # javax.swing or java.awt). gui_* and combined_* are published
