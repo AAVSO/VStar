@@ -498,6 +498,12 @@
 			<arg value="${coverage_report}/area-summary.txt" />
 		</exec>
 
+		<!-- PBT subset count (same definition as CI / health dashboard). -->
+		<exec executable="python3" failonerror="false" outputproperty="pbt.count">
+			<arg value="${basedir}/script/count_pbts.py" />
+		</exec>
+		<echo message="PBTs (subset of UTs): ${pbt.count}" />
+
 		<!-- Generate summary and fail on test errors/failures -->
 		<concat destfile="${test_report}/summary.txt">
 			<header filtering="no" trimleading="yes">

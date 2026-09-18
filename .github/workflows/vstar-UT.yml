@@ -74,6 +74,9 @@ jobs:
         echo "failures=$FAILURES" >> "$GITHUB_OUTPUT"
         echo "errors=$ERRORS" >> "$GITHUB_OUTPUT"
 
+        # PBT subset of UTs: *PBTTest methods plus qt().forAll in mixed suites.
+        python3 script/count_pbts.py --github-output "$GITHUB_OUTPUT"
+
         # Issue #579: split coverage into GUI vs non-GUI so the headline
         # number reflects code we actually unit-test, while keeping the
         # GUI deficit visible alongside it.
@@ -106,6 +109,7 @@ jobs:
         | Metric | Value |
         |--------|-------|
         | Tests | ${{ steps.metrics.outputs.tests }} |
+        | PBTs (subset) | ${{ steps.metrics.outputs.pbts }} |
         | Passed | ${{ steps.metrics.outputs.passed }} |
         | Failures | ${{ steps.metrics.outputs.failures }} |
         | Errors | ${{ steps.metrics.outputs.errors }} |
@@ -133,6 +137,7 @@ jobs:
           const outcome = '${{ steps.tests.outcome }}';
           const status = outcome === 'success' ? 'All tests passed' : 'Tests failed';
           const tests = '${{ steps.metrics.outputs.tests }}';
+          const pbts = '${{ steps.metrics.outputs.pbts }}';
           const passed = '${{ steps.metrics.outputs.passed }}';
           const failures = '${{ steps.metrics.outputs.failures }}';
           const errors = '${{ steps.metrics.outputs.errors }}';
@@ -145,6 +150,7 @@ jobs:
             '| Metric | Value |',
             '|--------|-------|',
             `| Tests | ${tests} |`,
+            `| PBTs (subset) | ${pbts} |`,
             `| Passed | ${passed} |`,
             `| Failures | ${failures} |`,
             `| Errors | ${errors} |`,
@@ -211,6 +217,7 @@ jobs:
           "updated": "${DATE}",
           "java_version": "17",
           "tests": ${{ steps.metrics.outputs.tests }},
+          "pbts": ${{ steps.metrics.outputs.pbts }},
           "passed": ${{ steps.metrics.outputs.passed }},
           "failures": ${{ steps.metrics.outputs.failures }},
           "errors": ${{ steps.metrics.outputs.errors }},
