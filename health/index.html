@@ -540,8 +540,11 @@ function coverageMatrix(d) {
 
 function renderCoverage(d) {
   const pass = d.failures === 0 && d.errors === 0;
+  // pbts is a subset of tests (property-based UTs). Older JSON and
+  // plugin-coverage.json may omit it; show an em dash in that case.
   let html =
     row('Tests', d.tests) +
+    row('PBTs', d.pbts !== undefined && d.pbts !== null ? d.pbts : '&mdash;') +
     row('Passed', d.passed, pass ? 'status-ok' : 'status-err') +
     row('Failures', d.failures, d.failures > 0 ? 'status-err' : '') +
     row('Errors', d.errors, d.errors > 0 ? 'status-err' : '');
