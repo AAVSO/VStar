@@ -13,15 +13,16 @@ Status: **in progress** (Waves 1–3 algorithmic rows done on `562-coverage-impr
 ### Core (done)
 
 - `script/count_pbts.py`: `*PBTTest` methods + `qt().forAll` in mixed suites (default root `test/org`).
-- CI (`vstar-UT.yml`) → `coverage.json` field `pbts`; `health/index.html` row **PBTs**.
+- CI (`vstar-UT.yml`) → `coverage.json` field `pbts`.
+- Health card: **Tests** (total) with indented split **Unit tests** (= tests − pbts) and **Property-based (PBTs)**.
 - Live site updates only on **master** Java-17 publish.
 
 ### Plugins (done)
 
 - `count_pbts.py --test-root plugin/test` (repeatable `--test-root` supported).
 - `plugin-UT.yml` publishes `pbts` in step summary, PR comment, and `plugin-coverage.json`.
-- Core and plugin PBT counts stay **separate** (two dashboard cards).
-- Live plugin card shows **0** until `plugin/test` gains `*PBTTest` / `qt().forAll` methods (or after master publish of this wiring, which replaces the em dash with `0`).
+- Same Tests / Unit tests / PBTs split on the plugin card (counts stay separate from core).
+- Plugin PBTs stay **0** until `plugin/test` gains `*PBTTest` / `qt().forAll` methods.
 
 ## Deprecated types & JaCoCo (done / ongoing)
 
