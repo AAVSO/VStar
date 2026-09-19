@@ -83,16 +83,16 @@ import java.util.prefs.Preferences;
 	 * Clears stored locale-dependent formats (i.e. after locale change)
 	 */
 	public static void clearHashMaps() {
-<span class="nc" id="L86">		timeOutputFormats.clear();</span>
-<span class="nc" id="L87">		magOutputFormats.clear();</span>
-<span class="nc" id="L88">		otherOutputFormats.clear();</span>
-<span class="nc" id="L89">	}</span>
+<span class="fc" id="L86">		timeOutputFormats.clear();</span>
+<span class="fc" id="L87">		magOutputFormats.clear();</span>
+<span class="fc" id="L88">		otherOutputFormats.clear();</span>
+<span class="fc" id="L89">	}</span>
 	
 	/**
 	 * @return the timeDecimalPlaces
 	 */
 	public static int getTimeDecimalPlaces() {
-<span class="nc" id="L95">		return timeDecimalPlaces;</span>
+<span class="fc" id="L95">		return timeDecimalPlaces;</span>
 	}
 
 	/**
@@ -100,14 +100,14 @@ import java.util.prefs.Preferences;
 	 *            the timeDecimalPlaces to set
 	 */
 	public static void setTimeDecimalPlaces(int timeDecimalPlaces) {
-<span class="nc" id="L103">		NumericPrecisionPrefs.timeDecimalPlaces = timeDecimalPlaces;</span>
-<span class="nc" id="L104">	}</span>
+<span class="fc" id="L103">		NumericPrecisionPrefs.timeDecimalPlaces = timeDecimalPlaces;</span>
+<span class="fc" id="L104">	}</span>
 
 	/**
 	 * @return the magDecimalPlaces
 	 */
 	public static int getMagDecimalPlaces() {
-<span class="nc" id="L110">		return magDecimalPlaces;</span>
+<span class="fc" id="L110">		return magDecimalPlaces;</span>
 	}
 
 	/**
@@ -115,14 +115,14 @@ import java.util.prefs.Preferences;
 	 *            the magDecimalPlaces to set
 	 */
 	public static void setMagDecimalPlaces(int magDecimalPlaces) {
-<span class="nc" id="L118">		NumericPrecisionPrefs.magDecimalPlaces = magDecimalPlaces;</span>
-<span class="nc" id="L119">	}</span>
+<span class="fc" id="L118">		NumericPrecisionPrefs.magDecimalPlaces = magDecimalPlaces;</span>
+<span class="fc" id="L119">	}</span>
 
 	/**
 	 * @return the otherDecimalPlaces
 	 */
 	public static int getOtherDecimalPlaces() {
-<span class="nc" id="L125">		return otherDecimalPlaces;</span>
+<span class="fc" id="L125">		return otherDecimalPlaces;</span>
 	}
 
 	/**
@@ -130,8 +130,8 @@ import java.util.prefs.Preferences;
 	 *            the otherDecimalPlaces to set
 	 */
 	public static void setOtherDecimalPlaces(int otherDecimalPlaces) {
-<span class="nc" id="L133">		NumericPrecisionPrefs.otherDecimalPlaces = otherDecimalPlaces;</span>
-<span class="nc" id="L134">	}</span>
+<span class="fc" id="L133">		NumericPrecisionPrefs.otherDecimalPlaces = otherDecimalPlaces;</span>
+<span class="fc" id="L134">	}</span>
 
 	// Time (JD, phase)
 
@@ -144,11 +144,11 @@ import java.util.prefs.Preferences;
 	}
 	
 	public static String formatTimeLocaleIndependent(double num) {
-<span class="nc" id="L147">		return getTimeOutputFormatLocaleIndependent().format(num);</span>
+<span class="fc" id="L147">		return getTimeOutputFormatLocaleIndependent().format(num);</span>
 	}
 	
 	public static DecimalFormat getTimeOutputFormatLocaleIndependent() {
-<span class="nc" id="L151">		return getOutputFormatLocaleIndependent(timeDecimalPlaces, Type.TIME);</span>
+<span class="fc" id="L151">		return getOutputFormatLocaleIndependent(timeDecimalPlaces, Type.TIME);</span>
 	}
 
 	public static String getTimeInputFormat() {
@@ -166,11 +166,11 @@ import java.util.prefs.Preferences;
 	}
 	
 	public static String formatMagLocaleIndependent(double num) {
-<span class="nc" id="L169">		return getMagOutputFormatLocaleIndependent().format(num);</span>
+<span class="fc" id="L169">		return getMagOutputFormatLocaleIndependent().format(num);</span>
 	}
 	
 	public static DecimalFormat getMagOutputFormatLocaleIndependent() {
-<span class="nc" id="L173">		return getOutputFormatLocaleIndependent(magDecimalPlaces, Type.MAG);</span>
+<span class="fc" id="L173">		return getOutputFormatLocaleIndependent(magDecimalPlaces, Type.MAG);</span>
 	}
 
 	public static String getMagInputFormat() {
@@ -196,7 +196,7 @@ import java.util.prefs.Preferences;
 	}
 	
 	public static String getOtherInputFormat() {
-<span class="nc" id="L199">		return getInputFormatString(otherDecimalPlaces, Type.OTHER);</span>
+<span class="fc" id="L199">		return getInputFormatString(otherDecimalPlaces, Type.OTHER);</span>
 	}
 
 	// PMAK (2021-03-25): 
@@ -221,7 +221,7 @@ import java.util.prefs.Preferences;
 	}
 
 	public static String formatCoefLocaleIndependent(double num) {
-<span class="nc" id="L224">		return formatScientificLocaleIndependent(num);</span>
+<span class="fc" id="L224">		return formatScientificLocaleIndependent(num);</span>
 	}
 	
 	// Scientific format
@@ -233,7 +233,7 @@ import java.util.prefs.Preferences;
 	
 	private static String formatScientificLocaleIndependent(double num) {
 		// .replace(&quot;E+&quot;, &quot;E&quot;): VeLa issue workaround
-<span class="nc" id="L236">		return String.format(Locale.ENGLISH, &quot;%.&quot; + otherDecimalPlaces + &quot;E&quot;, num).replace(&quot;E+&quot;, &quot;E&quot;);</span>
+<span class="fc" id="L236">		return String.format(Locale.ENGLISH, &quot;%.&quot; + otherDecimalPlaces + &quot;E&quot;, num).replace(&quot;E+&quot;, &quot;E&quot;);</span>
 	}
 
 	// Helpers
@@ -265,13 +265,13 @@ import java.util.prefs.Preferences;
 	private static DecimalFormat getOutputFormatLocaleIndependent(int decimalPlaces, Type type) {
 <span class="fc" id="L266">		Map&lt;Integer, DecimalFormat&gt; formats = null;</span>
 
-<span class="pc bpc" id="L268" title="3 of 4 branches missed.">		switch (type) {</span>
+<span class="pc bpc" id="L268" title="1 of 4 branches missed.">		switch (type) {</span>
 		case MAG:
-<span class="nc" id="L270">			formats = magOutputFormatsLocaleIndependent;</span>
-<span class="nc" id="L271">			break;</span>
+<span class="fc" id="L270">			formats = magOutputFormatsLocaleIndependent;</span>
+<span class="fc" id="L271">			break;</span>
 		case TIME:
-<span class="nc" id="L273">			formats = timeOutputFormatsLocaleIndependent;</span>
-<span class="nc" id="L274">			break;</span>
+<span class="fc" id="L273">			formats = timeOutputFormatsLocaleIndependent;</span>
+<span class="fc" id="L274">			break;</span>
 		case OTHER:
 <span class="fc" id="L276">			formats = otherOutputFormatsLocaleIndependent;</span>
 			break;
@@ -288,9 +288,9 @@ import java.util.prefs.Preferences;
 	// denotes a variable number of hashes. This can be used with input text
 	// boxes where a numeric input is required.
 	private static String getInputFormatString(int decimalPlaces, Type type) {
-<span class="nc" id="L291">		Map&lt;Integer, String&gt; formats = null;</span>
+<span class="fc" id="L291">		Map&lt;Integer, String&gt; formats = null;</span>
 
-<span class="nc bnc" id="L293" title="All 4 branches missed.">		switch (type) {</span>
+<span class="pc bpc" id="L293" title="3 of 4 branches missed.">		switch (type) {</span>
 		case MAG:
 <span class="nc" id="L295">			formats = magInputFormats;</span>
 <span class="nc" id="L296">			break;</span>
@@ -298,15 +298,15 @@ import java.util.prefs.Preferences;
 <span class="nc" id="L298">			formats = timeInputFormats;</span>
 <span class="nc" id="L299">			break;</span>
 		case OTHER:
-<span class="nc" id="L301">			formats = otherInputFormats;</span>
+<span class="fc" id="L301">			formats = otherInputFormats;</span>
 			break;
 		}
 
-<span class="nc bnc" id="L305" title="All 2 branches missed.">		if (!formats.containsKey(decimalPlaces)) {</span>
-<span class="nc" id="L306">			formats.put(decimalPlaces, getFormatString(decimalPlaces));</span>
+<span class="pc bpc" id="L305" title="1 of 2 branches missed.">		if (!formats.containsKey(decimalPlaces)) {</span>
+<span class="fc" id="L306">			formats.put(decimalPlaces, getFormatString(decimalPlaces));</span>
 		}
 
-<span class="nc" id="L309">		return formats.get(decimalPlaces);</span>
+<span class="fc" id="L309">		return formats.get(decimalPlaces);</span>
 	}
 
 	private static DecimalFormat getOutputFormat(int decimalPlaces) {
@@ -364,22 +364,22 @@ import java.util.prefs.Preferences;
 
 	public static void storeDecimalPlacesPrefs() {
 		try {
-<span class="nc" id="L367">			prefs.putInt(PREFS_PREFIX + &quot;time_decimal_places&quot;,</span>
+<span class="fc" id="L367">			prefs.putInt(PREFS_PREFIX + &quot;time_decimal_places&quot;,</span>
 					timeDecimalPlaces);
-<span class="nc" id="L369">			prefs.putInt(PREFS_PREFIX + &quot;mag_decimal_places&quot;, magDecimalPlaces);</span>
-<span class="nc" id="L370">			prefs.putInt(PREFS_PREFIX + &quot;other_decimal_places&quot;,</span>
+<span class="fc" id="L369">			prefs.putInt(PREFS_PREFIX + &quot;mag_decimal_places&quot;, magDecimalPlaces);</span>
+<span class="fc" id="L370">			prefs.putInt(PREFS_PREFIX + &quot;other_decimal_places&quot;,</span>
 					otherDecimalPlaces);
-<span class="nc" id="L372">			prefs.flush();</span>
+<span class="fc" id="L372">			prefs.flush();</span>
 <span class="nc" id="L373">		} catch (Throwable t) {</span>
 			// We need VStar to function in the absence of prefs.
-<span class="nc" id="L375">		}</span>
-<span class="nc" id="L376">	}</span>
+<span class="fc" id="L375">		}</span>
+<span class="fc" id="L376">	}</span>
 
 	public static void setDefaultDecimalPlacePrefs() {
-<span class="nc" id="L379">		timeDecimalPlaces = DEFAULT_TIME_DECIMAL_PLACES;</span>
-<span class="nc" id="L380">		magDecimalPlaces = DEFAULT_MAG_DECIMAL_PLACES;</span>
-<span class="nc" id="L381">		otherDecimalPlaces = DEFAULT_OTHER_DECIMAL_PLACES;</span>
-<span class="nc" id="L382">		storeDecimalPlacesPrefs();</span>
-<span class="nc" id="L383">	}</span>
+<span class="fc" id="L379">		timeDecimalPlaces = DEFAULT_TIME_DECIMAL_PLACES;</span>
+<span class="fc" id="L380">		magDecimalPlaces = DEFAULT_MAG_DECIMAL_PLACES;</span>
+<span class="fc" id="L381">		otherDecimalPlaces = DEFAULT_OTHER_DECIMAL_PLACES;</span>
+<span class="fc" id="L382">		storeDecimalPlacesPrefs();</span>
+<span class="fc" id="L383">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

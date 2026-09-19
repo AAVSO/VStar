@@ -551,8 +551,8 @@ public class ValidObservation extends Observation {
 	 */
 	public void setMag(double mag) {
 //		setMagnitude(new Magnitude(mag, magnitude.getUncertainty()));
-<span class="nc" id="L554">		this.magnitude.setMagValue(mag);</span>
-<span class="nc" id="L555">	}</span>
+<span class="fc" id="L554">		this.magnitude.setMagValue(mag);</span>
+<span class="fc" id="L555">	}</span>
 
 	/**
 	 * @return the obsCode
@@ -1401,59 +1401,59 @@ public class ValidObservation extends Observation {
 <span class="pc bpc" id="L1401" title="1 of 2 branches missed.">		if (dateInfo == null) {</span>
 <span class="nc bnc" id="L1402" title="All 2 branches missed.">			if (other.dateInfo != null)</span>
 <span class="nc" id="L1403">				return false;</span>
-<span class="pc bpc" id="L1404" title="1 of 2 branches missed.">		} else if (!dateInfo.equals(other.dateInfo))</span>
+<span class="fc bfc" id="L1404" title="All 2 branches covered.">		} else if (!dateInfo.equals(other.dateInfo))</span>
 <span class="fc" id="L1405">			return false;</span>
-<span class="nc bnc" id="L1406" title="All 2 branches missed.">		if (details == null) {</span>
+<span class="pc bpc" id="L1406" title="1 of 2 branches missed.">		if (details == null) {</span>
 <span class="nc bnc" id="L1407" title="All 2 branches missed.">			if (other.details != null)</span>
 <span class="nc" id="L1408">				return false;</span>
-<span class="nc bnc" id="L1409" title="All 2 branches missed.">		} else if (!details.equals(other.details))</span>
+<span class="pc bpc" id="L1409" title="1 of 2 branches missed.">		} else if (!details.equals(other.details))</span>
 <span class="nc" id="L1410">			return false;</span>
-<span class="nc bnc" id="L1411" title="All 2 branches missed.">		if (excluded != other.excluded)</span>
+<span class="pc bpc" id="L1411" title="1 of 2 branches missed.">		if (excluded != other.excluded)</span>
 <span class="nc" id="L1412">			return false;</span>
-<span class="nc bnc" id="L1413" title="All 2 branches missed.">		if (hJD == null) {</span>
-<span class="nc bnc" id="L1414" title="All 2 branches missed.">			if (other.hJD != null)</span>
+<span class="pc bpc" id="L1413" title="1 of 2 branches missed.">		if (hJD == null) {</span>
+<span class="pc bpc" id="L1414" title="1 of 2 branches missed.">			if (other.hJD != null)</span>
 <span class="nc" id="L1415">				return false;</span>
 <span class="nc bnc" id="L1416" title="All 2 branches missed.">		} else if (!hJD.equals(other.hJD))</span>
 <span class="nc" id="L1417">			return false;</span>
-<span class="nc bnc" id="L1418" title="All 2 branches missed.">		if (hqUncertainty == null) {</span>
-<span class="nc bnc" id="L1419" title="All 2 branches missed.">			if (other.hqUncertainty != null)</span>
+<span class="pc bpc" id="L1418" title="1 of 2 branches missed.">		if (hqUncertainty == null) {</span>
+<span class="pc bpc" id="L1419" title="1 of 2 branches missed.">			if (other.hqUncertainty != null)</span>
 <span class="nc" id="L1420">				return false;</span>
 <span class="nc bnc" id="L1421" title="All 2 branches missed.">		} else if (!hqUncertainty.equals(other.hqUncertainty))</span>
 <span class="nc" id="L1422">			return false;</span>
-<span class="nc bnc" id="L1423" title="All 2 branches missed.">		if (jdFlavour != other.jdFlavour)</span>
+<span class="pc bpc" id="L1423" title="1 of 2 branches missed.">		if (jdFlavour != other.jdFlavour)</span>
 <span class="nc" id="L1424">			return false;</span>
-<span class="nc bnc" id="L1425" title="All 2 branches missed.">		if (mType != other.mType)</span>
+<span class="pc bpc" id="L1425" title="1 of 2 branches missed.">		if (mType != other.mType)</span>
 <span class="nc" id="L1426">			return false;</span>
-<span class="nc bnc" id="L1427" title="All 2 branches missed.">		if (magnitude == null) {</span>
+<span class="pc bpc" id="L1427" title="1 of 2 branches missed.">		if (magnitude == null) {</span>
 <span class="nc bnc" id="L1428" title="All 2 branches missed.">			if (other.magnitude != null)</span>
 <span class="nc" id="L1429">				return false;</span>
-<span class="nc bnc" id="L1430" title="All 2 branches missed.">		} else if (!magnitude.equals(other.magnitude))</span>
-<span class="nc" id="L1431">			return false;</span>
-<span class="nc bnc" id="L1432" title="All 2 branches missed.">		if (obsType == null) {</span>
+<span class="fc bfc" id="L1430" title="All 2 branches covered.">		} else if (!magnitude.equals(other.magnitude))</span>
+<span class="fc" id="L1431">			return false;</span>
+<span class="pc bpc" id="L1432" title="1 of 2 branches missed.">		if (obsType == null) {</span>
 <span class="nc bnc" id="L1433" title="All 2 branches missed.">			if (other.obsType != null)</span>
 <span class="nc" id="L1434">				return false;</span>
-<span class="nc bnc" id="L1435" title="All 2 branches missed.">		} else if (!obsType.equals(other.obsType))</span>
+<span class="pc bpc" id="L1435" title="1 of 2 branches missed.">		} else if (!obsType.equals(other.obsType))</span>
 <span class="nc" id="L1436">			return false;</span>
-<span class="nc bnc" id="L1437" title="All 2 branches missed.">		if (previousCyclePhase == null) {</span>
-<span class="nc bnc" id="L1438" title="All 2 branches missed.">			if (other.previousCyclePhase != null)</span>
+<span class="pc bpc" id="L1437" title="1 of 2 branches missed.">		if (previousCyclePhase == null) {</span>
+<span class="pc bpc" id="L1438" title="1 of 2 branches missed.">			if (other.previousCyclePhase != null)</span>
 <span class="nc" id="L1439">				return false;</span>
 <span class="nc bnc" id="L1440" title="All 2 branches missed.">		} else if (!previousCyclePhase.equals(other.previousCyclePhase))</span>
 <span class="nc" id="L1441">			return false;</span>
-<span class="nc bnc" id="L1442" title="All 2 branches missed.">		if (series == null) {</span>
+<span class="pc bpc" id="L1442" title="1 of 2 branches missed.">		if (series == null) {</span>
 <span class="nc bnc" id="L1443" title="All 2 branches missed.">			if (other.series != null)</span>
 <span class="nc" id="L1444">				return false;</span>
-<span class="nc bnc" id="L1445" title="All 2 branches missed.">		} else if (!series.equals(other.series))</span>
+<span class="pc bpc" id="L1445" title="1 of 2 branches missed.">		} else if (!series.equals(other.series))</span>
 <span class="nc" id="L1446">			return false;</span>
-<span class="nc bnc" id="L1447" title="All 2 branches missed.">		if (standardPhase == null) {</span>
-<span class="nc bnc" id="L1448" title="All 2 branches missed.">			if (other.standardPhase != null)</span>
+<span class="pc bpc" id="L1447" title="1 of 2 branches missed.">		if (standardPhase == null) {</span>
+<span class="pc bpc" id="L1448" title="1 of 2 branches missed.">			if (other.standardPhase != null)</span>
 <span class="nc" id="L1449">				return false;</span>
 <span class="nc bnc" id="L1450" title="All 2 branches missed.">		} else if (!standardPhase.equals(other.standardPhase))</span>
 <span class="nc" id="L1451">			return false;</span>
-<span class="nc bnc" id="L1452" title="All 2 branches missed.">		if (transformed != other.transformed)</span>
+<span class="pc bpc" id="L1452" title="1 of 2 branches missed.">		if (transformed != other.transformed)</span>
 <span class="nc" id="L1453">			return false;</span>
-<span class="nc bnc" id="L1454" title="All 2 branches missed.">		if (validationType != other.validationType)</span>
+<span class="pc bpc" id="L1454" title="1 of 2 branches missed.">		if (validationType != other.validationType)</span>
 <span class="nc" id="L1455">			return false;</span>
-<span class="nc" id="L1456">		return true;</span>
+<span class="fc" id="L1456">		return true;</span>
 	}
 
 	// Convenience methods.

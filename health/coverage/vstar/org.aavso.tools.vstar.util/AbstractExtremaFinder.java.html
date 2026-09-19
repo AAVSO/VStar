@@ -39,20 +39,20 @@ abstract public class AbstractExtremaFinder implements IInteruptible {
 	public AbstractExtremaFinder(List&lt;ValidObservation&gt; obs,
 			UnivariateRealFunction function, ICoordSource timeCoordSource,
 			double zeroPoint) {
-<span class="nc" id="L42">		super();</span>
-<span class="nc" id="L43">		this.obs = obs;</span>
-<span class="nc" id="L44">		this.function = function;</span>
-<span class="nc" id="L45">		this.timeCoordSource = timeCoordSource;</span>
-<span class="nc" id="L46">		this.zeroPoint = zeroPoint;</span>
+<span class="fc" id="L42">		super();</span>
+<span class="fc" id="L43">		this.obs = obs;</span>
+<span class="fc" id="L44">		this.function = function;</span>
+<span class="fc" id="L45">		this.timeCoordSource = timeCoordSource;</span>
+<span class="fc" id="L46">		this.zeroPoint = zeroPoint;</span>
 
-<span class="nc" id="L48">		this.numericallyMinMagIndex = getNumericallyMinimumMagnitudeIndex();</span>
-<span class="nc" id="L49">		this.numericallyMaxMagIndex = getNumericallyMaximumMagnitudeIndex();</span>
+<span class="fc" id="L48">		this.numericallyMinMagIndex = getNumericallyMinimumMagnitudeIndex();</span>
+<span class="fc" id="L49">		this.numericallyMaxMagIndex = getNumericallyMaximumMagnitudeIndex();</span>
 
-<span class="nc" id="L51">		extremeMag = null;</span>
-<span class="nc" id="L52">		extremeTime = null;</span>
+<span class="fc" id="L51">		extremeMag = null;</span>
+<span class="fc" id="L52">		extremeTime = null;</span>
 
-<span class="nc" id="L54">		interrupt = false;</span>
-<span class="nc" id="L55">	}</span>
+<span class="fc" id="L54">		interrupt = false;</span>
+<span class="fc" id="L55">	}</span>
 
 	/**
 	 * Find the extremum according to the goal over a given time range.
@@ -72,11 +72,11 @@ abstract public class AbstractExtremaFinder implements IInteruptible {
 <span class="nc" id="L72">	}</span>
 
 	protected Double getExtremeMag() {
-<span class="nc" id="L75">		return extremeMag;</span>
+<span class="fc" id="L75">		return extremeMag;</span>
 	}
 
 	protected Double getExtremeTime() {
-<span class="nc" id="L79">		return extremeTime;</span>
+<span class="fc" id="L79">		return extremeTime;</span>
 	}
 
 	/**
@@ -141,27 +141,27 @@ abstract public class AbstractExtremaFinder implements IInteruptible {
 	}
 
 	protected int getNumericallyMinimumMagnitudeIndex() {
-<span class="nc" id="L144">		int minIndex = 0;</span>
+<span class="fc" id="L144">		int minIndex = 0;</span>
 
-<span class="nc bnc" id="L146" title="All 2 branches missed.">		for (int i = 0; i &lt; obs.size(); i++) {</span>
-<span class="nc bnc" id="L147" title="All 2 branches missed.">			if (obs.get(i).getMag() &lt; obs.get(minIndex).getMag()) {</span>
-<span class="nc" id="L148">				minIndex = i;</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">		for (int i = 0; i &lt; obs.size(); i++) {</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">			if (obs.get(i).getMag() &lt; obs.get(minIndex).getMag()) {</span>
+<span class="fc" id="L148">				minIndex = i;</span>
 			}
 		}
 
-<span class="nc" id="L152">		return minIndex;</span>
+<span class="fc" id="L152">		return minIndex;</span>
 	}
 
 	protected int getNumericallyMaximumMagnitudeIndex() {
-<span class="nc" id="L156">		int maxIndex = 0;</span>
+<span class="fc" id="L156">		int maxIndex = 0;</span>
 
-<span class="nc bnc" id="L158" title="All 2 branches missed.">		for (int i = 0; i &lt; obs.size(); i++) {</span>
-<span class="nc bnc" id="L159" title="All 2 branches missed.">			if (obs.get(i).getMag() &gt; obs.get(maxIndex).getMag()) {</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">		for (int i = 0; i &lt; obs.size(); i++) {</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">			if (obs.get(i).getMag() &gt; obs.get(maxIndex).getMag()) {</span>
 <span class="nc" id="L160">				maxIndex = i;</span>
 			}
 		}
 
-<span class="nc" id="L164">		return maxIndex;</span>
+<span class="fc" id="L164">		return maxIndex;</span>
 	}
 
 	/**

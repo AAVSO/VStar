@@ -29,7 +29,7 @@ public class PeriodAnalysisDataPointComparator implements
 	/**
 	 * Singleton instance.
 	 */
-<span class="nc" id="L32">	public static final PeriodAnalysisDataPointComparator instance = new PeriodAnalysisDataPointComparator();</span>
+<span class="fc" id="L32">	public static final PeriodAnalysisDataPointComparator instance = new PeriodAnalysisDataPointComparator();</span>
 
 	private PeriodAnalysisDataPointComparator() {
 
@@ -40,7 +40,7 @@ public class PeriodAnalysisDataPointComparator implements
 	 */
 	@Override
 	public int compare(PeriodAnalysisDataPoint a, PeriodAnalysisDataPoint b) {
-<span class="nc bnc" id="L43" title="All 2 branches missed.">		return a.equals(b) ? 0 : 1;</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">		return a.equals(b) ? 0 : 1;</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

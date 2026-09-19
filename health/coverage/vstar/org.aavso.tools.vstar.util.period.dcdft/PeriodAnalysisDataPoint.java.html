@@ -61,7 +61,7 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 
 
 	public PeriodAnalysisCoordinateType[] getCoordTypes() {
-<span class="nc" id="L64">		return coordTypes;</span>
+<span class="fc" id="L64">		return coordTypes;</span>
 	}
 
 	public Map&lt;PeriodAnalysisCoordinateType, Double&gt; getCoords() {
@@ -103,13 +103,13 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 	 * @return The value or NaN if the coordinate type is not present.
 	 */
 	public double getValue(PeriodAnalysisCoordinateType type) {
-<span class="nc" id="L106">		double value = Double.NaN;</span>
+<span class="fc" id="L106">		double value = Double.NaN;</span>
 
-<span class="nc bnc" id="L108" title="All 2 branches missed.">		if (coords.containsKey(type)) {</span>
-<span class="nc" id="L109">			value = coords.get(type);</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">		if (coords.containsKey(type)) {</span>
+<span class="fc" id="L109">			value = coords.get(type);</span>
 		}
 
-<span class="nc" id="L112">		return value;</span>
+<span class="fc" id="L112">		return value;</span>
 	}
 
 	@Override
@@ -123,32 +123,32 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 
 	@Override
 	public boolean equals(Object obj) {
-<span class="nc bnc" id="L126" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">		if (this == obj)</span>
 <span class="nc" id="L127">			return true;</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">		if (obj == null)</span>
 <span class="nc" id="L129">			return false;</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
 <span class="nc" id="L131">			return false;</span>
-<span class="nc" id="L132">		PeriodAnalysisDataPoint other = (PeriodAnalysisDataPoint) obj;</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">		if (!Arrays.equals(coordTypes, other.coordTypes))</span>
+<span class="fc" id="L132">		PeriodAnalysisDataPoint other = (PeriodAnalysisDataPoint) obj;</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">		if (!Arrays.equals(coordTypes, other.coordTypes))</span>
 <span class="nc" id="L134">			return false;</span>
-<span class="nc bnc" id="L135" title="All 2 branches missed.">		if (coords == null) {</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">		if (coords == null) {</span>
 <span class="nc bnc" id="L136" title="All 2 branches missed.">			if (other.coords != null)</span>
 <span class="nc" id="L137">				return false;</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">		} else if (!coords.equals(other.coords))</span>
-<span class="nc" id="L139">			return false;</span>
-<span class="nc" id="L140">		return true;</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">		} else if (!coords.equals(other.coords))</span>
+<span class="fc" id="L139">			return false;</span>
+<span class="fc" id="L140">		return true;</span>
 	}
 	
 	@Override
 	public String toString() {
-<span class="nc" id="L145">		StringBuffer buf = new StringBuffer();</span>
+<span class="fc" id="L145">		StringBuffer buf = new StringBuffer();</span>
 
-<span class="nc bnc" id="L147" title="All 2 branches missed.">		for (PeriodAnalysisCoordinateType type : coords.keySet()) {</span>
-<span class="nc" id="L148">			buf.append(String.format(&quot;%s: %10.4f &quot;, type, coords.get(type)));</span>
-<span class="nc" id="L149">		}</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">		for (PeriodAnalysisCoordinateType type : coords.keySet()) {</span>
+<span class="fc" id="L148">			buf.append(String.format(&quot;%s: %10.4f &quot;, type, coords.get(type)));</span>
+<span class="fc" id="L149">		}</span>
 
-<span class="nc" id="L151">		return buf.toString();</span>
+<span class="fc" id="L151">		return buf.toString();</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

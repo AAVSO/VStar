@@ -132,32 +132,32 @@ public class WWZStatistic implements IPeriodAnalysisDatum {
 
     @Override
     public double getPower() {
-<span class="nc" id="L135">        return getWwz();</span>
+<span class="fc" id="L135">        return getWwz();</span>
     }
 
     @Override
     public boolean equals(Object other) {
-<span class="nc" id="L140">        boolean isEqual = false;</span>
+<span class="fc" id="L140">        boolean isEqual = false;</span>
 
-<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (other instanceof WWZStatistic) {</span>
-<span class="nc" id="L143">            WWZStatistic that = (WWZStatistic) other;</span>
-<span class="nc bnc" id="L144" title="All 12 branches missed.">            isEqual = this.tau == that.tau &amp;&amp; this.freq == that.freq &amp;&amp; this.wwz == that.wwz &amp;&amp; this.amp == that.amp</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        if (other instanceof WWZStatistic) {</span>
+<span class="fc" id="L143">            WWZStatistic that = (WWZStatistic) other;</span>
+<span class="pc bpc" id="L144" title="5 of 12 branches missed.">            isEqual = this.tau == that.tau &amp;&amp; this.freq == that.freq &amp;&amp; this.wwz == that.wwz &amp;&amp; this.amp == that.amp</span>
                     &amp;&amp; this.mave == that.mave &amp;&amp; this.neff == that.neff;
         }
 
-<span class="nc" id="L148">        return isEqual;</span>
+<span class="fc" id="L148">        return isEqual;</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L153">        return String.format(&quot;tau=%1.4f, freq=%1.4f, wwz=%1.4f, &quot; +</span>
+<span class="fc" id="L153">        return String.format(&quot;tau=%1.4f, freq=%1.4f, wwz=%1.4f, &quot; +</span>
                              &quot;amp=%1.4f, mave=%1.4f, neff=%1.4f&quot;,
-<span class="nc" id="L155">                             tau, freq, wwz, amp, mave, neff);</span>
+<span class="fc" id="L155">                             tau, freq, wwz, amp, mave, neff);</span>
     }
 
     public String toStructString() {
-<span class="nc" id="L159">        return String.format(&quot;{ %f, %f, %f, %f, %f, %f }&quot;,</span>
-<span class="nc" id="L160">                tau, freq, wwz, amp, mave, neff);</span>
+<span class="fc" id="L159">        return String.format(&quot;{ %f, %f, %f, %f, %f, %f }&quot;,</span>
+<span class="fc" id="L160">                tau, freq, wwz, amp, mave, neff);</span>
     }
 
     /**
@@ -170,7 +170,7 @@ public class WWZStatistic implements IPeriodAnalysisDatum {
     public final double getValue(WWZCoordinateType type) {
 <span class="fc" id="L171">        double value = 0;</span>
 
-<span class="pc bpc" id="L173" title="3 of 8 branches missed.">        switch (type) {</span>
+<span class="pc bpc" id="L173" title="1 of 8 branches missed.">        switch (type) {</span>
         case TAU:
 <span class="fc" id="L175">            value = getTau();</span>
 <span class="fc" id="L176">            break;</span>
@@ -187,10 +187,10 @@ public class WWZStatistic implements IPeriodAnalysisDatum {
 <span class="fc" id="L187">            value = getSemiAmplitude();</span>
 <span class="fc" id="L188">            break;</span>
         case MEAN_MAG:
-<span class="nc" id="L190">            value = getMave();</span>
-<span class="nc" id="L191">            break;</span>
+<span class="fc" id="L190">            value = getMave();</span>
+<span class="fc" id="L191">            break;</span>
         case EFFECTIVE_NUM_DATA:
-<span class="nc" id="L193">            value = getNeff();</span>
+<span class="fc" id="L193">            value = getNeff();</span>
             break;
         }
 
@@ -203,19 +203,19 @@ public class WWZStatistic implements IPeriodAnalysisDatum {
     // TODO: use additional PeriodAnalysisCoordinateType, abolishing the need
     // for WWZCoordinateType.
     public double getValue(PeriodAnalysisCoordinateType type) {
-<span class="nc" id="L206">        double value = 0;</span>
+<span class="fc" id="L206">        double value = 0;</span>
 
-<span class="nc bnc" id="L208" title="All 2 branches missed.">        if (type == PeriodAnalysisCoordinateType.FREQUENCY) {</span>
-<span class="nc" id="L209">            value = getFrequency();</span>
-<span class="nc bnc" id="L210" title="All 2 branches missed.">        } else if (type == PeriodAnalysisCoordinateType.PERIOD) {</span>
-<span class="nc" id="L211">            value = getPeriod();</span>
-<span class="nc bnc" id="L212" title="All 2 branches missed.">        } else if (type == PeriodAnalysisCoordinateType.AMPLITUDE) {</span>
-<span class="nc" id="L213">            value = getSemiAmplitude();</span>
-<span class="nc bnc" id="L214" title="All 2 branches missed.">        } else if (type == PeriodAnalysisCoordinateType.POWER) {</span>
-<span class="nc" id="L215">            value = getPower();</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">        if (type == PeriodAnalysisCoordinateType.FREQUENCY) {</span>
+<span class="fc" id="L209">            value = getFrequency();</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">        } else if (type == PeriodAnalysisCoordinateType.PERIOD) {</span>
+<span class="fc" id="L211">            value = getPeriod();</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">        } else if (type == PeriodAnalysisCoordinateType.AMPLITUDE) {</span>
+<span class="fc" id="L213">            value = getSemiAmplitude();</span>
+<span class="pc bpc" id="L214" title="1 of 2 branches missed.">        } else if (type == PeriodAnalysisCoordinateType.POWER) {</span>
+<span class="fc" id="L215">            value = getPower();</span>
         }
 
-<span class="nc" id="L218">        return value;</span>
+<span class="fc" id="L218">        return value;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
