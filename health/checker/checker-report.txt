@@ -7311,27 +7311,27 @@
     [javac] 		       ^
     [javac]   type of expression: null (NullType)
     [javac]   method return type: @Initialized @NonNull ContinuousModelFunction
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/ListChangeMessage.java:67: warning: [argument] incompatible argument for parameter object of ListChangeMessage constructor.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/ListChangeMessage.java:68: warning: [argument] incompatible argument for parameter object of ListChangeMessage constructor.
     [javac] 		this(type, source, index, null);
     [javac] 		                          ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Object
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/ListChangeMessage.java:77: warning: [argument] incompatible argument for parameter object of ListChangeMessage constructor.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/ListChangeMessage.java:78: warning: [argument] incompatible argument for parameter object of ListChangeMessage constructor.
     [javac] 		this(type, source, NONE, null);
     [javac] 		                         ^
     [javac]   found   : null (NullType)
     [javac]   required: @Initialized @NonNull Object
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/NotifyingArrayList.java:167: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/NotifyingArrayList.java:168: warning: [return] incompatible types in return.
     [javac] 		return element;
     [javac] 		       ^
     [javac]   type of expression: E[ extends @Initialized @Nullable Object super @Initialized @Nullable Void]
     [javac]   method return type: E[ extends @Initialized @Nullable Object super @Initialized @NonNull Void]
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/NotifyingArrayList.java:204: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/NotifyingArrayList.java:205: warning: [return] incompatible types in return.
     [javac] 		return list.toArray();
     [javac] 		                   ^
     [javac]   type of expression: @Initialized @Nullable Object @Initialized @NonNull []
     [javac]   method return type: @Initialized @NonNull Object @Initialized @NonNull []
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/NotifyingArrayList.java:207: warning: [override.return] Incompatible return type.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/NotifyingArrayList.java:208: warning: [override.return] Incompatible return type.
     [javac] 	public <T> T[] toArray(T[] a) {
     [javac] 	            ^
     [javac]   found   : T[ extends @UnknownKeyFor Object super @UnknownKeyFor Void] @UnknownKeyFor []
@@ -7340,7 +7340,7 @@
     [javac]     <T extends Object> T extends Object [] toArray(NotifyingArrayList<E extends Object> this, T extends Object [] p0)
     [javac]   cannot override method in List<E extends Object>
     [javac]     <T extends Object> T extends Object [] toArray(List<E extends Object> this, T extends Object [] p0)
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/NotifyingArrayList.java:207: warning: [override.param] Incompatible parameter type for a.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/NotifyingArrayList.java:208: warning: [override.param] Incompatible parameter type for a.
     [javac] 	public <T> T[] toArray(T[] a) {
     [javac] 	                           ^
     [javac]   found   : T extends @Initialized @Nullable Object @Initialized @NonNull []
@@ -7349,12 +7349,12 @@
     [javac]     <T extends @Initialized @Nullable Object> T extends @Initialized @Nullable Object @Initialized @NonNull [] toArray(@Initialized @NonNull NotifyingArrayList<E extends @Initialized @Nullable Object> this, T extends @Initialized @Nullable Object @Initialized @NonNull [] p0)
     [javac]   cannot override method in @Initialized @NonNull List<E extends @Initialized @Nullable Object>
     [javac]     <T extends @Initialized @Nullable Object> T extends @Initialized @Nullable Object @Initialized @NonNull [] toArray(@Initialized @NonNull List<E extends @Initialized @Nullable Object> this, T extends @Initialized @PolyNull Object @Initialized @NonNull [] p0)
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/NotifyingArrayList.java:208: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/NotifyingArrayList.java:209: warning: [return] incompatible types in return.
     [javac] 		return list.toArray(a);
     [javac] 		                   ^
     [javac]   type of expression: T[ extends @Initialized @Nullable Object super @Initialized @Nullable Void] @Initialized @NonNull []
     [javac]   method return type: T[ extends @Initialized @Nullable Object super @Initialized @NonNull Void] @Initialized @NonNull []
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/NotifyingList.java:41: warning: [initialization.field.uninitialized] the default constructor does not initialize field notifier
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/notification/NotifyingList.java:42: warning: [initialization.field.uninitialized] the default constructor does not initialize field notifier
     [javac] 	protected Notifier<ListChangeMessage<E>> notifier;
     [javac] 	                                         ^
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/util/prefs/ChartPropertiesPrefs.java:38: warning: [assignment] incompatible types in assignment.
