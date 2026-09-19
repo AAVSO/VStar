@@ -203,7 +203,8 @@ public class PeriodLuminosityDistanceCalculator extends
 				NumericPrecisionPrefs.formatOther(distance), true, false));
 		resultFields
 				.add(new TextField("Distance (light years)",
-						NumericPrecisionPrefs.formatOther(distance * 3.26),
+						NumericPrecisionPrefs.formatOther(
+								parsecsToLightYears(distance)),
 						true, false));
 		resultFields.add(new TextField("Distance Modulus",
 				"10 ^ ((apparent mag - absolute mag + 5) / 5)", true, false));
@@ -225,22 +226,29 @@ public class PeriodLuminosityDistanceCalculator extends
 	 *            The period in days.
 	 * @return The absolute magnitude.
 	 */
-	private double calcAbsMagForDCEPType(double period) {
+	public static double calcAbsMagForDCEPType(double period) {
 		// TODO: -1.29+/-0.1, 2.78+/-0.12 => 2 or 4 combinations?
 		return -1.29 - 2.78 * Math.log10(period);
 	}
 
 	/**
-	 * Given apparent and absolute magnitudes, calculate distance.
+	 * Given apparent and absolute magnitudes, calculate distance in parsecs.
 	 * 
 	 * @param apparentMag
-	 *            The absolute magnitude.
+	 *            The apparent magnitude.
 	 * @param absoluteMag
-	 *            apparent magnitude.
+	 *            The absolute magnitude.
 	 * @return The distance via the distance-modulus.
 	 */
-	private double calcDistance(double apparentMag, double absoluteMag) {
+	public static double calcDistance(double apparentMag, double absoluteMag) {
 		return Math.pow(10, (apparentMag - absoluteMag + 5) / 5);
+	}
+
+	/**
+	 * Convert a distance in parsecs to light years (factor used by this plug-in).
+	 */
+	public static double parsecsToLightYears(double distancePc) {
+		return distancePc * 3.26;
 	}
 
 	@Override

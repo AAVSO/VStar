@@ -211,7 +211,7 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 	 *            The last observation index in the inclusive range.
 	 * @return The median of magnitudes.
 	 */
-	private static double calcMagMedianInRange(
+	static double calcMagMedianInRange(
 			List<ValidObservation> observations,
 			int minIndex, int maxIndex) {
 
@@ -249,7 +249,7 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 	 *            The last observation index in the inclusive range.
 	 * @return The number of observations.
 	 */
-	private static int calcNumberInRange(
+	static int calcNumberInRange(
 			List<ValidObservation> observations,
 			int minIndex, int maxIndex) {
 

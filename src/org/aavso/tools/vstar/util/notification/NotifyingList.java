@@ -36,6 +36,7 @@ import java.util.List;
  * The expected behavior of any subclass is that listeners will be notified 
  * whenever its underlying list changes.
  */
+@Deprecated
 public abstract class NotifyingList<E> implements List<E> {
 	
 	protected Notifier<ListChangeMessage<E>> notifier;

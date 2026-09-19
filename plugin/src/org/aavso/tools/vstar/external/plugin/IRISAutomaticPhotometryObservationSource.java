@@ -43,8 +43,9 @@ import org.aavso.tools.vstar.util.stats.DescStats;
  * 
  * @author David Benn
  * @version 1.0 - 18 Feb 2015
+ * @deprecated Not packaged; jar target commented out in plugin/build.xml.
  */
-
+@Deprecated
 public class IRISAutomaticPhotometryObservationSource extends
 		ObservationSourcePluginBase {
 

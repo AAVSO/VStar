@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Count property-based unit tests (PBTs) under the VStar test tree.
+Count property-based unit tests (PBTs) under VStar test trees.
 
 A JUnit test method counts as a PBT if either:
 
@@ -12,8 +12,12 @@ Each such method still contributes 1 toward the overall ``Tests run`` total;
 this script reports the PBT *subset* of that total, not QuickTheories sample
 iterations.
 
-Used by CI (``.github/workflows/vstar-UT.yml``) to publish ``pbts`` on the
-health dashboard next to ``tests``.
+Used by CI:
+
+  - ``.github/workflows/vstar-UT.yml`` — default root ``test/org`` → core
+    ``coverage.json`` field ``pbts``
+  - ``.github/workflows/plugin-UT.yml`` — ``--test-root plugin/test`` →
+    ``plugin-coverage.json`` field ``pbts``
 """
 
 from __future__ import annotations
@@ -74,8 +78,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--test-root",
         type=Path,
-        default=Path("test/org"),
-        help="Root of Java test sources (default: test/org)",
+        action="append",
+        dest="test_roots",
+        metavar="DIR",
+        help="Root of Java test sources (repeatable; default: test/org)",
     )
     p.add_argument(
         "--github-output",
@@ -90,16 +96,17 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = p.parse_args(argv)
 
-    if not args.test_root.is_dir():
-        print(f"error: test root not found: {args.test_root}", file=sys.stderr)
-        return 2
-
+    roots = args.test_roots if args.test_roots else [Path("test/org")]
     total = 0
-    for path in sorted(args.test_root.rglob("*Test.java")):
-        n = count_pbts_in_file(path)
-        if n and args.verbose:
-            print(f"{n:4d}  {path}", file=sys.stderr)
-        total += n
+    for root in roots:
+        if not root.is_dir():
+            print(f"error: test root not found: {root}", file=sys.stderr)
+            return 2
+        for path in sorted(root.rglob("*Test.java")):
+            n = count_pbts_in_file(path)
+            if n and args.verbose:
+                print(f"{n:4d}  {path}", file=sys.stderr)
+            total += n
 
     print(total)
     if args.github_output is not None:

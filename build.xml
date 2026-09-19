@@ -449,13 +449,25 @@
 
 	<target name="coverage-report" depends="test-coverage" description="Generate JaCoCo coverage report (HTML + XML)">
 		<mkdir dir="${coverage_report}" />
+		<!-- JaCoCo does not skip @Deprecated / javadoc @deprecated types;
+		     stage classfiles without those types for the report. -->
+		<property name="coverage_classfiles" location="${coverage_report}/classes-for-report" />
+		<exec executable="python3" failonerror="true">
+			<arg value="${basedir}/script/exclude_deprecated_from_coverage.py" />
+			<arg value="--src" />
+			<arg value="${src}" />
+			<arg value="--classes-in" />
+			<arg value="${src_build}" />
+			<arg value="--classes-out" />
+			<arg value="${coverage_classfiles}" />
+		</exec>
 		<jacoco:report>
 			<executiondata>
 				<file file="${test_report}/jacoco.exec" />
 			</executiondata>
 			<structure name="VStar">
 				<classfiles>
-					<fileset dir="${src_build}" />
+					<fileset dir="${coverage_classfiles}" />
 				</classfiles>
 				<sourcefiles encoding="UTF-8">
 					<fileset dir="${src}" />
@@ -466,6 +478,7 @@
 			<csv destfile="${coverage_report}/coverage.csv" />
 		</jacoco:report>
 		<echo message="Coverage report: ${coverage_report}/index.html" />
+		<delete dir="${coverage_classfiles}" quiet="true" />
 
 		<!-- JaCoCo XML references report.dtd; Ant's XSLT parser needs it beside coverage.xml -->
 		<property name="jacoco.report.dtd.tmp" location="${coverage_report}/jacoco-dtd-extract" />

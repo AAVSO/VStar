@@ -40,6 +40,9 @@ public class AllTests {
 		suite.addTestSuite(ConvertHelperTest.class);
 		suite.addTestSuite(HipparcosLoadTest.class);
 		suite.addTestSuite(org.aavso.tools.vstar.external.lib.KweeVanWoerdenLibTest.class);
+		suite.addTestSuite(AoVPeriodSearchTest.class);
+		suite.addTestSuite(PeriodLuminosityDistanceCalculatorTest.class);
+		suite.addTestSuite(DescStatsBySeriesTest.class);
 		// $JUnit-END$
 		
 		return suite;
