@@ -161,6 +161,13 @@
 
   tr:last-child td { border-bottom: none; }
 
+  /* Indented breakdown under a parent metric (e.g. Tests → unit / PBT). */
+  td.metric-sub {
+    padding-left: 1.25rem;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
   .metric-value {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -475,8 +482,14 @@ function pctNum(s) {
   return parseFloat(s.replace('%', ''));
 }
 
-function row(label, value, cls) {
-  return `<tr><td>${label}</td><td class="metric-value ${cls || ''}">${value}</td></tr>`;
+function row(label, value, cls, labelCls) {
+  return `<tr><td class="${labelCls || ''}">${label}</td>` +
+    `<td class="metric-value ${cls || ''}">${value}</td></tr>`;
+}
+
+/** Indented child metric under a parent row (e.g. Tests breakdown). */
+function subrow(label, value, cls) {
+  return row(label, value, cls, 'metric-sub');
 }
 
 async function loadCard(url, id, render) {
@@ -540,11 +553,18 @@ function coverageMatrix(d) {
 
 function renderCoverage(d) {
   const pass = d.failures === 0 && d.errors === 0;
-  // pbts is a subset of tests (property-based UTs). Older JSON and
-  // plugin-coverage.json may omit it; show an em dash in that case.
+  // pbts is a subset of tests. Show Tests as the total, then a split into
+  // example-based unit tests and property-based tests (PBTs). Older JSON
+  // may omit pbts — use an em dash for both breakdown rows in that case.
+  const hasPbts = d.pbts !== undefined && d.pbts !== null;
+  const pbts = hasPbts ? d.pbts : null;
+  const unitTests = hasPbts && typeof d.tests === 'number'
+    ? Math.max(0, d.tests - pbts)
+    : null;
   let html =
     row('Tests', d.tests) +
-    row('PBTs', d.pbts !== undefined && d.pbts !== null ? d.pbts : '&mdash;') +
+    subrow('Unit tests', unitTests !== null ? unitTests : '&mdash;') +
+    subrow('Property-based (PBTs)', hasPbts ? pbts : '&mdash;') +
     row('Passed', d.passed, pass ? 'status-ok' : 'status-err') +
     row('Failures', d.failures, d.failures > 0 ? 'status-err' : '') +
     row('Errors', d.errors, d.errors > 0 ? 'status-err' : '');
