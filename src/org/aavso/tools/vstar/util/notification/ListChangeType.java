@@ -19,7 +19,9 @@ package org.aavso.tools.vstar.util.notification;
 
 /**
  * A message to be sent to listeners of notifying list classes.
+
  */
+@Deprecated
 public enum ListChangeType {
 
 	ADDED_ONE, ADDED_MANY, CLEARED, REMOVED, REMOVED_MANY, SET;

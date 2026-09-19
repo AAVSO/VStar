@@ -71,4 +71,22 @@ public class ValidObservationTest extends TestCase {
 		obCopy.setMagnitude(new Magnitude(3, 0.03));
 		assertFalse(ob.getMagnitude() == obCopy.getMagnitude());
 	}
+
+	public void testEqualsSameValues() {
+		ValidObservation other = ob.copy();
+		assertEquals(ob, other);
+		assertEquals(ob.hashCode(), other.hashCode());
+	}
+
+	public void testNotEqualsDifferentJd() {
+		ValidObservation other = ob.copy();
+		other.setJD(ob.getJD() + 1.0);
+		assertFalse(ob.equals(other));
+	}
+
+	public void testSetMagUpdatesMagnitudeValue() {
+		ob.setMag(7.5);
+		assertEquals(7.5, ob.getMag(), 1e-12);
+		assertEquals(7.5, ob.getMagnitude().getMagValue(), 1e-12);
+	}
 }

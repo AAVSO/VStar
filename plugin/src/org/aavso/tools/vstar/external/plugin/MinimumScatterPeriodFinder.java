@@ -67,7 +67,10 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
  * 
  * TODO:<br/>
  * o create a model from segments? o interrupted!
+ *
+ * @deprecated Not packaged; jar target commented out in plugin/build.xml.
  */
+@Deprecated
 public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 
 	private final static int MAX_TOP_HITS = 20;

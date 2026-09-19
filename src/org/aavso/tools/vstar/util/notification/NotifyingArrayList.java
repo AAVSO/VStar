@@ -30,6 +30,7 @@ import java.util.ListIterator;
  * generic optional message notification capability. Listeners are notified of
  * any change to the list.
  */
+@Deprecated
 public class NotifyingArrayList<E> extends NotifyingList<E> {
 
 	private ArrayList<E> list;

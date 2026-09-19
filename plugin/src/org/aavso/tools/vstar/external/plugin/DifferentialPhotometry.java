@@ -58,7 +58,9 @@ import org.aavso.tools.vstar.util.stats.DescStats;
  * 
  * @author David Benn
  * @version 1.0 - 6 Apr 2015
+ * @deprecated Not packaged; jar target commented out in plugin/build.xml.
  */
+@Deprecated
 public class DifferentialPhotometry extends ObservationToolPluginBase {
 
 	private boolean firstInvocation;

@@ -22,6 +22,7 @@ import java.util.List;
 /**
  * A message to be sent to listeners of notifying list classes.
  */
+@Deprecated
 public class ListChangeMessage<E> {
 	public static int NONE = -1;
 	

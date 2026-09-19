@@ -213,13 +213,32 @@
 
 	<target name="coverage-report" depends="test-coverage" description="Generate JaCoCo coverage report (HTML + XML)">
 		<mkdir dir="${coverage_report}" />
+		<!-- JaCoCo does not skip @Deprecated / javadoc @deprecated types;
+		     stage classfiles without those types for the report. -->
+		<property name="coverage_classfiles" location="${coverage_report}/classes-for-report" />
+		<exec executable="python3" failonerror="true">
+			<arg value="${basedir}/../script/exclude_deprecated_from_coverage.py" />
+			<arg value="--src" />
+			<arg value="${src}" />
+			<arg value="--src" />
+			<arg value="${src_lib}" />
+			<arg value="--classes-in" />
+			<arg value="${build.classes}" />
+			<arg value="--classes-out" />
+			<arg value="${coverage_classfiles}" />
+		</exec>
 		<jacoco:report>
 			<executiondata>
 				<file file="${test_report}/jacoco.exec" />
 			</executiondata>
 			<structure name="VStar Plugins">
 				<classfiles>
-					<fileset dir="${build.classes}" />
+					<!-- Exclude co-located pure test helpers from coverage
+					     counts. Do not blanket-exclude *Test*: example plugins
+					     such as CustomFilterTest are production code. -->
+					<fileset dir="${coverage_classfiles}">
+						<exclude name="**/DFTandSpectralWindowTest*.class" />
+					</fileset>
 				</classfiles>
 				<sourcefiles encoding="UTF-8">
 					<fileset dir="${src}" />
@@ -230,6 +249,7 @@
 			<xml destfile="${coverage_report}/coverage.xml" />
 		</jacoco:report>
 		<echo message="Plugin coverage report: ${coverage_report}/index.html" />
+		<delete dir="${coverage_classfiles}" quiet="true" />
 
 		<concat destfile="${test_report}/summary.txt">
 			<header filtering="no" trimleading="yes">

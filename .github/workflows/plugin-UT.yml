@@ -97,6 +97,9 @@ jobs:
         echo "line_cov=$LINE_COV" >> "$GITHUB_OUTPUT"
         echo "branch_cov=$BRANCH_COV" >> "$GITHUB_OUTPUT"
 
+        # PBT subset of UTs under plugin/test (*PBTTest + qt().forAll).
+        python3 script/count_pbts.py --test-root plugin/test --github-output "$GITHUB_OUTPUT"
+
     - name: Post step summary
       if: always() && steps.metrics.outputs.tests != '0'
       run: |
@@ -109,6 +112,7 @@ jobs:
         | Metric | Value |
         |--------|-------|
         | Tests | ${{ steps.metrics.outputs.tests }} |
+        | PBTs (subset) | ${{ steps.metrics.outputs.pbts }} |
         | Passed | ${{ steps.metrics.outputs.passed }} |
         | Failures | ${{ steps.metrics.outputs.failures }} |
         | Errors | ${{ steps.metrics.outputs.errors }} |
@@ -128,6 +132,7 @@ jobs:
           const outcome = '${{ steps.tests.outcome }}';
           const status = outcome === 'success' ? 'All tests passed' : 'Tests failed';
           const tests = '${{ steps.metrics.outputs.tests }}';
+          const pbts = '${{ steps.metrics.outputs.pbts }}';
           const passed = '${{ steps.metrics.outputs.passed }}';
           const failures = '${{ steps.metrics.outputs.failures }}';
           const errors = '${{ steps.metrics.outputs.errors }}';
@@ -140,6 +145,7 @@ jobs:
             '| Metric | Value |',
             '|--------|-------|',
             `| Tests | ${tests} |`,
+            `| PBTs (subset) | ${pbts} |`,
             `| Passed | ${passed} |`,
             `| Failures | ${failures} |`,
             `| Errors | ${errors} |`,
@@ -197,11 +203,16 @@ jobs:
       run: |
         DATE=$(date -u +%Y-%m-%d)
         mkdir -p _site/health/data _site/health/coverage/plugins
+        # Keep the dashboard shell in sync (PBT row already present).
+        if [ -f health/index.html ]; then
+          cp health/index.html _site/health/index.html
+        fi
         cat > _site/health/data/plugin-coverage.json <<DATAJSON
         {
           "updated": "${DATE}",
           "java_version": "17",
           "tests": ${{ steps.metrics.outputs.tests }},
+          "pbts": ${{ steps.metrics.outputs.pbts }},
           "passed": ${{ steps.metrics.outputs.passed }},
           "failures": ${{ steps.metrics.outputs.failures }},
           "errors": ${{ steps.metrics.outputs.errors }},

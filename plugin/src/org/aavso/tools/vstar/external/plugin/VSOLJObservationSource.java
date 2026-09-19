@@ -54,7 +54,10 @@ import org.aavso.tools.vstar.util.date.AbstractDateUtil;
  * <p>
  * See http://vsolj.cetus-net.org/cgi-bin/obs_search.cgi<br/>
  * </p>
+ *
+ * @deprecated Not packaged; jar target commented out in plugin/build.xml.
  */
+@Deprecated
 public class VSOLJObservationSource extends ObservationSourcePluginBase {
 
 	enum State {

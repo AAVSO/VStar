@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VStar &mdash; Project Health</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --header-bg: linear-gradient(135deg, #0d1117 0%, #1a2332 50%, #0d1117 100%);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 1rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('../img/EpsAur_1_0.jpg') center/cover no-repeat;
+    opacity: 0.15;
+    filter: blur(2px);
+  }
+
+  .header-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .header-content img {
+    width: 64px;
+    height: 64px;
+    filter: drop-shadow(0 0 12px rgba(88, 166, 255, 0.4));
+  }
+
+  .header-text h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .header-text p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .header-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .header-links a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .header-links a:hover {
+    border-color: var(--accent);
+    background: rgba(88, 166, 255, 0.1);
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  /* Issue #579: dashboard moved from a 3-up grid (which left the smaller
+     SpotBugs / Checker tiles as awkward orphans on row 2) to a 2-up grid
+     where the merged Static Analysis card fills row 2 by itself. The min()
+     floor keeps cards from overflowing on very small viewports without
+     needing a separate mobile media-query for the column count. */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 0.875rem 1.125rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-header h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .card-header .updated {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .card-body { padding: 1rem 1.125rem; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  th, td {
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .metric-value {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .highlight { color: var(--accent); }
+
+  /* Issue #579: compact area x {line, branch} matrix embedded inside the
+     coverage card so the tile keeps its 4 test-stats rows on top with a
+     dense 3-row breakdown underneath, rather than ballooning to 10 rows. */
+  .coverage-matrix-row > td { padding: 0; }
+
+  .coverage-matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .coverage-matrix th,
+  .coverage-matrix td {
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .coverage-matrix th {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .coverage-matrix tr:last-child td { border-bottom: none; }
+
+  .coverage-matrix th:first-child,
+  .coverage-matrix td:first-child { text-align: left; }
+
+  .coverage-matrix th:not(:first-child),
+  .coverage-matrix td:not(:first-child) { text-align: right; }
+
+  /* Issue #579: merged Static Analysis card. The card always fills the full
+     grid row (so at the 2-col desktop layout it sits alone on row 2 instead
+     of leaving an empty cell), and acts as an inline-size container so the
+     two sub-cards switch between side-by-side and stacked based on the
+     parent card's actual rendered width rather than the viewport width. */
+  .card-static-analysis {
+    grid-column: 1 / -1;
+    container-type: inline-size;
+  }
+
+  .card-split-body {
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .sub-card { display: flex; flex-direction: column; }
+
+  .sub-card + .sub-card { border-top: 1px solid var(--border); }
+
+  .sub-card-header {
+    padding: 0.75rem 1.125rem 0.5rem;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .sub-card-header h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .sub-card-header .updated {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .sub-card-body { padding: 0 1.125rem 0.875rem; flex: 1; }
+
+  .sub-card-footer {
+    padding: 0.625rem 1.125rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+  }
+
+  .sub-card-footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .sub-card-footer a:hover { text-decoration: underline; }
+
+  /* Switch to side-by-side when the parent card is wide enough to give
+     each sub-card a comfortable column. Below 540 px parent width the
+     sub-cards stack and the divider rotates from a left-border to a
+     top-border. */
+  @container (min-width: 540px) {
+    .card-split-body { grid-template-columns: 1fr 1fr; }
+    .sub-card + .sub-card {
+      border-top: none;
+      border-left: 1px solid var(--border);
+    }
+  }
+
+  .card-footer {
+    padding: 0.625rem 1.125rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+  }
+
+  .card-footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .card-footer a:hover { text-decoration: underline; }
+
+  .card-footer .footnote {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    margin-left: 0.4rem;
+  }
+
+  .card-footer .footnote code {
+    background: rgba(110, 118, 129, 0.15);
+    padding: 0 0.25rem;
+    border-radius: 3px;
+    font-size: 0.78rem;
+  }
+
+  .wide { grid-column: 1 / -1; }
+
+  .status-ok { color: var(--green); }
+  .status-warn { color: var(--yellow); }
+  .status-err { color: var(--red); }
+  .status-na { color: var(--text-muted); }
+
+  .badges {
+    text-align: center;
+    padding: 1.5rem 0 0.5rem;
+  }
+
+  .badges img { margin: 0 0.25rem; }
+
+  footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  .loading { color: var(--text-muted); font-style: italic; font-size: 0.85rem; }
+
+  @media (max-width: 600px) {
+    .header-content { flex-direction: column; gap: 0.75rem; }
+    .header-links { margin-left: 0; justify-content: center; }
+    main { padding: 1rem 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <img src="../img/vstaricon.png" alt="VStar">
+    <div class="header-text">
+      <h1>VStar Project Health</h1>
+      <p>Continuous integration &amp; code quality dashboard</p>
+    </div>
+    <nav class="header-links">
+      <a href="../">&larr; Project Hub</a>
+      <a href="../javadoc/">Javadoc</a>
+      <a href="https://github.com/AAVSO/VStar">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="badges">
+    <a href="https://github.com/AAVSO/VStar/actions/workflows/vstar-UT.yml"><img src="https://github.com/AAVSO/VStar/actions/workflows/vstar-UT.yml/badge.svg" alt="VStar UTs"></a>
+    <a href="https://github.com/AAVSO/VStar/actions/workflows/plugin-UT.yml"><img src="https://github.com/AAVSO/VStar/actions/workflows/plugin-UT.yml/badge.svg" alt="Plugin UTs"></a>
+    <a href="https://github.com/AAVSO/VStar/actions/workflows/spotbugs.yml"><img src="https://github.com/AAVSO/VStar/actions/workflows/spotbugs.yml/badge.svg" alt="SpotBugs"></a>
+    <a href="https://github.com/AAVSO/VStar/actions/workflows/checkerframework.yml"><img src="https://github.com/AAVSO/VStar/actions/workflows/checkerframework.yml/badge.svg" alt="Checker Framework"></a>
+  </div>
+
+  <div class="grid">
+
+    <!-- VStar Unit Tests & Coverage -->
+    <div class="card" id="card-coverage">
+      <div class="card-header">
+        <h2>VStar Unit Tests &amp; Coverage</h2>
+        <span class="updated" id="coverage-updated"></span>
+      </div>
+      <div class="card-body">
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+          <tbody id="coverage-body">
+            <tr><td colspan="2" class="loading">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer">
+        <a href="coverage/vstar/">Browse VStar UT coverage report</a>
+        <span class="footnote">
+          &middot;
+          A class is &ldquo;GUI&rdquo; when its source imports
+          <code>javax.swing</code> or <code>java.awt</code>
+          (<a href="https://github.com/AAVSO/VStar/issues/579">#579</a>).
+        </span>
+      </div>
+    </div>
+
+    <!-- Plugin Unit Tests & Coverage -->
+    <div class="card" id="card-plugin-coverage">
+      <div class="card-header">
+        <h2>Plugin Unit Tests &amp; Coverage</h2>
+        <span class="updated" id="plugin-coverage-updated"></span>
+      </div>
+      <div class="card-body">
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+          <tbody id="plugin-coverage-body">
+            <tr><td colspan="2" class="loading">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer">
+        <a href="coverage/plugins/">Browse plugin UT coverage report</a>
+      </div>
+    </div>
+
+    <!-- Static Analysis (issue #579 follow-up): SpotBugs and Checker
+         merged into a single tile. Each tool keeps its own data feed
+         and its own *-updated / *-body element so the existing
+         loadCard() calls in the script below work unchanged. -->
+    <div class="card card-static-analysis" id="card-static-analysis">
+      <div class="card-header">
+        <h2>Static Analysis</h2>
+      </div>
+      <div class="card-body card-split-body">
+
+        <div class="sub-card" id="sub-spotbugs">
+          <div class="sub-card-header">
+            <h3>SpotBugs</h3>
+            <span class="updated" id="spotbugs-updated"></span>
+          </div>
+          <div class="sub-card-body">
+            <table>
+              <thead><tr><th>Priority</th><th>Count</th></tr></thead>
+              <tbody id="spotbugs-body">
+                <tr><td colspan="2" class="loading">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="sub-card-footer">
+            <a href="spotbugs/">Browse full SpotBugs report</a>
+          </div>
+        </div>
+
+        <div class="sub-card" id="sub-checker">
+          <div class="sub-card-header">
+            <h3>Checker (Nullness)</h3>
+            <span class="updated" id="checker-updated"></span>
+          </div>
+          <div class="sub-card-body">
+            <table>
+              <thead><tr><th>Metric</th><th>Count</th></tr></thead>
+              <tbody id="checker-body">
+                <tr><td colspan="2" class="loading">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="sub-card-footer">
+            <a href="checker/">Browse full Checker report</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+
+</main>
+
+<footer>
+  <p>
+    <a href="https://github.com/AAVSO/VStar">AAVSO/VStar</a> &mdash;
+    Data refreshed automatically by GitHub Actions.
+  </p>
+</footer>
+
+<script>
+function statusClass(val, thresholds) {
+  if (val === null || val === undefined) return 'status-na';
+  if (thresholds) {
+    if (val >= thresholds[0]) return 'status-ok';
+    if (val >= thresholds[1]) return 'status-warn';
+    return 'status-err';
+  }
+  return '';
+}
+
+function pctNum(s) {
+  if (!s || s === '—') return null;
+  return parseFloat(s.replace('%', ''));
+}
+
+function row(label, value, cls) {
+  return `<tr><td>${label}</td><td class="metric-value ${cls || ''}">${value}</td></tr>`;
+}
+
+async function loadCard(url, id, render) {
+  try {
+    const r = await fetch(url + '?_=' + Date.now());
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    document.getElementById(id + '-updated').textContent = d.updated || '';
+    document.getElementById(id + '-body').innerHTML = render(d);
+  } catch {
+    document.getElementById(id + '-body').innerHTML =
+      '<tr><td colspan="2" class="status-na">No data yet</td></tr>';
+  }
+}
+
+function coverageMatrixCell(value, cls) {
+  return `<td class="metric-value ${cls || ''}">${value || '&mdash;'}</td>`;
+}
+
+function coverageMatrixRow(label, lineVal, lineCls, branchVal, branchCls) {
+  return `<tr>` +
+    `<td>${label}</td>` +
+    coverageMatrixCell(lineVal, lineCls) +
+    coverageMatrixCell(branchVal, branchCls) +
+    `</tr>`;
+}
+
+// Issue #579: embed a 3-row Area x {Line, Branch} matrix inside the
+// outer 2-column tile body via a single colspan=2 cell. Keeps the
+// dashboard structure (one inner table per card) unchanged and avoids
+// the 6-row vertical sprawl the flat presentation produced.
+function coverageMatrix(d) {
+  const lp = pctNum(d.line_coverage);
+  const bp = pctNum(d.branch_coverage);
+  const guiLp = pctNum(d.gui_line_coverage);
+  const guiBp = pctNum(d.gui_branch_coverage);
+
+  const matrix =
+    `<table class="coverage-matrix">` +
+      `<thead><tr>` +
+        `<th>Area</th><th>Line</th><th>Branch</th>` +
+      `</tr></thead>` +
+      `<tbody>` +
+        coverageMatrixRow('Non-GUI',
+            d.line_coverage, statusClass(lp, [60, 40]),
+            d.branch_coverage, statusClass(bp, [40, 20])) +
+        coverageMatrixRow('GUI',
+            d.gui_line_coverage, statusClass(guiLp, [40, 10]),
+            d.gui_branch_coverage, statusClass(guiBp, [30, 5])) +
+        // Combined is intentionally uncoloured: it is the mechanical
+        // merge of the two rows above and applying a threshold here
+        // would double-count the judgement we already made.
+        coverageMatrixRow('Combined',
+            d.combined_line_coverage, '',
+            d.combined_branch_coverage, '') +
+      `</tbody>` +
+    `</table>`;
+
+  return `<tr class="coverage-matrix-row"><td colspan="2">${matrix}</td></tr>`;
+}
+
+function renderCoverage(d) {
+  const pass = d.failures === 0 && d.errors === 0;
+  // pbts is a subset of tests (property-based UTs). Older JSON and
+  // plugin-coverage.json may omit it; show an em dash in that case.
+  let html =
+    row('Tests', d.tests) +
+    row('PBTs', d.pbts !== undefined && d.pbts !== null ? d.pbts : '&mdash;') +
+    row('Passed', d.passed, pass ? 'status-ok' : 'status-err') +
+    row('Failures', d.failures, d.failures > 0 ? 'status-err' : '') +
+    row('Errors', d.errors, d.errors > 0 ? 'status-err' : '');
+
+  // When the workflow publishes a GUI vs non-GUI breakdown, render
+  // the compact matrix. Plugin coverage and older data fall through
+  // to the legacy two-row presentation.
+  if (d.gui_line_coverage !== undefined ||
+      d.combined_line_coverage !== undefined) {
+    html += coverageMatrix(d);
+  } else {
+    const lp = pctNum(d.line_coverage);
+    const bp = pctNum(d.branch_coverage);
+    html +=
+      row('Line Coverage', d.line_coverage, statusClass(lp, [60, 40])) +
+      row('Branch Coverage', d.branch_coverage, statusClass(bp, [40, 20]));
+  }
+  return html;
+}
+
+function renderSpotBugs(d) {
+  return row('Total', d.total, 'highlight') +
+    row('High', d.high, d.high > 0 ? 'status-err' : 'status-ok') +
+    row('Medium', d.medium, d.medium > 0 ? 'status-warn' : 'status-ok') +
+    row('Low', d.low);
+}
+
+function renderChecker(d) {
+  return row('Total warnings', d.total, 'highlight') +
+    row('Nullness', d.nullness) +
+    row('Initialization', d.init);
+}
+
+loadCard('data/coverage.json', 'coverage', renderCoverage);
+loadCard('data/plugin-coverage.json', 'plugin-coverage', renderCoverage);
+loadCard('data/spotbugs.json', 'spotbugs', renderSpotBugs);
+loadCard('data/checker.json', 'checker', renderChecker);
+</script>
+
+</body>
+</html>

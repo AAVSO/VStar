@@ -421,13 +421,14 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
         @Override
         public void execute() throws AlgorithmError {
-            // Request parameters
-            // TODO: move this to top-level execute method and just pass actual
-            // parameters to this class?
-            while (!areParametersLegal(obs) && !cancelled)
-                ;
+            // Request parameters unless already set (e.g. unit tests).
+            // TODO: move dialog to top-level execute and pass params here.
+            if (!legalParams) {
+                while (!areParametersLegal(obs) && !cancelled)
+                    ;
+            }
 
-            if (!cancelled) {
+            if (!cancelled && legalParams) {
                 // TODO: cache these by JD range between new star resets...
 
                 interrupted = false;
@@ -570,6 +571,29 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
         }
 
         return copiedObs;
+    }
+
+    /**
+     * Package-visible for unit tests: set search parameters without the Swing
+     * dialog and ensure result coordinate types exist.
+     */
+    void setSearchParametersForTest(double minP, double maxP, double res,
+            int nBins) {
+        ensureCoordinateTypes();
+        minPeriod = minP;
+        maxPeriod = maxP;
+        resolution = res;
+        bins = nBins;
+        legalParams = true;
+        cancelled = false;
+        interrupted = false;
+    }
+
+    private void ensureCoordinateTypes() {
+        if (F_STATISTIC == null) {
+            F_STATISTIC = PeriodAnalysisCoordinateType.create("F-statistic");
+            P_VALUE = PeriodAnalysisCoordinateType.create("p-value");
+        }
     }
 
     // Ask user for period min, max, resolution and number of bins.

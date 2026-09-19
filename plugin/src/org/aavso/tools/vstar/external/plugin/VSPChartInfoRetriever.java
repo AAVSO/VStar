@@ -40,7 +40,10 @@ import org.xml.sax.SAXException;
 /**
  * This plug-in retrieves chart information for the specified star from the
  * AAVSO VSP web service.
+ *
+ * @deprecated Not packaged; jar target commented out in plugin/build.xml.
  */
+@Deprecated
 public class VSPChartInfoRetriever extends GeneralToolPluginBase {
 
 	@Override
