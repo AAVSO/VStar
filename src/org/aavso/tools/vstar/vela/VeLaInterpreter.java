@@ -19,9 +19,13 @@ package org.aavso.tools.vstar.vela;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -1238,14 +1242,14 @@ public class VeLaInterpreter {
 
         return result;
     }
-
+    
     /**
      * Read and interpret standard library code.<br/>
      * A VeLa error should not bring VStar down.
      */
     private void loadStdLib() {
         try {
-            program(ResourceAccessor.getVeLaStdLibStr());
+            program(ResourceAccessor.getStdLibStr());
         } catch (Throwable t) {
             VStar.LOGGER.warning("Error when sourcing VeLa standard library code: " + t.getLocalizedMessage());
         }
