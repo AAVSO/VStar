@@ -19,11 +19,7 @@ package org.aavso.tools.vstar.ui.resources;
 
 import java.awt.Image;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
