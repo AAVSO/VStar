@@ -128,6 +128,24 @@ public class ObservationAndMeanPlotModelTest extends TestCase {
 		assertEquals(obsList.size(), model.getItemCount(seriesNum));
 	}
 
+	public void testAddingFilteredSeriesSortsObservationsByJD() {
+		List<ValidObservation> filteredObs = createObservations(
+				JD3, JD1, JD2);
+
+		model.updateFilteredSeries(filteredObs);
+
+		assertSeriesJDs(SeriesType.Filtered, JD1, JD2, JD3);
+	}
+
+	public void testReplacingFilteredSeriesSortsObservationsByJD() {
+		model.updateFilteredSeries(createObservations(JD1));
+
+		model.updateFilteredSeries(createObservations(
+				JD3, JD1, JD2));
+
+		assertSeriesJDs(SeriesType.Filtered, JD1, JD2, JD3);
+	}
+
 	// --- Coordinate retrieval ---
 
 	public void testGetXReturnsJD() {
@@ -174,5 +192,26 @@ public class ObservationAndMeanPlotModelTest extends TestCase {
 	public void testTimeElementEntityIsJD() {
 		assertNotNull(model.getTimeElementEntity());
 		assertTrue(model.getTimeElementEntity() instanceof JDTimeElementEntity);
+	}
+
+	private List<ValidObservation> createObservations(double... jds) {
+		List<ValidObservation> observations =
+				new ArrayList<ValidObservation>();
+		for (double jd : jds) {
+			ValidObservation ob = new ValidObservation();
+			ob.setJD(jd);
+			ob.setMagnitude(new Magnitude(MAG, ERR));
+			ob.setBand(SeriesType.Unspecified);
+			observations.add(ob);
+		}
+		return observations;
+	}
+
+	private void assertSeriesJDs(SeriesType series, double... expectedJDs) {
+		List<ValidObservation> observations = model.getObservations(series);
+		assertEquals(expectedJDs.length, observations.size());
+		for (int i = 0; i < expectedJDs.length; i++) {
+			assertEquals(expectedJDs[i], observations.get(i).getJD(), 1e-6);
+		}
 	}
 }

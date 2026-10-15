@@ -257,6 +257,8 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 
 		assert this.srcTypeToSeriesNumMap.get(type) == null;
 
+		Collections.sort(obs, obComparator);
+
 		int seriesNum = this.getNextSeriesNum();
 
 		this.srcTypeToSeriesNumMap.put(type, seriesNum);
@@ -342,6 +344,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 			List<ValidObservation> obs) {
 		Integer seriesNum = this.srcTypeToSeriesNumMap.get(type);
 		assert seriesNum != null;
+		Collections.sort(obs, obComparator);
 		this.seriesNumToObSrcListMap.put(seriesNum, obs);
 		this.fireDatasetChanged();
 		return seriesNum;
