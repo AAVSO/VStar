@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<BugCollection version="4.9.3" sequence="0" timestamp="1789831400657" analysisTimestamp="1789831400705" release="">
+<BugCollection version="4.9.3" sequence="0" timestamp="1792066237508" analysisTimestamp="1792066237559" release="">
   <Project projectName="">
     <Jar>/home/runner/work/VStar/VStar/dist/vstar.jar</Jar>
     <AuxClasspathEntry>/home/runner/work/VStar/VStar/extlib/XMLLib.jar</AuxClasspathEntry>
@@ -7856,8 +7856,8 @@
     <ShortMessage>Be wary of letting constructors throw exceptions.</ShortMessage>
     <LongMessage>Exception thrown in class org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel at new org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel(Map, ICoordSource, Comparator) will leave the constructor. The object under construction remains partially initialized and may be vulnerable to Finalizer attacks.</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="738" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-        <Message>At ObservationPlotModel.java:[lines 53-738]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="741" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+        <Message>At ObservationPlotModel.java:[lines 53-741]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel</Message>
     </Class>
@@ -7876,8 +7876,8 @@
     <ShortMessage>Be wary of letting constructors throw exceptions.</ShortMessage>
     <LongMessage>Exception thrown in class org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel at new org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel(Map, ICoordSource, Comparator, Map) will leave the constructor. The object under construction remains partially initialized and may be vulnerable to Finalizer attacks.</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="738" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-        <Message>At ObservationPlotModel.java:[lines 53-738]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="741" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+        <Message>At ObservationPlotModel.java:[lines 53-741]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel</Message>
     </Class>
@@ -7896,13 +7896,13 @@
     <ShortMessage>May expose internal representation by returning reference to mutable object</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.getSeriesNumToObSrcListMap() may expose internal representation by returning ObservationPlotModel.seriesNumToObSrcListMap</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="738" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-        <Message>At ObservationPlotModel.java:[lines 53-738]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="741" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+        <Message>At ObservationPlotModel.java:[lines 53-741]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" name="getSeriesNumToObSrcListMap" signature="()Ljava/util/Map;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="657" end="657" startBytecode="0" endBytecode="46" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="660" end="660" startBytecode="0" endBytecode="46" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java"/>
       <Message>In method org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.getSeriesNumToObSrcListMap()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" name="seriesNumToObSrcListMap" signature="Ljava/util/Map;" isStatic="false" primary="true">
@@ -7911,21 +7911,21 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.seriesNumToObSrcListMap</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true" start="657" end="657" startBytecode="4" endBytecode="4" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-      <Message>At ObservationPlotModel.java:[line 657]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true" start="660" end="660" startBytecode="4" endBytecode="4" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+      <Message>At ObservationPlotModel.java:[line 660]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP" priority="2" rank="18" abbrev="EI" category="MALICIOUS_CODE" instanceHash="539aff88d549fcccadfbb28f25b769c" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
     <ShortMessage>May expose internal representation by returning reference to mutable object</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.getSeriesNumToSrcTypeMap() may expose internal representation by returning ObservationPlotModel.seriesNumToSrcTypeMap</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="738" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-        <Message>At ObservationPlotModel.java:[lines 53-738]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="741" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+        <Message>At ObservationPlotModel.java:[lines 53-741]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" name="getSeriesNumToSrcTypeMap" signature="()Ljava/util/Map;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="671" end="671" startBytecode="0" endBytecode="46" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="674" end="674" startBytecode="0" endBytecode="46" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java"/>
       <Message>In method org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.getSeriesNumToSrcTypeMap()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" name="seriesNumToSrcTypeMap" signature="Ljava/util/Map;" isStatic="false" primary="true">
@@ -7934,21 +7934,21 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.seriesNumToSrcTypeMap</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true" start="671" end="671" startBytecode="4" endBytecode="4" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-      <Message>At ObservationPlotModel.java:[line 671]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true" start="674" end="674" startBytecode="4" endBytecode="4" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+      <Message>At ObservationPlotModel.java:[line 674]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP" priority="2" rank="18" abbrev="EI" category="MALICIOUS_CODE" instanceHash="8c897891f171cb04582c897cfcb72ff2" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
     <ShortMessage>May expose internal representation by returning reference to mutable object</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.getSeriesVisibilityMap() may expose internal representation by returning ObservationPlotModel.seriesVisibilityMap</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="738" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-        <Message>At ObservationPlotModel.java:[lines 53-738]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="741" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+        <Message>At ObservationPlotModel.java:[lines 53-741]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" name="getSeriesVisibilityMap" signature="()Ljava/util/Map;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="678" end="678" startBytecode="0" endBytecode="46" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="681" end="681" startBytecode="0" endBytecode="46" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java"/>
       <Message>In method org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.getSeriesVisibilityMap()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" name="seriesVisibilityMap" signature="Ljava/util/Map;" isStatic="false" primary="true">
@@ -7957,21 +7957,21 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.seriesVisibilityMap</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true" start="678" end="678" startBytecode="4" endBytecode="4" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-      <Message>At ObservationPlotModel.java:[line 678]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true" start="681" end="681" startBytecode="4" endBytecode="4" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+      <Message>At ObservationPlotModel.java:[line 681]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP" priority="2" rank="18" abbrev="EI" category="MALICIOUS_CODE" instanceHash="ed423112234791e17e1b4fd2e450c77e" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
     <ShortMessage>May expose internal representation by returning reference to mutable object</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.getSeriesWhoseElementsShouldBeJoinedVisually() may expose internal representation by returning ObservationPlotModel.seriesToBeJoinedVisually</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="738" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-        <Message>At ObservationPlotModel.java:[lines 53-738]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="741" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+        <Message>At ObservationPlotModel.java:[lines 53-741]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" name="getSeriesWhoseElementsShouldBeJoinedVisually" signature="()Ljava/util/Collection;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="557" end="557" startBytecode="0" endBytecode="46" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="560" end="560" startBytecode="0" endBytecode="46" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java"/>
       <Message>In method org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.getSeriesWhoseElementsShouldBeJoinedVisually()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" name="seriesToBeJoinedVisually" signature="Ljava/util/Set;" isStatic="false" primary="true">
@@ -7980,21 +7980,21 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.seriesToBeJoinedVisually</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true" start="557" end="557" startBytecode="4" endBytecode="4" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-      <Message>At ObservationPlotModel.java:[line 557]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true" start="560" end="560" startBytecode="4" endBytecode="4" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+      <Message>At ObservationPlotModel.java:[line 560]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="EI_EXPOSE_REP" priority="2" rank="18" abbrev="EI" category="MALICIOUS_CODE" instanceHash="ff70cf617769a622853c85e74ba1d38b" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="374">
     <ShortMessage>May expose internal representation by returning reference to mutable object</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.getSrcTypeToSeriesNumMap() may expose internal representation by returning ObservationPlotModel.srcTypeToSeriesNumMap</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="738" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-        <Message>At ObservationPlotModel.java:[lines 53-738]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="741" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+        <Message>At ObservationPlotModel.java:[lines 53-741]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" name="getSrcTypeToSeriesNumMap" signature="()Ljava/util/Map;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="664" end="664" startBytecode="0" endBytecode="46" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="667" end="667" startBytecode="0" endBytecode="46" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java"/>
       <Message>In method org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.getSrcTypeToSeriesNumMap()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" name="srcTypeToSeriesNumMap" signature="Ljava/util/Map;" isStatic="false" primary="true">
@@ -8003,16 +8003,16 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.srcTypeToSeriesNumMap</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true" start="664" end="664" startBytecode="4" endBytecode="4" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-      <Message>At ObservationPlotModel.java:[line 664]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true" start="667" end="667" startBytecode="4" endBytecode="4" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+      <Message>At ObservationPlotModel.java:[line 667]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="WMI_WRONG_MAP_ITERATOR" priority="2" rank="18" abbrev="WMI" category="PERFORMANCE" instanceHash="3c78be7fee2cd5b3fa8705a171594acf" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
     <ShortMessage>Inefficient use of keySet iterator instead of entrySet iterator</ShortMessage>
     <LongMessage>new org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel(Map, ICoordSource, Comparator) makes inefficient use of keySet iterator instead of entrySet iterator</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="738" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-        <Message>At ObservationPlotModel.java:[lines 53-738]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="741" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+        <Message>At ObservationPlotModel.java:[lines 53-741]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel</Message>
     </Class>
@@ -8028,8 +8028,8 @@
     <ShortMessage>Inefficient use of keySet iterator instead of entrySet iterator</ShortMessage>
     <LongMessage>new org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel(Map, ICoordSource, Comparator, Map) makes inefficient use of keySet iterator instead of entrySet iterator</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="738" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-        <Message>At ObservationPlotModel.java:[lines 53-738]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="741" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+        <Message>At ObservationPlotModel.java:[lines 53-741]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel</Message>
     </Class>
@@ -8045,13 +8045,13 @@
     <ShortMessage>Inefficient use of keySet iterator instead of entrySet iterator</ShortMessage>
     <LongMessage>org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.getVisibleSeries() makes inefficient use of keySet iterator instead of entrySet iterator</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="738" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-        <Message>At ObservationPlotModel.java:[lines 53-738]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="53" end="741" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+        <Message>At ObservationPlotModel.java:[lines 53-741]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" name="getVisibleSeries" signature="()Ljava/util/Set;" isStatic="false" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="464" end="473" startBytecode="0" endBytecode="212" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" start="467" end="476" startBytecode="0" endBytecode="212" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java"/>
       <Message>In method org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.getVisibleSeries()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" name="seriesVisibilityMap" signature="Ljava/util/Map;" isStatic="false" primary="true">
@@ -8060,8 +8060,8 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.seriesVisibilityMap</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true" start="467" end="467" startBytecode="47" endBytecode="47" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
-      <Message>At ObservationPlotModel.java:[line 467]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" primary="true" start="470" end="470" startBytecode="47" endBytecode="47" sourcefile="ObservationPlotModel.java" sourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" relSourcepath="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java">
+      <Message>At ObservationPlotModel.java:[line 470]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="CT_CONSTRUCTOR_THROW" priority="2" rank="16" abbrev="CT" category="BAD_PRACTICE" instanceHash="ea36c4fcc458eedfc59fc4c7444bbb1a" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
@@ -9254,13 +9254,13 @@
     <ShortMessage>Public static method may expose internal representation by returning a mutable object or array</ShortMessage>
     <LongMessage>Public static org.aavso.tools.vstar.ui.resources.ResourceAccessor.getLoginInfo() may expose internal representation by returning ResourceAccessor.loginInfo</LongMessage>
     <Class classname="org.aavso.tools.vstar.ui.resources.ResourceAccessor" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.resources.ResourceAccessor" start="40" end="163" sourcefile="ResourceAccessor.java" sourcepath="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java" relSourcepath="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java">
-        <Message>At ResourceAccessor.java:[lines 40-163]</Message>
+      <SourceLine classname="org.aavso.tools.vstar.ui.resources.ResourceAccessor" start="36" end="159" sourcefile="ResourceAccessor.java" sourcepath="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java" relSourcepath="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java">
+        <Message>At ResourceAccessor.java:[lines 36-159]</Message>
       </SourceLine>
       <Message>In class org.aavso.tools.vstar.ui.resources.ResourceAccessor</Message>
     </Class>
     <Method classname="org.aavso.tools.vstar.ui.resources.ResourceAccessor" name="getLoginInfo" signature="()Lorg/aavso/tools/vstar/ui/resources/LoginInfo;" isStatic="true" primary="true">
-      <SourceLine classname="org.aavso.tools.vstar.ui.resources.ResourceAccessor" start="52" end="52" startBytecode="0" endBytecode="27" sourcefile="ResourceAccessor.java" sourcepath="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java" relSourcepath="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java"/>
+      <SourceLine classname="org.aavso.tools.vstar.ui.resources.ResourceAccessor" start="48" end="48" startBytecode="0" endBytecode="27" sourcefile="ResourceAccessor.java" sourcepath="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java" relSourcepath="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java"/>
       <Message>In method org.aavso.tools.vstar.ui.resources.ResourceAccessor.getLoginInfo()</Message>
     </Method>
     <Field classname="org.aavso.tools.vstar.ui.resources.ResourceAccessor" name="loginInfo" signature="Lorg/aavso/tools/vstar/ui/resources/LoginInfo;" isStatic="true" primary="true">
@@ -9269,8 +9269,8 @@
       </SourceLine>
       <Message>Field org.aavso.tools.vstar.ui.resources.ResourceAccessor.loginInfo</Message>
     </Field>
-    <SourceLine classname="org.aavso.tools.vstar.ui.resources.ResourceAccessor" primary="true" start="52" end="52" startBytecode="3" endBytecode="3" sourcefile="ResourceAccessor.java" sourcepath="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java" relSourcepath="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java">
-      <Message>At ResourceAccessor.java:[line 52]</Message>
+    <SourceLine classname="org.aavso.tools.vstar.ui.resources.ResourceAccessor" primary="true" start="48" end="48" startBytecode="3" endBytecode="3" sourcefile="ResourceAccessor.java" sourcepath="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java" relSourcepath="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java">
+      <Message>At ResourceAccessor.java:[line 48]</Message>
     </SourceLine>
   </BugInstance>
   <BugInstance type="CT_CONSTRUCTOR_THROW" priority="2" rank="16" abbrev="CT" category="BAD_PRACTICE" instanceHash="68251aca2512feafde815e7684e8f2af" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
@@ -15126,7 +15126,7 @@ signals unexpected behavior by returning an atypical return value.
     <Description>Test for floating point equality</Description>
   </BugCode>
   <Errors errors="0" missingClasses="0"></Errors>
-  <FindBugsSummary timestamp="Sat, 19 Sep 2026 15:23:20 +0000" total_classes="810" referenced_classes="1652" total_bugs="623" total_size="33095" num_packages="55" java_version="17.0.20.1" vm_version="17.0.20.1+1" cpu_seconds="69.69" clock_seconds="21.41" peak_mbytes="531.03" alloc_mbytes="1024.00" gc_seconds="0.46" priority_2="565" priority_1="58">
+  <FindBugsSummary timestamp="Thu, 15 Oct 2026 12:10:37 +0000" total_classes="810" referenced_classes="1652" total_bugs="623" total_size="33097" num_packages="55" java_version="17.0.20.1" vm_version="17.0.20.1+1" cpu_seconds="73.01" clock_seconds="22.50" peak_mbytes="523.58" alloc_mbytes="1024.00" gc_seconds="0.56" priority_2="565" priority_1="58">
     <FileStats path="org/aavso/tools/vstar/auth/AAVSOPostUserPassXMLAuthenticationSource.java" bugCount="1" size="68" bugHash="2b226ca312f5cbba10d35a00f50e21a4"/>
     <FileStats path="org/aavso/tools/vstar/auth/Auth0JSONAutheticationSource.java" bugCount="1" size="65" bugHash="03945e91cf6c274300ecb17b6aa07d37"/>
     <FileStats path="org/aavso/tools/vstar/auth/VSXWebServiceMemberInfo.java" bugCount="0" size="18"/>
@@ -15394,7 +15394,7 @@ signals unexpected behavior by returning an atypical return value.
     <FileStats path="org/aavso/tools/vstar/ui/model/plot/JDCoordSource.java" bugCount="1" size="19" bugHash="c6da2c4377f4ccca5a24ef740001f957"/>
     <FileStats path="org/aavso/tools/vstar/ui/model/plot/JDTimeElementEntity.java" bugCount="0" size="22"/>
     <FileStats path="org/aavso/tools/vstar/ui/model/plot/ObservationAndMeanPlotModel.java" bugCount="7" size="271" bugHash="5fbac5f0c774c436d15a8a258a1e4006"/>
-    <FileStats path="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" bugCount="10" size="252" bugHash="91dc8ae4f67ecad33bcb70a7c58ff154"/>
+    <FileStats path="org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java" bugCount="10" size="254" bugHash="4acf38fddcede9ce7a7f3e9a7ea68a7c"/>
     <FileStats path="org/aavso/tools/vstar/ui/model/plot/PeriodAnalysis2DPlotModel.java" bugCount="5" size="62" bugHash="35491b9a32de246a46fb4bcd65a8bb89"/>
     <FileStats path="org/aavso/tools/vstar/ui/model/plot/PhaseCoordSource.java" bugCount="0" size="30"/>
     <FileStats path="org/aavso/tools/vstar/ui/model/plot/PhaseTimeElementEntity.java" bugCount="0" size="30"/>
@@ -15418,7 +15418,7 @@ signals unexpected behavior by returning an atypical return value.
     <FileStats path="org/aavso/tools/vstar/ui/resources/LoginType.java" bugCount="1" size="22" bugHash="a388abbbca6237bdd55a3f62b81018ef"/>
     <FileStats path="org/aavso/tools/vstar/ui/resources/PluginLoader.java" bugCount="3" size="150" bugHash="0b46818377980e44dea065b0d454cd9f"/>
     <FileStats path="org/aavso/tools/vstar/ui/resources/PropertiesAccessor.java" bugCount="0" size="37"/>
-    <FileStats path="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java" bugCount="1" size="46" bugHash="21d745696e7c4a73146578a1dc0ebfc2"/>
+    <FileStats path="org/aavso/tools/vstar/ui/resources/ResourceAccessor.java" bugCount="1" size="46" bugHash="0d29715efd744cf4abfc84a4ecbe935b"/>
     <FileStats path="org/aavso/tools/vstar/ui/resources/RevisionAccessor.java" bugCount="0" size="12"/>
     <FileStats path="org/aavso/tools/vstar/ui/resources/Star.java" bugCount="0" size="17"/>
     <FileStats path="org/aavso/tools/vstar/ui/resources/StarGroups.java" bugCount="6" size="112" bugHash="2e973436a33bef3eec321029fc73d1c7"/>
@@ -16127,7 +16127,7 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel$2" sourceFile="ValidObservationTableModel.java" interface="false" size="11" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.model.list.WWZDataTableModel" sourceFile="WWZDataTableModel.java" interface="false" size="26" bugs="4" priority_2="4"/>
     </PackageStats>
-    <PackageStats package="org.aavso.tools.vstar.ui.model.plot" total_bugs="34" total_types="26" total_size="982" priority_2="31" priority_1="3">
+    <PackageStats package="org.aavso.tools.vstar.ui.model.plot" total_bugs="34" total_types="26" total_size="984" priority_2="31" priority_1="3">
       <ClassStats class="org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction" sourceFile="ContinuousModelFunction.java" interface="false" size="32" bugs="4" priority_2="4"/>
       <ClassStats class="org.aavso.tools.vstar.ui.model.plot.ContinuousModelPlotModel" sourceFile="ContinuousModelPlotModel.java" interface="false" size="31" bugs="2" priority_2="2"/>
       <ClassStats class="org.aavso.tools.vstar.ui.model.plot.ICoordSource" sourceFile="ICoordSource.java" interface="true" size="7" bugs="0"/>
@@ -16142,7 +16142,7 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel$2" sourceFile="ObservationAndMeanPlotModel.java" interface="false" size="28" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel$3" sourceFile="ObservationAndMeanPlotModel.java" interface="false" size="15" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel$4" sourceFile="ObservationAndMeanPlotModel.java" interface="false" size="16" bugs="0"/>
-      <ClassStats class="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" sourceFile="ObservationPlotModel.java" interface="false" size="235" bugs="10" priority_2="10"/>
+      <ClassStats class="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel" sourceFile="ObservationPlotModel.java" interface="false" size="237" bugs="10" priority_2="10"/>
       <ClassStats class="org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel$1" sourceFile="ObservationPlotModel.java" interface="false" size="17" bugs="0"/>
       <ClassStats class="org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel" sourceFile="PeriodAnalysis2DPlotModel.java" interface="false" size="62" bugs="5" priority_2="5"/>
       <ClassStats class="org.aavso.tools.vstar.ui.model.plot.PhaseCoordSource" sourceFile="PhaseCoordSource.java" interface="false" size="30" bugs="0"/>
@@ -16458,56 +16458,55 @@ signals unexpected behavior by returning an atypical return value.
       <ClassStats class="org.aavso.tools.vstar.vela.VeLaVisitor" sourceFile="VeLaVisitor.java" interface="true" size="32" bugs="0"/>
     </PackageStats>
     <FindBugsProfile>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="1167" invocations="4162" avgMicrosecondsPerInvocation="280" maxMicrosecondsPerInvocation="19203" standardDeviationMicrosecondsPerInvocation="859"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNoSideEffectMethods" totalMilliseconds="906" invocations="1652" avgMicrosecondsPerInvocation="548" maxMicrosecondsPerInvocation="27619" standardDeviationMicrosecondsPerInvocation="1460"/>
-      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.NullDerefAndRedundantComparisonFinder" totalMilliseconds="888" invocations="4815" avgMicrosecondsPerInvocation="184" maxMicrosecondsPerInvocation="23104" standardDeviationMicrosecondsPerInvocation="634"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueNumberDataflowFactory" totalMilliseconds="875" invocations="5225" avgMicrosecondsPerInvocation="167" maxMicrosecondsPerInvocation="44059" standardDeviationMicrosecondsPerInvocation="866"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.IsNullValueDataflowFactory" totalMilliseconds="837" invocations="4999" avgMicrosecondsPerInvocation="167" maxMicrosecondsPerInvocation="17872" standardDeviationMicrosecondsPerInvocation="564"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.TypeDataflowFactory" totalMilliseconds="778" invocations="5144" avgMicrosecondsPerInvocation="151" maxMicrosecondsPerInvocation="13334" standardDeviationMicrosecondsPerInvocation="490"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="753" invocations="1652" avgMicrosecondsPerInvocation="456" maxMicrosecondsPerInvocation="10708" standardDeviationMicrosecondsPerInvocation="1051"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine" totalMilliseconds="746" invocations="4172" avgMicrosecondsPerInvocation="178" maxMicrosecondsPerInvocation="34884" standardDeviationMicrosecondsPerInvocation="1090"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.UnconditionalValueDerefDataflowFactory" totalMilliseconds="695" invocations="4975" avgMicrosecondsPerInvocation="139" maxMicrosecondsPerInvocation="25859" standardDeviationMicrosecondsPerInvocation="596"/>
-      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="578" invocations="6953" avgMicrosecondsPerInvocation="83" maxMicrosecondsPerInvocation="6165" standardDeviationMicrosecondsPerInvocation="228"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison$SpecialTypeAnalysis" totalMilliseconds="521" invocations="3857" avgMicrosecondsPerInvocation="135" maxMicrosecondsPerInvocation="12133" standardDeviationMicrosecondsPerInvocation="384"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.CFGFactory" totalMilliseconds="484" invocations="5250" avgMicrosecondsPerInvocation="92" maxMicrosecondsPerInvocation="7341" standardDeviationMicrosecondsPerInvocation="220"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindReturnRef" totalMilliseconds="339" invocations="810" avgMicrosecondsPerInvocation="418" maxMicrosecondsPerInvocation="19149" standardDeviationMicrosecondsPerInvocation="1209"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ConstructorThrow" totalMilliseconds="301" invocations="810" avgMicrosecondsPerInvocation="371" maxMicrosecondsPerInvocation="13891" standardDeviationMicrosecondsPerInvocation="768"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers" totalMilliseconds="248" invocations="1652" avgMicrosecondsPerInvocation="150" maxMicrosecondsPerInvocation="3948" standardDeviationMicrosecondsPerInvocation="338"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ResourceInMultipleThreadsDetector" totalMilliseconds="223" invocations="810" avgMicrosecondsPerInvocation="276" maxMicrosecondsPerInvocation="9612" standardDeviationMicrosecondsPerInvocation="606"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.UnreadFields" totalMilliseconds="208" invocations="810" avgMicrosecondsPerInvocation="257" maxMicrosecondsPerInvocation="29541" standardDeviationMicrosecondsPerInvocation="1102"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.SharedVariableAtomicityDetector" totalMilliseconds="202" invocations="810" avgMicrosecondsPerInvocation="249" maxMicrosecondsPerInvocation="81648" standardDeviationMicrosecondsPerInvocation="3038"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine" totalMilliseconds="200" invocations="1990" avgMicrosecondsPerInvocation="100" maxMicrosecondsPerInvocation="10787" standardDeviationMicrosecondsPerInvocation="301"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ConstantDataflowFactory" totalMilliseconds="197" invocations="4999" avgMicrosecondsPerInvocation="39" maxMicrosecondsPerInvocation="10087" standardDeviationMicrosecondsPerInvocation="199"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.MethodGenFactory" totalMilliseconds="185" invocations="5250" avgMicrosecondsPerInvocation="35" maxMicrosecondsPerInvocation="24901" standardDeviationMicrosecondsPerInvocation="352"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.LoadOfKnownNullValue" totalMilliseconds="184" invocations="810" avgMicrosecondsPerInvocation="228" maxMicrosecondsPerInvocation="12050" standardDeviationMicrosecondsPerInvocation="689"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUncalledPrivateMethods" totalMilliseconds="183" invocations="810" avgMicrosecondsPerInvocation="226" maxMicrosecondsPerInvocation="11401" standardDeviationMicrosecondsPerInvocation="448"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildObligationPolicyDatabase" totalMilliseconds="178" invocations="1652" avgMicrosecondsPerInvocation="108" maxMicrosecondsPerInvocation="2388" standardDeviationMicrosecondsPerInvocation="215"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.CalledMethods" totalMilliseconds="169" invocations="1652" avgMicrosecondsPerInvocation="102" maxMicrosecondsPerInvocation="4347" standardDeviationMicrosecondsPerInvocation="255"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" totalMilliseconds="164" invocations="1652" avgMicrosecondsPerInvocation="99" maxMicrosecondsPerInvocation="11194" standardDeviationMicrosecondsPerInvocation="364"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindInconsistentSync2" totalMilliseconds="154" invocations="810" avgMicrosecondsPerInvocation="191" maxMicrosecondsPerInvocation="8985" standardDeviationMicrosecondsPerInvocation="441"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.DumbMethods" totalMilliseconds="153" invocations="810" avgMicrosecondsPerInvocation="190" maxMicrosecondsPerInvocation="9561" standardDeviationMicrosecondsPerInvocation="455"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical" totalMilliseconds="148" invocations="1652" avgMicrosecondsPerInvocation="89" maxMicrosecondsPerInvocation="8900" standardDeviationMicrosecondsPerInvocation="276"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis" totalMilliseconds="140" invocations="1652" avgMicrosecondsPerInvocation="84" maxMicrosecondsPerInvocation="25593" standardDeviationMicrosecondsPerInvocation="690"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.SerializableIdiom" totalMilliseconds="132" invocations="810" avgMicrosecondsPerInvocation="163" maxMicrosecondsPerInvocation="14962" standardDeviationMicrosecondsPerInvocation="695"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison" totalMilliseconds="129" invocations="810" avgMicrosecondsPerInvocation="159" maxMicrosecondsPerInvocation="4378" standardDeviationMicrosecondsPerInvocation="337"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindDeadLocalStores" totalMilliseconds="123" invocations="810" avgMicrosecondsPerInvocation="152" maxMicrosecondsPerInvocation="5443" standardDeviationMicrosecondsPerInvocation="350"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildStringPassthruGraph" totalMilliseconds="123" invocations="1652" avgMicrosecondsPerInvocation="74" maxMicrosecondsPerInvocation="3282" standardDeviationMicrosecondsPerInvocation="214"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNullDeref$CheckCallSitesAndReturnInstructions" totalMilliseconds="123" invocations="4815" avgMicrosecondsPerInvocation="25" maxMicrosecondsPerInvocation="7449" standardDeviationMicrosecondsPerInvocation="126"/>
-      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.TypeQualifierNullnessAnnotationDatabase" totalMilliseconds="120" invocations="123857" avgMicrosecondsPerInvocation="0" maxMicrosecondsPerInvocation="2288" standardDeviationMicrosecondsPerInvocation="8"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.MethodReturnCheck" totalMilliseconds="119" invocations="810" avgMicrosecondsPerInvocation="147" maxMicrosecondsPerInvocation="3345" standardDeviationMicrosecondsPerInvocation="287"/>
-      <ClassProfile name="edu.umd.cs.findbugs.util.TopologicalSort" totalMilliseconds="117" invocations="4054" avgMicrosecondsPerInvocation="28" maxMicrosecondsPerInvocation="13351" standardDeviationMicrosecondsPerInvocation="218"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindPublicAttributes" totalMilliseconds="115" invocations="810" avgMicrosecondsPerInvocation="142" maxMicrosecondsPerInvocation="4492" standardDeviationMicrosecondsPerInvocation="338"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUselessObjects" totalMilliseconds="113" invocations="810" avgMicrosecondsPerInvocation="139" maxMicrosecondsPerInvocation="24427" standardDeviationMicrosecondsPerInvocation="950"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ReflectiveClasses" totalMilliseconds="111" invocations="1652" avgMicrosecondsPerInvocation="67" maxMicrosecondsPerInvocation="3063" standardDeviationMicrosecondsPerInvocation="176"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindHEmismatch" totalMilliseconds="110" invocations="810" avgMicrosecondsPerInvocation="136" maxMicrosecondsPerInvocation="2293" standardDeviationMicrosecondsPerInvocation="236"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.MultipleInstantiationsOfSingletons" totalMilliseconds="109" invocations="810" avgMicrosecondsPerInvocation="135" maxMicrosecondsPerInvocation="3932" standardDeviationMicrosecondsPerInvocation="265"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.LiveLocalStoreDataflowFactory" totalMilliseconds="104" invocations="4743" avgMicrosecondsPerInvocation="21" maxMicrosecondsPerInvocation="4470" standardDeviationMicrosecondsPerInvocation="88"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindPuzzlers" totalMilliseconds="103" invocations="810" avgMicrosecondsPerInvocation="127" maxMicrosecondsPerInvocation="3694" standardDeviationMicrosecondsPerInvocation="245"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.RuntimeExceptionCapture" totalMilliseconds="103" invocations="810" avgMicrosecondsPerInvocation="127" maxMicrosecondsPerInvocation="3116" standardDeviationMicrosecondsPerInvocation="266"/>
-      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueRangeAnalysisFactory" totalMilliseconds="102" invocations="5250" avgMicrosecondsPerInvocation="19" maxMicrosecondsPerInvocation="15169" standardDeviationMicrosecondsPerInvocation="252"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.FindOverridableMethodCall" totalMilliseconds="101" invocations="810" avgMicrosecondsPerInvocation="125" maxMicrosecondsPerInvocation="3974" standardDeviationMicrosecondsPerInvocation="286"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.ExplicitSerialization" totalMilliseconds="100" invocations="1652" avgMicrosecondsPerInvocation="61" maxMicrosecondsPerInvocation="10889" standardDeviationMicrosecondsPerInvocation="529"/>
-      <ClassProfile name="edu.umd.cs.findbugs.detect.CheckRelaxingNullnessAnnotation" totalMilliseconds="100" invocations="810" avgMicrosecondsPerInvocation="123" maxMicrosecondsPerInvocation="5642" standardDeviationMicrosecondsPerInvocation="308"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine" totalMilliseconds="1259" invocations="4172" avgMicrosecondsPerInvocation="301" maxMicrosecondsPerInvocation="45882" standardDeviationMicrosecondsPerInvocation="2274"/>
+      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.NullDerefAndRedundantComparisonFinder" totalMilliseconds="1004" invocations="4815" avgMicrosecondsPerInvocation="208" maxMicrosecondsPerInvocation="15633" standardDeviationMicrosecondsPerInvocation="657"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueNumberDataflowFactory" totalMilliseconds="947" invocations="5225" avgMicrosecondsPerInvocation="181" maxMicrosecondsPerInvocation="54960" standardDeviationMicrosecondsPerInvocation="987"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="941" invocations="4162" avgMicrosecondsPerInvocation="226" maxMicrosecondsPerInvocation="15997" standardDeviationMicrosecondsPerInvocation="665"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNoSideEffectMethods" totalMilliseconds="900" invocations="1652" avgMicrosecondsPerInvocation="545" maxMicrosecondsPerInvocation="19312" standardDeviationMicrosecondsPerInvocation="1322"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.IsNullValueDataflowFactory" totalMilliseconds="889" invocations="4999" avgMicrosecondsPerInvocation="177" maxMicrosecondsPerInvocation="12791" standardDeviationMicrosecondsPerInvocation="563"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.TypeDataflowFactory" totalMilliseconds="832" invocations="5144" avgMicrosecondsPerInvocation="161" maxMicrosecondsPerInvocation="18753" standardDeviationMicrosecondsPerInvocation="565"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="826" invocations="1652" avgMicrosecondsPerInvocation="500" maxMicrosecondsPerInvocation="18157" standardDeviationMicrosecondsPerInvocation="1258"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.UnconditionalValueDerefDataflowFactory" totalMilliseconds="805" invocations="4975" avgMicrosecondsPerInvocation="161" maxMicrosecondsPerInvocation="19766" standardDeviationMicrosecondsPerInvocation="715"/>
+      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="624" invocations="6953" avgMicrosecondsPerInvocation="89" maxMicrosecondsPerInvocation="14361" standardDeviationMicrosecondsPerInvocation="320"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison$SpecialTypeAnalysis" totalMilliseconds="549" invocations="3857" avgMicrosecondsPerInvocation="142" maxMicrosecondsPerInvocation="16982" standardDeviationMicrosecondsPerInvocation="455"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.CFGFactory" totalMilliseconds="529" invocations="5250" avgMicrosecondsPerInvocation="100" maxMicrosecondsPerInvocation="12504" standardDeviationMicrosecondsPerInvocation="316"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindReturnRef" totalMilliseconds="348" invocations="810" avgMicrosecondsPerInvocation="430" maxMicrosecondsPerInvocation="24792" standardDeviationMicrosecondsPerInvocation="1390"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ConstructorThrow" totalMilliseconds="319" invocations="810" avgMicrosecondsPerInvocation="393" maxMicrosecondsPerInvocation="14700" standardDeviationMicrosecondsPerInvocation="1018"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers" totalMilliseconds="246" invocations="1652" avgMicrosecondsPerInvocation="149" maxMicrosecondsPerInvocation="3880" standardDeviationMicrosecondsPerInvocation="320"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ResourceInMultipleThreadsDetector" totalMilliseconds="233" invocations="810" avgMicrosecondsPerInvocation="288" maxMicrosecondsPerInvocation="10524" standardDeviationMicrosecondsPerInvocation="686"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine" totalMilliseconds="232" invocations="1990" avgMicrosecondsPerInvocation="116" maxMicrosecondsPerInvocation="19632" standardDeviationMicrosecondsPerInvocation="559"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.SharedVariableAtomicityDetector" totalMilliseconds="223" invocations="810" avgMicrosecondsPerInvocation="275" maxMicrosecondsPerInvocation="76732" standardDeviationMicrosecondsPerInvocation="3092"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ConstantDataflowFactory" totalMilliseconds="210" invocations="4999" avgMicrosecondsPerInvocation="42" maxMicrosecondsPerInvocation="11313" standardDeviationMicrosecondsPerInvocation="210"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.UnreadFields" totalMilliseconds="196" invocations="810" avgMicrosecondsPerInvocation="242" maxMicrosecondsPerInvocation="5189" standardDeviationMicrosecondsPerInvocation="451"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.MethodGenFactory" totalMilliseconds="189" invocations="5250" avgMicrosecondsPerInvocation="36" maxMicrosecondsPerInvocation="20501" standardDeviationMicrosecondsPerInvocation="315"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.LoadOfKnownNullValue" totalMilliseconds="188" invocations="810" avgMicrosecondsPerInvocation="232" maxMicrosecondsPerInvocation="12055" standardDeviationMicrosecondsPerInvocation="718"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.CalledMethods" totalMilliseconds="185" invocations="1652" avgMicrosecondsPerInvocation="112" maxMicrosecondsPerInvocation="3296" standardDeviationMicrosecondsPerInvocation="256"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildObligationPolicyDatabase" totalMilliseconds="174" invocations="1652" avgMicrosecondsPerInvocation="105" maxMicrosecondsPerInvocation="2196" standardDeviationMicrosecondsPerInvocation="208"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUncalledPrivateMethods" totalMilliseconds="170" invocations="810" avgMicrosecondsPerInvocation="210" maxMicrosecondsPerInvocation="1429" standardDeviationMicrosecondsPerInvocation="212"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindInconsistentSync2" totalMilliseconds="159" invocations="810" avgMicrosecondsPerInvocation="196" maxMicrosecondsPerInvocation="8989" standardDeviationMicrosecondsPerInvocation="474"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" totalMilliseconds="152" invocations="1652" avgMicrosecondsPerInvocation="92" maxMicrosecondsPerInvocation="4637" standardDeviationMicrosecondsPerInvocation="237"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.DumbMethods" totalMilliseconds="151" invocations="810" avgMicrosecondsPerInvocation="186" maxMicrosecondsPerInvocation="5204" standardDeviationMicrosecondsPerInvocation="392"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical" totalMilliseconds="147" invocations="1652" avgMicrosecondsPerInvocation="89" maxMicrosecondsPerInvocation="8199" standardDeviationMicrosecondsPerInvocation="269"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindDeadLocalStores" totalMilliseconds="137" invocations="810" avgMicrosecondsPerInvocation="170" maxMicrosecondsPerInvocation="6436" standardDeviationMicrosecondsPerInvocation="461"/>
+      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.TypeQualifierNullnessAnnotationDatabase" totalMilliseconds="133" invocations="123859" avgMicrosecondsPerInvocation="1" maxMicrosecondsPerInvocation="2340" standardDeviationMicrosecondsPerInvocation="10"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.MethodReturnCheck" totalMilliseconds="128" invocations="810" avgMicrosecondsPerInvocation="159" maxMicrosecondsPerInvocation="4041" standardDeviationMicrosecondsPerInvocation="367"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison" totalMilliseconds="128" invocations="810" avgMicrosecondsPerInvocation="158" maxMicrosecondsPerInvocation="4778" standardDeviationMicrosecondsPerInvocation="353"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.EqualsOperandShouldHaveClassCompatibleWithThis" totalMilliseconds="127" invocations="1652" avgMicrosecondsPerInvocation="77" maxMicrosecondsPerInvocation="25158" standardDeviationMicrosecondsPerInvocation="632"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildStringPassthruGraph" totalMilliseconds="126" invocations="1652" avgMicrosecondsPerInvocation="76" maxMicrosecondsPerInvocation="3088" standardDeviationMicrosecondsPerInvocation="215"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNullDeref$CheckCallSitesAndReturnInstructions" totalMilliseconds="123" invocations="4815" avgMicrosecondsPerInvocation="25" maxMicrosecondsPerInvocation="2209" standardDeviationMicrosecondsPerInvocation="69"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.SerializableIdiom" totalMilliseconds="120" invocations="810" avgMicrosecondsPerInvocation="149" maxMicrosecondsPerInvocation="8802" standardDeviationMicrosecondsPerInvocation="525"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueRangeAnalysisFactory" totalMilliseconds="119" invocations="5250" avgMicrosecondsPerInvocation="22" maxMicrosecondsPerInvocation="16240" standardDeviationMicrosecondsPerInvocation="303"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindPublicAttributes" totalMilliseconds="117" invocations="810" avgMicrosecondsPerInvocation="145" maxMicrosecondsPerInvocation="4795" standardDeviationMicrosecondsPerInvocation="366"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ReflectiveClasses" totalMilliseconds="116" invocations="1652" avgMicrosecondsPerInvocation="70" maxMicrosecondsPerInvocation="2502" standardDeviationMicrosecondsPerInvocation="165"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindUselessObjects" totalMilliseconds="115" invocations="810" avgMicrosecondsPerInvocation="142" maxMicrosecondsPerInvocation="26978" standardDeviationMicrosecondsPerInvocation="1023"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindOpenStream" totalMilliseconds="113" invocations="810" avgMicrosecondsPerInvocation="139" maxMicrosecondsPerInvocation="33046" standardDeviationMicrosecondsPerInvocation="1412"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindHEmismatch" totalMilliseconds="112" invocations="810" avgMicrosecondsPerInvocation="138" maxMicrosecondsPerInvocation="3846" standardDeviationMicrosecondsPerInvocation="286"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindOverridableMethodCall" totalMilliseconds="110" invocations="810" avgMicrosecondsPerInvocation="136" maxMicrosecondsPerInvocation="8365" standardDeviationMicrosecondsPerInvocation="413"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.MultipleInstantiationsOfSingletons" totalMilliseconds="108" invocations="810" avgMicrosecondsPerInvocation="134" maxMicrosecondsPerInvocation="3186" standardDeviationMicrosecondsPerInvocation="253"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindPuzzlers" totalMilliseconds="108" invocations="810" avgMicrosecondsPerInvocation="134" maxMicrosecondsPerInvocation="3510" standardDeviationMicrosecondsPerInvocation="287"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.LiveLocalStoreDataflowFactory" totalMilliseconds="108" invocations="4743" avgMicrosecondsPerInvocation="22" maxMicrosecondsPerInvocation="4713" standardDeviationMicrosecondsPerInvocation="92"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.InfiniteLoop" totalMilliseconds="105" invocations="810" avgMicrosecondsPerInvocation="130" maxMicrosecondsPerInvocation="7638" standardDeviationMicrosecondsPerInvocation="405"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.ExplicitSerialization" totalMilliseconds="105" invocations="1652" avgMicrosecondsPerInvocation="63" maxMicrosecondsPerInvocation="11452" standardDeviationMicrosecondsPerInvocation="515"/>
     </FindBugsProfile>
   </FindBugsSummary>
   <ClassFeatures></ClassFeatures>
