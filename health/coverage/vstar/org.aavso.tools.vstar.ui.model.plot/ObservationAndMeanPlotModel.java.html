@@ -249,7 +249,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 *      boolean)
 	 */
 	public boolean changeSeriesVisibility(int seriesNum, boolean visibility) {
-<span class="nc" id="L252">		return super.changeSeriesVisibility(seriesNum, visibility);</span>
+<span class="fc" id="L252">		return super.changeSeriesVisibility(seriesNum, visibility);</span>
 	}
 
 	/**
@@ -705,17 +705,17 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	}
 
 	public void updateFilteredSeries(List&lt;ValidObservation&gt; obs) {
-<span class="nc bnc" id="L708" title="All 2 branches missed.">		if (this.seriesExists(SeriesType.Filtered)) {</span>
-<span class="nc" id="L709">			filterSeriesNum = replaceObservationSeries(SeriesType.Filtered, obs);</span>
+<span class="fc bfc" id="L708" title="All 2 branches covered.">		if (this.seriesExists(SeriesType.Filtered)) {</span>
+<span class="fc" id="L709">			filterSeriesNum = replaceObservationSeries(SeriesType.Filtered, obs);</span>
 		} else {
-<span class="nc" id="L711">			filterSeriesNum = addObservationSeries(SeriesType.Filtered, obs);</span>
+<span class="fc" id="L711">			filterSeriesNum = addObservationSeries(SeriesType.Filtered, obs);</span>
 		}
 
 		// Make the filter series visible either because this is
 		// its first appearance or because it may have been made
 		// invisible via a previous NO_FILTER message.
-<span class="nc" id="L717">		changeSeriesVisibility(filterSeriesNum, true);</span>
-<span class="nc" id="L718">	}</span>
+<span class="fc" id="L717">		changeSeriesVisibility(filterSeriesNum, true);</span>
+<span class="fc" id="L718">	}</span>
 
 	@Override
 	public boolean removeAllObservationFromSeries(SeriesType type) {

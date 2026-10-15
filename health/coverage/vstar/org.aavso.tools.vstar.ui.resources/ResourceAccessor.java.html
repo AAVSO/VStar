@@ -19,11 +19,7 @@ package org.aavso.tools.vstar.ui.resources;
 
 import java.awt.Image;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
@@ -37,11 +33,11 @@ import org.aavso.tools.vstar.vela.VeLaStandardLibrary;
  * The purpose of this class is to provide access to non-class resources such as
  * images and HTML files, observer code.
  */
-<span class="nc" id="L40">public class ResourceAccessor {</span>
+<span class="nc" id="L36">public class ResourceAccessor {</span>
 
     // ** User name, observer code, login type. **
 
-<span class="fc" id="L44">    private static LoginInfo loginInfo = new LoginInfo();</span>
+<span class="fc" id="L40">    private static LoginInfo loginInfo = new LoginInfo();</span>
 
     // ** Image resource accessor. **
 
@@ -49,7 +45,7 @@ import org.aavso.tools.vstar.vela.VeLaStandardLibrary;
      * @return the loginInfo
      */
     public static LoginInfo getLoginInfo() {
-<span class="nc" id="L52">        return loginInfo;</span>
+<span class="nc" id="L48">        return loginInfo;</span>
     }
 
     /**
@@ -59,32 +55,32 @@ import org.aavso.tools.vstar.vela.VeLaStandardLibrary;
      * @return The icon, or null if the resource was not found.
      */
     public static Icon getIconResource(String urlStr) {
-<span class="nc" id="L62">        Icon icon = null;</span>
+<span class="nc" id="L58">        Icon icon = null;</span>
 
-<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (urlStr != null) {</span>
-<span class="nc" id="L65">            URL url = ResourceAccessor.class.getResource(urlStr);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (urlStr != null) {</span>
+<span class="nc" id="L61">            URL url = ResourceAccessor.class.getResource(urlStr);</span>
 
-<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (url == null) {</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            if (url == null) {</span>
                 // Otherwise, look in resources dir under ui (e.g. if running
                 // from Eclipse, not from a distribution of vstar.jar).
-<span class="nc" id="L70">                url = ResourceAccessor.class.getResource(urlStr.substring(1));</span>
+<span class="nc" id="L66">                url = ResourceAccessor.class.getResource(urlStr.substring(1));</span>
             }
 
-<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (url != null) {</span>
-<span class="nc" id="L74">                icon = new ImageIcon(url);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">            if (url != null) {</span>
+<span class="nc" id="L70">                icon = new ImageIcon(url);</span>
             } else {
-<span class="nc" id="L76">                MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;VStar&quot;, &quot;Can't locate icon: &quot; + urlStr);</span>
+<span class="nc" id="L72">                MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;VStar&quot;, &quot;Can't locate icon: &quot; + urlStr);</span>
             }
         }
 
-<span class="nc" id="L80">        return icon;</span>
+<span class="nc" id="L76">        return icon;</span>
     }
 
     /**
      * Returns the VeLa standard library code as string.
      */
     public static String getVeLaStdLibStr() {
-<span class="fc" id="L87">        return VeLaStandardLibrary.getInstance().getStdLibStr();</span>
+<span class="fc" id="L83">        return VeLaStandardLibrary.getInstance().getStdLibStr();</span>
     }
 
     /**
@@ -94,30 +90,30 @@ import org.aavso.tools.vstar.vela.VeLaStandardLibrary;
      * @return The image, or null if the resource was not found.
      */
     public static Image getImageResource(String urlStr) {
-<span class="nc" id="L97">        Image image = null;</span>
+<span class="nc" id="L93">        Image image = null;</span>
 
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (urlStr != null) {</span>
-<span class="nc" id="L100">            URL url = ResourceAccessor.class.getResource(urlStr);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (urlStr != null) {</span>
+<span class="nc" id="L96">            URL url = ResourceAccessor.class.getResource(urlStr);</span>
 
-<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (url == null) {</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            if (url == null) {</span>
                 // Otherwise, look in resources dir under ui (e.g. if running
                 // from Eclipse, not from a distribution of vstar.jar).
-<span class="nc" id="L105">                url = ResourceAccessor.class.getResource(urlStr.substring(1));</span>
+<span class="nc" id="L101">                url = ResourceAccessor.class.getResource(urlStr.substring(1));</span>
             }
 
-<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (url != null) {</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (url != null) {</span>
                 try {
-<span class="nc" id="L110">                    image = ImageIO.read(url);</span>
-<span class="nc" id="L111">                } catch (IOException e) {</span>
-<span class="nc" id="L112">                    MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;VStar&quot;,</span>
+<span class="nc" id="L106">                    image = ImageIO.read(url);</span>
+<span class="nc" id="L107">                } catch (IOException e) {</span>
+<span class="nc" id="L108">                    MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;VStar&quot;,</span>
                             &quot;Can't locate image: &quot; + urlStr);
-<span class="nc" id="L114">                }</span>
+<span class="nc" id="L110">                }</span>
             } else {
-<span class="nc" id="L116">                MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;VStar&quot;, &quot;Can't locate image: &quot; + urlStr);</span>
+<span class="nc" id="L112">                MessageBox.showErrorDialog(Mediator.getUI().getComponent(), &quot;VStar&quot;, &quot;Can't locate image: &quot; + urlStr);</span>
             }
         }
 
-<span class="nc" id="L120">        return image;</span>
+<span class="nc" id="L116">        return image;</span>
     }
 
     // ** HTML help URL resource accessor. ***
@@ -129,38 +125,38 @@ import org.aavso.tools.vstar.vela.VeLaStandardLibrary;
      */
     public static URL getHelpHTMLResource() {
         // This is where it will be in vstar.jar (see build.xml).
-<span class="nc" id="L132">        URL url = ResourceAccessor.class.getResource(&quot;/help/html/HelpContents.html&quot;);</span>
+<span class="nc" id="L128">        URL url = ResourceAccessor.class.getResource(&quot;/help/html/HelpContents.html&quot;);</span>
 
-<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (url == null) {</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (url == null) {</span>
             // Otherwise, look in resources dir under ui (e.g. if running
             // from Eclipse, not from a distribution of vstar.jar).
-<span class="nc" id="L137">            url = ResourceAccessor.class.getResource(&quot;help/html/HelpContents.html&quot;);</span>
+<span class="nc" id="L133">            url = ResourceAccessor.class.getResource(&quot;help/html/HelpContents.html&quot;);</span>
         }
 
-<span class="nc" id="L140">        return url;</span>
+<span class="nc" id="L136">        return url;</span>
     }
 
     /**
      * Returns the base URL of the VSX API.
      */
     public static String getVsxApiUrlBase() {
-<span class="fc" id="L147">        return &quot;https://vsx.aavso.org/index.php?view=&quot;;</span>
+<span class="fc" id="L143">        return &quot;https://vsx.aavso.org/index.php?view=&quot;;</span>
     }
 
     // ** Version info. **
 
     public static String getVersionString() {
-<span class="fc" id="L153">        return &quot;2.25.0&quot;;</span>
+<span class="fc" id="L149">        return &quot;2.25.0&quot;;</span>
         // + &quot;-dev-&quot; + RevisionAccessor.getRevNum() + &quot;-&quot; +
         // RevisionAccessor.getBuildTimeStamp();
     }
 
     public static String getRevNum() {
-<span class="fc" id="L159">        return RevisionAccessor.getRevNum();</span>
+<span class="fc" id="L155">        return RevisionAccessor.getRevNum();</span>
     }
 
     public static String getBuildTimeStamp() {
-<span class="fc" id="L163">        return RevisionAccessor.getBuildTimeStamp();</span>
+<span class="fc" id="L159">        return RevisionAccessor.getBuildTimeStamp();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
