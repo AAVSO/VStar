@@ -41,7 +41,7 @@
 <body>
 <header>
   <h1>Checker Framework &mdash; Nullness Report</h1>
-  <p>Generated 2026-09-19</p>
+  <p>Generated 2026-10-15</p>
   <a class="home-link" href="../">&larr; Back to Project Health</a>
 </header>
 <main>
@@ -1245,69 +1245,69 @@
     [javac] 					                      ^
     [javac]   found   : @UnderInitialization(org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel.class) @NonNull ObservationPlotModel
     [javac]   required: @Initialized @NonNull ObservationPlotModel
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:288: warning: [dereference.of.nullable] dereference of possibly-null reference obList
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:290: warning: [dereference.of.nullable] dereference of possibly-null reference obList
     [javac] 			obList.add(ob);
     [javac] 			^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:320: warning: [dereference.of.nullable] dereference of possibly-null reference obList
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:322: warning: [dereference.of.nullable] dereference of possibly-null reference obList
     [javac] 			obList.addAll(obs);
     [javac] 			^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:345: warning: [argument] incompatible argument for parameter arg0 of Map.put.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:348: warning: [argument] incompatible argument for parameter arg0 of Map.put.
     [javac] 		this.seriesNumToObSrcListMap.put(seriesNum, obs);
     [javac] 		                                 ^
     [javac]   found   : @Initialized @Nullable Integer
     [javac]   required: @Initialized @NonNull Integer
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:347: warning: [unboxing.of.nullable] unboxing a possibly-null reference seriesNum
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:350: warning: [unboxing.of.nullable] unboxing a possibly-null reference seriesNum
     [javac] 		return seriesNum;
     [javac] 		       ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:366: warning: [dereference.of.nullable] dereference of possibly-null reference this.seriesNumToObSrcListMap.get(seriesNum)
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:369: warning: [dereference.of.nullable] dereference of possibly-null reference this.seriesNumToObSrcListMap.get(seriesNum)
     [javac] 			removed = this.seriesNumToObSrcListMap.get(seriesNum).remove(ob);
     [javac] 			                                          ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:388: warning: [dereference.of.nullable] dereference of possibly-null reference this.seriesNumToObSrcListMap.get(seriesNum)
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:391: warning: [dereference.of.nullable] dereference of possibly-null reference this.seriesNumToObSrcListMap.get(seriesNum)
     [javac] 			removed = this.seriesNumToObSrcListMap.get(seriesNum)
     [javac] 			                                          ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:411: warning: [argument] incompatible argument for parameter obs of ObservationPlotModel.removeObservationsFromSeries.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:414: warning: [argument] incompatible argument for parameter obs of ObservationPlotModel.removeObservationsFromSeries.
     [javac] 			removed = removeObservationsFromSeries(obs, type);
     [javac] 			                                       ^
     [javac]   found   : @Initialized @Nullable List&lt;@Initialized @NonNull ValidObservation&gt;
     [javac]   required: @Initialized @NonNull List&lt;@Initialized @NonNull ValidObservation&gt;
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:415: warning: [dereference.of.nullable] dereference of possibly-null reference Mediator.getInstance().getValidObservationCategoryMap().get(type)
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:418: warning: [dereference.of.nullable] dereference of possibly-null reference Mediator.getInstance().getValidObservationCategoryMap().get(type)
     [javac] 			Mediator.getInstance().getValidObservationCategoryMap().get(type)
     [javac] 			                                                           ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:419: warning: [argument] incompatible argument for parameter arg0 of Map.remove.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:422: warning: [argument] incompatible argument for parameter arg0 of Map.remove.
     [javac] 			 seriesNumToSrcTypeMap.remove(seriesNum);
     [javac] 			                              ^
     [javac]   found   : @Initialized @Nullable Integer
     [javac]   required: @Initialized @NonNull Object
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:440: warning: [argument] incompatible argument for parameter arg0 of Map.get.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:443: warning: [argument] incompatible argument for parameter arg0 of Map.get.
     [javac] 		Boolean currVis = this.seriesVisibilityMap.get(seriesType);
     [javac] 		                                               ^
     [javac]   found   : @Initialized @Nullable SeriesType
     [javac]   required: @Initialized @NonNull Object
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:492: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:495: warning: [return] incompatible types in return.
     [javac] 		return this.seriesNumToSrcTypeMap.get(series);
     [javac] 		                                     ^
     [javac]   type of expression: @Initialized @Nullable SeriesType
     [javac]   method return type: @Initialized @NonNull Comparable&lt;/*RAW*/&gt;
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:499: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:502: warning: [return] incompatible types in return.
     [javac] 		return srcTypeToSeriesNumMap.keySet();
     [javac] 		                                   ^
     [javac]   type of expression: Set&lt;@KeyFor(&quot;this.srcTypeToSeriesNumMap&quot;) SeriesType&gt;
     [javac]   method return type: Set&lt;SeriesType&gt;
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:511: warning: [unboxing.of.nullable] unboxing a possibly-null reference getSrcTypeToSeriesNumMap().get(type)
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:514: warning: [unboxing.of.nullable] unboxing a possibly-null reference getSrcTypeToSeriesNumMap().get(type)
     [javac] 		int num = getSrcTypeToSeriesNumMap().get(type);
     [javac] 		                                        ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:512: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:515: warning: [return] incompatible types in return.
     [javac] 		return getSeriesNumToObSrcListMap().get(num);
     [javac] 		                                       ^
     [javac]   type of expression: @Initialized @Nullable List&lt;@Initialized @NonNull ValidObservation&gt;
     [javac]   method return type: @Initialized @NonNull List&lt;@Initialized @NonNull ValidObservation&gt;
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:601: warning: [dereference.of.nullable] dereference of possibly-null reference this.seriesNumToObSrcListMap.get(series)
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:604: warning: [dereference.of.nullable] dereference of possibly-null reference this.seriesNumToObSrcListMap.get(series)
     [javac] 		return this.seriesNumToObSrcListMap.get(series).get(item)
     [javac] 		                                       ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:624: warning: [dereference.of.nullable] dereference of possibly-null reference this.seriesNumToObSrcListMap.get(series)
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:627: warning: [dereference.of.nullable] dereference of possibly-null reference this.seriesNumToObSrcListMap.get(series)
     [javac] 		Double hqUncertainty = this.seriesNumToObSrcListMap.get(series)
     [javac] 		                                                       ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:630: warning: [dereference.of.nullable] dereference of possibly-null reference this.seriesNumToObSrcListMap.get(series)
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/model/plot/ObservationPlotModel.java:633: warning: [dereference.of.nullable] dereference of possibly-null reference this.seriesNumToObSrcListMap.get(series)
     [javac] 			error = this.seriesNumToObSrcListMap.get(series).get(item)
     [javac] 			                                        ^
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/mediator/message/FilteredObservationMessage.java:32: warning: [assignment] incompatible types in assignment.
@@ -7069,17 +7069,17 @@
     [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/Star.java:27: warning: [initialization.field.uninitialized] the default constructor does not initialize field identifier
     [javac] 	private String identifier;
     [javac] 	               ^
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/ResourceAccessor.java:80: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/ResourceAccessor.java:76: warning: [return] incompatible types in return.
     [javac]         return icon;
     [javac]                ^
     [javac]   type of expression: @Initialized @Nullable Icon
     [javac]   method return type: @Initialized @NonNull Icon
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/ResourceAccessor.java:120: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/ResourceAccessor.java:116: warning: [return] incompatible types in return.
     [javac]         return image;
     [javac]                ^
     [javac]   type of expression: @Initialized @Nullable Image
     [javac]   method return type: @Initialized @NonNull Image
-    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/ResourceAccessor.java:140: warning: [return] incompatible types in return.
+    [javac] /home/runner/work/VStar/VStar/src/org/aavso/tools/vstar/ui/resources/ResourceAccessor.java:136: warning: [return] incompatible types in return.
     [javac]         return url;
     [javac]                ^
     [javac]   type of expression: @Initialized @Nullable URL
